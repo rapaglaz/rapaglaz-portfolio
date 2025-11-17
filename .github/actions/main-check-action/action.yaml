@@ -25,7 +25,7 @@ runs:
 
     - name: Upload coverage reports
       if: always()
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       with:
         name: coverage-reports-main
         path: coverage/
@@ -33,7 +33,7 @@ runs:
 
     - name: SonarCloud Scan
       if: ${{ env.SONAR_TOKEN != '' }}
-      uses: SonarSource/sonarqube-scan-action@v6
+      uses: SonarSource/sonarqube-scan-action@fd88b7d7ccbaefd23d8f36f73b59db7a3d246602 # v6
       env:
         SONAR_HOST_URL: https://sonarcloud.io
         SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
