@@ -33,7 +33,7 @@ importers:
         specifier: 5.2.8
         version: 5.2.8
       '@fontsource/manrope':
-        specifier: ^5.1.0
+        specifier: 5.2.8
         version: 5.2.8
       '@jsverse/transloco':
         specifier: 8.2.0
@@ -76,7 +76,7 @@ importers:
         specifier: 8.2.0
         version: 8.2.0(typescript@5.9.3)
       '@jsverse/transloco-validator':
-        specifier: ^8.2.0
+        specifier: 8.2.0
         version: 8.2.0
       '@playwright/test':
         specifier: 1.56.1
