@@ -1,0 +1,349 @@
+@import '@fontsource/inter/latin-400.css';
+@import '@fontsource/inter/latin-600.css';
+@import '@fontsource/manrope/latin-700.css';
+
+@import 'tailwindcss';
+
+@plugin 'daisyui' {
+  themes: false;
+  logs: false;
+}
+
+/* DaisyUI base variables, shared across light and dark themes */
+:root {
+  --rounded-box: 1rem;
+  --rounded-btn: 0.5rem;
+  --rounded-badge: 1.9rem;
+  --animation-btn: 0.25s;
+  --animation-input: 0.2s;
+  --btn-focus-scale: 0.95;
+  --border-btn: 1px;
+  --tab-border: 1px;
+  --tab-radius: 0.5rem;
+  --navbar-height: 5rem;
+
+  /* Ocean palette RGB values for rgba() usage */
+  --ocean-primary: 134, 227, 235;
+  --ocean-secondary: 78, 105, 107;
+  --ocean-accent: 142, 188, 192;
+  --ocean-base-dark: 17, 24, 39;
+  --ocean-outline: 89, 162, 173; /* Text outline variant */
+}
+
+/* Light mode as default */
+:root {
+  color-scheme: light;
+  --color-primary: #4e696b;
+  --color-primary-content: #ffffff;
+  --color-secondary: #8ebcc0;
+  --color-secondary-content: #0a0f1e;
+  --color-accent: #86e3eb;
+  --color-accent-content: #0a0f1e;
+  --color-neutral: #869496;
+  --color-neutral-content: #0a0f1e;
+  --color-base-100: #ffffff;
+  --color-base-200: #f0f9fa;
+  --color-base-300: #d9f0f2;
+  --color-base-content: #143033;
+  --color-info: #86e3eb;
+  --color-info-content: #0a0f1e;
+  --color-success: #70d6a3;
+  --color-success-content: #0a0f1e;
+  --color-warning: #f6c947;
+  --color-warning-content: #0a0f1e;
+  --color-error: #ef5350;
+  --color-error-content: #ffffff;
+}
+
+/* Dark mode via media query */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --color-primary: #86e3eb;
+    --color-primary-content: #0a0f1e;
+    --color-secondary: #8ebcc0;
+    --color-secondary-content: #ffffff;
+    --color-accent: #4e696b;
+    --color-accent-content: #ffffff;
+    --color-neutral: #869496;
+    --color-neutral-content: #ffffff;
+    --color-base-100: #0a0f1e;
+    --color-base-200: #121829;
+    --color-base-300: #1a2337;
+    --color-base-content: #f9fafb;
+    --color-info: #86e3eb;
+    --color-info-content: #0a0f1e;
+    --color-success: #70d6a3;
+    --color-success-content: #0a0f1e;
+    --color-warning: #f6c947;
+    --color-warning-content: #0a0f1e;
+    --color-error: #ef5350;
+    --color-error-content: #ffffff;
+  }
+}
+
+@media (min-width: 768px) {
+  :root {
+    --navbar-height: 6rem;
+  }
+}
+
+/* Tailwind v4 changed border default from gray-200 to currentColor, this restores v3 behavior */
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+}
+
+@theme {
+  /* Font families */
+  --font-family-sans: 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Ocean palette from Adobe Color: #86E3EB #8EBCC0 #869496 #4E696B #243E41 #143033 */
+
+  /* Ocean Scale - Primary Brand Colors */
+  --color-ocean-50: #f0f9fa;
+  --color-ocean-100: #d9f0f2;
+  --color-ocean-200: #86e3eb;
+  --color-ocean-300: #8ebcc0;
+  --color-ocean-400: #78a5a9;
+  --color-ocean-500: #4e696b;
+  --color-ocean-600: #3d5456;
+  --color-ocean-700: #243e41;
+  --color-ocean-800: #1a2f32;
+  --color-ocean-900: #143033;
+  --color-ocean-950: #0a1819;
+
+  /* Section Title Color - Warm Brown */
+  --color-section-title: #80350e;
+
+  /* Slate Scale - Neutral Gray */
+  --color-slate-50: #f8f9f9;
+  --color-slate-100: #eef0f1;
+  --color-slate-200: #dde1e2;
+  --color-slate-300: #c5cacc;
+  --color-slate-400: #a8afb1;
+  --color-slate-500: #869496;
+  --color-slate-600: #6d7678;
+  --color-slate-700: #585f61;
+  --color-slate-800: #4a5052;
+  --color-slate-900: #3f4446;
+  --color-slate-950: #2d3133;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* subpixel antialiasing off, smoother text on retina displays */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  background-color: var(--color-base-100);
+  color: var(--color-base-content);
+}
+
+/* smooth scrolling for anchor links */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Override section background opacity in light theme */
+.bg-base-200\/30 {
+  background-color: rgba(from var(--color-base-200) r g b / 0.15);
+}
+
+@media (prefers-color-scheme: dark) {
+  .bg-base-200\/30 {
+    background-color: rgba(from var(--color-base-200) r g b / 0.3);
+  }
+}
+
+/* Section wrapper shadow - using ocean primary color */
+.section-shadow {
+  box-shadow: 0 1px 5px -1px rgba(78, 105, 107, 0.2);
+}
+
+@media (min-width: 1024px) {
+  .section-shadow {
+    box-shadow: 1px 1px 5px -1px rgba(78, 105, 107, 0.3);
+  }
+}
+
+/* ========================================
+   CORE ANIMATION KEYFRAMES
+   Used by .animate-* utility classes
+   ======================================== */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* respect user's motion preferences, accessibility first */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ========================================
+   REUSABLE COMPONENT UTILITIES
+   ======================================== */
+
+/* Card Ocean - Base card styling used across skills, languages, certifications, and contact sections */
+.card-ocean {
+  @apply bg-base-100 dark:border-accent/30 border-primary/20 rounded-md border;
+}
+
+.card-ocean.hover {
+  @apply transition-colors duration-500;
+}
+
+.card-ocean.hover:hover {
+  @apply dark:border-primary/50 border-primary;
+}
+
+/* ========================================
+   TEXT EFFECTS - OCEAN THEME
+   ======================================== */
+
+/* Base ocean text outline effect - used for hero names and section titles */
+.text-ocean-outline {
+  --text-outline-color: rgba(var(--ocean-outline) / 0.3);
+  color: var(--color-base-content);
+  text-shadow:
+    -1px -1px 0 var(--text-outline-color),
+    1px -1px 0 var(--text-outline-color),
+    -1px 1px 0 var(--text-outline-color),
+    1px 1px 0 var(--text-outline-color),
+    0 -1px 0 var(--text-outline-color),
+    0 1px 0 var(--text-outline-color),
+    -1px 0 0 var(--text-outline-color),
+    1px 0 0 var(--text-outline-color);
+}
+
+/* Dark theme variant - stronger outline */
+@media (prefers-color-scheme: dark) {
+  .text-ocean-outline {
+    --text-outline-color: #59a2add2;
+  }
+}
+
+.font-section-title {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Title animation (used in all section headers) */
+.animate-title,
+.animate-content,
+.animate-container {
+  opacity: 0;
+}
+
+.animate-title.visible {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.animate-content.visible,
+.animate-container.visible {
+  animation: fadeIn 0.5s ease-out 0.3s forwards;
+}
+
+/* Individual item animations */
+.animate-item {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.animate-item.visible {
+  animation: fadeInUp 0.4s ease-out forwards;
+}
+
+/* Pill animation (for skill badges) */
+.animate-pill {
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+.animate-pill.visible {
+  animation: scaleIn 0.35s ease-out forwards;
+}
+
+/* Certificate animation */
+.animate-cert {
+  opacity: 0;
+  transition:
+    border-left-width 0.35s ease,
+    border-color 0.35s ease;
+}
+
+.animate-cert.visible {
+  animation: fadeInLeft 0.5s ease-out forwards;
+}
+
+@media (min-width: 1024px) {
+  .animate-cert {
+    border-left-width: 2px;
+    border-radius: 1px;
+  }
+
+  .animate-cert.cursor-pointer:hover {
+    border-left-width: 4px;
+    border-color: var(--color-primary);
+  }
+}

@@ -1,0 +1,47 @@
+name: PR Quality Check (Fast Track)
+description: 'Fast quality checks for PR feedback - format, lint, conditional tests. Full suite runs on main branch.'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup environment
+      uses: ./.github/actions/workspace-setup-action
+
+    # Run always
+    - name: Run format check
+      shell: bash
+      run: pnpm run format:check
+
+    - name: Run lint
+      shell: bash
+      run: pnpm run lint
+
+    - name: Run i18n validation
+      shell: bash
+      run: pnpm run i18n:check
+
+    - name: Run tests with coverage
+      if: ${{ env.RUN_TESTS == 'true' }}
+      shell: bash
+      run: pnpm run test:coverage
+
+    - name: Upload coverage reports
+      if: ${{ env.RUN_TESTS == 'true' && always() }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-reports
+        path: coverage/
+        if-no-files-found: ignore
+
+    - name: SonarCloud PR Analysis
+      if: ${{ env.RUN_TESTS == 'true' && env.SONAR_TOKEN != '' }}
+      uses: SonarSource/sonarqube-scan-action@v6
+      env:
+        SONAR_HOST_URL: https://sonarcloud.io
+        SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
+        GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
+      with:
+        args: >
+          -Dsonar.pullrequest.key=${{ env.PR_NUMBER }}
+          -Dsonar.pullrequest.branch=${{ env.PR_BRANCH }}
+          -Dsonar.pullrequest.base=${{ env.PR_BASE }}

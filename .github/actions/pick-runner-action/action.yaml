@@ -1,0 +1,71 @@
+name: 'Pick Runner (self-hosted or GH-hosted)'
+description: 'Repo-scoped. Uses self-hosted if any is online; otherwise falls back to ubuntu-latest.'
+
+inputs:
+  primary-runner:
+    description: 'Primary runner label to match (default: self-hosted)'
+    required: false
+    default: 'self-hosted'
+
+outputs:
+  chosen:
+    description: 'JSON for runs-on (array or string)'
+    value: ${{ steps.decide.outputs.chosen }}
+
+runs:
+  using: 'composite'
+  steps:
+    - id: decide
+      name: Decide runner (repo scope)
+      shell: bash
+      env:
+        GH_TOKEN: '${{ env.GH_TOKEN || github.token }}'
+        REPO_SLUG: '${{ github.repository }}'
+        PRIMARY: '${{ inputs.primary-runner }}'
+        FALLBACK: 'ubuntu-latest'
+      run: |
+        set -euo pipefail
+
+        # jq is present on ubuntu-latest; if missing (custom runner), degrade to fallback.
+        if ! command -v jq >/dev/null 2>&1; then
+          echo "jq not found -> fallback."
+          echo "chosen=${FALLBACK}" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        # PR from fork guard: secrets and admin APIs are restricted -> skip API, use fallback.
+        if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]] && \
+           jq -e '.pull_request.head.repo.fork == true' "$GITHUB_EVENT_PATH" >/dev/null 2>&1; then
+          echo "Fork PR detected -> using fallback without API."
+          echo "chosen=${FALLBACK}" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        # Try to list repo runners (requires admin access to the repository for this endpoint).
+        ENDPOINT="https://api.github.com/repos/${REPO_SLUG}/actions/runners?per_page=100"
+        RESP_JSON="$(mktemp)"
+        HTTP_CODE="$(curl -sS -w '%{http_code}' -o "$RESP_JSON" \
+                      -H "Authorization: Bearer ${GH_TOKEN}" \
+                      -H "Accept: application/vnd.github+json" \
+                      -H "X-GitHub-Api-Version: 2022-11-28" \
+                      "$ENDPOINT" || true)"
+
+        # If the token lacks admin rights (403) or any non-200 -> fallback.
+        if [[ "$HTTP_CODE" != "200" ]]; then
+          echo "List runners failed (HTTP ${HTTP_CODE}) -> fallback."
+          # Limit error output to avoid flooding logs; 160 lines is enough to show most error responses.
+          MAX_ERROR_OUTPUT_LINES=160
+          sed -n "1,${MAX_ERROR_OUTPUT_LINES}p" "$RESP_JSON" >&2 || true
+          echo "chosen=${FALLBACK}" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        # Is there any online runner?
+        ONLINE_COUNT="$(jq '[.runners[] | select(.status=="online")] | length' "$RESP_JSON")"
+        if [[ "${ONLINE_COUNT}" -ge 1 ]]; then
+          echo "Self-hosted runner available."
+          echo "chosen=${PRIMARY}" >> "$GITHUB_OUTPUT"
+        else
+          echo "No self-hosted available -> fallback."
+          echo "chosen=${FALLBACK}" >> "$GITHUB_OUTPUT"
+        fi

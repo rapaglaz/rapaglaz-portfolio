@@ -1,0 +1,32 @@
+<section
+  id="hero"
+  data-testid="section-hero"
+  class="hero-section flex items-center justify-center md:py-0">
+  <div
+    class="hero-content mx-auto w-full max-w-5xl self-center px-6 py-12 pt-16 text-center sm:self-auto md:px-4">
+    <div class="hero-avatar-wrapper flex flex-col items-center">
+      <div class="avatar">
+        <div
+          class="ring-primary/50 ring-offset-base-100 h-60 w-60 overflow-hidden rounded-full shadow-2xl ring-4 ring-offset-8 lg:h-72 lg:w-72">
+          <img
+            [ngSrc]="avatarImage"
+            [alt]="('common.firstName' | transloco) + ' ' + ('common.lastName' | transloco)"
+            width="384"
+            height="464"
+            class="h-full w-full object-cover"
+            priority />
+        </div>
+      </div>
+      <div class="mt-16 flex gap-3 text-6xl font-bold tracking-wide lg:gap-6 lg:text-8xl">
+        <span class="hero-name-paul text-ocean-outline"> {{ 'common.firstName' | transloco }}</span>
+        <span class="hero-name-glaz text-ocean-outline">{{ 'common.lastName' | transloco }}</span>
+      </div>
+      <div
+        class="hero-about mx-auto mt-3 flex min-h-48 max-w-3xl pb-5 md:min-h-40 lg:mt-16 lg:min-h-36 lg:px-16">
+        <p class="text-base-content/80 text-xl leading-relaxed font-medium">
+          {{ 'portfolio.hero.description' | transloco }}
+        </p>
+      </div>
+    </div>
+  </div>
+</section>

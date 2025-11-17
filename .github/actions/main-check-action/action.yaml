@@ -1,0 +1,40 @@
+name: Main Branch Quality Check
+description: 'Comprehensive quality gates for main branch - format, lint, i18n, tests, and SonarCloud analysis.'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup environment
+      uses: ./.github/actions/workspace-setup-action
+
+    - name: Run format check
+      shell: bash
+      run: pnpm run format:check
+
+    - name: Run lint
+      shell: bash
+      run: pnpm run lint
+
+    - name: Run i18n validation
+      shell: bash
+      run: pnpm run i18n:check
+
+    - name: Run tests with coverage
+      shell: bash
+      run: pnpm run test:coverage
+
+    - name: Upload coverage reports
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-reports-main
+        path: coverage/
+        if-no-files-found: ignore
+
+    - name: SonarCloud Scan
+      if: ${{ env.SONAR_TOKEN != '' }}
+      uses: SonarSource/sonarqube-scan-action@v6
+      env:
+        SONAR_HOST_URL: https://sonarcloud.io
+        SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
+        GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}

@@ -1,0 +1,77 @@
+name: Main Branch Checks
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pick-runner:
+    runs-on: ubuntu-latest
+    outputs:
+      chosen: ${{ steps.pick.outputs.chosen }}
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - id: pick
+        uses: ./.github/actions/pick-runner-action
+        with:
+          primary-runner: 'self-hosted'
+        env:
+          GH_TOKEN: ${{ secrets.RUNNER_PICK_TOKEN }}
+
+  quality-check:
+    needs: [pick-runner]
+    runs-on: ${{ needs.pick-runner.outputs.chosen }}
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          fetch-depth: 0
+      - name: Run Quality Checks Action
+        uses: ./.github/actions/main-check-action
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  e2e-tests:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.56.1-noble
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: Setup environment
+        uses: ./.github/actions/workspace-setup-action
+
+      - name: Build application
+        run: pnpm run build
+
+      - name: Run Playwright tests
+        run: pnpm exec playwright test
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-main
+          path: playwright-report/
+          retention-days: 7
+
+  build:
+    needs: [pick-runner, quality-check, e2e-tests]
+    if: ${{ needs.quality-check.result == 'success' && needs.e2e-tests.result == 'success' }}
+    runs-on: ${{ needs.pick-runner.outputs.chosen }}
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          fetch-depth: 0
+      - name: Run Build Action
+        uses: ./.github/actions/build-action
+        with:
+          chosen-runner: ${{ needs.pick-runner.outputs.chosen }}

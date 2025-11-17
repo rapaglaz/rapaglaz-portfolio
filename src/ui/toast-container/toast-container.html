@@ -1,0 +1,12 @@
+<div
+  class="toast-enter pointer-events-auto px-2.5"
+  role="alert"
+  [attr.aria-live]="data().type === 'error' ? 'assertive' : 'polite'">
+  <div
+    [class]="
+      'relative flex items-center gap-4 rounded-lg border p-4 backdrop-blur-md transition-all duration-300 ' +
+      getAlertClasses()
+    ">
+    <p class="flex-1 text-center font-medium md:text-left">{{ data().message }}</p>
+  </div>
+</div>
