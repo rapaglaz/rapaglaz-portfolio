@@ -1,0 +1,12 @@
+button[appButton] {
+  @apply cursor-pointer border-none outline-none;
+  @apply transition-all duration-300 ease-in-out;
+}
+
+button[appButton]:not(:disabled):hover {
+  @apply scale-105;
+}
+
+button[appButton]:focus-visible {
+  @apply outline-primary outline-2 outline-offset-2;
+}

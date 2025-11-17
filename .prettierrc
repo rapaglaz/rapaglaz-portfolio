@@ -1,0 +1,20 @@
+{
+  "arrowParens": "avoid",
+  "printWidth": 100,
+  "singleAttributePerLine": true,
+  "singleQuote": true,
+  "bracketSameLine": true,
+  "overrides": [
+    {
+      "files": "*.html",
+      "options": {
+        "parser": "angular"
+      }
+    }
+  ],
+  "plugins": [
+    "prettier-plugin-organize-imports",
+    "prettier-plugin-jsdoc",
+    "prettier-plugin-tailwindcss"
+  ]
+}

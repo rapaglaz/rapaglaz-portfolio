@@ -1,0 +1,20 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "github>rapaglaz/dev-infra//renovate-preset/default.json",
+    ":pinDevDependencies",
+    "security:minimumReleaseAgeNpm"
+  ],
+  "packageRules": [
+    {
+      "matchManagers": ["npm"]
+    },
+    {
+      "matchUpdateTypes": ["patch"],
+      "matchCurrentVersion": "!/^0/",
+      "automerge": true,
+      "labels": ["automerge"],
+      "commitMessagePrefix": "chore(automerge-deps):"
+    }
+  ]
+}

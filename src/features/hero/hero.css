@@ -1,0 +1,25 @@
+.hero-section {
+  min-height: calc(100vh - var(--navbar-height));
+  margin-top: var(--navbar-height);
+}
+
+.hero-content {
+  @apply animate-[fadeIn_0.5s_ease-out_0.35s_both];
+}
+
+.hero-avatar-wrapper {
+  @apply animate-[fadeInUp_0.5s_ease-out_0.45s_both];
+}
+.hero-avatar-wrapper img {
+  @apply h-auto;
+  object-position: center -25px;
+}
+
+.hero-about {
+  @apply animate-[fadeInUp_0.5s_ease-out_0.55s_both];
+}
+
+.hero-name-paul,
+.hero-name-glaz {
+  font-family: 'Manrope', 'Inter', sans-serif;
+}

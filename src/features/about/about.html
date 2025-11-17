@@ -1,0 +1,13 @@
+<app-section-wrapper
+  sectionId="about"
+  titleKey="portfolio.about.title">
+  @if (sectionWrapper(); as wrapper) {
+    <div
+      class="animate-content"
+      [class.visible]="wrapper.scrollReveal.isVisible()">
+      <p class="text-base-content/90 text-lg leading-relaxed">
+        {{ 'portfolio.about.description' | transloco }}
+      </p>
+    </div>
+  }
+</app-section-wrapper>

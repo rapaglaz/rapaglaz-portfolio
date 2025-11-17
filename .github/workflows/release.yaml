@@ -1,0 +1,86 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to deploy'
+        required: true
+        default: 'main'
+
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pick-runner:
+    runs-on: ubuntu-latest
+    outputs:
+      chosen: ${{ steps.pick.outputs.chosen }}
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - id: pick
+        uses: ./.github/actions/pick-runner-action
+        with:
+          primary-runner: 'self-hosted'
+        env:
+          GH_TOKEN: ${{ secrets.RUNNER_PICK_TOKEN }}
+
+  quality-check:
+    needs: [pick-runner]
+    runs-on: ${{ needs.pick-runner.outputs.chosen }}
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with: { fetch-depth: 0 }
+      - name: Run Quality Check Action
+        uses: ./.github/actions/main-check-action
+
+  build:
+    needs: [pick-runner, quality-check]
+    if: ${{ needs.quality-check.result == 'success' }} # stop early if QC failed
+    runs-on: ${{ needs.pick-runner.outputs.chosen }}
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with: { fetch-depth: 0 }
+      - name: Run Build Action
+        uses: ./.github/actions/build-action
+        with:
+          chosen-runner: ${{ needs.pick-runner.outputs.chosen }}
+      - name: Upload build artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: build-artifact
+          path: ./dist/rapaglaz-portfolio/browser
+
+  deploy:
+    name: Deploy
+    needs: [pick-runner, quality-check, build]
+    if: ${{ needs.quality-check.result == 'success' && needs.build.result == 'success' }}
+    runs-on: ${{ needs.pick-runner.outputs.chosen }}
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with: { fetch-depth: 0 }
+
+      - name: Bail out if build failed
+        if: ${{ needs.build.result != 'success' }}
+        run: |
+          echo "Build did not succeed; skipping deploy." >&2
+          exit 1
+
+      - name: Download build artifact
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5.0.0
+        with:
+          name: build-artifact
+          path: ./dist/rapaglaz-portfolio/browser
+
+      - name: Deploy (FTP)
+        uses: SamKirkland/FTP-Deploy-Action@a51268f67f6605236975928ae28b0f7e9971d50a # v4.3.6
+        with:
+          server: ${{ secrets.SERVER }}
+          username: ${{ secrets.USER }}
+          password: ${{ secrets.PASS }}
+          server-dir: /
+          local-dir: ./dist/rapaglaz-portfolio/browser/
+          exclude: |
+            package.json

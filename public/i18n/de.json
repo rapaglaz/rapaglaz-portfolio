@@ -1,0 +1,113 @@
+{
+  "common": {
+    "firstName": "Paul",
+    "lastName": "Glaz",
+    "navbar": {
+      "openToWork": "Offen für Arbeit",
+      "downloadCV": "CV",
+      "contactMe": "Kontaktiere mich"
+    }
+  },
+  "portfolio": {
+    "hero": {
+      "description": "Frontend Engineer mit Fokus auf Aufbau wartbarer, erweiterbarer Architekturen und Modernisierung von Legacy-Angular-Anwendungen."
+    },
+    "about": {
+      "title": "Über Mich",
+      "description": "Frontend Engineer mit Fokus auf Aufbau wartbarer, erweiterbarer Architekturen und Modernisierung von Legacy-Angular-Anwendungen. Mehr als 6 Jahre Erfahrung in der Leitung von Plattform-Migrationen, Einführung von Testkultur in ungetesteten Codebasen sowie Mentoring von Junior-Entwicklern."
+    },
+    "certifications": {
+      "title": "Zertifikate",
+      "items": {
+        "angular-architecture": {
+          "title": "Angular Architecture Workshop",
+          "issuer": "Angular Architects"
+        },
+        "angular-testing": {
+          "title": "Professional Angular Testing Workshop",
+          "issuer": "Angular Architects"
+        },
+        "angular-spa-typescript": {
+          "title": "Angular und TypeScript - Single Page Apps entwickeln",
+          "issuer": "ppedv AG (Microsoft Gold Partner)"
+        }
+      },
+      "duration": {
+        "days": "{{count}} Tage",
+        "remote": "(remote)",
+        "onsite": "(vor Ort)"
+      }
+    },
+    "skills": {
+      "title": "Fähigkeiten",
+      "categoryTitles": {
+        "frontend": "Frontend Frameworks",
+        "testing": "Testing & Qualität",
+        "devops": "DevOps & Tools",
+        "architecture": "Architektur & Design",
+        "backend": "Backend (Sekundär)",
+        "soft-skills": "Soft Skills"
+      },
+      "items": {
+        "angular": "Angular",
+        "typescript": "TypeScript",
+        "rxjs": "RxJS",
+        "nx": "Nx",
+        "javascript": "JavaScript/ES6+",
+        "tailwind": "Tailwind CSS",
+        "html-css": "HTML5/CSS3",
+        "signals": "Angular Signals",
+        "e2e": "E2E-Tests",
+        "unit": "Unit-Tests",
+        "playwright": "Playwright",
+        "vitest": "Vitest",
+        "jest": "Jest",
+        "cypress": "Cypress",
+        "github-actions": "GitHub Actions",
+        "git": "Git",
+        "microfrontends": "Microfrontends",
+        "performance": "Performance-Optimierung",
+        "scalable": "Skalierbare Architektur",
+        "rest-api": "REST APIs",
+        "agile": "Agile/Scrum",
+        "mentoring": "Mentoring"
+      }
+    },
+    "languages": {
+      "title": "Sprachen",
+      "items": {
+        "german": {
+          "name": "Deutsch",
+          "level": "Verhandlungssicher (C1)"
+        },
+        "english": {
+          "name": "Englisch",
+          "level": "Fortgeschritten (B2)"
+        },
+        "polish": {
+          "name": "Polnisch",
+          "level": "Muttersprache"
+        }
+      }
+    },
+    "contact": {
+      "title": "Kontakt",
+      "labels": {
+        "email": "E-Mail",
+        "linkedin": "LinkedIn",
+        "github": "GitHub"
+      }
+    },
+    "cv": {
+      "download": "Lebenslauf erfolgreich heruntergeladen!",
+      "downloading": "Wird heruntergeladen...",
+      "error": "Download fehlgeschlagen. Bitte versuchen Sie es erneut.",
+      "turnstile": {
+        "title": "Sicherheitsüberprüfung",
+        "description": "Bitte schließen Sie die Sicherheitsprüfung ab, um den Lebenslauf herunterzuladen.",
+        "footer": "Geschützt durch Cloudflare Turnstile",
+        "loading": "Sicherheitsprüfung wird geladen..."
+      }
+    }
+  }
+}

@@ -1,0 +1,32 @@
+<app-section-wrapper
+  sectionId="certifications"
+  titleKey="portfolio.certifications.title">
+  @if (sectionWrapper(); as wrapper) {
+    <div class="space-y-8">
+      @for (cert of certifications(); track cert.id; let i = $index) {
+        <div
+          [class]="getCertClasses()"
+          [class.visible]="wrapper.scrollReveal.isVisible()"
+          [style.animation-delay]="getCertDelay(i)">
+          <div class="mb-2">
+            <h3 class="text-base-content mb-1 text-xl font-bold">
+              {{ 'portfolio.certifications.items.' + cert.id + '.title' | transloco }}
+            </h3>
+            <p class="text-base-content/70 text-sm">
+              {{ 'portfolio.certifications.items.' + cert.id + '.issuer' | transloco }}
+            </p>
+          </div>
+          <p class="text-base-content/60 text-sm">
+            {{ cert.formattedDate }} •
+            {{ 'portfolio.certifications.duration.days' | transloco: { count: cert.durationDays } }}
+            {{
+              cert.remote
+                ? ('portfolio.certifications.duration.remote' | transloco)
+                : ('portfolio.certifications.duration.onsite' | transloco)
+            }}
+          </p>
+        </div>
+      }
+    </div>
+  }
+</app-section-wrapper>

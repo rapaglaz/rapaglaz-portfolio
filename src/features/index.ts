@@ -1,0 +1,9 @@
+export { About } from './about/about';
+export { Certifications } from './certifications/certifications';
+export { Contact } from './contact/contact';
+export { Footer } from './footer/footer';
+export { Hero } from './hero/hero';
+export { LanguageSwitcher } from './language-switcher/language-switcher';
+export { Languages } from './languages/languages';
+export { Navbar } from './navbar/navbar';
+export { Skills } from './skills/skills';

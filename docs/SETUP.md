@@ -1,0 +1,106 @@
+# Local Setup
+
+How to get this running on your machine.
+
+## Prerequisites
+
+- **Node.js 22 LTS** (check `.nvmrc` if you're using nvm)
+- **pnpm 10+**
+
+Playwright will install browsers automatically on first test run.
+
+## Install
+
+```bash
+pnpm install
+```
+
+The lockfile is frozen in CI so your local install matches exactly.
+
+## Dev Server
+
+```bash
+pnpm start
+```
+
+Opens on `http://localhost:4200`.
+
+## Quality Checks
+
+Before committing changes:
+
+```bash
+pnpm run format:check  # Prettier
+pnpm run lint          # ESLint
+pnpm run i18n:check    # Transloco validation
+```
+
+Or just let CI catch issues. Up to you.
+
+## Unit Tests
+
+```bash
+pnpm test
+```
+
+Runs Vitest through the Angular test runner. Add `--watch=false` for single-run mode (like in CI).
+
+Coverage report goes to `coverage/lcov.info`.
+
+## E2E Tests
+
+```bash
+pnpm run e2e
+```
+
+Starts the dev server (if not already running) and runs Playwright tests.
+
+First run downloads browsers — takes about a minute. After that it's fast.
+
+For debugging:
+
+```bash
+pnpm run e2e:ui
+```
+
+Opens the Playwright UI with step-by-step test execution.
+
+## Production Build
+
+```bash
+pnpm run build
+```
+
+Output goes to `dist/rapaglaz-portfolio/browser/`. This is what gets deployed.
+
+## Preview Build
+
+```bash
+pnpm run preview
+```
+
+Serves the production build locally on port 4233.
+
+## Common Issues
+
+**Playwright won't start:**
+Run `pnpm exec playwright install --with-deps` to reinstall browsers and dependencies.
+
+**Self-hosted runner not picking up jobs:**
+Check the `pick-runner-action` logs in GitHub Actions. If the runner is offline, it should automatically fall back to GitHub-hosted runners.
+
+**Translation errors:**
+Run `pnpm run i18n:check` to validate JSON structure. `StrictTranslocoMissingHandler` throws errors if translation keys are missing.
+
+## Development Tips
+
+- Run `pnpm test` in watch mode while writing tests
+- E2E tests mock the Turnstile API so you don't need real verification tokens
+- Browser devtools work normally with Angular's build setup
+- Signal updates trigger change detection automatically (no need for `markForCheck`)
+
+## Environment
+
+No `.env` file needed for local development. Everything uses defaults or test values.
+
+Production configuration comes from Cloudflare Workers environment variables.
