@@ -97,8 +97,6 @@ Playwright for real user flows:
 
 Runs headless in CI (Chromium). Use `--ui` flag locally for debugging with step-by-step UI.
 
----
-
 ## i18n (Internationalisation)
 
 Using **Transloco** for runtime translations. Translation files in `public/i18n/` as JSON.
