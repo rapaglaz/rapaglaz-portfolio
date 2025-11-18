@@ -97,6 +97,18 @@ Playwright for real user flows:
 
 Runs headless in CI (Chromium). Use `--ui` flag locally for debugging with step-by-step UI.
 
+### Performance Testing
+
+Lighthouse CI tracks performance metrics:
+
+- Runs on every PR and weekly on main
+- Tests desktop performance (3 runs, median score)
+- Tracks Performance, Accessibility, Best Practices, SEO
+- Reports as warnings — never blocks merges
+- Uploads reports to temporary public storage
+
+Configuration in [`.lighthouserc.cjs`](../.lighthouserc.cjs). See [`CI_STRATEGY.md`](./CI_STRATEGY.md) for details.
+
 ## i18n (Internationalisation)
 
 Using **Transloco** for runtime translations. Translation files in `public/i18n/` as JSON.

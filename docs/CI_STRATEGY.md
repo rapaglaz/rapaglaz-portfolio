@@ -2,8 +2,6 @@
 
 How the pipeline works and why I set it up this way.
 
-> **Implementation:** See [.github/workflows/pull-request-checks.yaml](../.github/workflows/pull-request-checks.yaml) and [merge-to-main-checks.yaml](../.github/workflows/merge-to-main-checks.yaml)
-
 ## The Problem
 
 Wanted to solve three things:
@@ -122,6 +120,55 @@ Most jobs run on my NAS (self-hosted runner). If it goes offline, the pipeline a
 E2E tests always use GitHub-hosted runners because Playwright needs specific container environment.
 
 This saves a decent amount of GitHub Actions minutes.
+
+## Lighthouse CI
+
+Performance monitoring and web vitals tracking.
+
+**When it runs:**
+
+- Every PR (opened, updated, or reopened)
+- Manual trigger via workflow_dispatch
+- Weekly schedule (Monday 6:00 AM) for baseline monitoring
+
+**What it does:**
+
+- Builds the application
+- Runs Lighthouse 3 times (median score reported)
+- Tests desktop performance
+- Comments PR with scores and color-coded badges
+- Uploads full reports to temporary public storage
+
+**Configuration:**
+
+- **Desktop preset** — optimized for desktop users
+- **Assertions set to 'warn'** — never fails the build, only provides feedback
+- **Thresholds:**
+  - Performance: 80+
+  - Accessibility: 90+
+  - Best Practices: 80+
+  - SEO: 90+
+  - PWA: disabled
+
+**Why warnings instead of failures:**
+
+Lighthouse scores can vary between runs due to network conditions, CPU load, etc. Setting assertions to `warn` means:
+
+- You get feedback without blocking merges
+- Can track trends over time
+- Manual review of significant drops
+- No false positives from flaky runs
+
+**PR Comments:**
+
+Every PR gets a sticky comment with:
+
+- Color-coded scores (🟢 90+, 🟡 50-89, 🔴 <50)
+- Link to full Lighthouse report
+- Commit SHA and build number
+- Environment details
+
+This helps catch performance regressions before they reach production.
 
 ## Fork PRs
 

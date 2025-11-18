@@ -65,6 +65,27 @@ pnpm run e2e:ui
 
 Opens the Playwright UI with step-by-step test execution.
 
+## Lighthouse CI
+
+Run performance audits locally:
+
+```bash
+# Build the app first
+pnpm run build
+
+# Run Lighthouse CI
+pnpm exec lhci autorun --config=.lighthouserc.cjs
+```
+
+This runs the same audits as CI:
+
+- Starts preview server on port 4233
+- Runs Lighthouse 3 times (desktop preset)
+- Shows median scores for Performance, Accessibility, Best Practices, SEO
+- Generates HTML reports in `.lighthouseci/`
+
+Results are saved but not uploaded when running locally.
+
 ## Production Build
 
 ```bash
