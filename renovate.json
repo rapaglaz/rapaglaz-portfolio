@@ -1,11 +1,60 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "github>rapaglaz/dev-infra//renovate-preset/default.json",
+    "config:recommended",
+    "docker:pinDigests",
+    "abandonments:recommended",
+    "helpers:pinGitHubActionDigests",
+    ":configMigration",
     ":pinDevDependencies",
+    ":semanticCommits",
+    ":semanticCommitTypeAll(chore)",
+    ":enableVulnerabilityAlerts",
     "security:minimumReleaseAgeNpm"
   ],
+  "dependencyDashboardTitle": "Dependency Dashboard",
+  "branchPrefix": "renovate/",
+  "timezone": "Europe/Berlin",
+  "schedule": ["* 7-19 * * 1-5"],
+  "dependencyDashboard": false,
+  "prCreation": "not-pending",
+  "prHourlyLimit": 2,
+  "prConcurrentLimit": 10,
+  "rangeStrategy": "bump",
+  "separateMajorMinor": true,
+  "respectLatest": true,
+  "labels": ["dependencies", "renovate"],
+  "assigneesFromCodeOwners": true,
+  "reviewersFromCodeOwners": true,
+  "lockFileMaintenance": {
+    "enabled": true,
+    "automerge": false,
+    "recreateWhen": "auto",
+    "schedule": ["before 08:00 on Monday"]
+  },
   "packageRules": [
+    {
+      "matchManagers": ["github-actions"],
+      "groupName": "GitHub Actions",
+      "minimumReleaseAge": "3 days",
+      "prPriority": -1
+    },
+    {
+      "matchUpdateTypes": ["major"],
+      "minimumReleaseAge": "7 days",
+      "prPriority": -5
+    },
+    {
+      "matchManagers": ["npm"],
+      "matchDepTypes": ["dependencies", "devDependencies"],
+      "matchCurrentVersion": "!=null",
+      "labels": ["security", "dependencies"],
+      "prPriority": 20,
+      "matchSourceUrls": [
+        "https://github.com/advisories{/,}**",
+        "https://nvd.nist.gov/vuln/detail/{/,}**"
+      ]
+    },
     {
       "matchManagers": ["npm"]
     },
@@ -16,5 +65,10 @@
       "labels": ["automerge"],
       "commitMessagePrefix": "chore(automerge-deps):"
     }
-  ]
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "dependencyDashboardApproval": true,
+    "labels": ["security"]
+  }
 }
