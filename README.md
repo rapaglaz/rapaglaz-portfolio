@@ -18,14 +18,14 @@ I also use it when new Angular features come out to test them properly. Signals,
 
 ## Stack
 
-| Area          | What I use                                  |
-| ------------- | ------------------------------------------- |
-| **Framework** | Angular 20, TypeScript, RxJS, Signals       |
-| **i18n**      | Transloco (runtime)                         |
-| **Styling**   | Tailwind CSS 4 + DaisyUI + custom CSS       |
-| **Testing**   | Vitest (unit), Playwright (E2E), SonarCloud |
-| **CI/CD**     | GitHub Actions, self-hosted runner, pnpm    |
-| **Hosting**   | Cloudflare Workers, R2, Turnstile           |
+| Area          | What I use                                                 |
+| ------------- | ---------------------------------------------------------- |
+| **Framework** | Angular 20, TypeScript, RxJS, Signals                      |
+| **i18n**      | Transloco (runtime)                                        |
+| **Styling**   | Tailwind CSS 4 + DaisyUI + custom CSS                      |
+| **Testing**   | Vitest (unit), Playwright (E2E), Lighthouse CI, SonarCloud |
+| **CI/CD**     | GitHub Actions, self-hosted runner, pnpm                   |
+| **Hosting**   | Cloudflare Workers, R2, Turnstile                          |
 
 ## Docs
 
