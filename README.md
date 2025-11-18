@@ -2,9 +2,9 @@
 
 Personal portfolio built with Angular 20.
 
-This is not a demo project or some tutorial code. It's more like what I'd actually build for client work, just smaller scope.
+Built the same way I'd build client work — proper typing, tests, CI gates, security headers. Just smaller scope.
 
-I also use it when new Angular features come out to test them properly. Signals, zoneless mode, new build stuff — things like that.
+I also use it to test new Angular features properly. Signals, zoneless mode, new build tooling — when something comes out, I try it here first.
 
 ## What's in here
 
@@ -36,9 +36,9 @@ I also use it when new Angular features come out to test them properly. Signals,
 
 ## Notes
 
-The project is pretty stable. I change stuff when Angular releases something new or when I want to try different configs. Nothing crazy.
+Project is stable. I update it when Angular releases new features or when I want to try different configs.
 
-Some parts aren't perfect but I keep it clean and practical enough.
+Code quality is enforced through CI — coverage thresholds, lint rules, i18n validation. If something breaks the gates, it doesn't get merged.
 
 ## Licence
 

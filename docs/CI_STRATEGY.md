@@ -49,6 +49,10 @@ Goal: Run only what's needed based on what changed.
 - E2E tests — full Playwright suite in Ubuntu container
 - Preview deployment — only if self-hosted runner is available
 
+**Always runs (separate workflow):**
+
+- [Lighthouse CI](#lighthouse-ci) — performance testing (local build, not preview URL)
+
 **How different changes are handled:**
 
 - Docs-only PR — format + lint + i18n only
@@ -163,7 +167,6 @@ Lighthouse scores can vary between runs due to network conditions, CPU load, etc
 
 Every PR gets a sticky comment with:
 
-- Color-coded scores (🟢 90+, 🟡 50-89, 🔴 <50)
 - Link to full Lighthouse report
 - Commit SHA and build number
 - Environment details
