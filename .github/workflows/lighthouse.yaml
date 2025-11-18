@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   lighthouse:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
@@ -28,30 +28,12 @@ jobs:
       - name: Install Lighthouse CI
         run: npm install -g @lhci/cli@0.15.x
 
-      - name: Ensure Playwright browsers are installed
-        run: pnpm exec playwright install chromium
-
-      - name: Find Chrome executable path
-        id: chrome
-        run: |
-          # Find Playwright's Chromium executable
-          CHROME_PATH=$(pnpm exec playwright chromium --version 2>&1 | grep -o '/.*chromium.*/chrome' | head -1)
-          if [ -z "$CHROME_PATH" ]; then
-            # Fallback: search in common Playwright locations
-            if [ -d "$HOME/.cache/ms-playwright" ]; then
-              CHROME_PATH=$(find "$HOME/.cache/ms-playwright" -name "chrome" -o -name "chromium" | grep -E "chrome$|chromium$" | head -1)
-            fi
-          fi
-          echo "Chrome path: $CHROME_PATH"
-          echo "path=$CHROME_PATH" >> $GITHUB_OUTPUT
-
       - name: Build application
         run: pnpm run build
 
       - name: Run Lighthouse CI
         run: lhci autorun --config=.lighthouserc.cjs
         env:
-          CHROME_PATH: ${{ steps.chrome.outputs.path }}
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Format results for PR comment
