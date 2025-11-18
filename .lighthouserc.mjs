@@ -2,6 +2,10 @@ export default {
   ci: {
     collect: {
       numberOfRuns: 3,
+      startServerCommand: 'pnpm run preview',
+      url: ['http://localhost:4233'],
+      startServerReadyPattern: 'Available on',
+      startServerReadyTimeout: 30000,
       settings: {
         preset: 'desktop',
         disableStorageReset: true,
