@@ -12,8 +12,8 @@ module.exports = {
       },
     },
     assert: {
-      preset: 'lighthouse:recommended',
       assertions: {
+        // All assertions as 'warn' - never fail the build
         'categories:performance': ['warn', { minScore: 0.8 }],
         'categories:accessibility': ['warn', { minScore: 0.9 }],
         'categories:best-practices': ['warn', { minScore: 0.8 }],

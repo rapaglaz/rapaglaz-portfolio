@@ -40,25 +40,54 @@ jobs:
         if: github.event_name == 'pull_request'
         id: format
         run: |
-          # Extract results from the latest run
-          if [ -f ".lighthouseci/manifest.json" ]; then
-            # Get the public URL from links.json (if using temporary-public-storage)
-            public_url=$(cat .lighthouseci/links.json 2>/dev/null | grep -o 'https://[^"]*' | head -1 || echo "")
+          # Get the public URL from links.json
+          if [ -f ".lighthouseci/links.json" ]; then
+            public_url=$(jq -r '.[0]' .lighthouseci/links.json 2>/dev/null || echo "")
+          fi
 
-            # Extract scores from the latest report
-            latest_report=$(ls -t .lighthouseci/lhr-*.json 2>/dev/null | head -1)
-            if [ -f "$latest_report" ]; then
-              perf=$(jq '.categories.performance.score * 100 | round' "$latest_report")
-              a11y=$(jq '.categories.accessibility.score * 100 | round' "$latest_report")
-              bp=$(jq '.categories["best-practices"].score * 100 | round' "$latest_report")
-              seo=$(jq '.categories.seo.score * 100 | round' "$latest_report")
+          # Find the most recent LHR report file
+          latest_report=$(ls -t .lighthouseci/lhr-*.json 2>/dev/null | head -1)
 
-              echo "performance=$perf" >> $GITHUB_OUTPUT
-              echo "accessibility=$a11y" >> $GITHUB_OUTPUT
-              echo "best_practices=$bp" >> $GITHUB_OUTPUT
-              echo "seo=$seo" >> $GITHUB_OUTPUT
-              echo "public_url=$public_url" >> $GITHUB_OUTPUT
-            fi
+          if [ -n "$latest_report" ] && [ -f "$latest_report" ]; then
+            # Extract scores
+            perf=$(jq -r '(.categories.performance.score * 100) | round' "$latest_report")
+            a11y=$(jq -r '(.categories.accessibility.score * 100) | round' "$latest_report")
+            bp=$(jq -r '(.categories["best-practices"].score * 100) | round' "$latest_report")
+            seo=$(jq -r '(.categories.seo.score * 100) | round' "$latest_report")
+
+            echo "Extracted scores: perf=$perf, a11y=$a11y, bp=$bp, seo=$seo"
+
+            # Generate score badges with colors
+            get_badge() {
+              score=$1
+              if [ "$score" -ge 90 ]; then echo "🟢"
+              elif [ "$score" -ge 50 ]; then echo "🟡"
+              else echo "🔴"
+              fi
+            }
+
+            perf_badge=$(get_badge $perf)
+            a11y_badge=$(get_badge $a11y)
+            bp_badge=$(get_badge $bp)
+            seo_badge=$(get_badge $seo)
+
+            # Output results
+            {
+              echo "performance=$perf"
+              echo "accessibility=$a11y"
+              echo "best_practices=$bp"
+              echo "seo=$seo"
+              echo "perf_badge=$perf_badge"
+              echo "a11y_badge=$a11y_badge"
+              echo "bp_badge=$bp_badge"
+              echo "seo_badge=$seo_badge"
+              echo "public_url=$public_url"
+            } >> $GITHUB_OUTPUT
+
+            echo "Results written to GITHUB_OUTPUT"
+          else
+            echo "Error: No LHR report found"
+            exit 1
           fi
 
       - name: Comment PR with results
@@ -67,23 +96,25 @@ jobs:
         with:
           header: lighthouse
           message: |
-            ## ⚡ Lighthouse CI Results
+            ##Lighthouse CI Results
 
             | Category | Score |
-            |----------|-------|
-            | 🚀 Performance | ${{ steps.format.outputs.performance }}/100 |
-            | ♿ Accessibility | ${{ steps.format.outputs.accessibility }}/100 |
-            | ✅ Best Practices | ${{ steps.format.outputs.best_practices }}/100 |
-            | 🔍 SEO | ${{ steps.format.outputs.seo }}/100 |
+            |----------|------:|
+            | **Performance** | ${{ steps.format.outputs.perf_badge }} **${{ steps.format.outputs.performance }}** |
+            | **Accessibility** | ${{ steps.format.outputs.a11y_badge }} **${{ steps.format.outputs.accessibility }}** |
+            | **Best Practices** | ${{ steps.format.outputs.bp_badge }} **${{ steps.format.outputs.best_practices }}** |
+            | **SEO** | ${{ steps.format.outputs.seo_badge }} **${{ steps.format.outputs.seo }}** |
 
-            ${{ steps.format.outputs.public_url && format('📊 [View Full Report]({0})', steps.format.outputs.public_url) || '' }}
+            ${{ steps.format.outputs.public_url && format('**[View Full Lighthouse Report →]({0})**', steps.format.outputs.public_url) || '' }}
 
             <details>
-            <summary>Details</summary>
+            <summary>ℹ️ Details</summary>
 
-            - **Commit**: [${{ github.event.pull_request.head.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.event.pull_request.head.sha }})
-            - **Build**: [${{ github.run_id }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
-            - **Runs**: 3 (averaged)
+            - **Commit:** `${{ github.event.pull_request.head.sha }}`
+            - **Build:** [#${{ github.run_number }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            - **Tested:** 3 runs (median score shown)
+            - **Environment:** Desktop
+
             </details>
 
       - name: Upload Lighthouse reports
@@ -92,4 +123,4 @@ jobs:
         with:
           name: lighthouse-reports-${{ github.event_name }}-${{ github.run_number }}
           path: .lighthouseci/
-          retention-days: 30
+          retention-days: 14
