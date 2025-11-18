@@ -96,22 +96,22 @@ jobs:
         with:
           header: lighthouse
           message: |
-            ##Lighthouse CI Results
+            ## Lighthouse CI Results
 
-            | Category | Score |
-            |----------|------:|
-            | **Performance** | ${{ steps.format.outputs.perf_badge }} **${{ steps.format.outputs.performance }}** |
-            | **Accessibility** | ${{ steps.format.outputs.a11y_badge }} **${{ steps.format.outputs.accessibility }}** |
-            | **Best Practices** | ${{ steps.format.outputs.bp_badge }} **${{ steps.format.outputs.best_practices }}** |
-            | **SEO** | ${{ steps.format.outputs.seo_badge }} **${{ steps.format.outputs.seo }}** |
+            | Category            | Score |
+            |---------------------|------:|
+            | **Performance**     | **${{ steps.format.outputs.performance }}%** |
+            | **Accessibility**   | **${{ steps.format.outputs.accessibility }}%** |
+            | **Best Practices**  | **${{ steps.format.outputs.best_practices }}%** |
+            | **SEO**             | **${{ steps.format.outputs.seo }}%** |
 
             ${{ steps.format.outputs.public_url && format('**[View Full Lighthouse Report →]({0})**', steps.format.outputs.public_url) || '' }}
 
             <details>
-            <summary>ℹ️ Details</summary>
+            <summary>Details</summary>
 
-            - **Commit:** `${{ github.event.pull_request.head.sha }}`
-            - **Build:** [#${{ github.run_number }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            - **Commit:** [${{ github.event.pull_request.head.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.event.pull_request.head.sha }})
+            - **Build:** [${{ github.run_id }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
             - **Tested:** 3 runs (median score shown)
             - **Environment:** Desktop
 
