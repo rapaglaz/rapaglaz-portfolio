@@ -45,3 +45,4 @@ runs:
           -Dsonar.pullrequest.key=${{ env.PR_NUMBER }}
           -Dsonar.pullrequest.branch=${{ env.PR_BRANCH }}
           -Dsonar.pullrequest.base=${{ env.PR_BASE }}
+          -Dsonar.newCode.referenceBranch=main

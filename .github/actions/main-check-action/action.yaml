@@ -38,3 +38,7 @@ runs:
         SONAR_HOST_URL: https://sonarcloud.io
         SONAR_TOKEN: ${{ env.SONAR_TOKEN }}
         GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
+      with:
+        args: >
+          -Dsonar.projectVersion=${{ github.sha }}
+          -Dsonar.branch.name=main
