@@ -142,8 +142,6 @@ Key points:
 
 See [`CI_STRATEGY.md`](./CI_STRATEGY.md) for complete breakdown.
 
-PR checks are fast (lint + unit tests). Full test suite runs on `main` branch after merge.
-
 Self-hosted runner does most of the work. Auto-fallback to GitHub runners if it's offline.
 
 ## Styling

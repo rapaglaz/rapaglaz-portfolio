@@ -24,8 +24,6 @@ What each header does:
 - Clean referrer headers on cross-origin requests
 - Disable unused browser APIs (geolocation, microphone, camera)
 
-CSP (Content Security Policy) is not implemented yet. Angular uses inline styles which makes CSP tricky without `'unsafe-inline'`. Might add a report-only version later to see what breaks.
-
 ## Bot Protection
 
 CV downloads are protected with **Cloudflare Turnstile** (privacy-friendly alternative to reCAPTCHA).
@@ -93,11 +91,3 @@ No user data, no login, no file uploads — attack surface is pretty small.
 Cloudflare Worker can be updated and deployed within minutes. Then fix the actual code in the repo, let CI rebuild, and document what happened.
 
 Personal project but I treat it like production work — quick patches, short feedback loops.
-
-## Future Ideas
-
-- Add CSP once Angular inline styles are sorted out
-- Enable Subresource Integrity (SRI) if I start using CDN resources
-- Write Playwright test that verifies security headers are present
-- Maybe add rate limiting per IP for CV downloads
-- Add `/.well-known/security.txt` for completeness
