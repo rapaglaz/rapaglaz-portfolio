@@ -41,8 +41,13 @@ jobs:
         id: format
         run: |
           # Get the public URL from links.json
+          # links.json format: {"http://localhost:4233/": "https://storage.googleapis.com/..."}
           if [ -f ".lighthouseci/links.json" ]; then
-            public_url=$(jq -r '.[0]' .lighthouseci/links.json 2>/dev/null || echo "")
+            public_url=$(jq -r 'to_entries[0].value // empty' .lighthouseci/links.json 2>/dev/null || echo "")
+            echo "Found public URL: $public_url"
+          else
+            echo "Warning: .lighthouseci/links.json not found"
+            public_url=""
           fi
 
           # Find the most recent LHR report file
