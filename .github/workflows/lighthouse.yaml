@@ -1,0 +1,132 @@
+name: Lighthouse CI
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'URL to audit (leave empty to use PR preview URL)'
+        required: false
+        type: string
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: lighthouse-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  lighthouse:
+    runs-on: self-hosted
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+
+      - name: Setup environment
+        uses: ./.github/actions/workspace-setup-action
+
+      - name: Install Lighthouse CI
+        run: npm install -g @lhci/cli@0.15.x
+
+      - name: Determine URL to audit
+        id: url
+        run: |
+          if [ -n "${{ github.event.inputs.url }}" ]; then
+            echo "target=${{ github.event.inputs.url }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "target=https://pr-${{ github.event.pull_request.number }}.${{ github.event.repository.name }}.preview.istari.home.arpa" >> $GITHUB_OUTPUT
+          else
+            echo "::error::No URL provided for manual run"
+            exit 1
+          fi
+
+      - name: Wait for preview deployment
+        if: github.event_name == 'pull_request'
+        run: |
+          url="${{ steps.url.outputs.target }}"
+          echo "Waiting for preview deployment at $url..."
+          max_attempts=30
+          attempt=0
+
+          while [ $attempt -lt $max_attempts ]; do
+            if curl -sSf -o /dev/null "$url"; then
+              echo "Preview deployment is ready!"
+              exit 0
+            fi
+            echo "Attempt $((attempt + 1))/$max_attempts: Preview not ready yet, waiting..."
+            sleep 10
+            attempt=$((attempt + 1))
+          done
+
+          echo "::error::Preview deployment did not become available in time"
+          exit 1
+
+      - name: Run Lighthouse CI
+        run: lhci autorun --config=.lighthouserc.mjs --collect.url="${{ steps.url.outputs.target }}"
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Format results for PR comment
+        if: github.event_name == 'pull_request'
+        id: format
+        run: |
+          # Extract results from the latest run
+          results_file=".lighthouseci/manifest.json"
+          if [ -f "$results_file" ]; then
+            # Get the public URL from manifest (if using temporary-public-storage)
+            public_url=$(cat .lighthouseci/links.json | grep -o 'https://[^"]*' | head -1 || echo "")
+
+            # Extract scores from the latest report
+            latest_report=$(ls -t .lighthouseci/lhr-*.json | head -1)
+            if [ -f "$latest_report" ]; then
+              perf=$(jq '.categories.performance.score * 100 | round' "$latest_report")
+              a11y=$(jq '.categories.accessibility.score * 100 | round' "$latest_report")
+              bp=$(jq '.categories["best-practices"].score * 100 | round' "$latest_report")
+              seo=$(jq '.categories.seo.score * 100 | round' "$latest_report")
+
+              echo "performance=$perf" >> $GITHUB_OUTPUT
+              echo "accessibility=$a11y" >> $GITHUB_OUTPUT
+              echo "best_practices=$bp" >> $GITHUB_OUTPUT
+              echo "seo=$seo" >> $GITHUB_OUTPUT
+              echo "public_url=$public_url" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      - name: Comment PR with results
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@773744901bac0e8cbb5a0dc842800d45e9b2b405 # v2
+        with:
+          header: lighthouse
+          message: |
+            ## ⚡ Lighthouse CI Results
+
+            **URL**: [${{ steps.url.outputs.target }}](${{ steps.url.outputs.target }})
+
+            | Category | Score |
+            |----------|-------|
+            | Performance | ${{ steps.format.outputs.performance }}/100 |
+            | Accessibility | ${{ steps.format.outputs.accessibility }}/100 |
+            | Best Practices | ${{ steps.format.outputs.best_practices }}/100 |
+            | SEO | ${{ steps.format.outputs.seo }}/100 |
+
+            ${{ steps.format.outputs.public_url && format('📊 [View Full Report]({0})', steps.format.outputs.public_url) || '' }}
+
+            <details>
+            <summary>Details</summary>
+
+            - **Commit**: [${{ github.event.pull_request.head.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.event.pull_request.head.sha }})
+            - **Build**: [${{ github.run_id }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            - **Runs**: 3 (averaged)
+            </details>
+
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        with:
+          name: lighthouse-reports
+          path: |
+            .lighthouseci/
+          retention-days: 30
