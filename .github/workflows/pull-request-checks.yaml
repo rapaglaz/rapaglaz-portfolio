@@ -48,9 +48,13 @@ jobs:
               - '!src/**/*.spec.ts'
               - 'src/**/*.html'
               - 'src/**/*.css'
-              - 'src/content/**/*.ts'
               - 'public/**/*'
               - '!public/i18n/**'
+              - 'angular.json'
+              - 'tsconfig*.json'
+              - 'package.json'
+              - 'tailwind.config.ts'
+              - 'eslint.config.mjs'
             tests:
               - 'src/**/*.spec.ts'
               - 'e2e/**/*.ts'
@@ -73,6 +77,7 @@ jobs:
         uses: ./.github/actions/pr-check-action
         env:
           RUN_TESTS: ${{ needs.detect-changes.outputs.source == 'true' || needs.detect-changes.outputs.tests == 'true' }}
+          RUN_I18N_CHECK: ${{ needs.detect-changes.outputs.i18n == 'true' }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
@@ -84,6 +89,7 @@ jobs:
     container:
       image: mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a
     needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.source == 'true' || needs.detect-changes.outputs.tests == 'true' }}
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
