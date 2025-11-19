@@ -87,7 +87,8 @@ test.describe('CV Download - Real Worker Integration', () => {
     let finalDownloadUrl = '';
 
     page.on('response', async response => {
-      if (response.url().includes('r2.cloudflarestorage.com')) {
+      const url = new URL(response.url());
+      if (url.hostname.endsWith('.r2.cloudflarestorage.com')) {
         finalDownloadUrl = response.url();
       }
     });
@@ -102,7 +103,8 @@ test.describe('CV Download - Real Worker Integration', () => {
     await page.waitForTimeout(500);
 
     // Verify the final URL is from Cloudflare R2
-    expect(finalDownloadUrl).toContain('r2.cloudflarestorage.com');
+    const parsedUrl = new URL(finalDownloadUrl);
+    expect(parsedUrl.hostname.endsWith('.r2.cloudflarestorage.com')).toBe(true);
     expect(finalDownloadUrl).toContain('Paul_Glaz_CV');
   });
 });
