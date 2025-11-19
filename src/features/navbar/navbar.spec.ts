@@ -47,7 +47,6 @@ describe('Navbar', () => {
 
 describe('Navbar - CV Download', () => {
   let fixture: ComponentFixture<Navbar>;
-  let component: Navbar;
   let element: HTMLElement;
   let mockCvDownloadService: { downloadCV: ReturnType<typeof vi.fn> };
   let mockToastService: { error: ReturnType<typeof vi.fn> };
@@ -79,7 +78,6 @@ describe('Navbar - CV Download', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(Navbar);
-    component = fixture.componentInstance;
     element = fixture.nativeElement;
     fixture.detectChanges();
   });
