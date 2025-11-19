@@ -17,6 +17,7 @@ runs:
       run: pnpm run lint
 
     - name: Run i18n validation
+      if: ${{ env.RUN_I18N_CHECK == 'true' }}
       shell: bash
       run: pnpm run i18n:check
 

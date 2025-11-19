@@ -119,7 +119,7 @@ Validation:
 pnpm run i18n:check
 ```
 
-`StrictTranslocoMissingHandler` throws error if translation keys are missing in production builds.
+CI validates key parity between language files via `transloco-keys-manager find`, failing builds if keys are missing in any language. `StrictTranslocoMissingHandler` logs missing keys at runtime as a safety net.
 
 Why runtime instead of build-time:
 

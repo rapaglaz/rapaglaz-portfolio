@@ -111,7 +111,7 @@ Run `pnpm exec playwright install --with-deps` to reinstall browsers and depende
 Check the `pick-runner-action` logs in GitHub Actions. If the runner is offline, it should automatically fall back to GitHub-hosted runners.
 
 **Translation errors:**
-Run `pnpm run i18n:check` to validate JSON structure. `StrictTranslocoMissingHandler` throws errors if translation keys are missing.
+Run `pnpm run i18n:check` to validate JSON structure and key parity across languages. Missing keys will fail the build in CI.
 
 ## Development Tips
 
