@@ -53,7 +53,6 @@ jobs:
               - 'angular.json'
               - 'tsconfig*.json'
               - 'package.json'
-              - 'tailwind.config.ts'
               - 'eslint.config.mjs'
             tests:
               - 'src/**/*.spec.ts'
