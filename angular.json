@@ -103,8 +103,8 @@
             "tsConfig": "tsconfig.spec.json",
             "runner": "vitest",
             "buildTarget": "::development",
-            "codeCoverage": false,
-            "codeCoverageReporters": ["html", "lcov", "text-summary"]
+            "coverage": false,
+            "coverageReporters": ["html", "lcov", "text-summary"]
           }
         },
         "lint": {
