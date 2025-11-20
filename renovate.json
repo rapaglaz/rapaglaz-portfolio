@@ -62,7 +62,7 @@
       "matchUpdateTypes": ["patch"],
       "matchCurrentVersion": "!/^0/",
       "automerge": true,
-      "labels": ["automerge"],
+      "labels": ["automerge", "dependencies", "renovate"],
       "commitMessagePrefix": "chore(automerge-deps):"
     }
   ],
