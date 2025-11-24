@@ -77,26 +77,44 @@ If something fails here, I know exactly which PR broke it and can revert quickly
 
 Build job waits for quality + E2E to pass so we don't deploy broken builds.
 
-### Release/Deploy Workflow (Speed Optimized)
+### Release/Deploy Workflow (Maximum Speed)
 
-Goal: Deploy as fast as possible without repeating validation that already happened.
+Goal: Deploy as fast as possible. Zero redundant validation.
+
+**How it works:**
+
+```text
+check-branch → pick-runner → build → deploy
+```
 
 **What runs:**
 
-- i18n validation — critical for production, makes sure translations are valid
-- Build — compile the app for deployment
-- Deploy — FTP upload to production server
+- Branch protection — fails if not deploying from main
+- Build — compile the app
+- Deploy — FTP upload to production
 
-**What's skipped (and why):**
+**What's skipped (everything):**
 
-- Format check — already verified in PR
-- Lint — already verified in PR
-- Unit tests + coverage — already verified on main branch (after merge)
-- SonarCloud — already analyzed on main branch
+- Format check — already on main
+- Lint — already on main
+- i18n validation — already on main
+- Unit tests + coverage — already on main
+- SonarCloud — already on main
+- E2E tests — already on main
 
-The only thing that matters at deploy time is translations integrity — everything else was validated multiple times already. No point running the same checks three times.
+**Why this works:**
 
-If i18n check fails, deploy is cancelled. If it passes, build runs and then deploys via FTP.
+Deploy is restricted to main branch only. Main branch already passed full validation suite (format, lint, i18n, tests+coverage, SonarCloud, E2E).
+
+There's no point re-running the same checks for third time. Code reaching deploy workflow was validated twice: once in PR, once after merge to main.
+
+**Before deploying:**
+
+Check GitHub Actions to make sure main branch has green checks. That's it. If main is green, deploy is safe.
+
+**If main checks failed:**
+
+Fix main first. Don't deploy broken code. The workflow won't save you anyway since there are no quality gates — it trusts main completely.
 
 ## Path Filters
 
