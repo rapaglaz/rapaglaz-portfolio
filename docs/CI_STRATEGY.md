@@ -77,6 +77,27 @@ If something fails here, I know exactly which PR broke it and can revert quickly
 
 Build job waits for quality + E2E to pass so we don't deploy broken builds.
 
+### Release/Deploy Workflow (Speed Optimized)
+
+Goal: Deploy as fast as possible without repeating validation that already happened.
+
+**What runs:**
+
+- i18n validation — critical for production, makes sure translations are valid
+- Build — compile the app for deployment
+- Deploy — FTP upload to production server
+
+**What's skipped (and why):**
+
+- Format check — already verified in PR
+- Lint — already verified in PR
+- Unit tests + coverage — already verified on main branch (after merge)
+- SonarCloud — already analyzed on main branch
+
+The only thing that matters at deploy time is translations integrity — everything else was validated multiple times already. No point running the same checks three times.
+
+If i18n check fails, deploy is cancelled. If it passes, build runs and then deploys via FTP.
+
 ## Path Filters
 
 CI detects what files changed and runs only relevant checks:
