@@ -39,14 +39,6 @@ export class Certifications {
     }));
   });
 
-  protected readonly certificationCount = computed(() => this.certifications().length);
-
-  protected getCertClasses(): string {
-    const baseClasses =
-      'card-ocean px-4 py-4 rounded-md lg:bg-transparent lg:border-0 lg:border-l-2 lg:border-primary/30 lg:pl-6 transition-colors animate-cert';
-    return `${baseClasses}`;
-  }
-
   protected readonly getCertDelay = buildDelayGetter('certifications');
 
   private formatDate(isoDate: string, formatter: Intl.DateTimeFormat): string {

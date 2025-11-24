@@ -243,7 +243,7 @@ html {
 
 /* Card Ocean - Base card styling used across skills, languages, certifications, and contact sections */
 .card-ocean {
-  @apply bg-base-100 dark:border-accent/30 border-primary/20 rounded-md border;
+  @apply bg-base-100 dark:border-accent/30 border-primary/20 rounded-lg border;
 }
 
 .card-ocean.hover {
@@ -334,16 +334,4 @@ html {
 
 .animate-cert.visible {
   animation: fadeInLeft 0.5s ease-out forwards;
-}
-
-@media (min-width: 1024px) {
-  .animate-cert {
-    border-left-width: 2px;
-    border-radius: 1px;
-  }
-
-  .animate-cert.cursor-pointer:hover {
-    border-left-width: 4px;
-    border-color: var(--color-primary);
-  }
 }

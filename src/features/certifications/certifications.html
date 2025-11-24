@@ -5,7 +5,7 @@
     <div class="space-y-8">
       @for (cert of certifications(); track cert.id; let i = $index) {
         <div
-          [class]="getCertClasses()"
+          class="card-ocean animate-cert px-4 py-4 transition-colors lg:pl-6"
           [class.visible]="wrapper.scrollReveal.isVisible()"
           [style.animation-delay]="getCertDelay(i)">
           <div class="mb-2">
