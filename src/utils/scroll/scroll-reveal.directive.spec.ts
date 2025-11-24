@@ -1,4 +1,3 @@
-import { ViewportRuler } from '@angular/cdk/scrolling';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -6,8 +5,7 @@ import {
   signal,
 } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Subject } from 'rxjs';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ScrollRevealDirective } from './scroll-reveal.directive';
 
 @Component({
@@ -30,119 +28,65 @@ class TestHostComponent {
   }
 }
 
-function mockRect(top: number, bottom: number): DOMRect {
-  return {
-    top,
-    bottom,
-    left: 0,
-    right: 100,
-    width: 100,
-    height: 100,
-    x: 0,
-    y: top,
-    toJSON: () => ({}),
-  };
-}
-
 describe('ScrollRevealDirective', () => {
   let component: TestHostComponent;
   let fixture: ComponentFixture<TestHostComponent>;
-  let viewportChange$: Subject<void>;
-  let element: HTMLElement;
+  let observerCallback: (entries: IntersectionObserverEntry[]) => void;
+  let observeSpy: any;
+  let disconnectSpy: any;
 
   beforeEach(async () => {
-    viewportChange$ = new Subject<void>();
+    observeSpy = vi.fn();
+    disconnectSpy = vi.fn();
+
+    // Mock IntersectionObserver
+    (globalThis as any).IntersectionObserver = class {
+      constructor(callback: (entries: IntersectionObserverEntry[]) => void) {
+        observerCallback = callback;
+      }
+      observe = observeSpy;
+      disconnect = disconnectSpy;
+      unobserve = vi.fn();
+      takeRecords = vi.fn();
+      root = null;
+      rootMargin = '';
+      thresholds = [];
+    } as any;
 
     await TestBed.configureTestingModule({
       imports: [TestHostComponent],
-      providers: [
-        provideZonelessChangeDetection(),
-        { provide: ViewportRuler, useValue: { change: (): Subject<void> => viewportChange$ } },
-      ],
+      providers: [provideZonelessChangeDetection()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TestHostComponent);
     component = fixture.componentInstance;
-    element = fixture.nativeElement.querySelector('div');
+    fixture.detectChanges();
   });
 
-  it('emits true when element is in viewport', async () => {
-    vi.spyOn(element, 'getBoundingClientRect').mockReturnValue(mockRect(100, 200));
-
-    fixture.detectChanges();
-
-    await vi.waitFor(() => expect(component.isVisible()).toBe(true));
+  afterEach(() => {
+    delete (globalThis as any).IntersectionObserver;
   });
 
-  it('emits false when element is above viewport', async () => {
-    vi.spyOn(element, 'getBoundingClientRect').mockReturnValue(mockRect(-200, -100));
-
-    fixture.detectChanges();
-
-    await vi.waitFor(() => expect(component.isVisible()).toBe(false));
+  it('initializes observer on init', () => {
+    expect(observeSpy).toHaveBeenCalled();
   });
 
-  it('emits false when element is below viewport', async () => {
-    const belowViewport = window.innerHeight + 100;
-    vi.spyOn(element, 'getBoundingClientRect').mockReturnValue(
-      mockRect(belowViewport, belowViewport + 100),
-    );
-
-    fixture.detectChanges();
-
-    await vi.waitFor(() => expect(component.isVisible()).toBe(false));
+  it('emits true when element intersects', () => {
+    const entry = { isIntersecting: true } as IntersectionObserverEntry;
+    observerCallback([entry]);
+    expect(component.isVisible()).toBe(true);
   });
 
-  it('emits true when element top is at viewport boundary', async () => {
-    vi.spyOn(element, 'getBoundingClientRect').mockReturnValue(
-      mockRect(window.innerHeight - 1, window.innerHeight + 99),
-    );
+  it('emits false when element does not intersect', () => {
+    observerCallback([{ isIntersecting: true } as IntersectionObserverEntry]);
+    expect(component.isVisible()).toBe(true);
 
-    fixture.detectChanges();
-
-    await vi.waitFor(() => expect(component.isVisible()).toBe(true));
-  });
-
-  it('reacts to viewport ruler changes', async () => {
-    const rectSpy = vi
-      .spyOn(element, 'getBoundingClientRect')
-      .mockReturnValue(mockRect(window.innerHeight + 100, window.innerHeight + 200));
-
-    fixture.detectChanges();
-    await vi.waitFor(() => expect(component.isVisible()).toBe(false));
-
-    rectSpy.mockReturnValue(mockRect(100, 200));
-    viewportChange$.next();
-
-    await vi.waitFor(() => expect(component.isVisible()).toBe(true));
-  });
-
-  it('reacts to scroll events', async () => {
-    const rectSpy = vi
-      .spyOn(element, 'getBoundingClientRect')
-      .mockReturnValue(mockRect(window.innerHeight + 100, window.innerHeight + 200));
-
-    fixture.detectChanges();
-    await vi.waitFor(() => expect(component.isVisible()).toBe(false));
-
-    rectSpy.mockReturnValue(mockRect(100, 200));
-    window.dispatchEvent(new Event('scroll'));
-
-    await vi.waitFor(() => expect(component.isVisible()).toBe(true));
-  });
-
-  it('cleans up subscriptions on destroy', async () => {
-    vi.spyOn(element, 'getBoundingClientRect').mockReturnValue(mockRect(100, 200));
-
-    fixture.detectChanges();
-    await vi.waitFor(() => expect(component.isVisible()).toBe(true));
-
-    component.isVisible.set(false);
-    fixture.destroy();
-
-    window.dispatchEvent(new Event('scroll'));
-    await new Promise(resolve => setTimeout(resolve, 50));
-
+    observerCallback([{ isIntersecting: false } as IntersectionObserverEntry]);
     expect(component.isVisible()).toBe(false);
+  });
+
+  it('disconnects observer on destroy', () => {
+    fixture.destroy();
+    expect(disconnectSpy).toHaveBeenCalled();
   });
 });
