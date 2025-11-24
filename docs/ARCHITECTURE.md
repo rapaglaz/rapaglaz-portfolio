@@ -1,18 +1,8 @@
 # Architecture
 
-How the project is structured and why I built it this way. Read this if you want to understand the layout or change something.
+How the project is structured and why I built it this way.
 
 ## Main Decisions
-
-### Standalone Components
-
-Everything is standalone — no NgModules anywhere.
-
-Why:
-
-- Better tree-shaking, smaller bundles
-- Easier to test (no module setup needed)
-- Angular is moving this direction anyway
 
 ### Feature-Based Folders
 
@@ -39,7 +29,7 @@ Why:
 
 - Better performance (no zone patching overhead)
 - Clearer mental model for when things update
-- Zone.js is getting deprecated anyway
+- Zone.js is getting deprecated
 
 Trade-off: You need to be explicit about change detection. Use `effect()` for side effects, `toSignal()` when bridging RxJS streams.
 
@@ -48,11 +38,11 @@ Mixing signals and observables works fine, just need to know what triggers updat
 ## Folder Structure
 
 - **`src/app/`** — Bootstrap and routing config
-- **`src/features/`** — UI sections (hero, navbar, contact, etc.)
-- **`src/ui/`** — Dumb/presentational components (button, badge, toast, modal)
-- **`src/services/`** — Shared logic and state (cv-download, toast, config)
-- **`src/utils/`** — Helpers, pipes, directives
-- **`src/content/`** — Static typed data (skills, certifications)
+- **`src/features/`** — UI sections (hero, navbar, contact, about, skills, certifications, footer, languages, language-switcher)
+- **`src/ui/`** — Presentational components (button, badge, toast-container, turnstile-modal, section-wrapper)
+- **`src/services/`** — Shared logic and state (cv-download, toast, config, logger, turnstile)
+- **`src/utils/`** — Helpers for animations, i18n, RxJS, scrolling
+- **`src/content/`** — Static typed data (skills, certifications, contact)
 
 Each feature has `.ts`, `.html`, `.css`, and `.spec.ts` in same folder.
 
@@ -101,10 +91,10 @@ Runs headless in CI (Chromium). Use `--ui` flag locally for debugging with step-
 
 Lighthouse CI tracks performance metrics:
 
-- Runs on every PR and weekly on main
+- Runs on every PR and weekly (Monday 6:00 AM)
 - Tests desktop performance (3 runs, median score)
 - Tracks Performance, Accessibility, Best Practices, SEO
-- Reports as warnings — never blocks merges
+- All assertions set to 'warn' — never blocks merges
 - Uploads reports to temporary public storage
 
 Configuration in [`.lighthouserc.cjs`](../.lighthouserc.cjs). See [`CI_STRATEGY.md`](./CI_STRATEGY.md) for details.
@@ -119,7 +109,12 @@ Validation:
 pnpm run i18n:check
 ```
 
-CI validates key parity between language files via `transloco-keys-manager find`, failing builds if keys are missing in any language. `StrictTranslocoMissingHandler` logs missing keys at runtime as a safety net.
+This runs two checks:
+
+- `pnpm run i18n:validate` — validates JSON structure
+- `pnpm run i18n:find` — checks key parity between language files
+
+CI fails builds if keys are missing in any language. Runtime has `StrictTranslocoMissingHandler` as safety net — logs missing keys to console.
 
 Why runtime instead of build-time:
 
@@ -148,26 +143,26 @@ Self-hosted runner does most of the work. Auto-fallback to GitHub runners if it'
 
 Tailwind 4 for layout and utilities. Custom CSS for animations and specific visual effects.
 
-No global style overrides except base resets. Styles stay close to components where they're used.
+No global style overrides except base resets in `src/styles.css`. Styles stay close to components.
 
-DaisyUI provides button variants, spinners, and some base components but most UI is custom-built.
+DaisyUI provides button variants, spinners, and some base components. Most UI is custom-built.
 
 ## Code Quality
 
 - ESLint with Angular-specific rules
 - Strict TypeScript config
-- SonarCloud for tracking trends and code smells
+- SonarCloud for code quality trends
 - Coverage thresholds enforced in Vitest config
 
-Not perfect but solid enough for a portfolio.
+Not perfect but solid enough.
 
-## Trade-offs I Made
+## Trade-offs
 
 **No NgRx or other state library**
-Project is too small for that. Signals are enough.
+Project is too small. Signals are enough.
 
 **Self-hosted CI runner**
-Saves GitHub Actions minutes but creates single point of failure. Fallback logic works well though.
+Saves GitHub Actions minutes but creates single point of failure. Fallback logic works well.
 
 **Runtime i18n instead of build-time**
 Better UX for language switching, simpler to maintain translations.

@@ -17,7 +17,7 @@ These usually don't play well together.
 **Option 1: Run everything on every PR**
 Lint + unit + E2E + SonarCloud on every commit.
 
-Problem: Takes forever. E2E can be flaky. Kills the flow when I'm iterating on changes.
+Problem: Takes forever. E2E can be flaky. Kills the flow when iterating on changes.
 
 **Option 2: Skip CI, rely on local testing**
 Run tests before pushing.
@@ -91,7 +91,7 @@ pick-runner -> build -> deploy
 
 - Environment protection — enforced by GitHub at repository level
 - Build — compile the app
-- Deploy — FTP upload to production
+- Deploy — upload to production
 
 **What's skipped (everything):**
 
@@ -106,7 +106,7 @@ pick-runner -> build -> deploy
 
 Workflow uses `environment: production` on the first job. This enforces branch restrictions at repository level through GitHub Environment protection rules.
 
-Can't be bypassed by modifying workflow file. If you trigger from wrong branch, workflow fails immediately.
+Can't be bypassed by modifying workflow file. If you trigger from wrong branch, it fails immediately.
 
 **Why this works:**
 
@@ -120,7 +120,7 @@ Check GitHub Actions to make sure main branch has green checks. That's it. If ma
 
 **If main checks failed:**
 
-Fix main first. Don't deploy broken code. The workflow won't save you anyway since there are no quality gates — it trusts main completely.
+Fix main first. Don't deploy broken code. The workflow won't save you — there are no quality gates, it trusts main completely.
 
 ## Path Filters
 
@@ -164,11 +164,11 @@ Combined with `cancel-in-progress`, you never wait for outdated runs. New commit
 
 ## Self-Hosted Runner
 
-Most jobs run on my NAS (self-hosted runner). If it goes offline, the pipeline automatically falls back to GitHub-hosted runners.
+Most jobs run on my NAS (self-hosted runner). If it goes offline, pipeline falls back to GitHub-hosted runners automatically.
 
 E2E tests always use GitHub-hosted runners because Playwright needs specific container environment.
 
-This saves a decent amount of GitHub Actions minutes.
+This saves a decent amount of GitHub Actions minutes 🙂.
 
 ## Lighthouse CI
 
@@ -210,14 +210,14 @@ Lighthouse scores can vary between runs due to network conditions, CPU load, etc
 
 **PR Comments:**
 
-Every PR gets a sticky comment with:
+Every PR gets a comment with:
 
 - Link to full Lighthouse report
 - Commit SHA and build number
 - Environment details
 
-This helps catch performance regressions before they reach production.
+Helps catch performance regressions before they reach production.
 
 ## Fork PRs
 
-PRs from forks automatically use GitHub-hosted runners (they don't have access to self-hosted). This is also for security — don't want untrusted code running on my server.
+PRs from forks automatically use GitHub-hosted runners (they don't have access to self-hosted). Also for security — don't want untrusted code running on my server.
