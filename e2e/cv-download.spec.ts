@@ -1,9 +1,9 @@
 import { expect, test } from '@playwright/test';
-import { mockTurnstile, switchLanguage, visitPortfolio } from './utils';
+import { mockCVDownload, switchLanguage, visitPortfolio } from './utils';
 
 test.describe('CV Download', () => {
   test.beforeEach(async ({ page }) => {
-    await mockTurnstile(page);
+    await mockCVDownload(page);
     await visitPortfolio(page);
   });
 

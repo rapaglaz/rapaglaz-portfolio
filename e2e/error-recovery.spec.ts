@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import {
   MOCK_PDF_CONTENT,
-  mockTurnstile,
+  mockCVDownload,
   mockTurnstileAPI,
   switchLanguage,
   visitPortfolio,
@@ -127,7 +127,7 @@ test.describe('Error Recovery - Backend Errors', () => {
 
 test.describe('Error Recovery Journeys - Happy Path', () => {
   test.beforeEach(async ({ page }) => {
-    await mockTurnstile(page);
+    await mockCVDownload(page);
     await visitPortfolio(page);
   });
 
