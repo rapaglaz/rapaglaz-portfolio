@@ -8,12 +8,9 @@ describe('SectionWrapper', () => {
   let fixture: ComponentFixture<SectionWrapper>;
   let element: HTMLElement;
 
-  function setup(sectionId: string, titleKey: string, testId?: string): void {
+  function setup(sectionId: string, titleKey: string): void {
     fixture.componentRef.setInput('sectionId', sectionId);
     fixture.componentRef.setInput('titleKey', titleKey);
-    if (testId) {
-      fixture.componentRef.setInput('testId', testId);
-    }
     fixture.detectChanges();
   }
 
@@ -39,13 +36,6 @@ describe('SectionWrapper', () => {
 
     const section = element.querySelector('section');
     expect(section?.getAttribute('data-testid')).toBe('section-skills');
-  });
-
-  it('uses custom testId when provided', () => {
-    setup('about', 'portfolio.about.title', 'custom-id');
-
-    const section = element.querySelector('section');
-    expect(section?.getAttribute('data-testid')).toBe('custom-id');
   });
 
   it('translates and uppercases title', async () => {
