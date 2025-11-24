@@ -20,8 +20,11 @@ import {
 } from '@jsverse/transloco';
 import { proxyInterceptor, turnstileInterceptor } from '../interceptors';
 import { LoggerService } from '../services';
-import { StrictTranslocoMissingHandler, TranslocoHttpLoader } from '../utils/i18n';
-import { getBrowserLanguage } from '../utils/validation';
+import {
+  getBrowserLanguage,
+  StrictTranslocoMissingHandler,
+  TranslocoHttpLoader,
+} from '../utils/i18n';
 import { App } from './app';
 import { routes } from './app.routes';
 
