@@ -84,12 +84,12 @@ Goal: Deploy as fast as possible. Zero redundant validation.
 **How it works:**
 
 ```text
-check-branch → pick-runner → build → deploy
+pick-runner -> build -> deploy
 ```
 
 **What runs:**
 
-- Branch protection — fails if not deploying from main
+- Environment protection — enforced by GitHub at repository level
 - Build — compile the app
 - Deploy — FTP upload to production
 
@@ -102,9 +102,15 @@ check-branch → pick-runner → build → deploy
 - SonarCloud — already on main
 - E2E tests — already on main
 
+**Branch protection:**
+
+Workflow uses `environment: production` on the first job. This enforces branch restrictions at repository level through GitHub Environment protection rules.
+
+Can't be bypassed by modifying workflow file. If you trigger from wrong branch, workflow fails immediately.
+
 **Why this works:**
 
-Deploy is restricted to main branch only. Main branch already passed full validation suite (format, lint, i18n, tests+coverage, SonarCloud, E2E).
+Deploy is restricted to main branch only via environment protection. Main branch already passed full validation suite (format, lint, i18n, tests+coverage, SonarCloud, E2E).
 
 There's no point re-running the same checks for third time. Code reaching deploy workflow was validated twice: once in PR, once after merge to main.
 
