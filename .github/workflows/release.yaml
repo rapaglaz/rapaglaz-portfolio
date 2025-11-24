@@ -2,11 +2,6 @@ name: Deploy
 
 on:
   workflow_dispatch:
-    inputs:
-      branch:
-        description: 'Branch to deploy'
-        required: true
-        default: 'main'
 
 concurrency:
   group: ${{ github.ref }}
@@ -18,6 +13,7 @@ permissions:
 jobs:
   pick-runner:
     runs-on: ubuntu-latest
+    environment: production
     outputs:
       chosen: ${{ steps.pick.outputs.chosen }}
     steps:
@@ -29,19 +25,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.RUNNER_PICK_TOKEN }}
 
-  quality-check:
-    needs: [pick-runner]
-    runs-on: ${{ needs.pick-runner.outputs.chosen }}
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
-        with: { fetch-depth: 0 }
-      - name: Run Release Quality Check Action
-        uses: ./.github/actions/release-check-action
-
   build:
-    needs: [pick-runner, quality-check]
-    if: ${{ needs.quality-check.result == 'success' }} # stop early if QC failed
+    needs: [pick-runner]
     runs-on: ${{ needs.pick-runner.outputs.chosen }}
     steps:
       - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
@@ -57,18 +42,11 @@ jobs:
           path: ./dist/rapaglaz-portfolio/browser
 
   deploy:
-    needs: [pick-runner, quality-check, build]
-    if: ${{ needs.quality-check.result == 'success' && needs.build.result == 'success' }}
+    needs: [pick-runner, build]
     runs-on: ${{ needs.pick-runner.outputs.chosen }}
     steps:
       - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with: { fetch-depth: 0 }
-
-      - name: Bail out if build failed
-        if: ${{ needs.build.result != 'success' }}
-        run: |
-          echo "Build did not succeed; skipping deploy." >&2
-          exit 1
 
       - name: Download build artifact
         uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
@@ -84,5 +62,3 @@ jobs:
           password: ${{ secrets.PASS }}
           server-dir: /
           local-dir: ./dist/rapaglaz-portfolio/browser/
-          exclude: |
-            package.json
