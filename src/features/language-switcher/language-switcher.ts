@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoService } from '@jsverse/transloco';
 import { LoggerService } from '../../services';
-import { getBrowserLanguage } from '../../utils/validation';
+import { getBrowserLanguage } from '../../utils/i18n';
 
 @Component({
   selector: 'app-language-switcher',

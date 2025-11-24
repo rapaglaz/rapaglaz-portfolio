@@ -4,7 +4,7 @@ import { computed, inject, Injectable } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoService } from '@jsverse/transloco';
 import { map, Observable, switchMap } from 'rxjs';
-import { getBrowserLanguage } from '../../utils/validation';
+import { getBrowserLanguage } from '../../utils/i18n';
 import { ConfigService } from '../config/config.service';
 import { LoggerService } from '../logger/logger.service';
 import { TurnstileService } from '../turnstile/turnstile.service';
