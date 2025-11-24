@@ -55,8 +55,8 @@ describe('CvDownloadService', () => {
   });
 
   function mockBrowserDownloadEnvironment(): () => void {
-    const originalCreateObjectURL = global.URL.createObjectURL;
-    const originalRevokeObjectURL = global.URL.revokeObjectURL;
+    const originalCreateObjectURL = globalThis.URL.createObjectURL;
+    const originalRevokeObjectURL = globalThis.URL.revokeObjectURL;
     const appendSpy = vi.spyOn(document.body, 'appendChild').mockImplementation(node => node);
     const removeSpy = vi.spyOn(document.body, 'removeChild').mockImplementation(node => node);
 
@@ -70,12 +70,14 @@ describe('CvDownloadService', () => {
       .spyOn(document, 'createElement')
       .mockReturnValue(mockAnchor as HTMLAnchorElement);
 
-    global.URL.createObjectURL = vi.fn(() => 'blob:mock-url') as typeof global.URL.createObjectURL;
-    global.URL.revokeObjectURL = vi.fn() as typeof global.URL.revokeObjectURL;
+    globalThis.URL.createObjectURL = vi.fn(
+      () => 'blob:mock-url',
+    ) as typeof globalThis.URL.createObjectURL;
+    globalThis.URL.revokeObjectURL = vi.fn() as typeof globalThis.URL.revokeObjectURL;
 
     return () => {
-      global.URL.createObjectURL = originalCreateObjectURL;
-      global.URL.revokeObjectURL = originalRevokeObjectURL;
+      globalThis.URL.createObjectURL = originalCreateObjectURL;
+      globalThis.URL.revokeObjectURL = originalRevokeObjectURL;
       appendSpy.mockRestore();
       removeSpy.mockRestore();
       createElementSpy.mockRestore();
