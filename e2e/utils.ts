@@ -63,9 +63,6 @@ export async function mockCVDownload(page: Page): Promise<void> {
   });
 }
 
-// alias for backward compatibility
-export const mockTurnstile = mockCVDownload;
-
 // switches language and waits for translation to appear, ensures i18n working
 export async function switchLanguage(page: Page, lang: 'EN' | 'DE'): Promise<void> {
   await page.getByRole('option', { name: lang }).click();
