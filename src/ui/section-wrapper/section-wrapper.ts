@@ -12,10 +12,5 @@ import { createScrollRevealState, ScrollRevealDirective } from '../../utils/scro
 export class SectionWrapper {
   readonly sectionId = input.required<string>();
   readonly titleKey = input.required<string>();
-  readonly testId = input<string>();
   readonly scrollReveal = createScrollRevealState();
-
-  protected get computedTestId(): string {
-    return this.testId() ?? `section-${this.sectionId()}`;
-  }
 }
