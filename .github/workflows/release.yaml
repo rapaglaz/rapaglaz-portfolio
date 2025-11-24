@@ -11,18 +11,9 @@ permissions:
   contents: read
 
 jobs:
-  check-branch:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Ensure deploying from main branch
-        if: github.ref != 'refs/heads/main'
-        run: |
-          echo "::error::Deployment is only allowed from main branch. Current ref: ${{ github.ref }}"
-          exit 1
-
   pick-runner:
-    needs: [check-branch]
     runs-on: ubuntu-latest
+    environment: production
     outputs:
       chosen: ${{ steps.pick.outputs.chosen }}
     steps:
@@ -52,17 +43,10 @@ jobs:
 
   deploy:
     needs: [pick-runner, build]
-    if: ${{ needs.build.result == 'success' }}
     runs-on: ${{ needs.pick-runner.outputs.chosen }}
     steps:
       - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with: { fetch-depth: 0 }
-
-      - name: Bail out if build failed
-        if: ${{ needs.build.result != 'success' }}
-        run: |
-          echo "Build did not succeed; skipping deploy." >&2
-          exit 1
 
       - name: Download build artifact
         uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53 # v6.0.0
@@ -78,5 +62,3 @@ jobs:
           password: ${{ secrets.PASS }}
           server-dir: /
           local-dir: ./dist/rapaglaz-portfolio/browser/
-          exclude: |
-            package.json
