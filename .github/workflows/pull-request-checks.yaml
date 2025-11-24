@@ -18,7 +18,7 @@ jobs:
     outputs:
       chosen: ${{ steps.pick.outputs.chosen }}
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
       - id: pick
         uses: ./.github/actions/pick-runner-action
         with:
@@ -36,7 +36,7 @@ jobs:
       docs: ${{ steps.filter.outputs.docs }}
       i18n: ${{ steps.filter.outputs.i18n }}
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
 
       - name: Detect changed file paths
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
@@ -68,7 +68,7 @@ jobs:
     needs: [pick-runner, detect-changes]
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
           fetch-depth: 0
 
@@ -91,7 +91,7 @@ jobs:
     if: ${{ needs.detect-changes.outputs.source == 'true' || needs.detect-changes.outputs.tests == 'true' }}
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
 
       - name: Setup environment
         uses: ./.github/actions/workspace-setup-action
@@ -115,7 +115,7 @@ jobs:
     needs: [pick-runner, detect-changes]
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with:
           fetch-depth: 0
 

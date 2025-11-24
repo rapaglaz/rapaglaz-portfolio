@@ -21,7 +21,7 @@ jobs:
     outputs:
       chosen: ${{ steps.pick.outputs.chosen }}
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
       - id: pick
         uses: ./.github/actions/pick-runner-action
         with:
@@ -34,7 +34,7 @@ jobs:
     runs-on: ${{ needs.pick-runner.outputs.chosen }}
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with: { fetch-depth: 0 }
       - name: Run Quality Check Action
         uses: ./.github/actions/main-check-action
@@ -44,7 +44,7 @@ jobs:
     if: ${{ needs.quality-check.result == 'success' }} # stop early if QC failed
     runs-on: ${{ needs.pick-runner.outputs.chosen }}
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with: { fetch-depth: 0 }
       - name: Run Build Action
         uses: ./.github/actions/build-action
@@ -62,7 +62,7 @@ jobs:
     if: ${{ needs.quality-check.result == 'success' && needs.build.result == 'success' }}
     runs-on: ${{ needs.pick-runner.outputs.chosen }}
     steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
         with: { fetch-depth: 0 }
 
       - name: Bail out if build failed
