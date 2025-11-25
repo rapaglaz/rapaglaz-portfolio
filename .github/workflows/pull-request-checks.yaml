@@ -31,11 +31,14 @@ jobs:
     needs: pick-runner
     timeout-minutes: 5
     outputs:
-      source: ${{ steps.filter.outputs.source }}
-      tests: ${{ steps.filter.outputs.tests }}
-      docs: ${{ steps.filter.outputs.docs }}
+      app: ${{ steps.filter.outputs.app }}
+      e2e: ${{ steps.filter.outputs.e2e }}
       i18n: ${{ steps.filter.outputs.i18n }}
       ci: ${{ steps.filter.outputs.ci }}
+      run_quality: ${{ steps.aggregate.outputs.run_quality }}
+      run_e2e: ${{ steps.aggregate.outputs.run_e2e }}
+      run_build: ${{ steps.aggregate.outputs.run_build }}
+      run_workflow_lint: ${{ steps.aggregate.outputs.run_workflow_lint }}
     steps:
       - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
 
@@ -43,32 +46,58 @@ jobs:
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
         id: filter
         with:
-          predicate-quantifier: 'every'
           filters: |
-            source:
+            app:
               - 'src/**'
-              - '!src/**/*.spec.ts'
-              - '!**/*.md'
               - 'public/**'
-              - '!public/i18n/**'
               - 'angular.json'
               - 'tsconfig*.json'
               - 'package.json'
               - 'eslint.config.mjs'
-            tests:
-              - 'src/**/*.spec.ts'
+            e2e:
               - 'e2e/**/*.ts'
-            docs:
-              - '**/*.md'
+              - 'playwright.config.*'
             i18n:
               - 'public/i18n/**'
             ci:
               - '.github/workflows/**'
 
+      - name: Aggregate change flags
+        id: aggregate
+        shell: bash
+        run: |
+          run_quality=false
+          run_e2e=false
+          run_build=false
+          run_workflow_lint=false
+
+          if [[ "${{ steps.filter.outputs.ci }}" == "true" ]]; then
+            run_workflow_lint=true
+          fi
+
+          if [[ "${{ steps.filter.outputs.app }}" == "true" || "${{ steps.filter.outputs.i18n }}" == "true" ]]; then
+            run_quality=true
+          fi
+
+          if [[ "${{ steps.filter.outputs.app }}" == "true" || "${{ steps.filter.outputs.e2e }}" == "true" ]]; then
+            run_e2e=true
+          fi
+
+          if [[ "$run_quality" == "true" || "$run_e2e" == "true" ]]; then
+            run_build=true
+          fi
+
+          {
+            echo "run_quality=$run_quality"
+            echo "run_e2e=$run_e2e"
+            echo "run_build=$run_build"
+            echo "run_workflow_lint=$run_workflow_lint"
+          } >> "$GITHUB_OUTPUT"
+
   quality-check:
     runs-on: ${{ needs.pick-runner.outputs.chosen }}
     needs: [pick-runner, detect-changes]
-    if: ${{ needs.detect-changes.outputs.source == 'true' || needs.detect-changes.outputs.tests == 'true' || needs.detect-changes.outputs.i18n == 'true' }}
+    if: ${{ needs.detect-changes.outputs.run_quality == 'true' }}
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
@@ -78,7 +107,7 @@ jobs:
       - name: Run Quality Check Action
         uses: ./.github/actions/pr-check-action
         env:
-          RUN_TESTS: ${{ needs.detect-changes.outputs.source == 'true' || needs.detect-changes.outputs.tests == 'true' }}
+          RUN_TESTS: ${{ needs.detect-changes.outputs.app == 'true' }}
           RUN_I18N_CHECK: ${{ needs.detect-changes.outputs.i18n == 'true' }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -89,7 +118,7 @@ jobs:
   workflow-lint:
     runs-on: ${{ needs.pick-runner.outputs.chosen }}
     needs: [pick-runner, detect-changes]
-    if: ${{ needs.detect-changes.outputs.ci == 'true' }}
+    if: ${{ needs.detect-changes.outputs.run_workflow_lint == 'true' }}
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
@@ -108,7 +137,7 @@ jobs:
     container:
       image: mcr.microsoft.com/playwright:v1.56.1-noble@sha256:f1e7e01021efd65dd1a2c56064be399f3e4de00fd021ac561325f2bfbb2b837a
     needs: detect-changes
-    if: ${{ needs.detect-changes.outputs.source == 'true' || needs.detect-changes.outputs.tests == 'true' }}
+    if: ${{ needs.detect-changes.outputs.run_e2e == 'true' }}
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
@@ -133,7 +162,7 @@ jobs:
   build:
     runs-on: ${{ needs.pick-runner.outputs.chosen }}
     needs: [pick-runner, detect-changes]
-    if: ${{ needs.detect-changes.outputs.source == 'true' || needs.detect-changes.outputs.tests == 'true' || needs.detect-changes.outputs.i18n == 'true' || needs.detect-changes.outputs.ci == 'true' }}
+    if: ${{ needs.detect-changes.outputs.run_build == 'true' }}
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0

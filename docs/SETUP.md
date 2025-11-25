@@ -4,10 +4,10 @@ How to get this running on your machine.
 
 ## Prerequisites
 
-- **Node.js 22 LTS**
+- **Node.js 24** (check `.nvmrc`)
 - **pnpm 10+**
 
-Playwright will install browsers automatically on first test run.
+Playwright installs browsers automatically on first test run.
 
 ## Install
 
@@ -15,7 +15,7 @@ Playwright will install browsers automatically on first test run.
 pnpm install
 ```
 
-The lockfile is frozen in CI so your local install matches exactly.
+Lockfile is frozen in CI so your local install matches exactly.
 
 ## Dev Server
 
@@ -108,15 +108,15 @@ Serves the production build locally on port 4233.
 Run `pnpm exec playwright install --with-deps` to reinstall browsers and dependencies.
 
 **Self-hosted runner not picking up jobs:**
-Check the `pick-runner-action` logs in GitHub Actions. If the runner is offline, it should automatically fall back to GitHub-hosted runners.
+Check the logs in GitHub Actions. If runner is offline, it falls back to GitHub-hosted runners automatically.
 
 **Translation errors:**
-Run `pnpm run i18n:check` to validate JSON structure and key parity across languages. Missing keys will fail the build in CI.
+Run `pnpm run i18n:check` to validate JSON structure and key parity across languages. Missing keys fail the build in CI.
 
 ## Development Tips
 
 - Run `pnpm test` in watch mode while writing tests
-- E2E tests mock the Turnstile API so you don't need real verification tokens
+- E2E tests mock Turnstile API so you don't need real verification tokens
 - Browser devtools work normally with Angular's build setup
 - Signal updates trigger change detection automatically (no need for `markForCheck`)
 
