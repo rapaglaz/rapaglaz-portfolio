@@ -42,16 +42,13 @@ Goal: Run only what's needed based on what changed.
 - Lint — ESLint + Angular rules
 - i18n validation — Transloco JSON check
 
-**Conditional jobs (only if source/test files changed):**
+**Conditional jobs:**
 
-- Unit tests with coverage — Vitest
-- Build — TypeScript compilation, bundling
-- E2E tests — full Playwright suite in Ubuntu container
-- Preview deployment — only if self-hosted runner is available
-
-**Conditional jobs (only if workflow files changed):**
-
-- Workflow lint — actionlint on `.github/workflows/**`
+- Quality check (lint + unit tests + coverage + Sonar) — runs when app files change (`src/**`, `public/**`, `angular.json`, `tsconfig*.json`, `package.json`, `eslint.config.mjs`) or i18n (`public/i18n/**`)
+- E2E tests — runs when app files change or `e2e/**/*.ts` / `playwright.config.*` change
+- Build — runs when quality or E2E ran (reuses the same build action)
+- Preview deployment — only if self-hosted runner is chosen and build passed
+- Workflow lint — when workflow YAML changes (`.github/workflows/**`)
 
 **Always runs (separate workflow):**
 
@@ -59,11 +56,11 @@ Goal: Run only what's needed based on what changed.
 
 **How different changes are handled:**
 
-- **Docs-only PR** — format + lint + i18n only (Lighthouse skipped)
-- **Translation update** — format + lint + i18n + quality-check (Lighthouse skipped)
-- **Workflow change** — format + lint + i18n + actionlint (Lighthouse skipped)
-- **Dependency update** — same as docs if no source changes
-- **Source code change** — full suite including E2E and Lighthouse
+- Docs-only PR — format + lint + i18n only
+- Workflow change — format + lint + i18n + actionlint
+- Dependency update — same as docs if no source changes
+- Source code change — full suite including E2E
+- E2E-only change — E2E + build (quality skipped)
 
 **Cancellation:**
 
@@ -130,23 +127,17 @@ Fix main first. Don't deploy broken code. The workflow won't save you — there 
 
 ## Path Filters
 
-CI detects what changed and runs only the relevant checks.
+CI detects what changed and runs only relevant checks:
 
-**For example:**
-
-- Docs-only PRs skip unit tests, E2E, and build. Just lint + format + i18n checks.
+- Docs-only PRs skip unit tests, E2E, build, and preview. Only lint + format + i18n.
 - Workflow changes trigger actionlint (static analysis for GitHub Actions). Doesn't lint composite actions.
-- Source changes include config files like `angular.json` and `package.json` because those affect the build.
-
-## Workflow Linting
-
-The `workflow-lint` job runs when `.github/workflows/**` changes and uses actionlint to catch errors in workflow YAML files.
-
-Installs actionlint directly (no Docker wrapper) because self-hosted runner had Docker API version conflicts with the wrapper actions.
+- Source changes include `src/**`, `public/**`, `angular.json`, `tsconfig*.json`, `package.json`, and `eslint.config.mjs` because they affect the build.
+- E2E tests run when `e2e/**/*.ts` or `playwright.config.*` changes, or when app code changes.
+- Translations (`public/i18n/**`) trigger quality checks but not E2E by themselves.
 
 ## Why E2E Only Runs for Code Changes
 
-E2E tests run when source or test files change. This catches breaking changes before merge while keeping doc updates fast.
+E2E tests run when app files change or when `e2e/**/*.ts` / Playwright config changes. This catches breaking changes before merge while keeping doc updates fast.
 
 E2E always uses GitHub-hosted runners (Ubuntu container with Playwright pre-installed) — more reliable than self-hosted for browser testing.
 
@@ -185,7 +176,7 @@ Performance monitoring and web vitals tracking.
 
 **When it runs:**
 
-- Every PR (opened, updated, or reopened) — but only if source files changed
+- Every PR (opened, updated, or reopened) — but only if app files changed (`src/**`, `public/**`, `angular.json`)
 - Manual trigger via workflow_dispatch
 - Weekly schedule (Monday 6:00 AM) for baseline monitoring
 
@@ -197,6 +188,7 @@ Lighthouse skips runs when only these change:
 - Translations (`public/i18n/**`)
 - CI workflows (`.github/**`)
 - Test files (`*.spec.ts`)
+- E2E tests (`e2e/**/*.ts`)
 
 Runs when these change:
 
