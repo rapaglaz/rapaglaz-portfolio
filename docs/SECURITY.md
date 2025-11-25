@@ -1,6 +1,6 @@
 # Security
 
-This is a portfolio site, not a banking app. But I wanted it to feel production-ready with solid security basics.
+This is a portfolio site, not a banking app. But I wanted solid security basics.
 
 No user data, no authentication, no payments. Just static content and CV download.
 
@@ -39,7 +39,7 @@ Flow:
 Why Turnstile instead of reCAPTCHA:
 
 - No Google tracking
-- No cookies stored
+- No cookies
 - Faster user experience
 - Works well with Cloudflare infrastructure
 
@@ -63,15 +63,15 @@ What this means:
 - Can't share permanent download links
 - Easy to track or rate-limit downloads if needed
 
-It's an extra step for users but I prefer this over having my CV floating around the internet forever.
+Extra step for users but I prefer this over having my CV floating around the internet forever.
 
 ## Dependencies
 
-**Renovate** handles automatic dependency updates. CI runs `pnpm audit` and SonarCloud scans on every build.
+**Renovate** handles automatic dependency updates. SonarCloud scans on every build.
 
 No secrets stored in the repo. Everything goes into environment variables (Cloudflare Workers config or GitHub Secrets).
 
-For major version bumps (Angular, Vite, etc.) I review the changes manually even if tests pass. Want to make sure nothing unexpected gets added.
+For major version bumps (Angular, Vite, etc.) I review changes manually even if tests pass. Want to make sure nothing unexpected gets added.
 
 ## Threat Model
 
@@ -90,4 +90,4 @@ No user data, no login, no file uploads — attack surface is pretty small.
 
 Cloudflare Worker can be updated and deployed within minutes. Then fix the actual code in the repo, let CI rebuild, and document what happened.
 
-Personal project but I treat it like production work — quick patches, short feedback loops.
+Personal project but I treat it like production — quick patches, short feedback loops.
