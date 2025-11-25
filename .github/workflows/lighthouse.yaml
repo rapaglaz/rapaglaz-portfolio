@@ -33,6 +33,7 @@ jobs:
               - 'src/**'
               - 'public/**'
               - 'angular.json'
+              - '.lighthouserc.cjs'
 
   lighthouse:
     runs-on: ubuntu-latest

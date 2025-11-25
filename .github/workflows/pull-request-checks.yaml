@@ -56,6 +56,7 @@ jobs:
               - 'eslint.config.mjs'
             e2e:
               - 'e2e/**/*.ts'
+              - 'playwright.config.*'
             i18n:
               - 'public/i18n/**'
             ci:
