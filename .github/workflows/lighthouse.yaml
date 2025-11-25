@@ -36,6 +36,7 @@ jobs:
               - '!**/*.md'
               - 'public/**'
               - '!public/i18n/**'
+              - '!.github/**'
               - 'angular.json'
 
   lighthouse:
@@ -75,7 +76,7 @@ jobs:
           fi
 
           # Find the most recent LHR report file
-          latest_report=$(ls -t .lighthouseci/lhr-*.json 2>/dev/null | head -1)
+          latest_report=$(find .lighthouseci -name 'lhr-*.json' -type f -print0 2>/dev/null | xargs -0 ls -t 2>/dev/null | head -1)
 
           if [ -n "$latest_report" ] && [ -f "$latest_report" ]; then
             # Extract scores
@@ -95,10 +96,10 @@ jobs:
               fi
             }
 
-            perf_badge=$(get_badge $perf)
-            a11y_badge=$(get_badge $a11y)
-            bp_badge=$(get_badge $bp)
-            seo_badge=$(get_badge $seo)
+            perf_badge=$(get_badge "$perf")
+            a11y_badge=$(get_badge "$a11y")
+            bp_badge=$(get_badge "$bp")
+            seo_badge=$(get_badge "$seo")
 
             # Output results
             {
@@ -111,7 +112,7 @@ jobs:
               echo "bp_badge=$bp_badge"
               echo "seo_badge=$seo_badge"
               echo "public_url=$public_url"
-            } >> $GITHUB_OUTPUT
+            } >> "$GITHUB_OUTPUT"
 
             echo "Results written to GITHUB_OUTPUT"
           else
