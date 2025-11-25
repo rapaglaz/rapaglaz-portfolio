@@ -91,7 +91,7 @@ Runs headless in CI (Chromium). Use `--ui` flag locally for debugging with step-
 
 Lighthouse CI tracks performance metrics:
 
-- Runs on every PR and weekly (Monday 6:00 AM)
+- Runs on PR (when source files change) and weekly (Monday 6:00 AM)
 - Tests desktop performance (3 runs, median score)
 - Tracks Performance, Accessibility, Best Practices, SEO
 - All assertions set to 'warn' — never blocks merges
@@ -153,6 +153,7 @@ DaisyUI provides button variants, spinners, and some base components. Most UI is
 - Strict TypeScript config
 - SonarCloud for code quality trends
 - Coverage thresholds enforced in Vitest config
+- actionlint for GitHub Actions workflow validation
 
 Not perfect but solid enough.
 

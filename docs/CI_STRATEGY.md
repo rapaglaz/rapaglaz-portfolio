@@ -49,15 +49,21 @@ Goal: Run only what's needed based on what changed.
 - E2E tests — full Playwright suite in Ubuntu container
 - Preview deployment — only if self-hosted runner is available
 
+**Conditional jobs (only if workflow files changed):**
+
+- Workflow lint — actionlint on `.github/workflows/**`
+
 **Always runs (separate workflow):**
 
-- [Lighthouse CI](#lighthouse-ci) — performance testing (local build, not preview URL)
+- [Lighthouse CI](#lighthouse-ci) — performance testing (conditional: skips if only docs/i18n/CI changed)
 
 **How different changes are handled:**
 
-- Docs-only PR — format + lint + i18n only
-- Dependency update — same as docs if no source changes
-- Source code change — full suite including E2E
+- **Docs-only PR** — format + lint + i18n only (Lighthouse skipped)
+- **Translation update** — format + lint + i18n + quality-check (Lighthouse skipped)
+- **Workflow change** — format + lint + i18n + actionlint (Lighthouse skipped)
+- **Dependency update** — same as docs if no source changes
+- **Source code change** — full suite including E2E and Lighthouse
 
 **Cancellation:**
 
@@ -124,16 +130,19 @@ Fix main first. Don't deploy broken code. The workflow won't save you — there 
 
 ## Path Filters
 
-CI detects what files changed and runs only relevant checks:
+CI detects what changed and runs only the relevant checks.
 
-```yaml
-source: src/**/*.ts (excluding tests)
-tests: src/**/*.spec.ts, e2e/**/*.ts
-docs: *.md, docs/**
-i18n: public/i18n/**
-```
+**For example:**
 
-Docs-only PRs skip all tests.
+- Docs-only PRs skip unit tests, E2E, and build. Just lint + format + i18n checks.
+- Workflow changes trigger actionlint (static analysis for GitHub Actions). Doesn't lint composite actions.
+- Source changes include config files like `angular.json` and `package.json` because those affect the build.
+
+## Workflow Linting
+
+The `workflow-lint` job runs when `.github/workflows/**` changes and uses actionlint to catch errors in workflow YAML files.
+
+Installs actionlint directly (no Docker wrapper) because self-hosted runner had Docker API version conflicts with the wrapper actions.
 
 ## Why E2E Only Runs for Code Changes
 
@@ -176,9 +185,24 @@ Performance monitoring and web vitals tracking.
 
 **When it runs:**
 
-- Every PR (opened, updated, or reopened)
+- Every PR (opened, updated, or reopened) — but only if source files changed
 - Manual trigger via workflow_dispatch
 - Weekly schedule (Monday 6:00 AM) for baseline monitoring
+
+**Change detection:**
+
+Lighthouse skips runs when only these change:
+
+- Documentation (`.md` files)
+- Translations (`public/i18n/**`)
+- CI workflows (`.github/**`)
+- Test files (`*.spec.ts`)
+
+Runs when these change:
+
+- Application source (`src/**`)
+- Public assets (`public/**`)
+- Build config (`angular.json`)
 
 **What it does:**
 
