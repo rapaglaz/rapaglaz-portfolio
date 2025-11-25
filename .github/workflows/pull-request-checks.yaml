@@ -42,13 +42,13 @@ jobs:
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
         id: filter
         with:
+          predicate-quantifier: 'every'
           filters: |
             source:
-              - 'src/**/*.ts'
+              - 'src/**'
               - '!src/**/*.spec.ts'
-              - 'src/**/*.html'
-              - 'src/**/*.css'
-              - 'public/**/*'
+              - '!**/*.md'
+              - 'public/**'
               - '!public/i18n/**'
               - 'angular.json'
               - 'tsconfig*.json'
@@ -58,14 +58,14 @@ jobs:
               - 'src/**/*.spec.ts'
               - 'e2e/**/*.ts'
             docs:
-              - '*.md'
-              - 'docs/**'
+              - '**/*.md'
             i18n:
               - 'public/i18n/**'
 
   quality-check:
     runs-on: ${{ needs.pick-runner.outputs.chosen }}
     needs: [pick-runner, detect-changes]
+    if: ${{ needs.detect-changes.outputs.source == 'true' || needs.detect-changes.outputs.tests == 'true' || needs.detect-changes.outputs.i18n == 'true' }}
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
