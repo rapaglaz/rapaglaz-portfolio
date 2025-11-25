@@ -31,11 +31,8 @@ jobs:
     needs: pick-runner
     timeout-minutes: 5
     outputs:
-      source: ${{ steps.filter.outputs.source }}
-      public: ${{ steps.filter.outputs.public }}
-      config: ${{ steps.filter.outputs.config }}
-      tests: ${{ steps.filter.outputs.tests }}
-      docs: ${{ steps.filter.outputs.docs }}
+      app: ${{ steps.filter.outputs.app }}
+      e2e: ${{ steps.filter.outputs.e2e }}
       i18n: ${{ steps.filter.outputs.i18n }}
       ci: ${{ steps.filter.outputs.ci }}
       run_quality: ${{ steps.aggregate.outputs.run_quality }}
@@ -50,20 +47,15 @@ jobs:
         id: filter
         with:
           filters: |
-            source:
+            app:
               - 'src/**'
-            public:
               - 'public/**'
-            config:
               - 'angular.json'
               - 'tsconfig*.json'
               - 'package.json'
               - 'eslint.config.mjs'
-            tests:
-              - 'src/**/*.spec.ts'
+            e2e:
               - 'e2e/**/*.ts'
-            docs:
-              - '**/*.md'
             i18n:
               - 'public/i18n/**'
             ci:
@@ -82,16 +74,15 @@ jobs:
             run_workflow_lint=true
           fi
 
-          if [[ "${{ steps.filter.outputs.source }}" == "true" || "${{ steps.filter.outputs.public }}" == "true" || "${{ steps.filter.outputs.config }}" == "true" || "${{ steps.filter.outputs.tests }}" == "true" ]]; then
+          if [[ "${{ steps.filter.outputs.app }}" == "true" || "${{ steps.filter.outputs.i18n }}" == "true" ]]; then
             run_quality=true
+          fi
+
+          if [[ "${{ steps.filter.outputs.app }}" == "true" || "${{ steps.filter.outputs.e2e }}" == "true" ]]; then
             run_e2e=true
           fi
 
-          if [[ "${{ steps.filter.outputs.i18n }}" == "true" ]]; then
-            run_quality=true
-          fi
-
-          if [[ "$run_quality" == "true" || "${{ steps.filter.outputs.ci }}" == "true" ]]; then
+          if [[ "$run_quality" == "true" || "$run_e2e" == "true" ]]; then
             run_build=true
           fi
 
@@ -115,7 +106,7 @@ jobs:
       - name: Run Quality Check Action
         uses: ./.github/actions/pr-check-action
         env:
-          RUN_TESTS: ${{ needs.detect-changes.outputs.source == 'true' || needs.detect-changes.outputs.tests == 'true' }}
+          RUN_TESTS: ${{ needs.detect-changes.outputs.app == 'true' }}
           RUN_I18N_CHECK: ${{ needs.detect-changes.outputs.i18n == 'true' }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
