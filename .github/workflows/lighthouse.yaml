@@ -16,8 +16,33 @@ permissions:
   pull-requests: write
 
 jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      source: ${{ steps.filter.outputs.source }}
+    steps:
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+
+      - name: Detect changed file paths
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        id: filter
+        with:
+          predicate-quantifier: 'every'
+          filters: |
+            source:
+              - 'src/**'
+              - '!src/**/*.spec.ts'
+              - '!**/*.md'
+              - 'public/**'
+              - '!public/i18n/**'
+              - '!.github/**'
+              - 'angular.json'
+
   lighthouse:
     runs-on: ubuntu-latest
+    needs: detect-changes
+    if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || needs.detect-changes.outputs.source == 'true' }}
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
@@ -51,7 +76,7 @@ jobs:
           fi
 
           # Find the most recent LHR report file
-          latest_report=$(ls -t .lighthouseci/lhr-*.json 2>/dev/null | head -1)
+          latest_report=$(find .lighthouseci -name 'lhr-*.json' -type f -print0 2>/dev/null | xargs -0 ls -t 2>/dev/null | head -1)
 
           if [ -n "$latest_report" ] && [ -f "$latest_report" ]; then
             # Extract scores
@@ -71,10 +96,10 @@ jobs:
               fi
             }
 
-            perf_badge=$(get_badge $perf)
-            a11y_badge=$(get_badge $a11y)
-            bp_badge=$(get_badge $bp)
-            seo_badge=$(get_badge $seo)
+            perf_badge=$(get_badge "$perf")
+            a11y_badge=$(get_badge "$a11y")
+            bp_badge=$(get_badge "$bp")
+            seo_badge=$(get_badge "$seo")
 
             # Output results
             {
@@ -87,7 +112,7 @@ jobs:
               echo "bp_badge=$bp_badge"
               echo "seo_badge=$seo_badge"
               echo "public_url=$public_url"
-            } >> $GITHUB_OUTPUT
+            } >> "$GITHUB_OUTPUT"
 
             echo "Results written to GITHUB_OUTPUT"
           else
