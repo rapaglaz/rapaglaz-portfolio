@@ -59,6 +59,7 @@ jobs:
               - 'tsconfig*.json'
               - 'package.json'
               - 'eslint.config.mjs'
+              - '!**/*.md'
             tests:
               - 'src/**/*.spec.ts'
               - 'e2e/**/*.ts'
