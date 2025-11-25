@@ -4,7 +4,7 @@ How to get this running on your machine.
 
 ## Prerequisites
 
-- **Node.js 22** (check `.nvmrc`)
+- **Node.js 24** (check `.nvmrc`)
 - **pnpm 10+**
 
 Playwright installs browsers automatically on first test run.
