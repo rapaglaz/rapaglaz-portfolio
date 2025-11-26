@@ -17,8 +17,8 @@ startxref
 %%EOF`;
 
 // waits for hero + navbar to ensure page fully loaded before tests
-export async function visitPortfolio(page: Page): Promise<void> {
-  await page.goto('/');
+export async function visitPortfolio(page: Page, url: string = '/'): Promise<void> {
+  await page.goto(url);
   await page.getByTestId('section-hero').waitFor({ state: 'visible' });
   await page.locator('nav.navbar').waitFor({ state: 'visible' });
 }
