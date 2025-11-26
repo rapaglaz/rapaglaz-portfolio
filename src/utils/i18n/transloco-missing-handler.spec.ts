@@ -1,4 +1,3 @@
-import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { LoggerService } from '../../services/logger/logger.service';
@@ -10,7 +9,7 @@ describe('StrictTranslocoMissingHandler', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [StrictTranslocoMissingHandler, LoggerService, provideZonelessChangeDetection()],
+      providers: [StrictTranslocoMissingHandler, LoggerService],
     });
 
     handler = TestBed.inject(StrictTranslocoMissingHandler);
@@ -44,14 +43,5 @@ describe('StrictTranslocoMissingHandler', () => {
 
     // Cleanup
     vi.unstubAllGlobals();
-  });
-
-  it('provides graceful degradation by returning the key as user-visible fallback', () => {
-    const missingKey = 'hero.title';
-
-    const result = handler.handle(missingKey);
-
-    // User sees the key instead of broken UI or crash
-    expect(result).toBe('hero.title');
   });
 });

@@ -1,4 +1,3 @@
-import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslocoService } from '@jsverse/transloco';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -13,7 +12,7 @@ describe('LanguageSwitcher', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [LanguageSwitcher],
-      providers: [provideZonelessChangeDetection(), provideTranslocoTesting()],
+      providers: [provideTranslocoTesting()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LanguageSwitcher);

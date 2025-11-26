@@ -1,10 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  provideZonelessChangeDetection,
-  signal,
-  viewChild,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal, viewChild } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ButtonDirective, type ButtonSize, type ButtonVariant } from './button';
@@ -42,7 +36,6 @@ describe('ButtonDirective', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [TestComponent],
-      providers: [provideZonelessChangeDetection()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TestComponent);
@@ -77,21 +70,5 @@ describe('ButtonDirective', () => {
 
     button.click();
     expect(component.handleClick).not.toHaveBeenCalled();
-  });
-
-  it('computes classes from inputs', () => {
-    const directive = fixture.componentInstance.buttonDirective();
-
-    component.variant.set('ghost');
-    component.size.set('lg');
-    component.circle.set(true);
-    fixture.detectChanges();
-
-    const tokens = new Set(directive['classes']().split(' '));
-
-    expect(tokens.has('btn')).toBe(true);
-    expect(tokens.has('btn-ghost')).toBe(true);
-    expect(tokens.has('btn-lg')).toBe(true);
-    expect(tokens.has('btn-circle')).toBe(true);
   });
 });

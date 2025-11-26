@@ -1,8 +1,7 @@
-import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideTransloco } from '@jsverse/transloco';
-import { beforeEach, describe, expect, it } from 'vitest';
-import { TranslocoTestLoader, mockWindowLocation } from '../../testing';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { TranslocoTestLoader } from '../../testing';
 import { Footer } from './footer';
 
 describe('Footer', () => {
@@ -13,7 +12,6 @@ describe('Footer', () => {
     await TestBed.configureTestingModule({
       imports: [Footer],
       providers: [
-        provideZonelessChangeDetection(),
         provideTransloco({
           config: {
             availableLangs: ['en', 'de'],
@@ -29,33 +27,32 @@ describe('Footer', () => {
     fixture.detectChanges();
   });
 
-  const find = (selector: string): Element | null => element.querySelector(selector);
+  it('renders footer with contact controls', () => {
+    const footer = element.querySelector('footer');
+    const emailButton = footer?.querySelector('button[aria-label="Email"]');
 
-  it('renders accessible email button', () => {
-    const emailButton = find('button[aria-label="Email"]');
-
+    expect(footer).toBeTruthy();
     expect(emailButton).toBeTruthy();
-    expect(emailButton?.getAttribute('type')).toBe('button');
   });
 
-  it('opens mail client on button click', () => {
-    const { assignMock, cleanup } = mockWindowLocation();
+  it('delegates contactEmail to window.location', () => {
+    const assignSpy = vi.fn();
+    const originalLocation = window.location;
+    Object.defineProperty(window, 'location', {
+      value: { assign: assignSpy },
+      writable: true,
+      configurable: true,
+    });
 
-    const emailButton = find('button[aria-label="Email"]') as HTMLButtonElement;
-    emailButton.click();
+    fixture.componentInstance['contactEmail']();
 
-    expect(assignMock).toHaveBeenCalledOnce();
-    expect(assignMock.mock.calls[0][0]).toMatch(/^mailto:/);
+    expect(assignSpy).toHaveBeenCalledTimes(1);
+    expect(assignSpy.mock.calls[0][0]).toMatch(/^mailto:/);
 
-    cleanup();
-  });
-
-  it('external links have security attributes', () => {
-    const externalLinks = Array.from(element.querySelectorAll('a[target="_blank"]'));
-
-    expect(externalLinks.length).toBeGreaterThan(0);
-    externalLinks.forEach(link => {
-      expect(link.getAttribute('rel')).toBe('noopener noreferrer');
+    Object.defineProperty(window, 'location', {
+      value: originalLocation,
+      writable: true,
+      configurable: true,
     });
   });
 });

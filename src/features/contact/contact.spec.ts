@@ -1,6 +1,6 @@
-import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
+import { CONTACT_ITEMS } from '../../content';
 import { provideTranslocoTesting } from '../../testing';
 import { Contact } from './contact';
 
@@ -11,7 +11,7 @@ describe('Contact', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Contact],
-      providers: [provideZonelessChangeDetection(), provideTranslocoTesting()],
+      providers: [provideTranslocoTesting()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Contact);
@@ -19,16 +19,24 @@ describe('Contact', () => {
     fixture.detectChanges();
   });
 
-  it('renders contact section with interactive links', () => {
-    const section = element.querySelector('section#contact');
-    expect(section).toBeTruthy();
+  it('renders contact links with proper external attributes', () => {
+    const links = element.querySelectorAll('a.card-ocean');
+    const expectedCount = CONTACT_ITEMS.length;
 
-    const links = Array.from(section!.querySelectorAll('a, button'));
-    expect(links.length).toBeGreaterThan(0);
+    expect(links.length).toBe(expectedCount);
 
-    const externalLinks = Array.from(section!.querySelectorAll('a[target="_blank"]'));
-    externalLinks.forEach(link => {
-      expect(link.getAttribute('rel')).toBe('noopener noreferrer');
+    links.forEach((link, index) => {
+      const item = CONTACT_ITEMS[index];
+      const target = link.getAttribute('target');
+      const rel = link.getAttribute('rel');
+
+      if (item.isExternal) {
+        expect(target).toBe('_blank');
+        expect(rel).toBe('noopener noreferrer');
+      } else {
+        expect(target).toBeNull();
+        expect(rel).toBeNull();
+      }
     });
   });
 });

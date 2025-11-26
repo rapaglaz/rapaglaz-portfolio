@@ -1,7 +1,6 @@
 import { ScrollDispatcher } from '@angular/cdk/scrolling';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, Subject, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -23,7 +22,6 @@ describe('Navbar', () => {
     await TestBed.configureTestingModule({
       imports: [Navbar],
       providers: [
-        provideZonelessChangeDetection(),
         provideHttpClient(),
         provideHttpClientTesting(),
         provideTranslocoTesting(),
@@ -67,7 +65,6 @@ describe('Navbar - CV Download', () => {
     await TestBed.configureTestingModule({
       imports: [Navbar],
       providers: [
-        provideZonelessChangeDetection(),
         provideHttpClient(),
         provideHttpClientTesting(),
         provideTranslocoTesting(),
@@ -145,7 +142,6 @@ describe('Navbar - Contact Email', () => {
     await TestBed.configureTestingModule({
       imports: [Navbar],
       providers: [
-        provideZonelessChangeDetection(),
         provideHttpClient(),
         provideHttpClientTesting(),
         provideTranslocoTesting(),
