@@ -17,7 +17,7 @@ These usually don't play well together.
 **Option 1: Run everything on every PR**
 Lint + unit + E2E + SonarCloud on every commit.
 
-Problem: Takes forever. E2E can be flaky. Kills the flow when I'm iterating on changes.
+Problem: Takes forever. E2E can be flaky. Kills the flow when iterating on changes.
 
 **Option 2: Skip CI, rely on local testing**
 Run tests before pushing.
@@ -42,22 +42,25 @@ Goal: Run only what's needed based on what changed.
 - Lint — ESLint + Angular rules
 - i18n validation — Transloco JSON check
 
-**Conditional jobs (only if source/test files changed):**
+**Conditional jobs:**
 
-- Unit tests with coverage — Vitest
-- Build — TypeScript compilation, bundling
-- E2E tests — full Playwright suite in Ubuntu container
-- Preview deployment — only if self-hosted runner is available
+- Quality check (lint + unit tests + coverage + Sonar) — runs when app files change (`src/**`, `public/**`, `angular.json`, `tsconfig*.json`, `package.json`, `eslint.config.mjs`) or i18n (`public/i18n/**`)
+- E2E tests — runs when app files change or `e2e/**/*.ts` / `playwright.config.*` change
+- Build — runs when quality or E2E ran (reuses the same build action)
+- Preview deployment — only if self-hosted runner is chosen and build passed
+- Workflow lint — when workflow YAML changes (`.github/workflows/**`)
 
 **Always runs (separate workflow):**
 
-- [Lighthouse CI](#lighthouse-ci) — performance testing (local build, not preview URL)
+- [Lighthouse CI](#lighthouse-ci) — performance testing (conditional: skips if only docs/i18n/CI changed)
 
 **How different changes are handled:**
 
 - Docs-only PR — format + lint + i18n only
+- Workflow change — format + lint + i18n + actionlint
 - Dependency update — same as docs if no source changes
 - Source code change — full suite including E2E
+- E2E-only change — E2E + build (quality skipped)
 
 **Cancellation:**
 
@@ -91,7 +94,7 @@ pick-runner -> build -> deploy
 
 - Environment protection — enforced by GitHub at repository level
 - Build — compile the app
-- Deploy — FTP upload to production
+- Deploy — upload to production
 
 **What's skipped (everything):**
 
@@ -106,7 +109,7 @@ pick-runner -> build -> deploy
 
 Workflow uses `environment: production` on the first job. This enforces branch restrictions at repository level through GitHub Environment protection rules.
 
-Can't be bypassed by modifying workflow file. If you trigger from wrong branch, workflow fails immediately.
+Can't be bypassed by modifying workflow file. If you trigger from wrong branch, it fails immediately.
 
 **Why this works:**
 
@@ -120,24 +123,21 @@ Check GitHub Actions to make sure main branch has green checks. That's it. If ma
 
 **If main checks failed:**
 
-Fix main first. Don't deploy broken code. The workflow won't save you anyway since there are no quality gates — it trusts main completely.
+Fix main first. Don't deploy broken code. The workflow won't save you — there are no quality gates, it trusts main completely.
 
 ## Path Filters
 
-CI detects what files changed and runs only relevant checks:
+CI detects what changed and runs only relevant checks:
 
-```yaml
-source: src/**/*.ts (excluding tests)
-tests: src/**/*.spec.ts, e2e/**/*.ts
-docs: *.md, docs/**
-i18n: public/i18n/**
-```
-
-Docs-only PRs skip all tests.
+- Docs-only PRs skip unit tests, E2E, build, and preview. Only lint + format + i18n.
+- Workflow changes trigger actionlint (static analysis for GitHub Actions). Doesn't lint composite actions.
+- Source changes include `src/**`, `public/**`, `angular.json`, `tsconfig*.json`, `package.json`, and `eslint.config.mjs` because they affect the build.
+- E2E tests run when `e2e/**/*.ts` or `playwright.config.*` changes, or when app code changes.
+- Translations (`public/i18n/**`) trigger quality checks but not E2E by themselves.
 
 ## Why E2E Only Runs for Code Changes
 
-E2E tests run when source or test files change. This catches breaking changes before merge while keeping doc updates fast.
+E2E tests run when app files change or when `e2e/**/*.ts` / Playwright config changes. This catches breaking changes before merge while keeping doc updates fast.
 
 E2E always uses GitHub-hosted runners (Ubuntu container with Playwright pre-installed) — more reliable than self-hosted for browser testing.
 
@@ -164,11 +164,11 @@ Combined with `cancel-in-progress`, you never wait for outdated runs. New commit
 
 ## Self-Hosted Runner
 
-Most jobs run on my NAS (self-hosted runner). If it goes offline, the pipeline automatically falls back to GitHub-hosted runners.
+Most jobs run on my NAS (self-hosted runner). If it goes offline, pipeline falls back to GitHub-hosted runners automatically.
 
 E2E tests always use GitHub-hosted runners because Playwright needs specific container environment.
 
-This saves a decent amount of GitHub Actions minutes.
+This saves a decent amount of GitHub Actions minutes 🙂.
 
 ## Lighthouse CI
 
@@ -176,9 +176,25 @@ Performance monitoring and web vitals tracking.
 
 **When it runs:**
 
-- Every PR (opened, updated, or reopened)
+- Every PR (opened, updated, or reopened) — but only if app files changed (`src/**`, `public/**`, `angular.json`)
 - Manual trigger via workflow_dispatch
 - Weekly schedule (Monday 6:00 AM) for baseline monitoring
+
+**Change detection:**
+
+Lighthouse skips runs when only these change:
+
+- Documentation (`.md` files)
+- Translations (`public/i18n/**`)
+- CI workflows (`.github/**`)
+- Test files (`*.spec.ts`)
+- E2E tests (`e2e/**/*.ts`)
+
+Runs when these change:
+
+- Application source (`src/**`)
+- Public assets (`public/**`)
+- Build config (`angular.json`)
 
 **What it does:**
 
@@ -210,14 +226,14 @@ Lighthouse scores can vary between runs due to network conditions, CPU load, etc
 
 **PR Comments:**
 
-Every PR gets a sticky comment with:
+Every PR gets a comment with:
 
 - Link to full Lighthouse report
 - Commit SHA and build number
 - Environment details
 
-This helps catch performance regressions before they reach production.
+Helps catch performance regressions before they reach production.
 
 ## Fork PRs
 
-PRs from forks automatically use GitHub-hosted runners (they don't have access to self-hosted). This is also for security — don't want untrusted code running on my server.
+PRs from forks automatically use GitHub-hosted runners (they don't have access to self-hosted). Also for security — don't want untrusted code running on my server.

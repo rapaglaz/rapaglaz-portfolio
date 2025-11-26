@@ -8,7 +8,9 @@ import { proxyInterceptor } from './proxy.interceptor';
 describe('proxyInterceptor', () => {
   it('forwards requests in production environments', () => {
     TestBed.configureTestingModule({
-      providers: [{ provide: DOCUMENT, useValue: { defaultView: { location: { hostname: 'rapaglaz.de' } } } }],
+      providers: [
+        { provide: DOCUMENT, useValue: { defaultView: { location: { hostname: 'rapaglaz.de' } } } },
+      ],
     });
 
     const next: HttpHandlerFn = vi.fn(req => of(req as any));

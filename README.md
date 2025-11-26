@@ -1,14 +1,14 @@
 # Paul Glaz Portfolio
 
-Personal portfolio built with Angular 20.
+Personal portfolio built with Angular 21.
 
 Built the same way I'd build client work — proper typing, tests, CI gates, security headers. Just smaller scope.
 
-I also use it to test new Angular features properly. Signals, zoneless mode, new build tooling — when something comes out, I try it here first.
+I also use it to test new Angular features. Signals, zoneless mode, new build tooling — when something comes out, I try it here first.
 
 ## What's in here
 
-- Angular 20, standalone components, signals everywhere
+- Angular 21, standalone components, signals everywhere
 - Zoneless change detection (Zone.js is gone)
 - Transloco for i18n — runtime switching between English and German
 - CV download flow: Cloudflare Turnstile → Worker → signed R2 URL
@@ -20,7 +20,7 @@ I also use it to test new Angular features properly. Signals, zoneless mode, new
 
 | Area          | What I use                                                 |
 | ------------- | ---------------------------------------------------------- |
-| **Framework** | Angular 20, TypeScript, RxJS, Signals                      |
+| **Framework** | Angular 21, TypeScript, RxJS, Signals                      |
 | **i18n**      | Transloco (runtime)                                        |
 | **Styling**   | Tailwind CSS 4 + DaisyUI + custom CSS                      |
 | **Testing**   | Vitest (unit), Playwright (E2E), Lighthouse CI, SonarCloud |
