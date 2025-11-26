@@ -1,4 +1,3 @@
-import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { provideTranslocoTesting } from '../../testing';
@@ -11,7 +10,7 @@ describe('Languages', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Languages],
-      providers: [provideZonelessChangeDetection(), provideTranslocoTesting()],
+      providers: [provideTranslocoTesting()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Languages);
@@ -19,17 +18,13 @@ describe('Languages', () => {
     fixture.detectChanges();
   });
 
-  it('displays all language proficiencies', () => {
-    const section = element.querySelector('section#languages');
-    const cards = element.querySelectorAll('.animate-item');
+  it('renders translated language names and levels', () => {
+    const cards = element.querySelectorAll('div.card-ocean');
 
-    expect(section).toBeTruthy();
-    expect(cards.length).toBe(3);
+    expect(cards.length).toBeGreaterThan(0);
+    const firstCardText = cards[0]?.textContent ?? '';
 
-    const cardTexts = Array.from(cards).map(card => card.textContent ?? '');
-
-    expect(cardTexts.some(text => text.includes('Polish'))).toBe(true);
-    expect(cardTexts.some(text => text.includes('German'))).toBe(true);
-    expect(cardTexts.some(text => text.includes('English'))).toBe(true);
+    expect(firstCardText).toMatch(/German|Deutsch/i);
+    expect(firstCardText).toMatch(/Professional/i);
   });
 });

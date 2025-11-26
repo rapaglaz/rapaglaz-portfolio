@@ -1,9 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  provideZonelessChangeDetection,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ScrollRevealDirective } from './scroll-reveal.directive';
@@ -55,7 +50,6 @@ describe('ScrollRevealDirective', () => {
 
     await TestBed.configureTestingModule({
       imports: [TestHostComponent],
-      providers: [provideZonelessChangeDetection()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TestHostComponent);

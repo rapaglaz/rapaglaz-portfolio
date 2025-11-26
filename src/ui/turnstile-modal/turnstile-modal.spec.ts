@@ -1,4 +1,3 @@
-import { provideZonelessChangeDetection } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { provideTranslocoTesting } from '../../testing';
@@ -10,7 +9,7 @@ describe('TurnstileModal', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [TurnstileModal],
-      providers: [provideZonelessChangeDetection(), provideTranslocoTesting()],
+      providers: [provideTranslocoTesting()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TurnstileModal);

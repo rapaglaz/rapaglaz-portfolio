@@ -4,19 +4,19 @@ import {
   ApplicationRef,
   EnvironmentProviders,
   inject,
+  InjectionToken,
   isDevMode,
   makeEnvironmentProviders,
+  provideAppInitializer,
   provideBrowserGlobalErrorListeners,
-  provideZonelessChangeDetection,
 } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import {
   provideTransloco,
-  TRANSLOCO_CONFIG,
   TRANSLOCO_MISSING_HANDLER,
   translocoConfig,
-  type TranslocoConfig,
+  TranslocoService,
 } from '@jsverse/transloco';
 import { proxyInterceptor, turnstileInterceptor } from '../interceptors';
 import { LoggerService } from '../services';
@@ -29,43 +29,40 @@ import { App } from './app';
 import { routes } from './app.routes';
 
 const AVAILABLE_LANGS = ['en', 'de'];
+const DEFAULT_LANG = new InjectionToken<string>('DEFAULT_LANG');
 
 function provideTranslocoWithDynamicLang(): EnvironmentProviders {
   return makeEnvironmentProviders([
+    {
+      provide: DEFAULT_LANG,
+      deps: [LoggerService],
+      useFactory: (logger: LoggerService): string[] | string => {
+        const browserLang = getBrowserLanguage(logger).split('-')[0];
+        return AVAILABLE_LANGS.includes(browserLang) ? browserLang : 'en';
+      },
+    },
     provideTransloco({
-      config: {
+      config: translocoConfig({
         availableLangs: AVAILABLE_LANGS,
         defaultLang: 'en',
         reRenderOnLangChange: true,
         prodMode: !isDevMode(),
         missingHandler: { useFallbackTranslation: false, allowEmpty: false },
-      },
+      }),
       loader: TranslocoHttpLoader,
     }),
-    {
-      provide: TRANSLOCO_CONFIG,
-      useFactory: (): TranslocoConfig => {
-        const logger = inject(LoggerService);
-        const browserLang = getBrowserLanguage(logger).split('-')[0];
-        const defaultLang = AVAILABLE_LANGS.includes(browserLang) ? browserLang : 'en';
-
-        return translocoConfig({
-          availableLangs: AVAILABLE_LANGS,
-          defaultLang,
-          reRenderOnLangChange: true,
-          prodMode: !isDevMode(),
-          missingHandler: { useFallbackTranslation: false, allowEmpty: false },
-        });
-      },
-    },
     { provide: TRANSLOCO_MISSING_HANDLER, useClass: StrictTranslocoMissingHandler },
+    provideAppInitializer(() => {
+      const transloco = inject(TranslocoService);
+      const defaultLang = inject(DEFAULT_LANG);
+      transloco.setActiveLang(defaultLang);
+    }),
   ]);
 }
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideZonelessChangeDetection(),
     provideRouter(routes),
     provideHttpClient(withInterceptors([proxyInterceptor, turnstileInterceptor])),
     provideTranslocoWithDynamicLang(),

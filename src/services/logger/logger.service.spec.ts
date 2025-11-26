@@ -1,4 +1,3 @@
-import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { LoggerService } from './logger.service';
@@ -13,7 +12,7 @@ describe('LoggerService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [LoggerService, provideZonelessChangeDetection()],
+      providers: [LoggerService],
     });
     service = TestBed.inject(LoggerService);
 

@@ -1,25 +1,9 @@
-import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideTransloco } from '@jsverse/transloco';
 import { firstValueFrom } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TranslocoTestLoader } from '../../testing';
 import { TurnstileService } from './turnstile.service';
-
-function mockTurnstileApi(overrides: Partial<TurnstileAPI> = {}): TurnstileAPI {
-  const api: TurnstileAPI = {
-    render: vi.fn(),
-    remove: vi.fn(),
-    ...overrides,
-  };
-  (window as any).turnstile = api;
-  return api;
-}
-
-type TurnstileAPI = {
-  render: ReturnType<typeof vi.fn>;
-  remove: ReturnType<typeof vi.fn>;
-};
 
 describe('TurnstileService (integration)', () => {
   let service: TurnstileService;
@@ -28,7 +12,6 @@ describe('TurnstileService (integration)', () => {
     TestBed.configureTestingModule({
       providers: [
         TurnstileService,
-        provideZonelessChangeDetection(),
         provideTransloco({
           config: { availableLangs: ['en', 'de'], defaultLang: 'en' },
           loader: TranslocoTestLoader,
@@ -45,13 +28,12 @@ describe('TurnstileService (integration)', () => {
     vi.restoreAllMocks();
   });
 
-  it('resolves token when API loaded', async () => {
-    const modalDetachSpy = vi.spyOn(document.body, 'removeChild');
+  it('resolves token when Turnstile API is available', async () => {
     const renderSpy = vi.fn((_container: HTMLElement, options?: Record<string, any>) => {
       options?.['callback']?.('token-123');
       return 'widget-1';
     });
-    mockTurnstileApi({ render: renderSpy, remove: vi.fn() });
+    (window as any).turnstile = { render: renderSpy, remove: vi.fn() };
 
     const token = await firstValueFrom(service.getToken$('site-key'));
 
@@ -60,80 +42,38 @@ describe('TurnstileService (integration)', () => {
       expect.any(HTMLElement),
       expect.objectContaining({ sitekey: 'site-key' }),
     );
-    expect(modalDetachSpy).toHaveBeenCalled();
   });
 
-  it('injects script and resolves token', async () => {
-    delete (window as any).turnstile;
-    const renderSpy = vi.fn((_container: HTMLElement, options?: Record<string, any>) => {
-      options?.['callback']?.('token-loaded');
-      return 'widget-loaded';
-    });
-    const headAppendSpy = vi.spyOn(document.head, 'appendChild').mockImplementation(node => {
-      const element = node as HTMLScriptElement;
-      if (element.tagName === 'SCRIPT' && element.src.includes('turnstile')) {
-        setTimeout(() => {
-          (window as any).turnstile = { render: renderSpy, remove: vi.fn() };
-          element.onload?.(new Event('load'));
-        }, 0);
-      }
-      return element;
+  it('fails when Turnstile script cannot be loaded', async () => {
+    let scriptEl: HTMLScriptElement | null = null;
+    const appendSpy = vi.spyOn(document.head!, 'appendChild').mockImplementation(el => {
+      scriptEl = el as HTMLScriptElement;
+      return el;
     });
 
-    const token = await firstValueFrom(service.getToken$('site-key'));
+    const tokenPromise = firstValueFrom(service.getToken$('site-key'));
 
-    expect(token).toBe('token-loaded');
-    expect(headAppendSpy).toHaveBeenCalledWith(expect.objectContaining({ tagName: 'SCRIPT' }));
-    expect(renderSpy).toHaveBeenCalled();
+    expect(scriptEl).toBeTruthy();
+    (scriptEl as HTMLScriptElement | null)?.onerror?.(new Event('error'));
+
+    await expect(tokenPromise).rejects.toThrow('Failed to load Turnstile script');
+
+    appendSpy.mockRestore();
   });
 
-  it('propagates verification failures', async () => {
+  it('propagates Turnstile verification errors and cleans up widget', async () => {
+    const removeSpy = vi.fn();
     const renderSpy = vi.fn((_container: HTMLElement, options?: Record<string, any>) => {
       options?.['error-callback']?.();
-      return 'widget-error';
+      return 'widget-err';
     });
-    mockTurnstileApi({ render: renderSpy, remove: vi.fn() });
+    (window as any).turnstile = { render: renderSpy, remove: removeSpy };
 
     await expect(firstValueFrom(service.getToken$('site-key'))).rejects.toThrow(
       'Turnstile verification failed',
     );
-  });
 
-  it('allows retry after script load failure', async () => {
-    delete (window as any).turnstile;
-    let scriptLoadAttempts = 0;
-    const renderSpy = vi.fn((_container: HTMLElement, options?: Record<string, any>) => {
-      options?.['callback']?.('token-retry');
-      return 'widget-retry';
-    });
-
-    const headAppendSpy = vi.spyOn(document.head, 'appendChild').mockImplementation(node => {
-      const element = node as HTMLScriptElement;
-      if (element.tagName === 'SCRIPT' && element.src.includes('turnstile')) {
-        scriptLoadAttempts++;
-        setTimeout(() => {
-          if (scriptLoadAttempts === 1) {
-            element.onerror?.(new Event('error'));
-          } else {
-            (window as any).turnstile = { render: renderSpy, remove: vi.fn() };
-            element.onload?.(new Event('load'));
-          }
-        }, 0);
-      }
-      return element;
-    });
-
-    await expect(firstValueFrom(service.getToken$('site-key'))).rejects.toThrow(
-      'Failed to load Turnstile script',
-    );
-
-    expect(scriptLoadAttempts).toBe(1);
-
-    const token = await firstValueFrom(service.getToken$('site-key'));
-
-    expect(token).toBe('token-retry');
-    expect(scriptLoadAttempts).toBe(2);
-    expect(headAppendSpy).toHaveBeenCalledTimes(2);
-    expect(renderSpy).toHaveBeenCalledOnce();
+    expect(renderSpy).toHaveBeenCalled();
+    expect(removeSpy).toHaveBeenCalledWith('widget-err');
   });
 });

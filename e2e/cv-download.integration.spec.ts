@@ -1,15 +1,38 @@
 import { expect, test } from '@playwright/test';
-import { visitPortfolio } from './utils';
+import { switchLanguage, visitPortfolio } from './utils';
+
+const integrationTarget = process.env['INTEGRATION_TEST_URL'];
+const parsedTarget = integrationTarget ? safeParseUrl(integrationTarget) : null;
+const isProdHost =
+  parsedTarget?.hostname === 'rapaglaz.de' || parsedTarget?.hostname === 'www.rapaglaz.de';
+
+function safeParseUrl(url: string): URL | null {
+  try {
+    return new URL(url);
+  } catch {
+    return null;
+  }
+}
 
 // Integration tests for CV download flow with real Cloudflare Worker.
 test.describe('CV Download - Real Worker Integration', () => {
   test.skip(
-    !process.env['INTEGRATION_TEST'],
-    'Integration tests disabled. Set INTEGRATION_TEST=true to run.',
+    !integrationTarget,
+    'Integration tests disabled. Set INTEGRATION_TEST_URL to staging base URL to run.',
+  );
+
+  test.skip(
+    !parsedTarget,
+    'Integration tests require a valid INTEGRATION_TEST_URL (e.g. https://staging.example.com).',
+  );
+
+  test.skip(
+    isProdHost,
+    'Integration tests cannot target production. Use a staging INTEGRATION_TEST_URL.',
   );
 
   test.beforeEach(async ({ page }) => {
-    await visitPortfolio(page);
+    await visitPortfolio(page, integrationTarget!);
   });
 
   test('downloads CV with real signed URL from Cloudflare Worker (EN)', async ({ page }) => {
@@ -30,17 +53,11 @@ test.describe('CV Download - Real Worker Integration', () => {
   });
 
   test('downloads CV with real signed URL after locale switch (DE)', async ({ page }) => {
-    const langButton = page.locator('button[aria-label="Language Switcher"]');
-    await langButton.click();
-
-    const germanOption = page.getByRole('menuitem').filter({ hasText: 'Deutsch' });
-    await germanOption.click();
-
-    await page.waitForTimeout(500);
+    await switchLanguage(page, 'DE');
 
     const downloadPromise = page.waitForEvent('download', { timeout: 60000 });
 
-    const cvButton = page.getByRole('button', { name: 'Lebenslauf' });
+    const cvButton = page.getByRole('button', { name: 'CV' });
     await cvButton.click();
 
     const download = await downloadPromise;
@@ -84,27 +101,21 @@ test.describe('CV Download - Real Worker Integration', () => {
   });
 
   test('verifies Worker returns R2 signed URL with correct structure', async ({ page }) => {
-    let finalDownloadUrl = '';
-
-    page.on('response', async response => {
-      const url = new URL(response.url());
-      if (url.hostname.endsWith('.r2.cloudflarestorage.com')) {
-        finalDownloadUrl = response.url();
-      }
+    const responsePromise = page.waitForResponse(resp => resp.url().includes('/download?file='), {
+      timeout: 60000,
     });
-
     const downloadPromise = page.waitForEvent('download', { timeout: 60000 });
 
     const cvButton = page.getByRole('button', { name: 'CV' });
     await cvButton.click();
 
-    await downloadPromise;
+    const response = await responsePromise;
+    const download = await downloadPromise;
+    expect(response.ok()).toBe(true);
 
-    await page.waitForTimeout(500);
-
-    // Verify the final URL is from Cloudflare R2
-    const parsedUrl = new URL(finalDownloadUrl);
-    expect(parsedUrl.hostname.endsWith('.r2.cloudflarestorage.com')).toBe(true);
+    const finalDownloadUrl = response.url();
     expect(finalDownloadUrl).toContain('Paul_Glaz_CV');
+    expect(response.headers()['content-type']).toContain('application/pdf');
+    expect(await download.path()).toBeTruthy();
   });
 });

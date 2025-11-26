@@ -1,6 +1,5 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -15,12 +14,7 @@ describe('ConfigService', () => {
     originalLocation = window.location;
 
     TestBed.configureTestingModule({
-      providers: [
-        ConfigService,
-        provideZonelessChangeDetection(),
-        provideHttpClient(),
-        provideHttpClientTesting(),
-      ],
+      providers: [ConfigService, provideHttpClient(), provideHttpClientTesting()],
     });
     service = TestBed.inject(ConfigService);
     httpMock = TestBed.inject(HttpTestingController);

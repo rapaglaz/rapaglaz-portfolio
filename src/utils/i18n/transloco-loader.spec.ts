@@ -1,6 +1,5 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import deJson from '../../../public/i18n/de.json';
@@ -13,12 +12,7 @@ describe('TranslocoHttpLoader', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-        TranslocoHttpLoader,
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        provideZonelessChangeDetection(),
-      ],
+      providers: [TranslocoHttpLoader, provideHttpClient(), provideHttpClientTesting()],
     });
 
     loader = TestBed.inject(TranslocoHttpLoader);
