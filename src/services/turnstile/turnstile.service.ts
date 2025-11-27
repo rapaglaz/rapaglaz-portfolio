@@ -29,12 +29,7 @@ type TurnstileAPI = {
   remove(widgetId?: string): void;
 };
 
-declare global {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-  interface Window {
-    turnstile?: TurnstileAPI;
-  }
-}
+type TurnstileWindow = Window & { turnstile?: TurnstileAPI };
 
 type WidgetContext = {
   widgetId: string;
@@ -59,7 +54,7 @@ export class TurnstileService {
   private loadScript(): Observable<void> {
     if (this.scriptLoad$) return this.scriptLoad$;
 
-    const win = this.document.defaultView;
+    const win: TurnstileWindow | null = this.document.defaultView;
     if (!win) {
       return throwError(() => new Error('Window not available'));
     }
@@ -103,7 +98,7 @@ export class TurnstileService {
 
   private renderWidget(siteKey: string): Observable<string> {
     return defer(() => {
-      const win = this.document.defaultView;
+      const win: TurnstileWindow | null = this.document.defaultView;
       if (!win?.turnstile || !this.document.body) {
         return throwError(() => new Error('Turnstile not available'));
       }
