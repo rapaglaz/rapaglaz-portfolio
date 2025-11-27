@@ -86,13 +86,11 @@ export default defineConfig(
           },
         },
       ],
-      // Disable Angular's default component-class-suffix rule (we enforce NO suffix)
-      '@angular-eslint/component-class-suffix': 'off',
       '@typescript-eslint/no-empty-function': 'warn',
       '@typescript-eslint/no-empty-interface': 'error',
       '@typescript-eslint/no-inferrable-types': 'warn',
       '@typescript-eslint/no-shadow': 'warn',
-      '@typescript-eslint/unified-signatures': 'off', // Disabled due to bug with TypeScript 5.9+
+      '@typescript-eslint/unified-signatures': 'warn',
       '@typescript-eslint/no-extraneous-class': [
         'error',
         {
