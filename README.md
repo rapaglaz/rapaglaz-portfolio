@@ -2,10 +2,6 @@
 
 Personal portfolio built with Angular 21.
 
-Built the same way I'd build client work — proper typing, tests, CI gates, security headers. Just smaller scope.
-
-I also use it to test new Angular features. Signals, zoneless mode, new build tooling — when something comes out, I try it here first.
-
 ## What's in here
 
 - Angular 21, standalone components, signals everywhere

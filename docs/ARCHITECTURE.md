@@ -167,9 +167,3 @@ Saves GitHub Actions minutes but creates single point of failure. Fallback logic
 
 **Runtime i18n instead of build-time**
 Better UX for language switching, simpler to maintain translations.
-
-## Useful Resources
-
-- [Angular Signals Guide](https://angular.dev/guide/signals)
-- [Transloco Documentation](https://jsverse.github.io/transloco/)
-- [Cloudflare Workers Docs](https://developers.cloudflare.com/workers/)
