@@ -17,7 +17,7 @@ jobs:
     outputs:
       chosen: ${{ steps.pick.outputs.chosen }}
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - id: pick
         uses: ./.github/actions/pick-runner-action
         with:
@@ -29,7 +29,7 @@ jobs:
     needs: [pick-runner]
     runs-on: ${{ needs.pick-runner.outputs.chosen }}
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with: { fetch-depth: 0 }
       - name: Run Build Action
         uses: ./.github/actions/build-action
@@ -45,7 +45,7 @@ jobs:
     needs: [pick-runner, build]
     runs-on: ${{ needs.pick-runner.outputs.chosen }}
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with: { fetch-depth: 0 }
 
       - name: Download build artifact
