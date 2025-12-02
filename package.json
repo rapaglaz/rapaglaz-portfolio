@@ -47,7 +47,7 @@
     "@commitlint/cli": "20.1.0",
     "@commitlint/config-conventional": "20.0.0",
     "@eslint/js": "9.39.1",
-    "@jsverse/transloco-keys-manager": "7.0.2",
+    "@jsverse/transloco-keys-manager": "7.1.0",
     "@jsverse/transloco-utils": "8.2.0",
     "@jsverse/transloco-validator": "8.2.0",
     "@playwright/test": "1.57.0",
