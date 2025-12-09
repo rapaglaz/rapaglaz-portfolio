@@ -37,10 +37,10 @@
     "valibot": "1.2.0"
   },
   "devDependencies": {
-    "@angular-eslint/builder": "21.0.1",
-    "@angular-eslint/eslint-plugin": "21.0.1",
-    "@angular-eslint/eslint-plugin-template": "21.0.1",
-    "@angular-eslint/template-parser": "21.0.1",
+    "@angular-eslint/builder": "21.1.0",
+    "@angular-eslint/eslint-plugin": "21.1.0",
+    "@angular-eslint/eslint-plugin-template": "21.1.0",
+    "@angular-eslint/template-parser": "21.1.0",
     "@angular/build": "21.0.2",
     "@angular/cli": "21.0.2",
     "@angular/compiler-cli": "21.0.3",
@@ -54,7 +54,7 @@
     "@tailwindcss/postcss": "4.1.17",
     "@types/node": "24.10.2",
     "@vitest/coverage-v8": "4.0.15",
-    "angular-eslint": "21.0.1",
+    "angular-eslint": "21.1.0",
     "daisyui": "5.5.8",
     "eslint": "9.39.1",
     "eslint-config-prettier": "10.1.8",
