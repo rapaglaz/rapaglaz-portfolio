@@ -55,7 +55,7 @@
     "@types/node": "24.10.4",
     "@vitest/coverage-v8": "4.0.15",
     "angular-eslint": "21.1.0",
-    "daisyui": "5.5.11",
+    "daisyui": "5.5.13",
     "eslint": "9.39.2",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.4",
