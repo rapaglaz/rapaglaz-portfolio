@@ -4,7 +4,7 @@ Personal portfolio built with Angular 21.
 
 ## What's in here
 
-- Angular 21, standalone components, signals everywhere
+- Angular 21, standalone components, signals
 - Zoneless change detection (Zone.js is gone)
 - Transloco for i18n — runtime switching between English and German
 - CV download flow: Cloudflare Turnstile → Worker → signed R2 URL
