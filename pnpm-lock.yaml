@@ -103,8 +103,8 @@ importers:
         specifier: 21.1.0
         version: 21.1.0(@angular/cli@21.0.3(@types/node@24.10.3)(chokidar@4.0.3))(chokidar@4.0.3)(eslint@9.39.1(jiti@2.6.1))(typescript-eslint@8.49.0(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(typescript@5.9.3)
       daisyui:
-        specifier: 5.5.8
-        version: 5.5.8
+        specifier: 5.5.11
+        version: 5.5.11
       eslint:
         specifier: 9.39.1
         version: 9.39.1(jiti@2.6.1)
@@ -2428,8 +2428,8 @@ packages:
     resolution: {integrity: sha512-KyOS/kJMEq5O9GdPnaf82noigg5X5DYn0kZPJTaAsCUaBizp6Xa1y9D4Qoqf/JazEXWuruErHgVXwjN5391ZJw==}
     engines: {node: '>=20'}
 
-  daisyui@5.5.8:
-    resolution: {integrity: sha512-6psL9jIEOFOw68V10j/BKCWcRgx8dh81mmNxShr+g7HDM6UHNoPharlp9zq/PQkHNuGU1ZQsajR3HgpvavbRKQ==}
+  daisyui@5.5.11:
+    resolution: {integrity: sha512-xQ1JIgYbhKe9DKhFtOWAKf91F1mK3HECa5xoINmSHMqW9KjEP+yOWttTN1K7zOwuDmk68CbovCDbMKLVtDmPBQ==}
 
   dargs@8.1.0:
     resolution: {integrity: sha512-wAV9QHOsNbwnWdNW2FYvE1P56wtgSbM+3SZcdGiWQILwVjACCXDCI3Ai8QlCjMDB8YK5zySiXZYBiwGmNY3lnw==}
@@ -6820,7 +6820,7 @@ snapshots:
     transitivePeerDependencies:
       - postcss
 
-  daisyui@5.5.8: {}
+  daisyui@5.5.11: {}
 
   dargs@8.1.0: {}
 
