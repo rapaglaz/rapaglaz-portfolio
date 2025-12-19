@@ -21,7 +21,8 @@ describe('Badge', () => {
   it('has accessible button with aria-label', () => {
     const badge = compiled.querySelector('[role="button"]');
 
-    expect(badge).toBeTruthy();
+    expect(badge).toBeInstanceOf(HTMLElement);
+    expect(badge?.getAttribute('tabindex')).toBe('0');
     expect(badge?.getAttribute('aria-label')).toBe('Badge');
 
     fixture.componentRef.setInput('ariaLabel', 'Open to Work');
@@ -37,5 +38,21 @@ describe('Badge', () => {
     compiled.click();
 
     expect(clickedSpy).toHaveBeenCalled();
+  });
+
+  it('emits clicked event on enter keydown', () => {
+    const clickedSpy = vi.fn();
+    component.clicked.subscribe(clickedSpy);
+
+    const event = new KeyboardEvent('keydown', {
+      key: 'Enter',
+      bubbles: true,
+      cancelable: true,
+    });
+    compiled.dispatchEvent(event);
+
+    expect(event.defaultPrevented).toBe(true);
+    expect(clickedSpy).toHaveBeenCalledTimes(1);
+    expect(clickedSpy.mock.calls[0]?.[0]).toBeInstanceOf(MouseEvent);
   });
 });
