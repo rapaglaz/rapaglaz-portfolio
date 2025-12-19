@@ -18,7 +18,7 @@ import {
   translocoConfig,
   TranslocoService,
 } from '@jsverse/transloco';
-import { firstValueFrom } from 'rxjs';
+import { Observable } from 'rxjs';
 import { App } from './app';
 import { routes } from './app.routes';
 import { proxyInterceptor, turnstileInterceptor } from './interceptors';
@@ -59,11 +59,11 @@ export function provideTranslocoWithDynamicLang(): EnvironmentProviders {
   ]);
 }
 
-export function initTranslocoDefaultLang(): Promise<void> {
+export function initTranslocoDefaultLang(): Observable<unknown> {
   const transloco = inject(TranslocoService);
   const defaultLang = inject(DEFAULT_LANG_TOKEN);
   transloco.setActiveLang(defaultLang);
-  return firstValueFrom(transloco.load(defaultLang)).then(() => undefined);
+  return transloco.load(defaultLang);
 }
 
 export const appConfig: ApplicationConfig = {
