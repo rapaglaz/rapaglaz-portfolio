@@ -6,6 +6,7 @@ Personal portfolio built with Angular 21.
 
 - Angular 21, standalone components, signals
 - Zoneless change detection (Zone.js is gone)
+- SSG build (outputMode: static) with client hydration
 - Transloco for i18n — runtime switching between English and German
 - CV download flow: Cloudflare Turnstile → Worker → signed R2 URL
 - Reusable UI stuff in `src/ui/`, shared logic in `src/services/`
@@ -17,6 +18,7 @@ Personal portfolio built with Angular 21.
 | Area          | What I use                                                 |
 | ------------- | ---------------------------------------------------------- |
 | **Framework** | Angular 21, TypeScript, RxJS, Signals                      |
+| **Rendering** | SSG (Angular outputMode: static) + client hydration        |
 | **i18n**      | Transloco (runtime)                                        |
 | **Styling**   | Tailwind CSS 4 + DaisyUI + custom CSS                      |
 | **Testing**   | Vitest (unit), Playwright (E2E), Lighthouse CI, SonarCloud |
@@ -29,12 +31,6 @@ Personal portfolio built with Angular 21.
 - [**CI/CD Strategy**](./docs/CI_STRATEGY.md) — why the pipeline works this way
 - [**Security**](./docs/SECURITY.md) — headers, Turnstile, signed URLs
 - [**Setup**](./docs/SETUP.md) — running it locally
-
-## Notes
-
-Project is stable. I update it when Angular releases new features or when I want to try different configs.
-
-Code quality is enforced through CI — coverage thresholds, lint rules, i18n validation. If something breaks the gates, it doesn't get merged.
 
 ## Licence
 
