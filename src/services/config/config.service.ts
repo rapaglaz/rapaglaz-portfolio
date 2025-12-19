@@ -1,6 +1,6 @@
-import { DOCUMENT } from '@angular/common';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { catchError, defer, map, Observable, of, shareReplay, throwError } from 'rxjs';
 import * as v from 'valibot';
 
@@ -16,6 +16,7 @@ type Config = v.InferOutput<typeof ConfigSchema>;
 export class ConfigService {
   private readonly http = inject(HttpClient);
   private readonly document = inject(DOCUMENT);
+  private readonly platformId = inject(PLATFORM_ID);
   private readonly configUrl = '/config';
   // Cloudflare test key, always passes in dev so no real key needed
   private readonly TEST_TURNSTILE_KEY = '1x00000000000000000000AA';
@@ -28,6 +29,10 @@ export class ConfigService {
   }
 
   private fetchConfig(): Observable<Config> {
+    if (!isPlatformBrowser(this.platformId)) {
+      return of({ turnstileSiteKey: this.TEST_TURNSTILE_KEY });
+    }
+
     if (this.isLocalhost()) {
       return of({ turnstileSiteKey: this.TEST_TURNSTILE_KEY });
     }
@@ -49,6 +54,10 @@ export class ConfigService {
   }
 
   private isLocalhost(): boolean {
+    if (!isPlatformBrowser(this.platformId)) {
+      return false;
+    }
+
     const win = this.document.defaultView;
     if (!win) {
       return false;

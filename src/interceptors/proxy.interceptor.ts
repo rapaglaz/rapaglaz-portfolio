@@ -1,6 +1,6 @@
-import { DOCUMENT } from '@angular/common';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { HttpEvent, HttpHandlerFn, HttpRequest } from '@angular/common/http';
-import { inject } from '@angular/core';
+import { inject, PLATFORM_ID } from '@angular/core';
 import { Observable } from 'rxjs';
 
 const PRODUCTION_URL = 'https://rapaglaz.de';
@@ -10,6 +10,12 @@ export function proxyInterceptor(
   next: HttpHandlerFn,
 ): Observable<HttpEvent<unknown>> {
   const document = inject(DOCUMENT);
+  const platformId = inject(PLATFORM_ID);
+
+  if (!isPlatformBrowser(platformId)) {
+    return next(req);
+  }
+
   const win = document.defaultView;
 
   if (!win || !isLocalhost(win.location.hostname)) {

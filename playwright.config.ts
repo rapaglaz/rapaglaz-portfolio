@@ -4,19 +4,26 @@ import { defineConfig, devices } from '@playwright/test';
 // require('dotenv').config();
 
 /** See https://playwright.dev/docs/test-configuration. */
+const isCI = !!process.env['CI'];
+const isSSG = process.env['E2E_MODE'] === 'ssg';
+const defaultBaseURL = isCI || isSSG ? 'http://localhost:4233' : 'http://localhost:4200';
+const baseURL = process.env['PLAYWRIGHT_TEST_BASE_URL'] ?? defaultBaseURL;
+const webServerCommand =
+  process.env['PLAYWRIGHT_WEB_SERVER_COMMAND'] ??
+  (isCI || isSSG ? 'pnpm run preview' : 'pnpm run start');
+const webServerUrl = process.env['PLAYWRIGHT_WEB_SERVER_URL'] ?? defaultBaseURL;
+
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
   // prevent test.only from being committed to CI
-  forbidOnly: !!process.env['CI'],
+  forbidOnly: isCI,
   // retry flaky tests on CI, skip locally for faster feedback
-  retries: process.env['CI'] ? 2 : 0,
-  workers: process.env['CI'] ? 2 : undefined,
+  retries: isCI ? 2 : 0,
+  workers: isCI ? 2 : undefined,
   reporter: 'html',
   use: {
-    baseURL:
-      process.env['PLAYWRIGHT_TEST_BASE_URL'] ??
-      (process.env['CI'] ? 'http://localhost:4233' : 'http://localhost:4200'),
+    baseURL,
 
     // traces only on retry to save disk space
     trace: 'on-first-retry',
@@ -28,9 +35,9 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: process.env['CI'] ? 'pnpm run preview' : 'pnpm run start',
-    url: process.env['CI'] ? 'http://localhost:4233' : 'http://localhost:4200',
-    reuseExistingServer: !process.env['CI'],
+    command: webServerCommand,
+    url: webServerUrl,
+    reuseExistingServer: !isCI && !isSSG,
     timeout: 120 * 1000,
   },
 

@@ -38,13 +38,10 @@ Goal: Run only what's needed based on what changed.
 **Always runs:**
 
 - Path detection — figures out which files changed
-- Format check — Prettier
-- Lint — ESLint + Angular rules
-- i18n validation — Transloco JSON check
 
 **Conditional jobs:**
 
-- Quality check (lint + unit tests + coverage + Sonar) — runs when app files change (`src/**`, `public/**`, `angular.json`, `tsconfig*.json`, `package.json`, `eslint.config.mjs`) or i18n (`public/i18n/**`)
+- Quality check — runs when app files change (`src/**`, `public/**`, `angular.json`, `tsconfig*.json`, `package.json`, `eslint.config.mjs`) or i18n (`public/i18n/**`). It always runs format and lint. i18n validation runs when app or translation files change. Unit tests with coverage run only when app files changed. Sonar runs when tests run and token is present.
 - E2E tests — runs when app files change or `e2e/**/*.ts` / `playwright.config.*` change
 - Build — runs when quality or E2E ran (reuses the same build action)
 - Preview deployment — only if self-hosted runner is chosen and build passed
@@ -56,11 +53,11 @@ Goal: Run only what's needed based on what changed.
 
 **How different changes are handled:**
 
-- Docs-only PR — format + lint + i18n only
-- Workflow change — format + lint + i18n + actionlint
-- Dependency update — same as docs if no source changes
-- Source code change — full suite including E2E
-- E2E-only change — E2E + build (quality skipped)
+- Docs-only PR — only path detection. No quality check, no E2E, no build, no preview.
+- Workflow change — actionlint runs, app checks are skipped unless app files also changed.
+- Dependency update — full suite (package.json is in the app filter).
+- Source code change — full suite including E2E.
+- E2E-only change — E2E + build (quality skipped).
 
 **Cancellation:**
 
@@ -129,7 +126,7 @@ Fix main first. Don't deploy broken code. The workflow won't save you — there 
 
 CI detects what changed and runs only relevant checks:
 
-- Docs-only PRs skip unit tests, E2E, build, and preview. Only lint + format + i18n.
+- Docs-only PRs skip quality checks, E2E, build, and preview.
 - Workflow changes trigger actionlint (static analysis for GitHub Actions). Doesn't lint composite actions.
 - Source changes include `src/**`, `public/**`, `angular.json`, `tsconfig*.json`, `package.json`, and `eslint.config.mjs` because they affect the build.
 - E2E tests run when `e2e/**/*.ts` or `playwright.config.*` changes, or when app code changes.
@@ -143,10 +140,10 @@ E2E always uses GitHub-hosted runners (Ubuntu container with Playwright pre-inst
 
 ## Why This Works
 
-**Small PRs** (docs, i18n, config changes):
+**Small PRs** (docs and workflow-only changes):
 
 - Quick feedback
-- No wasted compute on tests that don't matter
+- No wasted compute on tests that do not matter
 
 **Code changes:**
 
@@ -166,7 +163,7 @@ Combined with `cancel-in-progress`, you never wait for outdated runs. New commit
 
 Most jobs run on my NAS (self-hosted runner). If it goes offline, pipeline falls back to GitHub-hosted runners automatically.
 
-E2E tests always use GitHub-hosted runners because Playwright needs specific container environment.
+E2E tests always use GitHub-hosted runners because Playwright needs specific container environment. In CI they run against the preview server, so tests hit the SSG output.
 
 This saves a decent amount of GitHub Actions minutes 🙂.
 

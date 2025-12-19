@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoService } from '@jsverse/transloco';
 import { LoggerService } from '../../services';
-import { getBrowserLanguage } from '../../utils/i18n';
+import { getBrowserLanguage, isAvailableLang, LANG_LABELS } from '../../utils/i18n';
 
 @Component({
   selector: 'app-language-switcher',
@@ -67,11 +67,10 @@ export class LanguageSwitcher {
   }
 
   protected getLangLabel(lang: string): string {
-    const labels: Record<string, string> = {
-      en: 'English',
-      de: 'Deutsch',
-    };
-    return labels[lang] || lang;
+    if (isAvailableLang(lang)) {
+      return LANG_LABELS[lang];
+    }
+    return lang;
   }
 
   protected getLangClasses(lang: string): string {

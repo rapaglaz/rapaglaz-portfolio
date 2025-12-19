@@ -67,11 +67,11 @@ Extra step for users but I prefer this over having my CV floating around the int
 
 ## Dependencies
 
-**Renovate** handles automatic dependency updates. SonarCloud scans on every build.
+**Renovate** handles automatic dependency updates. SonarCloud runs in CI when tests run and the token is available.
 
 No secrets stored in the repo. Everything goes into environment variables (Cloudflare Workers config or GitHub Secrets).
 
-For major version bumps (Angular, Vite, etc.) I review changes manually even if tests pass. Want to make sure nothing unexpected gets added.
+For major version bumps (Angular, Tailwind, Playwright, Transloco) I review changes manually even if tests pass. Want to make sure nothing unexpected gets added.
 
 ## Threat Model
 

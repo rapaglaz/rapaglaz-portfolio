@@ -7,7 +7,7 @@ How to get this running on your machine.
 - **Node.js 24** (check `.nvmrc`)
 - **pnpm 10+**
 
-Playwright installs browsers automatically on first test run.
+Playwright needs browsers installed once. If they are missing, run the install command below.
 
 ## Install
 
@@ -57,6 +57,14 @@ Starts the dev server (if not already running) and runs Playwright tests.
 
 First run downloads browsers — takes about a minute. After that it's fast.
 
+For SSG build tests:
+
+```bash
+pnpm run e2e:ssg
+```
+
+This builds the static output and runs Playwright against the preview server.
+
 For debugging:
 
 ```bash
@@ -92,7 +100,7 @@ Results are saved but not uploaded when running locally.
 pnpm run build
 ```
 
-Output goes to `dist/rapaglaz-portfolio/browser/`. This is what gets deployed.
+Output goes to `dist/rapaglaz-portfolio/browser/`. This is a static (SSG) build and it is what gets deployed.
 
 ## Preview Build
 
@@ -100,7 +108,7 @@ Output goes to `dist/rapaglaz-portfolio/browser/`. This is what gets deployed.
 pnpm run preview
 ```
 
-Serves the production build locally on port 4233.
+Serves the static production build locally on port 4233.
 
 ## Common Issues
 

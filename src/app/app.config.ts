@@ -10,41 +10,44 @@ import {
   provideAppInitializer,
   provideBrowserGlobalErrorListeners,
 } from '@angular/core';
-import { bootstrapApplication } from '@angular/platform-browser';
-import { provideRouter } from '@angular/router';
+import { bootstrapApplication, provideClientHydration } from '@angular/platform-browser';
+import { provideRouter, withEnabledBlockingInitialNavigation } from '@angular/router';
 import {
   provideTransloco,
   TRANSLOCO_MISSING_HANDLER,
   translocoConfig,
   TranslocoService,
 } from '@jsverse/transloco';
+import { firstValueFrom } from 'rxjs';
 import { proxyInterceptor, turnstileInterceptor } from '../interceptors';
 import { LoggerService } from '../services';
 import {
+  AVAILABLE_LANGS,
+  DEFAULT_LANG,
   getBrowserLanguage,
+  isAvailableLang,
   StrictTranslocoMissingHandler,
   TranslocoHttpLoader,
 } from '../utils/i18n';
 import { App } from './app';
 import { routes } from './app.routes';
 
-const AVAILABLE_LANGS = ['en', 'de'];
-const DEFAULT_LANG = new InjectionToken<string>('DEFAULT_LANG');
+const DEFAULT_LANG_TOKEN = new InjectionToken<string>('DEFAULT_LANG');
 
-function provideTranslocoWithDynamicLang(): EnvironmentProviders {
+export function provideTranslocoWithDynamicLang(): EnvironmentProviders {
   return makeEnvironmentProviders([
     {
-      provide: DEFAULT_LANG,
+      provide: DEFAULT_LANG_TOKEN,
       deps: [LoggerService],
-      useFactory: (logger: LoggerService): string[] | string => {
+      useFactory: (logger: LoggerService): string => {
         const browserLang = getBrowserLanguage(logger).split('-')[0];
-        return AVAILABLE_LANGS.includes(browserLang) ? browserLang : 'en';
+        return isAvailableLang(browserLang) ? browserLang : DEFAULT_LANG;
       },
     },
     provideTransloco({
       config: translocoConfig({
-        availableLangs: AVAILABLE_LANGS,
-        defaultLang: 'en',
+        availableLangs: [...AVAILABLE_LANGS],
+        defaultLang: DEFAULT_LANG,
         reRenderOnLangChange: true,
         prodMode: !isDevMode(),
         missingHandler: { useFallbackTranslation: false, allowEmpty: false },
@@ -52,18 +55,22 @@ function provideTranslocoWithDynamicLang(): EnvironmentProviders {
       loader: TranslocoHttpLoader,
     }),
     { provide: TRANSLOCO_MISSING_HANDLER, useClass: StrictTranslocoMissingHandler },
-    provideAppInitializer(() => {
-      const transloco = inject(TranslocoService);
-      const defaultLang = inject(DEFAULT_LANG);
-      transloco.setActiveLang(defaultLang);
-    }),
+    provideAppInitializer(initTranslocoDefaultLang),
   ]);
+}
+
+export function initTranslocoDefaultLang(): Promise<void> {
+  const transloco = inject(TranslocoService);
+  const defaultLang = inject(DEFAULT_LANG_TOKEN);
+  transloco.setActiveLang(defaultLang);
+  return firstValueFrom(transloco.load(defaultLang)).then(() => undefined);
 }
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes),
+    provideRouter(routes, withEnabledBlockingInitialNavigation()),
+    provideClientHydration(),
     provideHttpClient(withInterceptors([proxyInterceptor, turnstileInterceptor])),
     provideTranslocoWithDynamicLang(),
   ],
