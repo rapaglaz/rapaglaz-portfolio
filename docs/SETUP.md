@@ -1,13 +1,13 @@
-# Local Setup
+# Local setup
 
-How to get this running on your machine.
+How to run this locally.
 
-## Prerequisites
+## Requirements
 
-- **Node.js 24** (check `.nvmrc`)
-- **pnpm 10+**
+- Node.js 24 (I use the version in `.nvmrc`)
+- pnpm 10+
 
-Playwright needs browsers installed once. If they are missing, run the install command below.
+Playwright needs browsers installed once.
 
 ## Install
 
@@ -15,121 +15,88 @@ Playwright needs browsers installed once. If they are missing, run the install c
 pnpm install
 ```
 
-Lockfile is frozen in CI so your local install matches exactly.
+CI uses a frozen lockfile, so it’s best to not fight pnpm here.
 
-## Dev Server
+## Dev server
 
 ```bash
 pnpm start
 ```
 
-Opens on `http://localhost:4200`.
+App is on <http://localhost:4200>.
 
-## Quality Checks
-
-Before committing changes:
+## Checks (format/lint/i18n)
 
 ```bash
-pnpm run format:check  # Prettier
-pnpm run lint          # ESLint
-pnpm run i18n:check    # Transloco validation
+pnpm run format:check
+pnpm run lint
+pnpm run i18n:check
 ```
 
-Or just let CI catch issues. Up to you.
+You can also just push and let CI complain. I do both, depends.
 
-## Unit Tests
+## Unit tests
 
 ```bash
 pnpm test
 ```
 
-Runs Vitest through the Angular test runner. Add `--watch=false` for single-run mode (like in CI).
+This runs Vitest via Angular’s test runner.
+For coverage (like CI):
 
-Coverage report goes to `coverage/lcov.info`.
+```bash
+pnpm run test:coverage
+```
 
-## E2E Tests
+Coverage output goes to `coverage/`.
+
+## E2E tests (Playwright)
+
+Normal mode uses the dev server:
 
 ```bash
 pnpm run e2e
 ```
 
-Starts the dev server (if not already running) and runs Playwright tests.
-
-First run downloads browsers — takes about a minute. After that it's fast.
-
-For SSG build tests:
+SSG mode builds first, then tests the static output served on port 4233:
 
 ```bash
 pnpm run e2e:ssg
 ```
 
-This builds the static output and runs Playwright against the preview server.
-
-For debugging:
+If you want the UI runner:
 
 ```bash
 pnpm run e2e:ui
 ```
 
-Opens the Playwright UI with step-by-step test execution.
-
-## Lighthouse CI
-
-Run performance audits locally:
+If browsers are missing:
 
 ```bash
-# Build the app first
-pnpm run build
-
-# Run Lighthouse CI
-pnpm exec lhci autorun --config=.lighthouserc.cjs
+pnpm exec playwright install --with-deps
 ```
 
-This runs the same audits as CI:
-
-- Starts preview server on port 4233
-- Runs Lighthouse 3 times (desktop preset)
-- Shows median scores for Performance, Accessibility, Best Practices, SEO
-- Generates HTML reports in `.lighthouseci/`
-
-Results are saved but not uploaded when running locally.
-
-## Production Build
+## Preview (static build)
 
 ```bash
 pnpm run build
-```
-
-Output goes to `dist/rapaglaz-portfolio/browser/`. This is a static (SSG) build and it is what gets deployed.
-
-## Preview Build
-
-```bash
 pnpm run preview
 ```
 
-Serves the static production build locally on port 4233.
+Preview is on <http://localhost:4233>.
 
-## Common Issues
+## Lighthouse
 
-**Playwright won't start:**
-Run `pnpm exec playwright install --with-deps` to reinstall browsers and dependencies.
+I run Lighthouse CI against the preview server.
 
-**Self-hosted runner not picking up jobs:**
-Check the logs in GitHub Actions. If runner is offline, it falls back to GitHub-hosted runners automatically.
+```bash
+pnpm run build
+pnpm exec lhci autorun --config=.lighthouserc.cjs
+```
 
-**Translation errors:**
-Run `pnpm run i18n:check` to validate JSON structure and key parity across languages. Missing keys fail the build in CI.
+It does 3 runs, desktop preset. Reports go to `.lighthouseci/`.
 
-## Development Tips
+## Common issues
 
-- Run `pnpm test` in watch mode while writing tests
-- E2E tests mock Turnstile API so you don't need real verification tokens
-- Browser devtools work normally with Angular's build setup
-- Signal updates trigger change detection automatically (no need for `markForCheck`)
-
-## Environment
-
-No `.env` file needed for local development. Everything uses defaults or test values.
-
-Production configuration comes from Cloudflare Workers environment variables.
+- Playwright is flaky locally: usually it’s missing browsers or old cache. Reinstall browsers and try again.
+- Translations break: run `pnpm run i18n:check` (it validates JSON and key parity).

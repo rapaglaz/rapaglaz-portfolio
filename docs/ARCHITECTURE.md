@@ -1,167 +1,102 @@
 # Architecture
 
-How the project is structured and why I built it this way. I keep it small and clear.
+This is a small app, so I try to keep the structure boring and predictable.
+No big framework-on-top-of-framework stuff.
 
-## Main Decisions
+## Folder layout
 
-### Feature-Based Folders
-
-Code is organised by feature, not by technical layer:
+I organise by feature, not by “components/services/utils” layers inside every folder.
+Shared bits go to a shared place.
 
 ```plaintext
 src/
-├── features/      # hero, navbar, contact, certifications
-├── ui/            # button, badge, toast, modal
-├── services/      # cv-download, toast, config, logger
-├── utils/         # helpers, pipes, directives
-└── content/       # skills, certifications (static data)
+├── app/           # bootstrap + routing + top-level view
+├── features/      # hero, navbar, contact, etc
+├── ui/            # small reusable presentational components
+├── services/      # shared logic (cv download, toast, config, turnstile)
+├── utils/         # helpers (i18n, rxjs, scroll, animation)
+└── content/       # typed static content
 ```
 
-Most features are self-contained. Shared pieces go to `ui/` or `services/`.
+I try to keep features isolated (feature-to-feature imports are avoided). There is one exception: the navbar uses the language switcher.
+It’s fine, but I keep it as a clear exception.
 
-I try to avoid feature-to-feature imports, but there is one small exception. The navbar uses the language switcher.
+## Angular style
 
-### Signals + Zoneless
+### Standalone + OnPush
 
-App runs without Zone.js. It uses signals for state tracking.
+Everything is standalone. Most components are presentational, so `ChangeDetectionStrategy.OnPush` is the default.
+If something needs state, I keep it close to the feature or in a service.
 
-Why:
+### Zoneless + signals
 
-- Better performance (no zone patching overhead)
-- Clearer mental model for updates
-- Zone.js is getting deprecated
+Zone.js is not in the dependencies, so the app runs zoneless.
+That means I need to be a bit more intentional with updates.
 
-Trade-off: you need to be explicit about change detection. I use `effect()` for side effects and `toSignal()` when bridging RxJS streams.
+- Signals for local state where it makes sense
+- RxJS for async stuff (HTTP, events, Turnstile)
+- `toSignal()` when I want a stream as a signal
 
-Mixing signals and observables works fine, just need to know what triggers updates. Zone.js is removed from dependencies, so the app stays zoneless by default.
+I’m not trying to force signals everywhere. For this project it’s mostly UI + a few flows.
 
-### SSG + Hydration
+### SSG + hydration
 
-Production build uses SSG via `outputMode: static`. Angular pre-renders the routes using the server entry, then ships static HTML and JS.
+Production build is static (`outputMode: static`). Angular pre-renders and outputs HTML.
+On the client side it hydrates, so it does not repaint the whole page.
 
-I keep a server config so prerender can use a file-based Transloco loader. Client bootstraps with hydration enabled, so it picks up the static HTML without full re-render.
+There is a server entry because prerender needs it, and it also helps for things like loading translations in a way that works with SSG.
 
-## Folder Structure
+## State and services
 
-- **`src/app/`** — Bootstrap and routing config
-- **`src/features/`** — UI sections (hero, navbar, contact, about, skills, certifications, footer, languages, language-switcher)
-- **`src/ui/`** — Presentational components (button, badge, toast-container, turnstile-modal, section-wrapper)
-- **`src/services/`** — Shared logic and state (cv-download, toast, config, logger, turnstile)
-- **`src/utils/`** — Helpers for animations, i18n, RxJS, scrolling
-- **`src/content/`** — Static typed data (skills, certifications, contact)
+Most sections have basically no “business logic”. The interesting parts are in services:
 
-Most features have `.ts` and `.html` files in the same folder. Some small components use inline templates, and a few have no local CSS file.
+- CV download: get config → get Turnstile token → call backend endpoint → trigger browser download
+- Turnstile: load script once, render widget, show modal when needed, cleanup properly
+- Toasts: CDK overlay, explicit cleanup
 
-## State Management
+## Testing approach
 
-Mostly signals for local UI state. Shared logic lives in services.
+### Unit tests
 
-RxJS is still used for async work (HTTP, events, Turnstile flow). `toSignal()` bridges the gap when I need signals from streams.
+Unit tests run via Angular’s unit-test builder with the Vitest runner.
 
-Toast handling is done via Angular CDK overlay and manual cleanup, so it stays simple and predictable.
+For presentational sections I keep tests as smoke checks (renders, key elements exist, basic a11y attributes).
+For services/interceptors I test actual behaviour and error paths.
 
-## Testing
+### E2E (Playwright)
 
-### Unit Tests
+Playwright is used for user flows:
 
-Vitest via the Angular test runner.
+- language switch
+- CV download (mocked backend)
+- Turnstile failure cases (script blocked / verification fails)
+- a11y check with axe on initial load
 
-Most tests check:
+In CI (and in `e2e:ssg`) tests run against the static build served on port 4233.
+Locally `pnpm run e2e` uses the dev server on 4200.
 
-- Component renders without errors (smoke tests)
-- User interactions trigger expected behaviour
-- Services handle success and error paths
+### Lighthouse CI
 
-Not trying to hit 100% coverage. Focus is on critical paths and edge cases.
+Lighthouse is there for feedback, not as a gate.
+Assertions are warnings only.
 
-### E2E Tests
+Config is in `.lighthouserc.cjs` and it uses `pnpm run preview` (serves `dist/rapaglaz-portfolio/browser` on 4233).
 
-Playwright for real user flows:
+## i18n
 
-- CV download with Turnstile verification
-- Language switching
-- Contact links
-- Responsive behaviour
+Transloco with JSON under `public/i18n`.
 
-Runs headless in CI (Chromium). Use `--ui` flag locally for debugging with step-by-step UI.
-
-### Performance Testing
-
-Lighthouse CI tracks performance metrics:
-
-- Runs on PR when source files change and weekly (Monday 6:00 AM)
-- Tests desktop performance (3 runs, median score)
-- Tracks Performance, Accessibility, Best Practices, SEO
-- All assertions set to 'warn' so it never blocks merges
-- Uploads reports to temporary public storage
-
-Configuration in [`.lighthouserc.cjs`](../.lighthouserc.cjs). See [`CI_STRATEGY.md`](./CI_STRATEGY.md) for details.
-
-## i18n (Internationalisation)
-
-Using **Transloco** for runtime translations. Translation files are in `public/i18n/` as JSON.
-
-Validation:
+I validate translations with:
 
 ```bash
 pnpm run i18n:check
 ```
 
-This runs two checks:
+This runs JSON validation and key parity checks.
+Runtime has a strict missing handler too, so missing keys are loud.
 
-- `pnpm run i18n:validate` — validates JSON structure
-- `pnpm run i18n:find` — checks key parity between language files
+## Trade-offs (simple ones)
 
-CI runs this validation to catch missing keys. Runtime also has `StrictTranslocoMissingHandler` as a safety net and logs missing keys to console.
-
-Why runtime instead of build-time:
-
-- Instant language switching (no page reload)
-- No rebuild needed when updating translations
-- Single build serves multiple languages
-
-## Security
-
-Check [`SECURITY.md`](./SECURITY.md) for full details.
-
-Key points:
-
-- Cloudflare handles SSL and security headers
-- Turnstile protects CV downloads from bots
-- Signed R2 URLs expire in 5 minutes
-- No sensitive data in localStorage or URL params
-
-## CI/CD
-
-See [`CI_STRATEGY.md`](./CI_STRATEGY.md) for complete breakdown.
-
-Self-hosted runner does most of the work. Auto-fallback to GitHub runners if it's offline.
-
-## Styling
-
-Tailwind 4 for layout and utilities. Custom CSS for animations and specific visual effects.
-
-Global styles live in `src/styles.css`. It defines theme variables, base overrides, fonts, and a few shared animation utilities. Component styles stay close to the component when needed.
-
-DaisyUI provides button variants, spinners, and some base components. Most UI is custom-built.
-
-## Code Quality
-
-- ESLint with Angular-specific rules
-- Strict TypeScript config
-- SonarCloud for code quality trends
-- Coverage thresholds enforced in Vitest config
-- actionlint for GitHub Actions workflow validation
-
-Not perfect but solid enough.
-
-## Trade-offs
-
-**No NgRx or other state library**
-Project is too small. Signals are enough.
-
-**Self-hosted CI runner**
-Saves GitHub Actions minutes but creates single point of failure. Fallback logic works well.
-
-**Runtime i18n instead of build-time**
-Better UX for language switching, simpler to maintain translations.
+- No NgRx. Not needed here.
+- Runtime i18n instead of build-time. I want instant switching.
+- Self-hosted CI runner. Saves minutes, but can be offline, so there is fallback.
