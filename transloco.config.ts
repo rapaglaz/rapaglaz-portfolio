@@ -1,5 +1,5 @@
 import { TranslocoGlobalConfig } from '@jsverse/transloco-utils';
-import { AVAILABLE_LANGS } from './src/utils/i18n/languages';
+const AVAILABLE_LANGS = ['en', 'de'] as const;
 
 const config: TranslocoGlobalConfig = {
   rootTranslationsPath: 'public/i18n/',
