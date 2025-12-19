@@ -7,9 +7,16 @@
       [class.visible]="wrapper.scrollReveal.isVisible()">
       @for (contact of contactItems; track contact.id; let i = $index) {
         <a
+          data-testid="contact-link"
           [href]="contact.href"
           [attr.target]="contact.isExternal ? '_blank' : null"
           [attr.rel]="contact.isExternal ? 'noopener noreferrer' : null"
+          [attr.aria-label]="
+            ('portfolio.contact.labels.' + contact.id | transloco) +
+            ': ' +
+            contact.value +
+            (contact.isExternal ? ' (' + ('common.a11y.opensInNewTab' | transloco) + ')' : '')
+          "
           class="card-ocean hover animate-item flex cursor-pointer flex-col items-start justify-center gap-3 px-6 py-4"
           [class.visible]="wrapper.scrollReveal.isVisible()"
           [style.animation-delay]="getContactDelay(i)">
@@ -17,7 +24,7 @@
             <h3 class="text-base-content mb-1 text-lg font-bold">
               {{ 'portfolio.contact.labels.' + contact.id | transloco }}
             </h3>
-            <p class="text-base-content/70 text-sm break-all">{{ contact.value }}</p>
+            <p class="text-sm break-all text-(--color-text-subtle)">{{ contact.value }}</p>
           </div>
         </a>
       }

@@ -53,6 +53,9 @@
   --color-warning-content: #0a0f1e;
   --color-error: #ef5350;
   --color-error-content: #ffffff;
+  /* WCAG AA compliant muted text colors (4.5:1+ contrast on base-100) */
+  --color-text-muted: #4a6366;
+  --color-text-subtle: #5a7275;
 }
 
 /* Dark mode via media query */
@@ -79,6 +82,9 @@
     --color-warning-content: #0a0f1e;
     --color-error: #ef5350;
     --color-error-content: #ffffff;
+    /* WCAG AA compliant muted text colors (4.5:1+ contrast on base-100) */
+    --color-text-muted: #a8b5b7;
+    --color-text-subtle: #8a9a9c;
   }
 }
 

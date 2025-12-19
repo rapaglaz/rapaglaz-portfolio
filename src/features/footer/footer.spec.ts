@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideTransloco } from '@jsverse/transloco';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { TranslocoTestLoader } from '../../testing';
+import { provideTranslocoTesting } from '../../testing';
 import { Footer } from './footer';
 
 describe('Footer', () => {
@@ -11,15 +10,7 @@ describe('Footer', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Footer],
-      providers: [
-        provideTransloco({
-          config: {
-            availableLangs: ['en', 'de'],
-            defaultLang: 'en',
-          },
-          loader: TranslocoTestLoader,
-        }),
-      ],
+      providers: [provideTranslocoTesting()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(Footer);
@@ -27,12 +18,20 @@ describe('Footer', () => {
     fixture.detectChanges();
   });
 
-  it('renders footer with contact controls', () => {
+  it('shows current year and external links', () => {
     const footer = element.querySelector('footer');
-    const emailButton = footer?.querySelector('button[aria-label="Email"]');
+    const year = new Date().getFullYear().toString();
+    const externalLinks = Array.from(
+      element.querySelectorAll('footer a[target="_blank"]'),
+    ) as HTMLAnchorElement[];
 
-    expect(footer).toBeTruthy();
-    expect(emailButton).toBeTruthy();
+    expect(footer).toBeInstanceOf(HTMLElement);
+    expect(footer?.textContent).toContain(year);
+    expect(externalLinks.length).toBeGreaterThanOrEqual(2);
+    externalLinks.forEach(link => {
+      expect(link.getAttribute('rel')).toContain('noopener');
+      expect(link.getAttribute('href')?.trim()).toBeTruthy();
+    });
   });
 
   it('delegates contactEmail to window.location', () => {
@@ -44,7 +43,12 @@ describe('Footer', () => {
       configurable: true,
     });
 
-    fixture.componentInstance['contactEmail']();
+    const emailButton = element.querySelector(
+      'footer button[type="button"]',
+    ) as HTMLButtonElement | null;
+
+    expect(emailButton).toBeInstanceOf(HTMLButtonElement);
+    emailButton?.click();
 
     expect(assignSpy).toHaveBeenCalledTimes(1);
     expect(assignSpy.mock.calls[0][0]).toMatch(/^mailto:/);
