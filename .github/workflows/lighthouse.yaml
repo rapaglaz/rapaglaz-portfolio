@@ -83,19 +83,26 @@ jobs:
 
             echo "Extracted scores: perf=$perf, a11y=$a11y, bp=$bp, seo=$seo"
 
-            # Generate score badges with colors
-            get_badge() {
+            # Generate pass/fail status based on thresholds
+            get_status() {
               score=$1
-              if [ "$score" -ge 90 ]; then echo "🟢"
-              elif [ "$score" -ge 50 ]; then echo "🟡"
-              else echo "🔴"
+              threshold=$2
+              if [ "$score" -ge "$threshold" ]; then echo "✅"
+              else echo "⚠️"
               fi
             }
 
-            perf_badge=$(get_badge "$perf")
-            a11y_badge=$(get_badge "$a11y")
-            bp_badge=$(get_badge "$bp")
-            seo_badge=$(get_badge "$seo")
+            perf_status=$(get_status "$perf" 80)
+            a11y_status=$(get_status "$a11y" 90)
+            bp_status=$(get_status "$bp" 80)
+            seo_status=$(get_status "$seo" 90)
+
+            # A11y specific status with text
+            if [ "$a11y" -ge 90 ]; then
+              a11y_pass="✅ PASS"
+            else
+              a11y_pass="⚠️ BELOW THRESHOLD"
+            fi
 
             # Output results
             {
@@ -103,10 +110,11 @@ jobs:
               echo "accessibility=$a11y"
               echo "best_practices=$bp"
               echo "seo=$seo"
-              echo "perf_badge=$perf_badge"
-              echo "a11y_badge=$a11y_badge"
-              echo "bp_badge=$bp_badge"
-              echo "seo_badge=$seo_badge"
+              echo "perf_status=$perf_status"
+              echo "a11y_status=$a11y_status"
+              echo "bp_status=$bp_status"
+              echo "seo_status=$seo_status"
+              echo "a11y_pass=$a11y_pass"
               echo "public_url=$public_url"
             } >> "$GITHUB_OUTPUT"
 
@@ -122,26 +130,26 @@ jobs:
         with:
           header: lighthouse
           message: |
-            ## Lighthouse CI Results
+            ## 🔦 Lighthouse CI Results
 
-            | Category            | Score |
-            |---------------------|------:|
-            | **Performance**     | **${{ steps.format.outputs.performance }}%** |
-            | **Accessibility**   | **${{ steps.format.outputs.accessibility }}%** |
-            | **Best Practices**  | **${{ steps.format.outputs.best_practices }}%** |
-            | **SEO**             | **${{ steps.format.outputs.seo }}%** |
+            ### ♿ Accessibility Score
 
-            ${{ steps.format.outputs.public_url && format('**[View Full Lighthouse Report →]({0})**', steps.format.outputs.public_url) || '' }}
+            | Score | Status | Threshold |
+            |:-----:|:------:|:---------:|
+            | **${{ steps.format.outputs.accessibility }}%** | ${{ steps.format.outputs.a11y_pass }} | ≥ 90% |
 
-            <details>
-            <summary>Details</summary>
+            ### 📊 All Categories
 
-            - **Commit:** [${{ github.event.pull_request.head.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.event.pull_request.head.sha }})
-            - **Build:** [${{ github.run_id }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
-            - **Tested:** 3 runs (median score shown)
-            - **Environment:** Desktop
+            | Category | Score | Status |
+            |----------|:-----:|:------:|
+            | Performance | **${{ steps.format.outputs.performance }}%** | ${{ steps.format.outputs.perf_status }} |
+            | Accessibility | **${{ steps.format.outputs.accessibility }}%** | ${{ steps.format.outputs.a11y_status }} |
+            | Best Practices | **${{ steps.format.outputs.best_practices }}%** | ${{ steps.format.outputs.bp_status }} |
+            | SEO | **${{ steps.format.outputs.seo }}%** | ${{ steps.format.outputs.seo_status }} |
 
-            </details>
+            > **Thresholds:** Performance ≥80%, Accessibility ≥90%, Best Practices ≥80%, SEO ≥90%
+
+            ${{ steps.format.outputs.public_url && format('🔗 **[View Full Lighthouse Report →]({0})**', steps.format.outputs.public_url) || '' }}
 
       - name: Upload Lighthouse reports
         if: always()
