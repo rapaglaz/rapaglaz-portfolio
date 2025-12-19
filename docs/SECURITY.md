@@ -1,12 +1,14 @@
 # Security
 
-This is a portfolio site, not a banking app. But I wanted solid security basics.
+This is a portfolio site. Not a bank.
+Still, I don’t want it to be sloppy.
 
-No user data, no authentication, no payments. Just static content and CV download.
+There is no login, no user data storage, no payments.
+It’s mostly static content + a CV download endpoint.
 
 ## Headers
 
-Cloudflare Workers set security headers on all responses:
+I set basic security headers at the Cloudflare edge (Workers).
 
 ```http
 Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
@@ -16,78 +18,51 @@ Referrer-Policy: strict-origin-when-cross-origin
 Permissions-Policy: geolocation=(), microphone=(), camera=()
 ```
 
-What each header does:
+Short version:
 
-- Force HTTPS (HSTS)
-- Prevent MIME type sniffing
-- Block iframe embedding
-- Clean referrer headers on cross-origin requests
-- Disable unused browser APIs (geolocation, microphone, camera)
+- force HTTPS
+- stop iframe embedding
+- reduce referrer leakage
+- disable browser APIs I don’t need
 
-## Bot Protection
+## CV download protection
 
-CV downloads are protected with **Cloudflare Turnstile** (privacy-friendly alternative to reCAPTCHA).
+I don’t want the CV to be a public URL that bots can scrape forever.
+So downloads go through Cloudflare Turnstile + a Worker.
 
-Flow:
+Flow is:
 
-1. User clicks "Download CV"
-2. Turnstile widget appears (or auto-passes if user looks legitimate)
-3. Frontend sends verification token to Cloudflare Worker
-4. Worker validates token against Cloudflare API
-5. If valid, Worker returns signed R2 URL
+1. user clicks “CV”
+2. Turnstile runs (sometimes it’s invisible, sometimes it asks)
+3. frontend sends the token to the Worker (header)
+4. Worker validates it against Cloudflare
+5. if ok, Worker returns a signed R2 URL
 
-Why Turnstile instead of reCAPTCHA:
+The signed link is short lived (5 minutes).
+It’s an extra step, but that’s kind of the point.
 
-- No Google tracking
-- No cookies
-- Faster user experience
-- Works well with Cloudflare infrastructure
+## Dependencies and secrets
 
-## File Access
+No secrets in the repo.
+Anything sensitive is in GitHub Secrets or Cloudflare config.
 
-CV files are not served as public static assets. They live in a private R2 bucket.
+Renovate handles dependency updates.
+SonarCloud runs in CI when the token exists.
 
-After Turnstile verification passes, the Worker generates a signed URL valid for 5 minutes:
+## Threat model (simple)
 
-```ts
-const signedUrl = await r2Bucket.generateSignedUrl(cvKey, {
-  expiresIn: 300, // 5 minutes
-  method: 'GET',
-});
-```
+| Threat         | What I do                  | Risk |
+| -------------- | -------------------------- | ---- |
+| XSS            | Angular sanitisation       | Low  |
+| Clickjacking   | `X-Frame-Options: DENY`    | None |
+| MITM           | HSTS + Cloudflare SSL      | None |
+| CV scraping    | Turnstile + signed URLs    | Low  |
+| DDoS           | Cloudflare edge protection | Low  |
+| Leaked secrets | none in repo               | None |
 
-What this means:
+Attack surface is small. That’s good.
 
-- Files can't be indexed by search engines
-- URLs expire quickly
-- Can't share permanent download links
-- Easy to track or rate-limit downloads if needed
+## If something breaks
 
-Extra step for users but I prefer this over having my CV floating around the internet forever.
-
-## Dependencies
-
-**Renovate** handles automatic dependency updates. SonarCloud runs in CI when tests run and the token is available.
-
-No secrets stored in the repo. Everything goes into environment variables (Cloudflare Workers config or GitHub Secrets).
-
-For major version bumps (Angular, Tailwind, Playwright, Transloco) I review changes manually even if tests pass. Want to make sure nothing unexpected gets added.
-
-## Threat Model
-
-| Threat         | Mitigation                      | Risk Level |
-| -------------- | ------------------------------- | ---------- |
-| XSS            | Angular sanitisation            | Low        |
-| Clickjacking   | X-Frame-Options: DENY           | None       |
-| MITM           | HSTS + Cloudflare SSL           | None       |
-| CV scraping    | Turnstile + signed URLs         | Low        |
-| DDoS           | Cloudflare edge protection      | Low        |
-| Leaked secrets | None in repo, all env variables | None       |
-
-No user data, no login, no file uploads — attack surface is pretty small.
-
-## If Something Goes Wrong
-
-Cloudflare Worker can be updated and deployed within minutes. Then fix the actual code in the repo, let CI rebuild, and document what happened.
-
-Personal project but I treat it like production — quick patches, short feedback loops.
+The Worker can be patched fast.
+Then I fix the code properly in the repo and let CI do its thing.

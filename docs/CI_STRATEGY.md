@@ -1,236 +1,73 @@
-# CI/CD Pipeline
+# CI/CD strategy
 
-How the pipeline works and why I set it up this way.
+This repo is small, but I still like having good checks.
+I also don’t want every PR to take 20 minutes.
 
-## The Problem
+So the pipeline is a bit conditional. It runs what matters based on what changed.
 
-Wanted to solve three things:
+## Goals
 
-1. Reasonable feedback — PR checks that don't take forever
-2. Reliable quality — nothing broken gets merged
-3. Low cost — self-hosted runner has limited capacity
+- fast feedback on normal PRs
+- don’t merge broken stuff
+- don’t burn money / runner time for docs-only changes
 
-These usually don't play well together.
+I run most jobs on a self-hosted runner. If it is offline, the workflow falls back to GitHub-hosted runners.
 
-## What I Tried
+## PR checks
 
-**Option 1: Run everything on every PR**
-Lint + unit + E2E + SonarCloud on every commit.
+On pull requests I first detect changed paths, then decide what to run.
 
-Problem: Takes forever. E2E can be flaky. Kills the flow when iterating on changes.
+In simple terms:
 
-**Option 2: Skip CI, rely on local testing**
-Run tests before pushing.
+- docs-only: basically nothing (just the change detection)
+- app code changed: run format + lint + i18n checks, and unit tests
+- app or e2e changed: run Playwright E2E
+- if quality or E2E ran: run a build job
+- if workflows changed: run actionlint
 
-Problem: I forget. Everyone forgets. That's why CI exists.
+Notes:
 
-**Option 3: Conditional pipeline (what I use now)**
-Run only what changed. Skip tests for docs-only changes. Full validation when code changes.
+- i18n checks run when app files or translations changed
+- unit tests with coverage only run when app files changed
+- SonarCloud runs when tests ran and the token is available
 
-Most PRs touch source code so the full suite still runs. But at least docs-only changes are quick.
+Every new commit cancels the previous run. I don’t want to waste time on old commits.
 
-## How It Works
+## Main branch checks
 
-### PR Checks (Conditional)
+On main it is the full validation:
 
-Goal: Run only what's needed based on what changed.
+- quality checks (format, lint, i18n)
+- unit tests + coverage
+- Playwright E2E
+- build (only if quality and E2E are green)
 
-**Always runs:**
+This is the “final truth”. If something fails here, I know a PR broke it.
 
-- Path detection — figures out which files changed
+## Release/deploy
 
-**Conditional jobs:**
+Deploy is kept simple and fast.
+The idea is: main already passed checks, so don’t repeat them again.
 
-- Quality check — runs when app files change (`src/**`, `public/**`, `angular.json`, `tsconfig*.json`, `package.json`, `eslint.config.mjs`) or i18n (`public/i18n/**`). It always runs format and lint. i18n validation runs when app or translation files change. Unit tests with coverage run only when app files changed. Sonar runs when tests run and token is present.
-- E2E tests — runs when app files change or `e2e/**/*.ts` / `playwright.config.*` change
-- Build — runs when quality or E2E ran (reuses the same build action)
-- Preview deployment — only if self-hosted runner is chosen and build passed
-- Workflow lint — when workflow YAML changes (`.github/workflows/**`)
+There is environment protection on GitHub for production.
+So even if someone edits workflows, they can’t just deploy from a random branch.
 
-**Always runs (separate workflow):**
+## Playwright runner choice
 
-- [Lighthouse CI](#lighthouse-ci) — performance testing (conditional: skips if only docs/i18n/CI changed)
+E2E runs on GitHub-hosted runners in a Playwright container.
+That is just more reliable than doing browser stuff on my NAS runner.
 
-**How different changes are handled:**
-
-- Docs-only PR — only path detection. No quality check, no E2E, no build, no preview.
-- Workflow change — actionlint runs, app checks are skipped unless app files also changed.
-- Dependency update — full suite (package.json is in the app filter).
-- Source code change — full suite including E2E.
-- E2E-only change — E2E + build (quality skipped).
-
-**Cancellation:**
-
-Every new commit cancels previous run. No wasted compute on outdated commits.
-
-### Main Branch Checks (Full Validation)
-
-Goal: Complete validation after merge.
-
-**Always runs:**
-
-- Quality check (format, lint, i18n, unit tests + coverage, SonarCloud)
-- E2E tests (Playwright)
-- Build (only if quality + E2E both pass)
-
-If something fails here, I know exactly which PR broke it and can revert quickly.
-
-Build job waits for quality + E2E to pass so we don't deploy broken builds.
-
-### Release/Deploy Workflow (Maximum Speed)
-
-Goal: Deploy as fast as possible. Zero redundant validation.
-
-**How it works:**
-
-```text
-pick-runner -> build -> deploy
-```
-
-**What runs:**
-
-- Environment protection — enforced by GitHub at repository level
-- Build — compile the app
-- Deploy — upload to production
-
-**What's skipped (everything):**
-
-- Format check — already on main
-- Lint — already on main
-- i18n validation — already on main
-- Unit tests + coverage — already on main
-- SonarCloud — already on main
-- E2E tests — already on main
-
-**Branch protection:**
-
-Workflow uses `environment: production` on the first job. This enforces branch restrictions at repository level through GitHub Environment protection rules.
-
-Can't be bypassed by modifying workflow file. If you trigger from wrong branch, it fails immediately.
-
-**Why this works:**
-
-Deploy is restricted to main branch only via environment protection. Main branch already passed full validation suite (format, lint, i18n, tests+coverage, SonarCloud, E2E).
-
-There's no point re-running the same checks for third time. Code reaching deploy workflow was validated twice: once in PR, once after merge to main.
-
-**Before deploying:**
-
-Check GitHub Actions to make sure main branch has green checks. That's it. If main is green, deploy is safe.
-
-**If main checks failed:**
-
-Fix main first. Don't deploy broken code. The workflow won't save you — there are no quality gates, it trusts main completely.
-
-## Path Filters
-
-CI detects what changed and runs only relevant checks:
-
-- Docs-only PRs skip quality checks, E2E, build, and preview.
-- Workflow changes trigger actionlint (static analysis for GitHub Actions). Doesn't lint composite actions.
-- Source changes include `src/**`, `public/**`, `angular.json`, `tsconfig*.json`, `package.json`, and `eslint.config.mjs` because they affect the build.
-- E2E tests run when `e2e/**/*.ts` or `playwright.config.*` changes, or when app code changes.
-- Translations (`public/i18n/**`) trigger quality checks but not E2E by themselves.
-
-## Why E2E Only Runs for Code Changes
-
-E2E tests run when app files change or when `e2e/**/*.ts` / Playwright config changes. This catches breaking changes before merge while keeping doc updates fast.
-
-E2E always uses GitHub-hosted runners (Ubuntu container with Playwright pre-installed) — more reliable than self-hosted for browser testing.
-
-## Why This Works
-
-**Small PRs** (docs and workflow-only changes):
-
-- Quick feedback
-- No wasted compute on tests that do not matter
-
-**Code changes:**
-
-- Full validation before merge
-- E2E catches breaking changes early
-- Preview deployment available for manual testing
-
-**Main branch:**
-
-- Double-check everything actually passed
-- Generate test coverage reports
-- Update SonarCloud metrics
-
-Combined with `cancel-in-progress`, you never wait for outdated runs. New commit = cancel old run, start fresh.
-
-## Self-Hosted Runner
-
-Most jobs run on my NAS (self-hosted runner). If it goes offline, pipeline falls back to GitHub-hosted runners automatically.
-
-E2E tests always use GitHub-hosted runners because Playwright needs specific container environment. In CI they run against the preview server, so tests hit the SSG output.
-
-This saves a decent amount of GitHub Actions minutes 🙂.
+In CI, tests run against the preview server on port 4233 (static build).
+Locally it usually runs against the dev server on 4200.
 
 ## Lighthouse CI
 
-Performance monitoring and web vitals tracking.
+Lighthouse is feedback only. It does not block merges.
 
-**When it runs:**
+- runs on PRs when app files changed
+- also runs weekly on a schedule
+- 3 runs, desktop preset, upload to temporary public storage
 
-- Every PR (opened, updated, or reopened) — but only if app files changed (`src/**`, `public/**`, `angular.json`)
-- Manual trigger via workflow_dispatch
-- Weekly schedule (Monday 6:00 AM) for baseline monitoring
+All assertions are `warn` on purpose. Lighthouse can be noisy.
 
-**Change detection:**
-
-Lighthouse skips runs when only these change:
-
-- Documentation (`.md` files)
-- Translations (`public/i18n/**`)
-- CI workflows (`.github/**`)
-- Test files (`*.spec.ts`)
-- E2E tests (`e2e/**/*.ts`)
-
-Runs when these change:
-
-- Application source (`src/**`)
-- Public assets (`public/**`)
-- Build config (`angular.json`)
-
-**What it does:**
-
-- Builds the application
-- Runs Lighthouse 3 times (median score reported)
-- Tests desktop performance
-- Comments PR with scores and color-coded badges
-- Uploads full reports to temporary public storage
-
-**Configuration:**
-
-- **Desktop preset** — optimized for desktop users
-- **Assertions set to 'warn'** — never fails the build, only provides feedback
-- **Thresholds:**
-  - Performance: 80+
-  - Accessibility: 90+
-  - Best Practices: 80+
-  - SEO: 90+
-  - PWA: disabled
-
-**Why warnings instead of failures:**
-
-Lighthouse scores can vary between runs due to network conditions, CPU load, etc. Setting assertions to `warn` means:
-
-- You get feedback without blocking merges
-- Can track trends over time
-- Manual review of significant drops
-- No false positives from flaky runs
-
-**PR Comments:**
-
-Every PR gets a comment with:
-
-- Link to full Lighthouse report
-- Commit SHA and build number
-- Environment details
-
-Helps catch performance regressions before they reach production.
-
-## Fork PRs
-
-PRs from forks automatically use GitHub-hosted runners (they don't have access to self-hosted). Also for security — don't want untrusted code running on my server.
+If you want the exact details, check `.lighthouserc.cjs`.

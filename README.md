@@ -1,38 +1,37 @@
 # Paul Glaz Portfolio
 
-Personal portfolio built with Angular 21.
+My personal portfolio site.
 
-## What's in here
+Built with Angular 21. It is mostly presentational sections (Hero/About/Skills/etc), but I still treat the plumbing like a real app.
 
-- Angular 21, standalone components, signals
-- Zoneless change detection (Zone.js is gone)
-- SSG build (outputMode: static) with client hydration
-- Transloco for i18n — runtime switching between English and German
-- CV download flow: Cloudflare Turnstile → Worker → signed R2 URL
-- Reusable UI stuff in `src/ui/`, shared logic in `src/services/`
-- Vitest for unit tests, Playwright for E2E
-- GitHub Actions with self-hosted runner (falls back to GitHub runners if offline)
+## What’s inside
 
-## Stack
+- Angular 21 (standalone components, signals)
+- Zoneless setup (no Zone.js)
+- Static build (SSG via `outputMode: static`) + client hydration
+- Transloco i18n (runtime switch between EN/DE)
+- CV download flow: Turnstile → Worker → signed R2 URL
+- Unit tests with Vitest, E2E with Playwright
+- CI in GitHub Actions, usually on a self-hosted runner (fallback to GitHub runners if it is offline)
 
-| Area          | What I use                                                 |
-| ------------- | ---------------------------------------------------------- |
-| **Framework** | Angular 21, TypeScript, RxJS, Signals                      |
-| **Rendering** | SSG (Angular outputMode: static) + client hydration        |
-| **i18n**      | Transloco (runtime)                                        |
-| **Styling**   | Tailwind CSS 4 + DaisyUI + custom CSS                      |
-| **Testing**   | Vitest (unit), Playwright (E2E), Lighthouse CI, SonarCloud |
-| **CI/CD**     | GitHub Actions, self-hosted runner, pnpm                   |
-| **Hosting**   | Cloudflare Workers, R2, Turnstile                          |
+## Stack (short)
+
+| Area      | What                                        |
+| --------- | ------------------------------------------- |
+| Framework | Angular 21, TypeScript, RxJS, Signals       |
+| Rendering | SSG + hydration                             |
+| i18n      | Transloco (runtime)                         |
+| Styling   | Tailwind CSS 4 + DaisyUI + small custom CSS |
+| Testing   | Vitest, Playwright, Lighthouse CI           |
+| CI/CD     | GitHub Actions + pnpm                       |
 
 ## Docs
 
-- [**Architecture**](./docs/ARCHITECTURE.md) — how things are organised
-- [**CI/CD Strategy**](./docs/CI_STRATEGY.md) — why the pipeline works this way
-- [**Security**](./docs/SECURITY.md) — headers, Turnstile, signed URLs
-- [**Setup**](./docs/SETUP.md) — running it locally
+- [Architecture](./docs/ARCHITECTURE.md)
+- [CI/CD strategy](./docs/CI_STRATEGY.md)
+- [Security notes](./docs/SECURITY.md)
+- [Local setup](./docs/SETUP.md)
 
 ## Licence
 
-MIT — use it, learn from it, whatever. Just give credit if you copy big parts.
-See [`LICENCE.md`](./LICENCE.md) for details.
+MIT. See [LICENCE.md](./LICENCE.md).
