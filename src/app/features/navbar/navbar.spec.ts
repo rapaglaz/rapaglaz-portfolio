@@ -5,9 +5,13 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, Subject, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CONTACT_ITEMS } from '../../content';
-import { CvDownloadService, ToastService } from '../../services';
+import { CvDownloadService, FeatureFlagService, ToastService } from '../../services';
 import { provideTranslocoTesting } from '../../testing';
 import { Navbar } from './navbar';
+
+const mockFeatureFlagService = {
+  getFlag$: vi.fn().mockReturnValue(of(true)),
+};
 
 describe('Navbar', () => {
   let fixture: ComponentFixture<Navbar>;
@@ -26,6 +30,7 @@ describe('Navbar', () => {
         provideHttpClientTesting(),
         provideTranslocoTesting(),
         { provide: ScrollDispatcher, useValue: mockScrollDispatcher },
+        { provide: FeatureFlagService, useValue: mockFeatureFlagService },
       ],
     }).compileComponents();
 
@@ -77,6 +82,7 @@ describe('Navbar - CV Download', () => {
         { provide: ScrollDispatcher, useValue: mockScrollDispatcher },
         { provide: CvDownloadService, useValue: mockCvDownloadService },
         { provide: ToastService, useValue: mockToastService },
+        { provide: FeatureFlagService, useValue: mockFeatureFlagService },
       ],
     }).compileComponents();
 
@@ -153,6 +159,7 @@ describe('Navbar - Contact Email', () => {
         provideHttpClientTesting(),
         provideTranslocoTesting(),
         { provide: ScrollDispatcher, useValue: mockScrollDispatcher },
+        { provide: FeatureFlagService, useValue: mockFeatureFlagService },
       ],
     }).compileComponents();
 
