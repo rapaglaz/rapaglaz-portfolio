@@ -25,6 +25,8 @@ pnpm start
 
 App is on <http://localhost:4200>.
 
+Note: the feature flag endpoint is on `https://rapaglaz.de`. If you see CORS errors locally, the Worker must allow `http://localhost:4200`.
+
 ## Checks (format/lint/i18n)
 
 ```bash
