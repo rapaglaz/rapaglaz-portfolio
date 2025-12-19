@@ -4,7 +4,8 @@
   @if (sectionWrapper(); as wrapper) {
     <div class="space-y-8">
       @for (cert of certifications(); track cert.id; let i = $index) {
-        <div
+        <article
+          data-testid="certification-card"
           class="card-ocean animate-cert px-4 py-4 transition-colors lg:pl-6"
           [class.visible]="wrapper.scrollReveal.isVisible()"
           [style.animation-delay]="getCertDelay(i)">
@@ -12,12 +13,12 @@
             <h3 class="text-base-content mb-1 text-xl font-bold">
               {{ 'portfolio.certifications.items.' + cert.id + '.title' | transloco }}
             </h3>
-            <p class="text-base-content/70 text-sm">
+            <p class="text-sm text-(--color-text-subtle)">
               {{ 'portfolio.certifications.items.' + cert.id + '.issuer' | transloco }}
             </p>
           </div>
-          <p class="text-base-content/60 text-sm">
-            {{ cert.formattedDate }} •
+          <p class="text-sm text-(--color-text-subtle)">
+            <time [attr.datetime]="cert.date">{{ cert.formattedDate }}</time> •
             {{ 'portfolio.certifications.duration.days' | transloco: { count: cert.durationDays } }}
             {{
               cert.remote
@@ -25,7 +26,7 @@
                 : ('portfolio.certifications.duration.onsite' | transloco)
             }}
           </p>
-        </div>
+        </article>
       }
     </div>
   }

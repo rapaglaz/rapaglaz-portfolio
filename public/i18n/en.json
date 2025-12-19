@@ -5,7 +5,12 @@
     "navbar": {
       "openToWork": "Open to Work",
       "downloadCV": "CV",
+      "downloadingCV": "Downloading CV",
       "contactMe": "Contact Me"
+    },
+    "a11y": {
+      "skipToContent": "Skip to main content",
+      "opensInNewTab": "opens in new tab"
     }
   },
   "portfolio": {

@@ -36,10 +36,16 @@ describe('Navbar', () => {
   it('renders navbar with primary actions', () => {
     const element = fixture.nativeElement as HTMLElement;
     const navbar = element.querySelector('nav');
+    const badge = element.querySelector('app-badge [role="button"]');
+    const languageSwitcher = element.querySelector('app-language-switcher');
+    const buttons = Array.from(element.querySelectorAll('button[appButton]'));
+    const iconButton = buttons.find(button => button.getAttribute('aria-label'));
 
-    expect(navbar).toBeTruthy();
-    expect(element.querySelector('app-badge')).toBeTruthy();
-    expect(element.querySelector('app-language-switcher')).toBeTruthy();
+    expect(navbar).toBeInstanceOf(HTMLElement);
+    expect(badge).toBeInstanceOf(HTMLElement);
+    expect(languageSwitcher).toBeInstanceOf(HTMLElement);
+    expect(buttons.length).toBeGreaterThanOrEqual(2);
+    expect(iconButton?.getAttribute('aria-label')?.trim()).toBeTruthy();
   });
 });
 
@@ -133,6 +139,7 @@ describe('Navbar - CV Download', () => {
 describe('Navbar - Contact Email', () => {
   let component: Navbar;
   let fixture: ComponentFixture<Navbar>;
+  let element: HTMLElement;
 
   beforeEach(async () => {
     const mockScrollDispatcher = {
@@ -151,6 +158,7 @@ describe('Navbar - Contact Email', () => {
 
     fixture = TestBed.createComponent(Navbar);
     component = fixture.componentInstance;
+    element = fixture.nativeElement;
     fixture.detectChanges();
   });
 
@@ -171,11 +179,40 @@ describe('Navbar - Contact Email', () => {
       configurable: true,
     });
 
-    component.contactEmail();
+    // Select the contact button (the one with SVG icon, not the CV button)
+    const contactButton = element
+      .querySelector('button[appButton] svg')
+      ?.closest('button') as HTMLButtonElement | null;
+    expect(contactButton).toBeInstanceOf(HTMLButtonElement);
+    contactButton?.click();
 
     const emailItem = CONTACT_ITEMS.find(item => item.id === 'email');
     expect(assignSpy).toHaveBeenCalledWith(emailItem?.href);
     expect(assignSpy).toHaveBeenCalledWith(expect.stringMatching(/^mailto:/));
+
+    Object.defineProperty(window, 'location', {
+      value: originalLocation,
+      writable: true,
+      configurable: true,
+    });
+  });
+
+  it('navigates to mailto link when badge is clicked', () => {
+    const assignSpy = vi.fn();
+    const originalLocation = window.location;
+
+    Object.defineProperty(window, 'location', {
+      value: { assign: assignSpy },
+      writable: true,
+      configurable: true,
+    });
+
+    const badge = element.querySelector('app-badge [role="button"]') as HTMLElement | null;
+    expect(badge).toBeInstanceOf(HTMLElement);
+    badge?.click();
+
+    const emailItem = CONTACT_ITEMS.find(item => item.id === 'email');
+    expect(assignSpy).toHaveBeenCalledWith(emailItem?.href);
 
     Object.defineProperty(window, 'location', {
       value: originalLocation,

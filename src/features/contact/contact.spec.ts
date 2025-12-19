@@ -20,7 +20,7 @@ describe('Contact', () => {
   });
 
   it('renders contact links with proper external attributes', () => {
-    const links = element.querySelectorAll('a.card-ocean');
+    const links = element.querySelectorAll('[data-testid="contact-link"]');
     const expectedCount = CONTACT_ITEMS.length;
 
     expect(links.length).toBe(expectedCount);

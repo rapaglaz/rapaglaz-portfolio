@@ -1,14 +1,14 @@
 <footer class="border-base-300 mt-8 border-t">
   <div class="container mx-auto max-w-5xl py-8">
     <div class="flex flex-col items-center justify-between gap-6 md:flex-row md:gap-4">
-      <div class="text-base-content/60 text-sm">
+      <div class="text-sm text-(--color-text-subtle)">
         © {{ currentYear() }} {{ 'common.firstName' | transloco }}
         {{ 'common.lastName' | transloco }}
       </div>
       <div class="flex items-center gap-6">
         <button
           (click)="contactEmail()"
-          class="text-base-content/60 hover:text-primary flex cursor-pointer items-center transition duration-300 hover:scale-105"
+          class="hover:text-primary flex cursor-pointer items-center text-(--color-text-subtle) transition duration-300 hover:scale-105"
           type="button"
           aria-label="Email"
           title="Email">
@@ -34,7 +34,7 @@
           href="https://www.linkedin.com/in/paul-glaz/"
           target="_blank"
           rel="noopener noreferrer"
-          class="text-base-content/60 hover:text-primary flex items-center transition duration-300 hover:scale-105"
+          class="hover:text-primary flex items-center text-(--color-text-subtle) transition duration-300 hover:scale-105"
           aria-label="LinkedIn"
           title="LinkedIn">
           <svg
@@ -50,7 +50,7 @@
           href="https://github.com/rapaglaz"
           target="_blank"
           rel="noopener noreferrer"
-          class="text-base-content/60 hover:text-primary flex items-center transition duration-300 hover:scale-105"
+          class="hover:text-primary flex items-center text-(--color-text-subtle) transition duration-300 hover:scale-105"
           aria-label="GitHub"
           title="GitHub">
           <svg

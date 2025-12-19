@@ -18,9 +18,18 @@ describe('Hero', () => {
     fixture.detectChanges();
   });
 
-  it('renders hero section without errors', () => {
-    const section = element.querySelector('section#hero');
+  it('renders hero section with core elements', () => {
+    const section = element.querySelector('[data-testid="section-hero"]');
+    const avatar = element.querySelector('img');
+    const firstName = element.querySelector('[data-testid="hero-firstname"]');
+    const lastName = element.querySelector('[data-testid="hero-lastname"]');
+    const description = element.querySelector('[data-testid="hero-description"]');
 
-    expect(section).toBeTruthy();
+    expect(section).toBeInstanceOf(HTMLElement);
+    expect(avatar).toBeInstanceOf(HTMLImageElement);
+    expect(avatar?.getAttribute('alt')?.trim()).toBeTruthy();
+    expect(firstName?.textContent?.trim()).toBeTruthy();
+    expect(lastName?.textContent?.trim()).toBeTruthy();
+    expect(description?.textContent?.trim()).toBeTruthy();
   });
 });

@@ -22,30 +22,22 @@ describe('Portfolio', () => {
 
   it('renders navbar', () => {
     const navbar = element.querySelector('app-navbar');
-    expect(navbar).toBeTruthy();
+    expect(navbar).toBeInstanceOf(HTMLElement);
   });
 
   it('renders main portfolio sections', () => {
     const main = element.querySelector('main');
-    expect(main).toBeTruthy();
+    expect(main).toBeInstanceOf(HTMLElement);
 
-    const hero = main?.querySelector('app-hero');
-    const about = main?.querySelector('app-about');
-    const certifications = main?.querySelector('app-certifications');
-    const skills = main?.querySelector('app-skills');
-    const languages = main?.querySelector('app-languages');
-    const contact = main?.querySelector('app-contact');
-
-    expect(hero).toBeTruthy();
-    expect(about).toBeTruthy();
-    expect(certifications).toBeTruthy();
-    expect(skills).toBeTruthy();
-    expect(languages).toBeTruthy();
-    expect(contact).toBeTruthy();
+    const sectionIds = ['hero', 'about', 'certifications', 'skills', 'languages', 'contact'];
+    sectionIds.forEach(id => {
+      const section = main?.querySelector(`[data-testid="section-${id}"]`);
+      expect(section).toBeInstanceOf(HTMLElement);
+    });
   });
 
   it('renders footer', () => {
     const footer = element.querySelector('app-footer');
-    expect(footer).toBeTruthy();
+    expect(footer).toBeInstanceOf(HTMLElement);
   });
 });

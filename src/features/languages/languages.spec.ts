@@ -18,13 +18,17 @@ describe('Languages', () => {
     fixture.detectChanges();
   });
 
-  it('renders translated language names and levels', () => {
-    const cards = element.querySelectorAll('div.card-ocean');
+  it('renders language cards with labels', () => {
+    const cards = element.querySelectorAll('[data-testid="language-card"]');
 
     expect(cards.length).toBeGreaterThan(0);
-    const firstCardText = cards[0]?.textContent ?? '';
 
-    expect(firstCardText).toMatch(/German|Deutsch/i);
-    expect(firstCardText).toMatch(/Professional/i);
+    cards.forEach(card => {
+      const name = card.querySelector('h3');
+      const level = card.querySelector('p');
+
+      expect(name?.textContent?.trim()).toBeTruthy();
+      expect(level?.textContent?.trim()).toBeTruthy();
+    });
   });
 });

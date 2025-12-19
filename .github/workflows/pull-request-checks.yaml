@@ -108,7 +108,7 @@ jobs:
         uses: ./.github/actions/pr-check-action
         env:
           RUN_TESTS: ${{ needs.detect-changes.outputs.app == 'true' }}
-          RUN_I18N_CHECK: ${{ needs.detect-changes.outputs.i18n == 'true' }}
+          RUN_I18N_CHECK: ${{ needs.detect-changes.outputs.app == 'true' || needs.detect-changes.outputs.i18n == 'true' }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}

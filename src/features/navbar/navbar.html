@@ -1,4 +1,5 @@
 <nav
+  data-testid="navbar"
   [class]="
     'navbar bg-base-100/80 fixed top-0 right-0 left-0 z-50 border-b backdrop-blur-md transition-all duration-300 will-change-[box-shadow,border-color] ' +
     (isScrolled()
@@ -6,8 +7,11 @@
       : 'border-transparent shadow-none')
   ">
   <div
+    data-testid="navbar-container"
     class="container mx-auto flex max-w-5xl flex-col items-center justify-center gap-6 px-2 py-4 md:flex-row md:justify-between md:gap-0 md:py-6">
-    <app-badge (clicked)="contactEmail()">
+    <app-badge
+      data-testid="hero-badge"
+      (clicked)="contactEmail()">
       {{ 'common.navbar.openToWork' | transloco }}
     </app-badge>
 
@@ -18,10 +22,18 @@
         variant="link"
         size="sm"
         [disabled]="isDownloading()"
+        [attr.aria-label]="
+          isDownloading()
+            ? ('common.navbar.downloadingCV' | transloco)
+            : ('common.navbar.downloadCV' | transloco)
+        "
+        [attr.aria-busy]="isDownloading()"
         (click)="handleDownloadCV()"
         class="text-base-content hover:text-primary flex items-center p-0 text-base font-normal no-underline disabled:cursor-not-allowed disabled:opacity-50">
         @if (isDownloading()) {
-          <span class="loading loading-dots loading-sm text-primary"></span>
+          <span
+            class="loading loading-dots loading-sm text-primary"
+            aria-hidden="true"></span>
         } @else {
           {{ 'common.navbar.downloadCV' | transloco }}
         }

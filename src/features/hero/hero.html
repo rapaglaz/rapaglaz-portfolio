@@ -17,13 +17,23 @@
             priority />
         </div>
       </div>
-      <div class="mt-16 flex gap-3 text-6xl font-bold tracking-wide lg:gap-6 lg:text-8xl">
-        <span class="hero-name-paul text-ocean-outline"> {{ 'common.firstName' | transloco }}</span>
-        <span class="hero-name-glaz text-ocean-outline">{{ 'common.lastName' | transloco }}</span>
-      </div>
+      <h1 class="mt-16 flex gap-3 text-6xl font-bold tracking-wide lg:gap-6 lg:text-8xl">
+        <span
+          data-testid="hero-firstname"
+          class="hero-name-paul text-ocean-outline">
+          {{ 'common.firstName' | transloco }}</span
+        >
+        <span
+          data-testid="hero-lastname"
+          class="hero-name-glaz text-ocean-outline"
+          >{{ 'common.lastName' | transloco }}</span
+        >
+      </h1>
       <div
         class="hero-about mx-auto mt-3 flex min-h-48 max-w-3xl pb-5 md:min-h-40 lg:mt-16 lg:min-h-36 lg:px-16">
-        <p class="text-base-content/80 text-xl leading-relaxed font-medium">
+        <p
+          data-testid="hero-description"
+          class="text-xl leading-relaxed font-medium text-(--color-text-muted)">
           {{ 'portfolio.hero.description' | transloco }}
         </p>
       </div>
