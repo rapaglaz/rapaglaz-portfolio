@@ -16,8 +16,24 @@ startxref
 190
 %%EOF`;
 
+// mocks feature flag endpoint to keep tests deterministic
+export async function mockFeatureFlag(page: Page, openToWork = true): Promise<void> {
+  await page.route('https://rapaglaz.de/feature-flag/**', async route => {
+    const url = new URL(route.request().url());
+    const flagName = url.pathname.split('/').pop() ?? 'openToWork';
+    const value = flagName === 'openToWork' ? openToWork : false;
+
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ [flagName]: value }),
+    });
+  });
+}
+
 // waits for hero + navbar to ensure page fully loaded before tests
 export async function visitPortfolio(page: Page, url = '/'): Promise<void> {
+  await mockFeatureFlag(page);
   await page.goto(url);
   await page.getByTestId('section-hero').waitFor({ state: 'visible' });
   await page.getByTestId('navbar').waitFor({ state: 'visible' });

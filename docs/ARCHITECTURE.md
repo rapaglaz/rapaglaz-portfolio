@@ -53,6 +53,15 @@ Most sections have basically no “business logic”. The interesting parts are 
 - CV download: get config → get Turnstile token → call backend endpoint → trigger browser download
 - Turnstile: load script once, render widget, show modal when needed, cleanup properly
 - Toasts: CDK overlay, explicit cleanup
+- Feature flag: read `openToWork` from a Cloudflare Worker + KV, default is false
+
+## Feature flag (Open to Work)
+
+Runtime toggle for the navbar badge. It is a single public flag, not a full system.
+
+- `GET https://rapaglaz.de/feature-flag/openToWork` → `{ "openToWork": true | false }`
+- Missing flag returns `404`, frontend treats it as `false`
+- Storage is Cloudflare KV, updated manually in the dashboard
 
 ## Testing approach
 

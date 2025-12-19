@@ -1,5 +1,5 @@
 import { ScrollDispatcher } from '@angular/cdk/scrolling';
-import { DOCUMENT, isPlatformBrowser } from '@angular/common';
+import { DOCUMENT, isPlatformBrowser, NgClass } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -13,14 +13,14 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { finalize, map, startWith } from 'rxjs';
 import { CONTACT_ITEMS } from '../../content';
-import { CvDownloadService, ToastService } from '../../services';
+import { CvDownloadService, FeatureFlagService, ToastService } from '../../services';
 import { Badge, ButtonDirective } from '../../ui';
 import { withErrorToast } from '../../utils/rxjs';
 import { LanguageSwitcher } from '../language-switcher/language-switcher';
 
 @Component({
   selector: 'app-navbar',
-  imports: [ButtonDirective, Badge, LanguageSwitcher, TranslocoModule],
+  imports: [ButtonDirective, Badge, LanguageSwitcher, TranslocoModule, NgClass],
   templateUrl: './navbar.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -30,6 +30,7 @@ export class Navbar {
   private readonly cvDownloadService = inject(CvDownloadService);
   private readonly toastService = inject(ToastService);
   private readonly translocoService = inject(TranslocoService);
+  private readonly featureFlagService = inject(FeatureFlagService);
   private readonly document = inject(DOCUMENT);
   private readonly platformId = inject(PLATFORM_ID);
 
@@ -50,6 +51,9 @@ export class Navbar {
   protected readonly isScrolled = computed(() => this.scrollY() > 0);
   protected readonly isDownloading = signal(false);
   protected readonly canDownload = computed(() => !this.isDownloading());
+  protected readonly openToWork = toSignal(this.featureFlagService.getFlag$('openToWork'), {
+    initialValue: false,
+  });
 
   contactEmail(): void {
     const emailItem = CONTACT_ITEMS.find(item => item.id === 'email');

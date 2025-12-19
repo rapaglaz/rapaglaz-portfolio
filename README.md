@@ -11,6 +11,7 @@ Built with Angular 21. It is mostly presentational sections (Hero/About/Skills/e
 - Static build (SSG via `outputMode: static`) + client hydration
 - Transloco i18n (runtime switch between EN/DE)
 - CV download flow: Turnstile → Worker → signed R2 URL
+- Feature flag for the “Open to Work” badge (Worker + KV, runtime)
 - Unit tests with Vitest, E2E with Playwright
 - CI in GitHub Actions, usually on a self-hosted runner (fallback to GitHub runners if it is offline)
 
