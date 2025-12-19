@@ -132,7 +132,7 @@ jobs:
           message: |
             ## Lighthouse CI Results
 
-            ### ♿ Accessibility Score
+            ### Accessibility Score
 
             | Score | Status | Threshold |
             |:-----:|:------:|:---------:|
@@ -149,7 +149,7 @@ jobs:
 
             > **Thresholds:** Performance ≥80%, Accessibility ≥90%, Best Practices ≥80%, SEO ≥90%
 
-            ${{ steps.format.outputs.public_url && format('🔗 **[View Full Lighthouse Report →]({0})**', steps.format.outputs.public_url) || '' }}
+            ${{ steps.format.outputs.public_url && format('**[View Full Lighthouse Report →]({0})**', steps.format.outputs.public_url) || '' }}
 
       - name: Upload Lighthouse reports
         if: always()
