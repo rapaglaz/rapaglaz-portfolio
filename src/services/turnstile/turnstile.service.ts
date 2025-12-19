@@ -1,10 +1,11 @@
-import { DOCUMENT } from '@angular/common';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import {
   ApplicationRef,
   createComponent,
   EnvironmentInjector,
   inject,
   Injectable,
+  PLATFORM_ID,
 } from '@angular/core';
 import { getBrowserCultureLang } from '@jsverse/transloco';
 import { defer, finalize, Observable, of, shareReplay, switchMap, throwError } from 'rxjs';
@@ -43,11 +44,16 @@ export class TurnstileService {
   private readonly appRef = inject(ApplicationRef);
   private readonly injector = inject(EnvironmentInjector);
   private readonly document = inject(DOCUMENT);
+  private readonly platformId = inject(PLATFORM_ID);
   private readonly logger = inject(LoggerService);
 
   private scriptLoad$: Observable<void> | null = null;
 
   getToken$(siteKey: string): Observable<string> {
+    if (!isPlatformBrowser(this.platformId)) {
+      return throwError(() => new Error('Turnstile is only available in the browser'));
+    }
+
     return this.loadScript().pipe(switchMap(() => this.renderWidget(siteKey)));
   }
 

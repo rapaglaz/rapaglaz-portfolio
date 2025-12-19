@@ -1,11 +1,12 @@
 import { ScrollDispatcher } from '@angular/cdk/scrolling';
-import { DOCUMENT } from '@angular/common';
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
   computed,
   DestroyRef,
   inject,
+  PLATFORM_ID,
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
@@ -30,11 +31,15 @@ export class Navbar {
   private readonly toastService = inject(ToastService);
   private readonly translocoService = inject(TranslocoService);
   private readonly document = inject(DOCUMENT);
+  private readonly platformId = inject(PLATFORM_ID);
 
   private readonly scrollY = toSignal(
     this.scrollDispatcher.scrolled(0).pipe(
       startWith(null),
       map(() => {
+        if (!isPlatformBrowser(this.platformId)) {
+          return 0;
+        }
         const win = this.document.defaultView;
         return win ? win.scrollY || 0 : 0;
       }),
@@ -49,7 +54,8 @@ export class Navbar {
   contactEmail(): void {
     const emailItem = CONTACT_ITEMS.find(item => item.id === 'email');
     if (emailItem) {
-      window.location.assign(emailItem.href);
+      if (!isPlatformBrowser(this.platformId)) return;
+      this.document.defaultView?.location.assign(emailItem.href);
     }
   }
 

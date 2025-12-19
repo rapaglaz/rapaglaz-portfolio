@@ -1,8 +1,7 @@
 import { TestBed } from '@angular/core/testing';
-import { provideTransloco } from '@jsverse/transloco';
 import { firstValueFrom } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { TranslocoTestLoader } from '../../testing';
+import { provideTranslocoTesting } from '../../testing';
 import { TurnstileService } from './turnstile.service';
 
 describe('TurnstileService (integration)', () => {
@@ -10,13 +9,7 @@ describe('TurnstileService (integration)', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-        TurnstileService,
-        provideTransloco({
-          config: { availableLangs: ['en', 'de'], defaultLang: 'en' },
-          loader: TranslocoTestLoader,
-        }),
-      ],
+      providers: [TurnstileService, provideTranslocoTesting()],
     });
 
     service = TestBed.inject(TurnstileService);
@@ -53,8 +46,20 @@ describe('TurnstileService (integration)', () => {
 
     const tokenPromise = firstValueFrom(service.getToken$('site-key'));
 
-    expect(scriptEl).toBeTruthy();
-    (scriptEl as HTMLScriptElement | null)?.onerror?.(new Event('error'));
+    expect(scriptEl).not.toBeNull();
+    if (!scriptEl) {
+      throw new Error('Turnstile script element was not appended');
+    }
+    const script = scriptEl as {
+      src: string;
+      async: boolean;
+      defer: boolean;
+      onerror?: (event: Event) => void;
+    };
+    expect(script.src).toContain('challenges.cloudflare.com/turnstile/v0/api.js');
+    expect(script.async).toBe(true);
+    expect(script.defer).toBe(true);
+    script.onerror?.(new Event('error'));
 
     await expect(tokenPromise).rejects.toThrow('Failed to load Turnstile script');
 

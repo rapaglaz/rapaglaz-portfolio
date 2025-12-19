@@ -1,9 +1,12 @@
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  inject,
   output,
+  PLATFORM_ID,
   signal,
   viewChild,
 } from '@angular/core';
@@ -23,6 +26,8 @@ export class TurnstileModal implements AfterViewInit {
   readonly widgetReady = output<HTMLElement>();
   readonly isLoading = signal(true);
 
+  private readonly document = inject(DOCUMENT);
+  private readonly platformId = inject(PLATFORM_ID);
   private previousActiveElement: HTMLElement | null = null;
 
   // emit container ref after view init so TurnstileService can move widget into it
@@ -30,8 +35,12 @@ export class TurnstileModal implements AfterViewInit {
     const container = this.widgetContainer().nativeElement;
     this.widgetReady.emit(container);
 
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
     // Store currently focused element and trap focus in modal
-    this.previousActiveElement = document.activeElement as HTMLElement;
+    this.previousActiveElement = this.document.activeElement as HTMLElement;
     this.focusDialog();
   }
 
@@ -41,10 +50,14 @@ export class TurnstileModal implements AfterViewInit {
 
   private focusDialog(): void {
     const dialog = this.dialogElement().nativeElement;
-    dialog.focus();
+    if (isPlatformBrowser(this.platformId)) {
+      dialog.focus();
+    }
   }
 
   restoreFocus(): void {
-    this.previousActiveElement?.focus();
+    if (isPlatformBrowser(this.platformId)) {
+      this.previousActiveElement?.focus();
+    }
   }
 }
