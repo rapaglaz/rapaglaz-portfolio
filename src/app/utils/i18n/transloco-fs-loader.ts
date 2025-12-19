@@ -6,8 +6,8 @@ import { DEFAULT_LANG, isAvailableLang, type AvailableLang } from './languages';
 type TranslationModule = { default: Translation } | Translation;
 
 const TRANSLATIONS: Record<AvailableLang, () => Promise<TranslationModule>> = {
-  en: () => import('../../../public/i18n/en.json'),
-  de: () => import('../../../public/i18n/de.json'),
+  en: () => import('../../../../public/i18n/en.json'),
+  de: () => import('../../../../public/i18n/de.json'),
 };
 
 @Injectable({ providedIn: 'root' })
