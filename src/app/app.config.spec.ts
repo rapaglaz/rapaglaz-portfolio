@@ -8,8 +8,8 @@ import {
 } from '@jsverse/transloco';
 import { Observable, of } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { AVAILABLE_LANGS, DEFAULT_LANG, StrictTranslocoMissingHandler } from '../utils/i18n';
 import { initTranslocoDefaultLang, provideTranslocoWithDynamicLang } from './app.config';
+import { AVAILABLE_LANGS, DEFAULT_LANG, StrictTranslocoMissingHandler } from './utils/i18n';
 
 class InlineLoader implements TranslocoLoader {
   readonly calls: string[] = [];

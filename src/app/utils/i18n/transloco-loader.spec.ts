@@ -2,8 +2,8 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import deJson from '../../../public/i18n/de.json';
-import enJson from '../../../public/i18n/en.json';
+import deJson from '../../../../public/i18n/de.json';
+import enJson from '../../../../public/i18n/en.json';
 import { TranslocoHttpLoader } from './transloco-loader';
 
 describe('TranslocoHttpLoader', () => {

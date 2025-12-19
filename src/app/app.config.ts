@@ -19,8 +19,10 @@ import {
   TranslocoService,
 } from '@jsverse/transloco';
 import { firstValueFrom } from 'rxjs';
-import { proxyInterceptor, turnstileInterceptor } from '../interceptors';
-import { LoggerService } from '../services';
+import { App } from './app';
+import { routes } from './app.routes';
+import { proxyInterceptor, turnstileInterceptor } from './interceptors';
+import { LoggerService } from './services';
 import {
   AVAILABLE_LANGS,
   DEFAULT_LANG,
@@ -28,9 +30,7 @@ import {
   isAvailableLang,
   StrictTranslocoMissingHandler,
   TranslocoHttpLoader,
-} from '../utils/i18n';
-import { App } from './app';
-import { routes } from './app.routes';
+} from './utils/i18n';
 
 const DEFAULT_LANG_TOKEN = new InjectionToken<string>('DEFAULT_LANG');
 

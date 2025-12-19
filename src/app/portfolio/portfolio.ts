@@ -9,7 +9,7 @@ import {
   Languages,
   Navbar,
   Skills,
-} from '../../features';
+} from '../features';
 
 @Component({
   selector: 'app-portfolio',

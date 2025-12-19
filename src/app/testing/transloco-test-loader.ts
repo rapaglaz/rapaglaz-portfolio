@@ -1,8 +1,8 @@
 import { EnvironmentProviders } from '@angular/core';
 import { provideTransloco, Translation, TranslocoLoader } from '@jsverse/transloco';
 import { Observable, of } from 'rxjs';
-import deTranslations from '../../public/i18n/de.json';
-import enTranslations from '../../public/i18n/en.json';
+import deTranslations from '../../../public/i18n/de.json';
+import enTranslations from '../../../public/i18n/en.json';
 import {
   AVAILABLE_LANGS,
   DEFAULT_LANG,
