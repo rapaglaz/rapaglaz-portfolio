@@ -20,24 +20,40 @@ describe('Portfolio', () => {
     fixture.detectChanges();
   });
 
-  it('renders navbar', () => {
-    const navbar = element.querySelector('app-navbar');
-    expect(navbar).toBeInstanceOf(HTMLElement);
-  });
-
-  it('renders main portfolio sections', () => {
+  it('renders core content with accessible cues', () => {
     const main = element.querySelector('main');
     expect(main).toBeInstanceOf(HTMLElement);
 
-    const sectionIds = ['hero', 'about', 'certifications', 'skills', 'languages', 'contact'];
-    sectionIds.forEach(id => {
-      const section = main?.querySelector(`[data-testid="section-${id}"]`);
-      expect(section).toBeInstanceOf(HTMLElement);
-    });
-  });
+    const heroImage = main?.querySelector(
+      '[data-testid="section-hero"] img',
+    ) as HTMLImageElement | null;
+    expect(heroImage).toBeInstanceOf(HTMLImageElement);
+    expect(heroImage?.getAttribute('alt')?.trim()).toBeTruthy();
 
-  it('renders footer', () => {
-    const footer = element.querySelector('app-footer');
-    expect(footer).toBeInstanceOf(HTMLElement);
+    const contactLinks = main?.querySelectorAll(
+      '[data-testid="section-contact"] a[target="_blank"]',
+    );
+    expect(contactLinks?.length).toBeGreaterThanOrEqual(2);
+    contactLinks?.forEach(link => {
+      expect(link.getAttribute('rel')).toContain('noopener');
+      expect(link.getAttribute('href')?.trim()).toBeTruthy();
+    });
+
+    const about = main?.querySelector('[data-testid="section-about"]');
+    expect(about).toBeInstanceOf(HTMLElement);
+
+    const skills = main?.querySelector('[data-testid="section-skills"]');
+    const skillBadges = skills?.querySelectorAll('[data-testid="skill-badge"]');
+    expect(skillBadges?.length).toBeGreaterThan(0);
+
+    const certifications = main?.querySelector('[data-testid="section-certifications"]');
+    const certificationCards = certifications?.querySelectorAll(
+      '[data-testid="certification-card"]',
+    );
+    expect(certificationCards?.length).toBeGreaterThan(0);
+
+    const languages = main?.querySelector('[data-testid="section-languages"]');
+    const languageCards = languages?.querySelectorAll('[data-testid="language-card"]');
+    expect(languageCards?.length).toBeGreaterThan(0);
   });
 });

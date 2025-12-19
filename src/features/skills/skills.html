@@ -7,6 +7,7 @@
       [class.visible]="wrapper.scrollReveal.isVisible()">
       @for (skill of allSkills(); track skill.skillId; let i = $index) {
         <span
+          data-testid="skill-badge"
           class="card-ocean text-base-content animate-pill cursor-default px-4 py-2 text-sm font-medium"
           [class.visible]="wrapper.scrollReveal.isVisible()"
           [style.animation-delay]="getSkillDelay(i)">
