@@ -17,10 +17,10 @@ startxref
 %%EOF`;
 
 // waits for hero + navbar to ensure page fully loaded before tests
-export async function visitPortfolio(page: Page, url: string = '/'): Promise<void> {
+export async function visitPortfolio(page: Page, url = '/'): Promise<void> {
   await page.goto(url);
   await page.getByTestId('section-hero').waitFor({ state: 'visible' });
-  await page.locator('nav.navbar').waitFor({ state: 'visible' });
+  await page.getByTestId('navbar').waitFor({ state: 'visible' });
 }
 
 // mocks only Turnstile API (frontend) - use when tests need to mock backend errors

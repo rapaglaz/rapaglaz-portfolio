@@ -7,24 +7,20 @@ test.describe('CV Download', () => {
     await visitPortfolio(page);
   });
 
-  test('downloads CV with Turnstile verification', async ({ page }) => {
-    const downloadPromise = page.waitForEvent('download');
+  test('downloads CV in the active language', async ({ page }) => {
     const cvButton = page.getByRole('button', { name: 'CV' });
 
+    const enDownloadPromise = page.waitForEvent('download');
     await cvButton.click();
+    const enDownload = await enDownloadPromise;
+    expect(enDownload.suggestedFilename()).toBe('Paul_Glaz_CV_EN.pdf');
 
-    const download = await downloadPromise;
-    expect(download.suggestedFilename()).toBe('Paul_Glaz_CV_EN.pdf');
-  });
-
-  test('downloads language-specific CV after locale switch', async ({ page }) => {
     await switchLanguage(page, 'DE');
 
-    const downloadPromise = page.waitForEvent('download');
-    await page.getByRole('button', { name: 'CV' }).click();
-
-    const download = await downloadPromise;
-    expect(download.suggestedFilename()).toBe('Paul_Glaz_CV_DE.pdf');
+    const deDownloadPromise = page.waitForEvent('download');
+    await cvButton.click();
+    const deDownload = await deDownloadPromise;
+    expect(deDownload.suggestedFilename()).toBe('Paul_Glaz_CV_DE.pdf');
   });
 });
 
