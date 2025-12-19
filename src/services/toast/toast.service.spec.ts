@@ -54,4 +54,16 @@ describe('ToastService', () => {
 
     expect(createdRef.dispose).toHaveBeenCalledTimes(1);
   });
+
+  it('delegates convenience methods to show', () => {
+    const showSpy = vi.spyOn(service, 'show').mockImplementation(() => {});
+
+    service.success('Saved!', 1000);
+    service.error('Failed!', 2000);
+    service.info('Heads up!', 3000);
+
+    expect(showSpy).toHaveBeenNthCalledWith(1, 'Saved!', 'success', 1000);
+    expect(showSpy).toHaveBeenNthCalledWith(2, 'Failed!', 'error', 2000);
+    expect(showSpy).toHaveBeenNthCalledWith(3, 'Heads up!', 'info', 3000);
+  });
 });

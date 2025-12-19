@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslocoService } from '@jsverse/transloco';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { provideTranslocoTesting } from '../../testing';
+import { LANG_LABELS } from '../../utils/i18n';
 import { LanguageSwitcher } from './language-switcher';
 
 describe('LanguageSwitcher', () => {
@@ -21,57 +22,60 @@ describe('LanguageSwitcher', () => {
     fixture.detectChanges();
   });
 
-  it('renders EN and DE buttons', () => {
-    const buttons = element.querySelectorAll('button[type="button"]');
-    const buttonTexts = Array.from(buttons).map(btn => btn.textContent?.trim());
+  it('shows language options with user-friendly labels', () => {
+    const listbox = element.querySelector('[role="listbox"]');
+    const options = Array.from(element.querySelectorAll('[role="option"]')) as HTMLElement[];
 
-    expect(buttonTexts).toContain('EN');
-    expect(buttonTexts).toContain('DE');
+    expect(listbox).toBeInstanceOf(HTMLElement);
+    const labels = options.map(option => option.getAttribute('aria-label'));
+    expect(labels).toEqual(expect.arrayContaining(Object.values(LANG_LABELS)));
+    options.forEach(option => {
+      expect(option.textContent?.trim()).toMatch(/^[A-Z]{2}$/);
+    });
   });
 
-  it('disables active language button', async () => {
+  it('marks the active language visually', async () => {
     translocoService.setActiveLang('en');
 
     await vi.waitFor(() => {
       fixture.detectChanges();
-      const buttons = element.querySelectorAll('button[type="button"]');
-      const enButton = Array.from(buttons).find(btn =>
-        btn.textContent?.includes('EN'),
-      ) as HTMLElement;
+      const activeOption = element.querySelector('[role="option"][aria-label="English"]');
 
-      expect(enButton?.classList.contains('pointer-events-none')).toBe(true);
-      expect(enButton?.classList.contains('font-bold')).toBe(true);
+      expect(activeOption).toBeInstanceOf(HTMLElement);
+      expect(activeOption?.className).toContain('text-primary');
+      expect(activeOption?.className).toContain('pointer-events-none');
     });
   });
 
-  it('enables inactive language button', async () => {
+  it('keeps inactive language selectable', async () => {
     translocoService.setActiveLang('en');
 
     await vi.waitFor(() => {
       fixture.detectChanges();
-      const buttons = element.querySelectorAll('button[type="button"]');
-      const deButton = Array.from(buttons).find(btn =>
-        btn.textContent?.includes('DE'),
-      ) as HTMLElement;
+      const inactiveOption = element.querySelector('[role="option"][aria-label="Deutsch"]');
 
-      expect(deButton?.className).not.toContain('pointer-events-none');
+      expect(inactiveOption).toBeInstanceOf(HTMLElement);
+      expect(inactiveOption?.className).toContain('cursor-pointer');
+      expect(inactiveOption?.className).not.toContain('pointer-events-none');
     });
   });
 
-  it('switches language on click', async () => {
+  it('switches language on click and updates styles', async () => {
     translocoService.setActiveLang('en');
     fixture.detectChanges();
 
-    const buttons = element.querySelectorAll('button[type="button"]');
-    const deButton = Array.from(buttons).find(btn =>
-      btn.textContent?.includes('DE'),
-    ) as HTMLButtonElement;
+    const deOption = element.querySelector(
+      '[role="option"][aria-label="Deutsch"]',
+    ) as HTMLButtonElement | null;
 
-    deButton?.click();
+    expect(deOption).toBeInstanceOf(HTMLButtonElement);
+    deOption?.click();
     fixture.detectChanges();
 
     await vi.waitFor(() => {
       expect(translocoService.getActiveLang()).toBe('de');
+      const activeOption = element.querySelector('[role="option"][aria-label="Deutsch"]');
+      expect(activeOption?.className).toContain('pointer-events-none');
     });
   });
 });
