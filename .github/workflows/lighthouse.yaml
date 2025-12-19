@@ -130,7 +130,7 @@ jobs:
         with:
           header: lighthouse
           message: |
-            ## 🔦 Lighthouse CI Results
+            ## Lighthouse CI Results
 
             ### ♿ Accessibility Score
 
@@ -138,7 +138,7 @@ jobs:
             |:-----:|:------:|:---------:|
             | **${{ steps.format.outputs.accessibility }}%** | ${{ steps.format.outputs.a11y_pass }} | ≥ 90% |
 
-            ### 📊 All Categories
+            ### All Categories
 
             | Category | Score | Status |
             |----------|:-----:|:------:|
