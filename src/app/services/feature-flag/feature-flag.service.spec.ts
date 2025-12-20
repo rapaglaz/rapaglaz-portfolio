@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { afterEach, describe, expect, it } from 'vitest';
 import { FeatureFlagService } from './feature-flag.service';
 
@@ -36,7 +36,7 @@ describe('FeatureFlagService', () => {
   it('returns true for valid response', async () => {
     setup();
 
-    const flagPromise = firstValueFrom(service.getFlag$(flagName));
+    const flagPromise = lastValueFrom(service.getFlag$(flagName));
     const req = httpMock.expectOne(flagUrlWithName);
     expect(req.request.method).toBe('GET');
     req.flush({ openToWork: true });
@@ -47,7 +47,7 @@ describe('FeatureFlagService', () => {
   it('returns false when response is invalid', async () => {
     setup();
 
-    const flagPromise = firstValueFrom(service.getFlag$(flagName));
+    const flagPromise = lastValueFrom(service.getFlag$(flagName));
     const req = httpMock.expectOne(flagUrlWithName);
     req.flush({});
 
@@ -57,7 +57,7 @@ describe('FeatureFlagService', () => {
   it('returns false on request error', async () => {
     setup();
 
-    const flagPromise = firstValueFrom(service.getFlag$(flagName));
+    const flagPromise = lastValueFrom(service.getFlag$(flagName));
     const req = httpMock.expectOne(flagUrlWithName);
     req.error(new ProgressEvent('error'), { status: 500, statusText: 'Server Error' });
 
@@ -67,7 +67,7 @@ describe('FeatureFlagService', () => {
   it('does not request flags on the server platform', async () => {
     setup('server');
 
-    await expect(firstValueFrom(service.getFlag$(flagName))).resolves.toBe(false);
+    await expect(firstValueFrom(service.getFlag$(flagName))).resolves.toBe(null);
 
     httpMock.expectNone(flagUrlWithName);
   });
