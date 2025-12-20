@@ -1,9 +1,10 @@
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, PLATFORM_ID } from '@angular/core';
-import { catchError, map, Observable, of } from 'rxjs';
+import { catchError, map, Observable, of, startWith } from 'rxjs';
 
 export type FeatureFlagResponse = Record<string, boolean>;
+export type FeatureFlagValue = boolean | null;
 
 @Injectable({
   providedIn: 'root',
@@ -13,9 +14,9 @@ export class FeatureFlagService {
   private readonly http = inject(HttpClient);
   private readonly flagUrl = 'https://rapaglaz.de/feature-flag';
 
-  getFlag$(flagName: string): Observable<boolean> {
+  getFlag$(flagName: string): Observable<FeatureFlagValue> {
     if (!isPlatformBrowser(this.platformId)) {
-      return of(false);
+      return of(null);
     }
 
     const trimmedName = flagName.trim();
@@ -29,6 +30,7 @@ export class FeatureFlagService {
       .get<FeatureFlagResponse>(url, { headers: { Accept: 'application/json' } })
       .pipe(
         map(data => this.readFlagValue(data, trimmedName)),
+        startWith(null),
         catchError(() => of(false)),
       );
   }

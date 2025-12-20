@@ -51,9 +51,8 @@ export class Navbar {
   protected readonly isScrolled = computed(() => this.scrollY() > 0);
   protected readonly isDownloading = signal(false);
   protected readonly canDownload = computed(() => !this.isDownloading());
-  protected readonly openToWork = toSignal(this.featureFlagService.getFlag$('openToWork'), {
-    initialValue: false,
-  });
+  protected readonly openToWork = toSignal(this.featureFlagService.getFlag$('openToWork'));
+  protected readonly isFeatureFlagLoaded = computed(() => this.openToWork() !== null);
 
   contactEmail(): void {
     const emailItem = CONTACT_ITEMS.find(item => item.id === 'email');
