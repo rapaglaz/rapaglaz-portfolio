@@ -21,10 +21,17 @@ export class ConfigService {
   // Cloudflare test key, always passes in dev so no real key needed
   private readonly TEST_TURNSTILE_KEY = '1x00000000000000000000AA';
 
-  // fetched once on first subscription, then cached
-  private readonly config$ = defer(() => this.fetchConfig()).pipe(shareReplay(1));
+  // cache config; reset on error so a transient failure doesn't stick
+  private config$: Observable<Config> | null = null;
 
   getConfig(): Observable<Config> {
+    this.config$ ??= defer(() => this.fetchConfig()).pipe(
+      shareReplay(1),
+      catchError(err => {
+        this.config$ = null;
+        return throwError(() => err);
+      }),
+    );
     return this.config$;
   }
 
