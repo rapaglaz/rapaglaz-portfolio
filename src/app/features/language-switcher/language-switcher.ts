@@ -55,11 +55,7 @@ export class LanguageSwitcher {
   }
 
   protected availableLanguages(): string[] {
-    const activeLang = this.currentLang().split('-')[0];
-    if (this.availableLangs.includes(activeLang)) {
-      return [activeLang, ...this.availableLangs.filter(lang => lang !== activeLang)];
-    }
-    return this.availableLangs;
+    return this.availableLangs.filter(lang => this.availableLangs.includes(lang));
   }
 
   protected changeLang(lang: string): void {
