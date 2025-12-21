@@ -9,5 +9,5 @@ import { SectionWrapper } from '../../ui';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class About {
-  protected readonly sectionWrapper = viewChild(SectionWrapper);
+  protected readonly sectionWrapper = viewChild.required(SectionWrapper);
 }

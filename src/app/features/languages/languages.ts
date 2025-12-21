@@ -10,7 +10,7 @@ import { buildDelayGetter } from '../../utils/animation';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Languages {
-  protected readonly sectionWrapper = viewChild(SectionWrapper);
+  protected readonly sectionWrapper = viewChild.required(SectionWrapper);
 
   protected readonly languagesData = translateObjectSignal('portfolio.languages.items');
 

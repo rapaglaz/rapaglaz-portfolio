@@ -11,7 +11,7 @@ import { buildDelayGetter } from '../../utils/animation';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Contact {
-  protected readonly sectionWrapper = viewChild(SectionWrapper);
+  protected readonly sectionWrapper = viewChild.required(SectionWrapper);
   protected readonly contactItems: readonly ContactItem[] = CONTACT_ITEMS;
   protected readonly getContactDelay = buildDelayGetter('contact');
 }

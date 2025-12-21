@@ -16,8 +16,9 @@ type CertificationWithFormattedDate = Certification & {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Certifications {
+  protected readonly sectionWrapper = viewChild.required(SectionWrapper);
+
   private readonly transloco = inject(TranslocoService);
-  protected readonly sectionWrapper = viewChild(SectionWrapper);
 
   private readonly activeLang = toSignal(this.transloco.langChanges$, {
     initialValue: this.transloco.getActiveLang(),
