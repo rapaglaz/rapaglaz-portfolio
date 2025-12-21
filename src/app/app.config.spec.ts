@@ -1,3 +1,4 @@
+import { DOCUMENT } from '@angular/common';
 import { TestBed } from '@angular/core/testing';
 import {
   TRANSLOCO_LOADER,
@@ -22,8 +23,6 @@ class InlineLoader implements TranslocoLoader {
 
 describe('app i18n config', () => {
   beforeEach(() => {
-    vi.stubGlobal('navigator', { language: 'de-DE' });
-
     TestBed.configureTestingModule({
       providers: [
         provideTranslocoWithDynamicLang(),
@@ -46,7 +45,23 @@ describe('app i18n config', () => {
     expect(handler).toBeInstanceOf(StrictTranslocoMissingHandler);
   });
 
-  it('initializes active language based on browser settings', async () => {
+  it('initializes active language with the default locale', async () => {
+    const transloco = TestBed.inject(TranslocoService);
+    const loader = TestBed.inject(TRANSLOCO_LOADER) as InlineLoader;
+    await TestBed.runInInjectionContext(initTranslocoDefaultLang);
+
+    expect(transloco.getActiveLang()).toBe(DEFAULT_LANG);
+    expect(loader.calls).toContain(DEFAULT_LANG);
+  });
+
+  it('uses the url segment when a supported locale is in the path', async () => {
+    TestBed.overrideProvider(DOCUMENT, {
+      useValue: {
+        location: { pathname: '/de' },
+        baseURI: 'http://localhost/de',
+      } as Document,
+    });
+
     const transloco = TestBed.inject(TranslocoService);
     const loader = TestBed.inject(TRANSLOCO_LOADER) as InlineLoader;
     await TestBed.runInInjectionContext(initTranslocoDefaultLang);

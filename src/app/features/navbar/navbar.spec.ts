@@ -2,6 +2,7 @@ import { ScrollDispatcher } from '@angular/cdk/scrolling';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CONTACT_ITEMS } from '../../content';
@@ -28,6 +29,7 @@ describe('Navbar', () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
+        provideRouter([]),
         provideTranslocoTesting(),
         { provide: ScrollDispatcher, useValue: mockScrollDispatcher },
         { provide: FeatureFlagService, useValue: mockFeatureFlagService },
@@ -78,6 +80,7 @@ describe('Navbar - CV Download', () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
+        provideRouter([]),
         provideTranslocoTesting(),
         { provide: ScrollDispatcher, useValue: mockScrollDispatcher },
         { provide: CvDownloadService, useValue: mockCvDownloadService },
@@ -157,6 +160,7 @@ describe('Navbar - Contact Email', () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
+        provideRouter([]),
         provideTranslocoTesting(),
         { provide: ScrollDispatcher, useValue: mockScrollDispatcher },
         { provide: FeatureFlagService, useValue: mockFeatureFlagService },

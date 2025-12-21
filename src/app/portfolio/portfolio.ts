@@ -1,19 +1,10 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
-import {
-  About,
-  Certifications,
-  Contact,
-  Footer,
-  Hero,
-  Languages,
-  Navbar,
-  Skills,
-} from '../features';
+import { About, Certifications, Contact, Hero, Languages, Skills } from '../features';
 
 @Component({
   selector: 'app-portfolio',
-  imports: [TranslocoPipe, Navbar, Hero, About, Skills, Languages, Certifications, Contact, Footer],
+  imports: [TranslocoPipe, Hero, About, Skills, Languages, Certifications, Contact],
   templateUrl: './portfolio.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

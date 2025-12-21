@@ -1,6 +1,6 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import {
-  AfterViewInit,
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   ElementRef,
@@ -18,7 +18,7 @@ import { TranslocoModule } from '@jsverse/transloco';
   templateUrl: './turnstile-modal.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TurnstileModal implements AfterViewInit {
+export class TurnstileModal {
   protected readonly widgetContainer =
     viewChild.required<ElementRef<HTMLDivElement>>('widgetContainer');
   protected readonly dialogElement = viewChild.required<ElementRef<HTMLDivElement>>('dialog');
@@ -30,18 +30,14 @@ export class TurnstileModal implements AfterViewInit {
   private readonly platformId = inject(PLATFORM_ID);
   private previousActiveElement: HTMLElement | null = null;
 
-  // emit container ref after view init so TurnstileService can move widget into it
-  ngAfterViewInit(): void {
-    const container = this.widgetContainer().nativeElement;
-    this.widgetReady.emit(container);
+  constructor() {
+    afterNextRender(() => {
+      const container = this.widgetContainer().nativeElement;
+      this.widgetReady.emit(container);
 
-    if (!isPlatformBrowser(this.platformId)) {
-      return;
-    }
-
-    // Store currently focused element and trap focus in modal
-    this.previousActiveElement = this.document.activeElement as HTMLElement;
-    this.focusDialog();
+      this.previousActiveElement = this.document.activeElement as HTMLElement;
+      this.focusDialog();
+    });
   }
 
   setLoading(loading: boolean): void {

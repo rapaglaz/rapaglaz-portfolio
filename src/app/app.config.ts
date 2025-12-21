@@ -1,3 +1,4 @@
+import { DOCUMENT } from '@angular/common';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import {
   ApplicationConfig,
@@ -10,7 +11,11 @@ import {
   provideAppInitializer,
   provideBrowserGlobalErrorListeners,
 } from '@angular/core';
-import { bootstrapApplication, provideClientHydration } from '@angular/platform-browser';
+import {
+  bootstrapApplication,
+  provideClientHydration,
+  withEventReplay,
+} from '@angular/platform-browser';
 import { provideRouter, withEnabledBlockingInitialNavigation } from '@angular/router';
 import {
   provideTransloco,
@@ -22,11 +27,10 @@ import { Observable } from 'rxjs';
 import { App } from './app';
 import { routes } from './app.routes';
 import { proxyInterceptor, turnstileInterceptor } from './interceptors';
-import { LoggerService } from './services';
 import {
   AVAILABLE_LANGS,
+  type AvailableLang,
   DEFAULT_LANG,
-  getBrowserLanguage,
   isAvailableLang,
   StrictTranslocoMissingHandler,
   TranslocoHttpLoader,
@@ -38,10 +42,18 @@ export function provideTranslocoWithDynamicLang(): EnvironmentProviders {
   return makeEnvironmentProviders([
     {
       provide: DEFAULT_LANG_TOKEN,
-      deps: [LoggerService],
-      useFactory: (logger: LoggerService): string => {
-        const browserLang = getBrowserLanguage(logger).split('-')[0];
-        return isAvailableLang(browserLang) ? browserLang : DEFAULT_LANG;
+      deps: [DOCUMENT],
+      useFactory: (document: Document): AvailableLang => {
+        let pathname = document.location?.pathname ?? '';
+        if (!pathname) {
+          try {
+            pathname = new URL(document.baseURI).pathname;
+          } catch {
+            pathname = '';
+          }
+        }
+        const segment = pathname.split('/').filter(Boolean)[0] ?? '';
+        return isAvailableLang(segment) ? segment : DEFAULT_LANG;
       },
     },
     provideTransloco({
@@ -70,7 +82,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes, withEnabledBlockingInitialNavigation()),
-    provideClientHydration(),
+    provideClientHydration(withEventReplay()),
     provideHttpClient(withInterceptors([proxyInterceptor, turnstileInterceptor])),
     provideTranslocoWithDynamicLang(),
   ],

@@ -1,6 +1,6 @@
 # Security
 
-This is a portfolio site. Not a bank.
+This is a portfolio site, not a bank.
 Still, I don’t want it to be sloppy.
 
 There is no login, no user data storage, no payments.
@@ -28,26 +28,25 @@ Short version:
 ## CV download protection
 
 I don’t want the CV to be a public URL that bots can scrape forever.
-So downloads go through Cloudflare Turnstile + a Worker.
+Downloads go through Cloudflare Turnstile + a Worker.
 
 Flow is:
 
 1. user clicks “CV”
-2. Turnstile runs (sometimes it’s invisible, sometimes it asks)
+2. Turnstile runs (sometimes invisible, sometimes it asks)
 3. frontend sends the token to the Worker (header)
 4. Worker validates it against Cloudflare
 5. if ok, Worker returns a signed R2 URL
 
 The signed link is short lived (5 minutes).
-It’s an extra step, but that’s kind of the point.
+It is an extra step, but that is the point.
 
 ## Dependencies and secrets
 
 No secrets in the repo.
-Anything sensitive is in GitHub Secrets or Cloudflare config.
+Sensitive values live in GitHub Secrets or Cloudflare config.
 
 Renovate handles dependency updates.
-SonarCloud runs in CI when the token exists.
 
 ## Threat model (simple)
 
@@ -65,4 +64,4 @@ Attack surface is small. That’s good.
 ## If something breaks
 
 The Worker can be patched fast.
-Then I fix the code properly in the repo and let CI do its thing.
+Then I fix the code in the repo and run checks.

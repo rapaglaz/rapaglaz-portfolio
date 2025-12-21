@@ -8,7 +8,8 @@
   ">
   <div
     data-testid="navbar-container"
-    [ngClass]="openToWork() ? 'md:justify-between' : 'md:justify-end'"
+    [class.md:justify-between]="openToWork()"
+    [class.md:justify-end]="!openToWork()"
     class="container mx-auto flex max-w-5xl flex-col items-center justify-center gap-6 px-2 py-4 md:flex-row md:gap-0 md:py-6">
     @if (isFeatureFlagLoaded()) {
       @if (openToWork()) {

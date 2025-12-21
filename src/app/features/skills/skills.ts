@@ -11,7 +11,7 @@ import { buildDelayGetter } from '../../utils/animation';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Skills {
-  protected readonly sectionWrapper = viewChild(SectionWrapper);
+  protected readonly sectionWrapper = viewChild.required(SectionWrapper);
 
   protected readonly allSkills = computed(() =>
     SKILL_CATEGORIES.flatMap(category =>

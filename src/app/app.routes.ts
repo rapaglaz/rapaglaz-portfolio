@@ -1,12 +1,19 @@
 import { Routes } from '@angular/router';
+import { AVAILABLE_LANGS, DEFAULT_LANG } from './utils/i18n';
+
+const portfolioRoute = () => import('./portfolio/portfolio').then(m => m.Portfolio);
 
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('./portfolio/portfolio').then(m => m.Portfolio),
+    loadComponent: portfolioRoute,
   },
+  ...AVAILABLE_LANGS.map(lang => ({
+    path: lang,
+    loadComponent: portfolioRoute,
+  })),
   {
     path: '**',
-    redirectTo: '',
+    redirectTo: DEFAULT_LANG,
   },
 ];
