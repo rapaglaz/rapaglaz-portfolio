@@ -1,9 +1,9 @@
 import { CdkListboxModule, type ListboxValueChangeEvent } from '@angular/cdk/listbox';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
 import { TranslocoService } from '@jsverse/transloco';
-import { LoggerService } from '../../services';
-import { getBrowserLanguage, isAvailableLang, LANG_LABELS } from '../../utils/i18n';
+import { isAvailableLang, LANG_LABELS } from '../../utils/i18n';
 
 @Component({
   selector: 'app-language-switcher',
@@ -37,12 +37,12 @@ import { getBrowserLanguage, isAvailableLang, LANG_LABELS } from '../../utils/i1
 })
 export class LanguageSwitcher {
   private readonly translocoService = inject(TranslocoService);
-  private readonly loggerService = inject(LoggerService);
+  private readonly router = inject(Router);
 
   protected readonly availableLangs = this.translocoService.getAvailableLangs() as string[];
 
   protected readonly currentLang = toSignal(this.translocoService.langChanges$, {
-    initialValue: getBrowserLanguage(this.loggerService),
+    initialValue: this.translocoService.getActiveLang(),
   });
 
   protected readonly selectedLang = computed<readonly string[]>(() => [this.currentLang()]);
@@ -55,15 +55,21 @@ export class LanguageSwitcher {
   }
 
   protected availableLanguages(): string[] {
-    const browserLang = getBrowserLanguage(this.loggerService).split('-')[0];
-    if (this.availableLangs.includes(browserLang)) {
-      return [browserLang, ...this.availableLangs.filter(lang => lang !== browserLang)];
+    const activeLang = this.currentLang().split('-')[0];
+    if (this.availableLangs.includes(activeLang)) {
+      return [activeLang, ...this.availableLangs.filter(lang => lang !== activeLang)];
     }
     return this.availableLangs;
   }
 
   protected changeLang(lang: string): void {
+    if (!isAvailableLang(lang)) {
+      return;
+    }
+
+    const { fragment } = this.router.parseUrl(this.router.url);
     this.translocoService.setActiveLang(lang);
+    void this.router.navigate(['/', lang], { fragment: fragment ?? undefined });
   }
 
   protected getLangLabel(lang: string): string {

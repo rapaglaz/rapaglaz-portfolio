@@ -1,9 +1,14 @@
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter, Router } from '@angular/router';
 import { TranslocoService } from '@jsverse/transloco';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { provideTranslocoTesting } from '../../testing';
 import { LANG_LABELS } from '../../utils/i18n';
 import { LanguageSwitcher } from './language-switcher';
+
+@Component({ template: '', changeDetection: ChangeDetectionStrategy.OnPush })
+class DummyRouteComponent {}
 
 describe('LanguageSwitcher', () => {
   let fixture: ComponentFixture<LanguageSwitcher>;
@@ -13,7 +18,13 @@ describe('LanguageSwitcher', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [LanguageSwitcher],
-      providers: [provideTranslocoTesting()],
+      providers: [
+        provideTranslocoTesting(),
+        provideRouter([
+          { path: 'en', component: DummyRouteComponent },
+          { path: 'de', component: DummyRouteComponent },
+        ]),
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LanguageSwitcher);
@@ -76,6 +87,26 @@ describe('LanguageSwitcher', () => {
       expect(translocoService.getActiveLang()).toBe('de');
       const activeOption = element.querySelector('[role="option"][aria-label="Deutsch"]');
       expect(activeOption?.className).toContain('pointer-events-none');
+    });
+  });
+
+  it('navigates to the new locale and preserves the fragment', async () => {
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/en#skills');
+    fixture.detectChanges();
+
+    const navigateSpy = vi.spyOn(router, 'navigate').mockResolvedValue(true);
+
+    const deOption = element.querySelector(
+      '[role="option"][aria-label="Deutsch"]',
+    ) as HTMLButtonElement | null;
+
+    expect(deOption).toBeInstanceOf(HTMLButtonElement);
+    deOption?.click();
+    fixture.detectChanges();
+
+    await vi.waitFor(() => {
+      expect(navigateSpy).toHaveBeenCalledWith(['/', 'de'], { fragment: 'skills' });
     });
   });
 });
