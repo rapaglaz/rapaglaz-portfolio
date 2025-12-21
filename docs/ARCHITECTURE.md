@@ -1,59 +1,49 @@
 # Architecture
 
-This is a small app, so I try to keep the structure boring and predictable.
-No big framework-on-top-of-framework stuff.
+This app is small, so I keep the structure boring and predictable.
+No framework on top of framework. Just Angular.
 
 ## Folder layout
 
-I organise by feature, not by “components/services/utils” layers inside every folder.
+I organise by feature, not by layers inside every folder.
 Shared bits go to a shared place.
 
 ```plaintext
 src/
 ├── app/           # bootstrap + routing + top-level view
 ├── features/      # hero, navbar, contact, etc
-├── ui/            # small reusable presentational components
+├── ui/            # small reusable presentational pieces
 ├── services/      # shared logic (cv download, toast, config, turnstile)
 ├── utils/         # helpers (i18n, rxjs, scroll, animation)
 └── content/       # typed static content
 ```
 
-I try to keep features isolated (feature-to-feature imports are avoided). There is one exception: the navbar uses the language switcher.
-It’s fine, but I keep it as a clear exception.
+I try to keep features isolated (no feature → feature imports). One exception:
+navbar uses the language switcher. It is fine, but it is a conscious choice.
 
 ## Angular style
 
-### Standalone + OnPush
+### Standalone + OnPush + signals + zoneless
 
-Everything is standalone. Most components are presentational, so `ChangeDetectionStrategy.OnPush` is the default.
+Everything is standalone. Most components are presentational, so `OnPush` is the default.
 If something needs state, I keep it close to the feature or in a service.
 
-### Zoneless + signals
-
-Zone.js is not in the dependencies, so the app runs zoneless.
-That means I need to be a bit more intentional with updates.
-
-- Signals for local state where it makes sense
-- RxJS for async stuff (HTTP, events, Turnstile)
-- `toSignal()` when I want a stream as a signal
-
-I’m not trying to force signals everywhere. For this project it’s mostly UI + a few flows.
+Signals are used for small UI state. RxJS stays for async work (HTTP, events, Turnstile).
+`zone.js` is not in dependencies, so updates are explicit.
 
 ### SSG + hydration
 
 Production build is static (`outputMode: static`). Angular pre-renders and outputs HTML.
 On the client side it hydrates, so it does not repaint the whole page.
 
-There is a server entry because prerender needs it, and it also helps for things like loading translations in a way that works with SSG.
-
 ## State and services
 
-Most sections have basically no “business logic”. The interesting parts are in services:
+Most sections have no real business logic. The interesting parts are in services:
 
-- CV download: get config → get Turnstile token → call backend endpoint → trigger browser download
+- CV download: get config -> get Turnstile token -> call backend endpoint -> trigger browser download
 - Turnstile: load script once, render widget, show modal when needed, cleanup properly
 - Toasts: CDK overlay, explicit cleanup
-- Feature flag: read `openToWork` from a Cloudflare Worker + KV, default is false
+- Feature flag: read `openToWork` from a Cloudflare Worker + KV
 
 ## Feature flag (Open to Work)
 
@@ -61,7 +51,7 @@ Runtime toggle for the navbar badge. It is a single public flag, not a full syst
 
 - `GET https://rapaglaz.de/feature-flag/openToWork` → `{ "openToWork": true | false }`
 - Missing flag returns `404`, frontend treats it as `false`
-- Storage is Cloudflare KV, updated manually in the dashboard
+- Storage is Cloudflare KV, updated manually
 
 ## Testing approach
 
@@ -69,8 +59,8 @@ Runtime toggle for the navbar badge. It is a single public flag, not a full syst
 
 Unit tests run via Angular’s unit-test builder with the Vitest runner.
 
-For presentational sections I keep tests as smoke checks (renders, key elements exist, basic a11y attributes).
-For services/interceptors I test actual behaviour and error paths.
+For presentational sections I keep tests as smoke checks (renders, key elements exist).
+For services/interceptors I test behaviour and error paths.
 
 ### E2E (Playwright)
 
@@ -86,14 +76,15 @@ Locally `pnpm run e2e` uses the dev server on 4200.
 
 ### Lighthouse CI
 
-Lighthouse is there for feedback, not as a gate.
-Assertions are warnings only.
-
-Config is in `.lighthouserc.cjs` and it uses `pnpm run preview` (serves `dist/rapaglaz-portfolio/browser` on 4233).
+Lighthouse is feedback only. It does not block merges.
+Config is in `.lighthouserc.cjs` and uses `pnpm run preview` (port 4233).
 
 ## i18n
 
 Transloco with JSON under `public/i18n`.
+Runtime has a strict missing handler, so missing keys are loud.
+Routes are `/en` and `/de`. The URL segment decides the active language.
+Root `/` falls back to the default language (`en`).
 
 I validate translations with:
 
@@ -101,11 +92,7 @@ I validate translations with:
 pnpm run i18n:check
 ```
 
-This runs JSON validation and key parity checks.
-Runtime has a strict missing handler too, so missing keys are loud.
-
-## Trade-offs (simple ones)
+## Trade-offs
 
 - No NgRx. Not needed here.
-- Runtime i18n instead of build-time. I want instant switching.
-- Self-hosted CI runner. Saves minutes, but can be offline, so there is fallback.
+- CI is private (not in this repo), but I still keep local scripts and checks.

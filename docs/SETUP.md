@@ -4,7 +4,7 @@ How to run this locally.
 
 ## Requirements
 
-- Node.js 24 (I use the version in `.nvmrc`)
+- Node.js 24 (see `.nvmrc`)
 - pnpm 10+
 
 Playwright needs browsers installed once.
@@ -15,8 +15,6 @@ Playwright needs browsers installed once.
 pnpm install
 ```
 
-CI uses a frozen lockfile, so it’s best to not fight pnpm here.
-
 ## Dev server
 
 ```bash
@@ -24,8 +22,10 @@ pnpm start
 ```
 
 App is on <http://localhost:4200>.
+You can use `/en` or `/de` directly, and `/` defaults to English.
 
-Note: the feature flag endpoint is on `https://rapaglaz.de`. If you see CORS errors locally, the Worker must allow `http://localhost:4200`.
+Note: the feature flag endpoint is on `https://rapaglaz.de`.
+If you see CORS errors locally, the Worker must allow `http://localhost:4200`.
 
 ## Checks (format/lint/i18n)
 
@@ -35,8 +35,6 @@ pnpm run lint
 pnpm run i18n:check
 ```
 
-You can also just push and let CI complain. I do both, depends.
-
 ## Unit tests
 
 ```bash
@@ -44,7 +42,7 @@ pnpm test
 ```
 
 This runs Vitest via Angular’s test runner.
-For coverage (like CI):
+For coverage:
 
 ```bash
 pnpm run test:coverage
@@ -66,7 +64,7 @@ SSG mode builds first, then tests the static output served on port 4233:
 pnpm run e2e:ssg
 ```
 
-If you want the UI runner:
+UI runner:
 
 ```bash
 pnpm run e2e:ui
@@ -100,5 +98,5 @@ It does 3 runs, desktop preset. Reports go to `.lighthouseci/`.
 
 ## Common issues
 
-- Playwright is flaky locally: usually it’s missing browsers or old cache. Reinstall browsers and try again.
-- Translations break: run `pnpm run i18n:check` (it validates JSON and key parity).
+- Playwright is flaky locally: usually missing browsers or old cache. Reinstall and retry.
+- Translations break: run `pnpm run i18n:check`.
