@@ -16,7 +16,7 @@ import {
   provideClientHydration,
   withEventReplay,
 } from '@angular/platform-browser';
-import { provideRouter, withEnabledBlockingInitialNavigation } from '@angular/router';
+import { provideRouter } from '@angular/router';
 import {
   provideTransloco,
   TRANSLOCO_MISSING_HANDLER,
@@ -78,14 +78,19 @@ export function initTranslocoDefaultLang(): Observable<unknown> {
   return transloco.load(defaultLang);
 }
 
+const baseProviders = [
+  provideBrowserGlobalErrorListeners(),
+  ...(isDevMode() ? [] : [provideClientHydration(withEventReplay())]),
+  provideHttpClient(withInterceptors([proxyInterceptor, turnstileInterceptor])),
+  provideTranslocoWithDynamicLang(),
+];
+
+export const appConfigBase: ApplicationConfig = {
+  providers: baseProviders,
+};
+
 export const appConfig: ApplicationConfig = {
-  providers: [
-    provideBrowserGlobalErrorListeners(),
-    provideRouter(routes, withEnabledBlockingInitialNavigation()),
-    provideClientHydration(withEventReplay()),
-    provideHttpClient(withInterceptors([proxyInterceptor, turnstileInterceptor])),
-    provideTranslocoWithDynamicLang(),
-  ],
+  providers: [provideRouter(routes), ...baseProviders],
 };
 
 export function bootstrap(): Promise<ApplicationRef> {
