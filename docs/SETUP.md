@@ -15,6 +15,16 @@ Playwright needs browsers installed once.
 pnpm install
 ```
 
+## Git hooks (Husky)
+
+Hooks are installed by Husky during `pnpm install` (via the `prepare` script).
+Files live in `.husky/`.
+
+- `pre-commit`: `pnpm format:write` + `pnpm lint`
+- `commit-msg`: `pnpm exec commitlint --edit "$1"` (uses `commitlint.config.cjs`)
+
+If hooks do not run, try `pnpm run prepare` or reinstall deps.
+
 ## Dev server
 
 ```bash
