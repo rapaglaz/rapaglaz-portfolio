@@ -56,7 +56,7 @@ describe('ToastService', () => {
   });
 
   it('delegates convenience methods to show', () => {
-    const showSpy = vi.spyOn(service, 'show').mockImplementation(() => {});
+    const showSpy = vi.spyOn(service, 'show').mockImplementation(() => undefined);
 
     service.success('Saved!', 1000);
     service.error('Failed!', 2000);

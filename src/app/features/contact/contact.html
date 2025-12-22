@@ -9,14 +9,9 @@
         <a
           data-testid="contact-link"
           [href]="contact.href"
-          [attr.target]="contact.isExternal ? '_blank' : null"
-          [attr.rel]="contact.isExternal ? 'noopener noreferrer' : null"
-          [attr.aria-label]="
-            ('portfolio.contact.labels.' + contact.id | transloco) +
-            ': ' +
-            contact.value +
-            (contact.isExternal ? ' (' + ('common.a11y.opensInNewTab' | transloco) + ')' : '')
-          "
+          [attr.target]="getContactTarget(contact)"
+          [attr.rel]="getContactRel(contact)"
+          [attr.aria-label]="getContactAriaLabel(contact)"
           class="card-ocean hover animate-item flex cursor-pointer flex-col items-start justify-center gap-3 px-6 py-4"
           [class.visible]="wrapper.scrollReveal.isVisible()"
           [style.animation-delay]="getContactDelay(i)">
