@@ -92,13 +92,13 @@ jobs:
               fi
             }
 
-            perf_status=$(get_status "$perf" 80)
-            a11y_status=$(get_status "$a11y" 90)
-            bp_status=$(get_status "$bp" 80)
-            seo_status=$(get_status "$seo" 90)
+            perf_status=$(get_status "$perf" 90)
+            a11y_status=$(get_status "$a11y" 95)
+            bp_status=$(get_status "$bp" 95)
+            seo_status=$(get_status "$seo" 95)
 
             # A11y specific status with text
-            if [ "$a11y" -ge 90 ]; then
+            if [ "$a11y" -ge 95 ]; then
               a11y_pass="✅ PASS"
             else
               a11y_pass="⚠️ BELOW THRESHOLD"
@@ -136,7 +136,7 @@ jobs:
 
             | Score | Status | Threshold |
             |:-----:|:------:|:---------:|
-            | **${{ steps.format.outputs.accessibility }}%** | ${{ steps.format.outputs.a11y_pass }} | ≥ 90% |
+            | **${{ steps.format.outputs.accessibility }}%** | ${{ steps.format.outputs.a11y_pass }} | ≥ 95% |
 
             ### All Categories
 
@@ -147,7 +147,7 @@ jobs:
             | Best Practices | **${{ steps.format.outputs.best_practices }}%** | ${{ steps.format.outputs.bp_status }} |
             | SEO | **${{ steps.format.outputs.seo }}%** | ${{ steps.format.outputs.seo_status }} |
 
-            > **Thresholds:** Performance ≥80%, Accessibility ≥90%, Best Practices ≥80%, SEO ≥90%
+            > **Thresholds:** Performance ≥90%, Accessibility ≥95%, Best Practices ≥95%, SEO ≥95%
 
             ${{ steps.format.outputs.public_url && format('**[View Full Lighthouse Report →]({0})**', steps.format.outputs.public_url) || '' }}
 
