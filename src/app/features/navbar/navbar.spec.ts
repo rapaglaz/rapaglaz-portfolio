@@ -146,7 +146,6 @@ describe('Navbar - CV Download', () => {
 });
 
 describe('Navbar - Contact Email', () => {
-  let component: Navbar;
   let fixture: ComponentFixture<Navbar>;
   let element: HTMLElement;
 
@@ -168,7 +167,6 @@ describe('Navbar - Contact Email', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(Navbar);
-    component = fixture.componentInstance;
     element = fixture.nativeElement;
     fixture.detectChanges();
   });
