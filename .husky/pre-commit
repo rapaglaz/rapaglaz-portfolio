@@ -1,12 +1,13 @@
-#!/bin/bash
+#!/usr/bin/env sh
 set -e
 
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 cd "$REPO_ROOT"
 
 if ! command -v pnpm >/dev/null 2>&1; then
-  echo "pnpm is required to run commitlint hook." >&2
+  echo "pnpm is required to run format + lint pre-commit hook." >&2
   exit 1
 fi
 
-pnpm exec commitlint --edit "$1"
+pnpm format:write
+pnpm lint
