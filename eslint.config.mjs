@@ -139,7 +139,7 @@ export default defineConfig(
 
   // Configuration files with specific rules
   {
-    files: ['*.config.{js,ts}', 'karma.conf.js', 'protractor.conf.js'],
+    files: ['*.config.{js,ts}'],
     rules: {
       '@typescript-eslint/no-var-requires': 'off',
       'no-console': 'off',
