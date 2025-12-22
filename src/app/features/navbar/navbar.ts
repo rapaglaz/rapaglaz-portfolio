@@ -1,13 +1,16 @@
 import { ScrollDispatcher } from '@angular/cdk/scrolling';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import {
+  afterNextRender,
   ChangeDetectionStrategy,
   Component,
   computed,
   DestroyRef,
+  ElementRef,
   inject,
   PLATFORM_ID,
   signal,
+  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
@@ -25,6 +28,8 @@ import { LanguageSwitcher } from '../language-switcher/language-switcher';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Navbar {
+  private readonly navbarRef = viewChild.required<ElementRef<HTMLElement>>('navbar');
+
   private readonly scrollDispatcher = inject(ScrollDispatcher);
   private readonly destroyRef = inject(DestroyRef);
   private readonly cvDownloadService = inject(CvDownloadService);
@@ -53,6 +58,25 @@ export class Navbar {
   protected readonly canDownload = computed(() => !this.isDownloading());
   protected readonly openToWork = toSignal(this.featureFlagService.getFlag$('openToWork'));
   protected readonly isFeatureFlagLoaded = computed(() => this.openToWork() !== null);
+
+  constructor() {
+    afterNextRender(() => {
+      if (!isPlatformBrowser(this.platformId)) return;
+
+      const navbar = this.navbarRef().nativeElement;
+      const rootStyle = this.document.documentElement.style;
+      const updateHeight = (): void => {
+        const height = navbar.getBoundingClientRect().height;
+        rootStyle.setProperty('--navbar-height', `${height}px`);
+      };
+
+      updateHeight();
+
+      const resizeObserver = new ResizeObserver(updateHeight);
+      resizeObserver.observe(navbar);
+      this.destroyRef.onDestroy(() => resizeObserver.disconnect());
+    });
+  }
 
   contactEmail(): void {
     const emailItem = CONTACT_ITEMS.find(item => item.id === 'email');

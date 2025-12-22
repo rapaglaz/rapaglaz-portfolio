@@ -7,7 +7,9 @@ import { Footer, Navbar } from './features';
   imports: [Navbar, RouterOutlet, Footer],
   template: `
     <app-navbar />
-    <router-outlet />
+    <div class="min-h-screen">
+      <router-outlet />
+    </div>
     <app-footer />
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
