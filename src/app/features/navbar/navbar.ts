@@ -53,11 +53,13 @@ export class Navbar {
     { initialValue: 0 },
   );
 
+  private readonly openToWorkFlag = this.featureFlagService.getFlagSignal('openToWork');
+
   protected readonly isScrolled = computed(() => this.scrollY() > 0);
   protected readonly isDownloading = signal(false);
   protected readonly canDownload = computed(() => !this.isDownloading());
-  protected readonly openToWork = toSignal(this.featureFlagService.getFlag$('openToWork'));
-  protected readonly isFeatureFlagLoaded = computed(() => this.openToWork() !== null);
+  protected readonly openToWork = this.openToWorkFlag.flag;
+  protected readonly isFeatureFlagLoaded = this.openToWorkFlag.isLoaded;
 
   constructor() {
     afterNextRender(() => {
@@ -71,6 +73,10 @@ export class Navbar {
       };
 
       updateHeight();
+
+      if (typeof ResizeObserver === 'undefined') {
+        return;
+      }
 
       const resizeObserver = new ResizeObserver(updateHeight);
       resizeObserver.observe(navbar);

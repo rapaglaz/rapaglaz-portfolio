@@ -12,6 +12,10 @@ import { Navbar } from './navbar';
 
 const mockFeatureFlagService = {
   getFlag$: vi.fn().mockReturnValue(of(true)),
+  getFlagSignal: vi.fn().mockReturnValue({
+    flag: () => true,
+    isLoaded: () => true,
+  }),
 };
 
 describe('Navbar', () => {
@@ -43,7 +47,7 @@ describe('Navbar', () => {
   it('renders navbar with primary actions', () => {
     const element = fixture.nativeElement as HTMLElement;
     const navbar = element.querySelector('nav');
-    const badge = element.querySelector('app-badge [role="button"]');
+    const badge = element.querySelector('app-badge');
     const languageSwitcher = element.querySelector('app-language-switcher');
     const buttons = Array.from(element.querySelectorAll('button[appButton]'));
     const iconButton = buttons.find(button => button.getAttribute('aria-label'));
@@ -216,7 +220,7 @@ describe('Navbar - Contact Email', () => {
       configurable: true,
     });
 
-    const badge = element.querySelector('app-badge [role="button"]') as HTMLElement | null;
+    const badge = element.querySelector('app-badge') as HTMLElement | null;
     expect(badge).toBeInstanceOf(HTMLElement);
     badge?.click();
 
