@@ -5,16 +5,17 @@ test.describe('Locale Switch Journey', () => {
   test('switches language for core content', async ({ page }) => {
     await visitPortfolio(page);
 
-    const visibleBadge = await page.waitForSelector(
-      '[data-testid="hero-badge"], [data-testid="hero-badge-mobile"]',
-      { state: 'visible' },
-    );
+    const desktopBadge = page.getByTestId('hero-badge');
+    const mobileBadge = page.getByTestId('hero-badge-mobile');
 
-    await expect(visibleBadge).toContain('Open to Work');
+    const visibleBadge = (await desktopBadge.isVisible()) ? desktopBadge : mobileBadge;
+
+    await expect(visibleBadge).toBeVisible();
+    await expect(visibleBadge).toContainText('Open to Work');
 
     await switchLanguage(page, 'DE');
 
-    await expect(visibleBadge).toContain('Offen für Arbeit');
+    await expect(visibleBadge).toContainText('Offen für Arbeit');
   });
 
   test('hides open-to-work badge when flag is disabled', async ({ page }) => {
