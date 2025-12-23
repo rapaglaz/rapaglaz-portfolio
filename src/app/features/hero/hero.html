@@ -3,7 +3,7 @@
   data-testid="section-hero"
   class="hero-section flex items-center justify-center md:py-0">
   <div
-    class="hero-content mx-auto w-full max-w-5xl self-center px-6 py-12 pt-16 text-center sm:self-auto md:px-4">
+    class="hero-content mx-auto w-full max-w-5xl self-center px-6 py-12 text-center sm:self-auto md:px-4">
     <div class="hero-avatar-wrapper flex flex-col items-center">
       <div class="avatar">
         <div
@@ -17,6 +17,17 @@
             priority />
         </div>
       </div>
+
+      @if (isFeatureFlagLoaded() && openToWork()) {
+        <div class="mt-12 md:hidden">
+          <app-badge
+            data-testid="hero-badge-mobile"
+            badgeSize="lg">
+            {{ 'common.navbar.openToWork' | transloco }}
+          </app-badge>
+        </div>
+      }
+
       <h1 class="mt-16 flex gap-3 text-6xl font-bold tracking-wide lg:gap-6 lg:text-8xl">
         <span
           data-testid="hero-firstname"

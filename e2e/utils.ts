@@ -32,8 +32,8 @@ export async function mockFeatureFlag(page: Page, openToWork = true): Promise<vo
 }
 
 // waits for hero + navbar to ensure page fully loaded before tests
-export async function visitPortfolio(page: Page, url = '/'): Promise<void> {
-  await mockFeatureFlag(page);
+export async function visitPortfolio(page: Page, url = '/', openToWork = true): Promise<void> {
+  await mockFeatureFlag(page, openToWork);
   await page.goto(url);
   await page.getByTestId('section-hero').waitFor({ state: 'visible' });
   await page.getByTestId('navbar').waitFor({ state: 'visible' });

@@ -19,16 +19,14 @@ describe('Badge', () => {
   });
 
   it('has accessible button with aria-label', () => {
-    const badge = compiled.querySelector('[role="button"]');
-
-    expect(badge).toBeInstanceOf(HTMLElement);
-    expect(badge?.getAttribute('tabindex')).toBe('0');
-    expect(badge?.getAttribute('aria-label')).toBe('Badge');
+    expect(compiled.getAttribute('role')).toBe('button');
+    expect(compiled.getAttribute('tabindex')).toBe('0');
+    expect(compiled.getAttribute('aria-label')).toBe('Badge');
 
     fixture.componentRef.setInput('ariaLabel', 'Open to Work');
     fixture.detectChanges();
 
-    expect(badge?.getAttribute('aria-label')).toBe('Open to Work');
+    expect(compiled.getAttribute('aria-label')).toBe('Open to Work');
   });
 
   it('emits clicked event on click', () => {
@@ -54,5 +52,29 @@ describe('Badge', () => {
     expect(event.defaultPrevented).toBe(true);
     expect(clickedSpy).toHaveBeenCalledTimes(1);
     expect(clickedSpy.mock.calls[0]?.[0]).toBeInstanceOf(MouseEvent);
+  });
+
+  it('applies size classes for sm, lg, xl', () => {
+    // default is md
+    expect(compiled.className).toContain('px-3');
+    expect(compiled.className).toContain('py-1');
+    expect(compiled.className).toContain('text-sm');
+
+    fixture.componentRef.setInput('badgeSize', 'sm');
+    fixture.detectChanges();
+    expect(compiled.className).toContain('px-2.5');
+    expect(compiled.className).toContain('text-xs');
+
+    fixture.componentRef.setInput('badgeSize', 'lg');
+    fixture.detectChanges();
+    expect(compiled.className).toContain('px-4');
+    expect(compiled.className).toContain('py-2');
+    expect(compiled.className).toContain('text-base');
+
+    fixture.componentRef.setInput('badgeSize', 'xl');
+    fixture.detectChanges();
+    expect(compiled.className).toContain('px-5');
+    expect(compiled.className).toContain('py-2.5');
+    expect(compiled.className).toContain('text-lg');
   });
 });

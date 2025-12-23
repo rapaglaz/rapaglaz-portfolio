@@ -15,6 +15,7 @@
     @if (isFeatureFlagLoaded()) {
       @if (openToWork()) {
         <app-badge
+          class="hidden md:block"
           data-testid="hero-badge"
           (clicked)="contactEmail()">
           {{ 'common.navbar.openToWork' | transloco }}
