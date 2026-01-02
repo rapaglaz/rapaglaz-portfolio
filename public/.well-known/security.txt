@@ -1,8 +1,0 @@
-Contact: https://rapaglaz.de/#contact
-Expires: 2026-12-31T23:59:59.000Z
-Preferred-Languages: en, de
-Canonical: https://rapaglaz.de/.well-known/security.txt
-
-# This website is protected against automated content harvesting.
-# Unauthorized scraping, crawling, or data extraction is prohibited.
-# For legitimate data access requests, please use the contact form at https://rapaglaz.de/#contact
