@@ -22,7 +22,7 @@
     "e2e:ssg:ui": "pnpm run build && E2E_MODE=ssg pnpm exec playwright test --ui",
     "clean": "rm -rf .angular && rm -rf node_modules",
     "clean:reinstall": "pnpm run clean && pnpm install",
-    "prepare": "lefthook install"
+    "prepare": "[ -n \"$CI\" ] || lefthook install"
   },
   "dependencies": {
     "@angular/cdk": "21.0.5",
