@@ -22,7 +22,7 @@
     "e2e:ssg:ui": "pnpm run build && E2E_MODE=ssg pnpm exec playwright test --ui",
     "clean": "rm -rf .angular && rm -rf node_modules",
     "clean:reinstall": "pnpm run clean && pnpm install",
-    "prepare": "husky"
+    "prepare": "[ -n \"$CI\" ] || lefthook install"
   },
   "dependencies": {
     "@angular/cdk": "21.0.5",
@@ -66,8 +66,9 @@
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.4",
     "http-server": "14.1.1",
-    "husky": "9.1.7",
     "jsdom": "27.4.0",
+    "lefthook": "^2.0.13",
+    "lint-staged": "^16.2.7",
     "playwright-ng-schematics": "21.0.3",
     "postcss": "8.5.6",
     "prettier": "3.7.4",
