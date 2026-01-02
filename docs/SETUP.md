@@ -15,15 +15,27 @@ Playwright needs browsers installed once.
 pnpm install
 ```
 
-## Git hooks (Husky)
+## Git hooks (Lefthook)
 
-Hooks are installed by Husky during `pnpm install` (via the `prepare` script).
-Files live in `.husky/`.
+Hooks are installed by Lefthook during `pnpm install` (via the `prepare` script).
+Configuration lives in `lefthook.yml`.
 
-- `pre-commit`: `pnpm format:write` + `pnpm lint`
-- `commit-msg`: `pnpm exec commitlint --edit "$1"` (uses `commitlint.config.cjs`)
+- `pre-commit`: Runs lint-staged on staged files using `.lintstagedrc.json`
+- `commit-msg`: Validates commit message format using commitlint (configured in `commitlint.config.cjs`)
 
-If hooks do not run, try `pnpm run prepare` or reinstall deps.
+If hooks do not run, try `pnpm run prepare` or `pnpm exec lefthook install`.
+
+### Commit message format (Conventional Commits)
+
+Follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:
+
+```text
+<type>(<scope>): <subject>
+
+[optional body]
+
+[optional footer]
+```
 
 ## Dev server
 
