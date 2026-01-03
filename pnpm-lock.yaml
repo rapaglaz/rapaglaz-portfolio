@@ -130,10 +130,10 @@ importers:
         specifier: 27.4.0
         version: 27.4.0(postcss@8.5.6)
       lefthook:
-        specifier: ^2.0.13
+        specifier: 2.0.13
         version: 2.0.13
       lint-staged:
-        specifier: ^16.2.7
+        specifier: 16.2.7
         version: 16.2.7
       playwright-ng-schematics:
         specifier: 21.0.3
