@@ -15,22 +15,8 @@ permissions:
   statuses: write
 
 jobs:
-  pick-runner:
-    runs-on: ubuntu-latest
-    outputs:
-      chosen: ${{ steps.pick.outputs.chosen }}
-    steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-      - id: pick
-        uses: ./.github/actions/pick-runner-action
-        with:
-          primary-runner: 'self-hosted'
-        env:
-          GH_TOKEN: ${{ secrets.RUNNER_PICK_TOKEN }}
-
   quality-check:
-    needs: [pick-runner]
-    runs-on: ${{ needs.pick-runner.outputs.chosen }}
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -68,9 +54,9 @@ jobs:
           retention-days: 7
 
   build:
-    needs: [pick-runner, quality-check, e2e-tests]
+    needs: [quality-check, e2e-tests]
     if: ${{ needs.quality-check.result == 'success' && needs.e2e-tests.result == 'success' }}
-    runs-on: ${{ needs.pick-runner.outputs.chosen }}
+    runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
@@ -78,5 +64,3 @@ jobs:
           fetch-depth: 0
       - name: Run Build Action
         uses: ./.github/actions/build-action
-        with:
-          chosen-runner: ${{ needs.pick-runner.outputs.chosen }}
