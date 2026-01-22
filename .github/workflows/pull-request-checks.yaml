@@ -157,6 +157,8 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Run Build Action
+        uses: ./.github/actions/build-action
       - name: Setup environment
         uses: ./.github/actions/workspace-setup-action
 
