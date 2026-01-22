@@ -155,16 +155,5 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup environment
-        uses: ./.github/actions/workspace-setup-action
-
-      - name: Run build
-        shell: bash
-        run: pnpm run build --base-href /${{ github.event.repository.name }}/previews/pr-${{ github.event.pull_request.number }}/
-
-      - name: Upload build artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
-        with:
-          name: build-artifact-pr
-          path: dist/rapaglaz-portfolio/browser
-          retention-days: 1
+      - name: Run Build Action
+        uses: ./.github/actions/build-action
