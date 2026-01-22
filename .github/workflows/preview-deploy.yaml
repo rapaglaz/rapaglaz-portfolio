@@ -5,6 +5,13 @@ on:
     workflows: ['Pull Request Checks']
     types:
       - completed
+  # Allow manual trigger for testing
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to deploy'
+        required: true
+        type: number
 
 permissions:
   contents: write
@@ -14,23 +21,39 @@ jobs:
   deploy-preview:
     runs-on: ubuntu-latest
     if: >
-      github.event.workflow_run.event == 'pull_request' &&
-      github.event.workflow_run.conclusion == 'success'
+      (github.event_name == 'workflow_dispatch') ||
+      (github.event.workflow_run.event == 'pull_request' &&
+       github.event.workflow_run.conclusion == 'success')
     permissions:
       contents: write
       pull-requests: write
     steps:
       - name: Download Build Artifact
-        uses: actions/download-artifact@fa0b91b0dee0290e335901f196a338e367e94627 # v4
+        if: github.event_name == 'workflow_run'
+        uses: dawidd6/action-download-artifact@09f2f74827fd3a8607589e5ad7f9398816f540fe # v3.1.4
         with:
           name: build-artifact-pr
-          run-id: ${{ github.event.workflow_run.id }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: build-output
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: pull-request-checks.yaml
+          run_id: ${{ github.event.workflow_run.id }}
+
+      - name: Download Build Artifact (Manual)
+        if: github.event_name == 'workflow_dispatch'
+        uses: dawidd6/action-download-artifact@09f2f74827fd3a8607589e5ad7f9398816f540fe # v3.1.4
+        with:
+          name: build-artifact-pr
+          path: build-output
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: pull-request-checks.yaml
+          pr: ${{ inputs.pr_number }}
 
       - name: Get PR Number
         id: pr-number
         run: |
-          if [ "${{ github.event.workflow_run.event }}" == "pull_request" ]; then
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            PR_NUMBER="${{ inputs.pr_number }}"
+          elif [ "${{ github.event.workflow_run.event }}" == "pull_request" ]; then
             # Try to get PR number from the triggering workflow run
             PR_NUMBER=$(gh api "repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}" | jq -r '.pull_requests[0].number')
           fi
@@ -52,20 +75,27 @@ jobs:
       - name: Deploy to GH Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: .
+          folder: build-output
           target-folder: previews/pr-${{ steps.pr-number.outputs.PR_NUMBER }}
           branch: gh-pages
           clean: false # Do not delete other previews
           commit-message: 'docs: deploy preview for PR #${{ steps.pr-number.outputs.PR_NUMBER }}'
           single-commit: false # Keep history for cleanup to work better if needed, but not strictly required
 
-      - name: Comment PR
-        uses: marocchino/sticky-pull-request-comment@v2
+      - name: Update PR Comment
+        uses: marocchino/sticky-pull-request-comment@773744901bac0e8cbb5a0dc842800d45e9b2b405 # v2
         with:
           number: ${{ steps.pr-number.outputs.PR_NUMBER }}
-          header: preview-url
+          header: preview
           message: |
-            ## PR Preview Ready!
+            ### Live Preview
 
-            You can view the changes at:
-            https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/previews/pr-${{ steps.pr-number.outputs.PR_NUMBER }}/
+            **You can view the changes at:** [https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/previews/pr-${{ steps.pr-number.outputs.PR_NUMBER }}/](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/previews/pr-${{ steps.pr-number.outputs.PR_NUMBER }}/)
+
+            <details>
+            <summary>Preview Details</summary>
+
+            - **Commit:** [${{ github.event.workflow_run.head_sha }}](https://github.com/${{ github.repository }}/commit/${{ github.event.workflow_run.head_sha }})
+            - **Build:** [${{ github.event.workflow_run.id }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }})
+            - **Runner:** `GitHub-hosted`
+            </details>
