@@ -157,6 +157,8 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Run Build Action
+        uses: ./.github/actions/build-action
       - name: Setup environment
         uses: ./.github/actions/workspace-setup-action
 
@@ -176,6 +178,8 @@ jobs:
     needs: build
     if: github.event_name == 'pull_request' && needs.build.result == 'success'
     steps:
+      - uses: actions/checkout@v4
+
       - name: Download Build Artifact
         uses: actions/download-artifact@v4
         with:
@@ -197,7 +201,7 @@ jobs:
           number: ${{ github.event.pull_request.number }}
           header: preview
           message: |
-            ### Live Preview 🚀
+            ### Preview
 
             [https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/previews/pr-${{ github.event.pull_request.number }}/](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/previews/pr-${{ github.event.pull_request.number }}/)
 
