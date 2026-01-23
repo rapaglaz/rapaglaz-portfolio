@@ -11,6 +11,8 @@ concurrency:
 permissions:
   contents: write
   pull-requests: write
+  pages: write
+  deployments: write
 
 jobs:
   detect-changes:
@@ -26,7 +28,7 @@ jobs:
       run_build: ${{ steps.aggregate.outputs.run_build }}
       run_workflow_lint: ${{ steps.aggregate.outputs.run_workflow_lint }}
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/checkout@v4
 
       - name: Detect changed file paths
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
@@ -86,7 +88,7 @@ jobs:
     if: ${{ needs.detect-changes.outputs.run_quality == 'true' }}
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -107,7 +109,7 @@ jobs:
     if: ${{ needs.detect-changes.outputs.run_workflow_lint == 'true' }}
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/checkout@v4
 
       - name: Install actionlint
         run: |
@@ -126,7 +128,7 @@ jobs:
     if: ${{ needs.detect-changes.outputs.run_e2e == 'true' }}
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/checkout@v4
 
       - name: Setup environment
         uses: ./.github/actions/workspace-setup-action
@@ -139,7 +141,7 @@ jobs:
 
       - name: Upload Playwright report
         if: failure()
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        uses: actions/upload-artifact@v4
         with:
           name: playwright-report-pr
           path: playwright-report/
@@ -151,7 +153,7 @@ jobs:
     if: ${{ needs.detect-changes.outputs.run_build == 'true' }}
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/checkout@v4 # v4.1.1
         with:
           fetch-depth: 0
 
@@ -163,8 +165,41 @@ jobs:
         run: pnpm run build --base-href /${{ github.event.repository.name }}/previews/pr-${{ github.event.pull_request.number }}/
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        uses: actions/upload-artifact@v4
         with:
           name: build-artifact-pr
           path: dist/rapaglaz-portfolio/browser
           retention-days: 1
+
+  deploy-preview:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'pull_request' && needs.build.result == 'success'
+    steps:
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifact-pr
+          path: build-output
+
+      - name: Deploy to GH Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: build-output
+          target-folder: previews/pr-${{ github.event.pull_request.number }}
+          branch: gh-pages
+          clean: false
+          commit-message: 'docs: deploy preview for PR #${{ github.event.pull_request.number }}'
+
+      - name: Update PR Comment
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          number: ${{ github.event.pull_request.number }}
+          header: preview
+          message: |
+            ### Live Preview 🚀
+
+            [https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/previews/pr-${{ github.event.pull_request.number }}/](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/previews/pr-${{ github.event.pull_request.number }}/)
+
+            ---
+            *Last updated: ${{ github.event.pull_request.updated_at }}*

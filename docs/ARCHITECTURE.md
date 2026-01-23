@@ -95,4 +95,3 @@ pnpm run i18n:check
 ## Trade-offs
 
 - No NgRx. Not needed here.
-- CI is private (not in this repo), but I still keep local scripts and checks.
