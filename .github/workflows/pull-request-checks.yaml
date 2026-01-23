@@ -28,7 +28,7 @@ jobs:
       run_build: ${{ steps.aggregate.outputs.run_build }}
       run_workflow_lint: ${{ steps.aggregate.outputs.run_workflow_lint }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
@@ -90,7 +90,7 @@ jobs:
     if: ${{ needs.detect-changes.outputs.run_quality == 'true' }}
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
@@ -112,7 +112,7 @@ jobs:
     if: ${{ needs.detect-changes.outputs.run_workflow_lint == 'true' }}
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
@@ -133,7 +133,7 @@ jobs:
     if: ${{ needs.detect-changes.outputs.run_e2e == 'true' }}
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
@@ -148,7 +148,7 @@ jobs:
 
       - name: Upload Playwright report
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: playwright-report-pr
           path: playwright-report/
@@ -160,7 +160,7 @@ jobs:
     if: ${{ needs.detect-changes.outputs.run_build == 'true' }}
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4 # v4.1.1
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
@@ -175,7 +175,7 @@ jobs:
         run: pnpm run build --base-href=/${{ github.event.repository.name }}/previews/pr-${{ github.event.pull_request.number }}/
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: build-artifact-pr
           path: dist/rapaglaz-portfolio/browser
@@ -191,12 +191,12 @@ jobs:
       deployments: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Download Build Artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         with:
           name: build-artifact-pr
           path: build-output
