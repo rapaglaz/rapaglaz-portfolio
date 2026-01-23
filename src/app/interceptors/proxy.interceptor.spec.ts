@@ -14,11 +14,11 @@ describe('proxyInterceptor', () => {
     });
 
     const next: HttpHandlerFn = vi.fn(req => of(req as any));
-    const req = new HttpRequest('GET', '/config');
+    const req = new HttpRequest('GET', './config');
 
     TestBed.runInInjectionContext(() => proxyInterceptor(req, next));
 
-    expect(next).toHaveBeenCalledWith(expect.objectContaining({ url: '/config' }));
+    expect(next).toHaveBeenCalledWith(expect.objectContaining({ url: './config' }));
   });
 
   it('proxies config requests on localhost', () => {
@@ -29,7 +29,7 @@ describe('proxyInterceptor', () => {
     });
 
     const next: HttpHandlerFn = vi.fn(req => of(req as any));
-    const req = new HttpRequest('GET', '/config');
+    const req = new HttpRequest('GET', './config');
 
     TestBed.runInInjectionContext(() => proxyInterceptor(req, next));
 
@@ -46,7 +46,7 @@ describe('proxyInterceptor', () => {
     });
 
     const next: HttpHandlerFn = vi.fn(req => of(req as any));
-    const req = new HttpRequest('GET', '/download?file=cv/Paul_Glaz_CV_EN.pdf');
+    const req = new HttpRequest('GET', './download?file=cv/Paul_Glaz_CV_EN.pdf');
 
     TestBed.runInInjectionContext(() => proxyInterceptor(req, next));
 

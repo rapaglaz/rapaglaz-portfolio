@@ -22,9 +22,11 @@ export function proxyInterceptor(
     return next(req);
   }
 
-  if (req.url === '/config' || req.url.startsWith('/download')) {
+  // Handle both absolute and relative paths for API endpoints
+  const urlPath = req.url.replace(/^\.\//, '/');
+  if (urlPath === '/config' || urlPath.startsWith('/download')) {
     const proxiedReq = req.clone({
-      url: `${PRODUCTION_URL}${req.url}`,
+      url: `${PRODUCTION_URL}${urlPath}`,
     });
     return next(proxiedReq);
   }
