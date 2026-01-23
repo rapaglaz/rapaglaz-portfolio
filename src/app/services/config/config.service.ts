@@ -17,7 +17,7 @@ export class ConfigService {
   private readonly http = inject(HttpClient);
   private readonly document = inject(DOCUMENT);
   private readonly platformId = inject(PLATFORM_ID);
-  private readonly configUrl = '/config';
+  private readonly configUrl = './config';
   // Cloudflare test key, always passes in dev so no real key needed
   private readonly TEST_TURNSTILE_KEY = '1x00000000000000000000AA';
 

@@ -18,13 +18,19 @@ export function proxyInterceptor(
 
   const win = document.defaultView;
 
-  if (!win || !isLocalhost(win.location.hostname)) {
+  if (!win || !shouldProxy(win.location.hostname)) {
     return next(req);
   }
 
-  if (req.url === '/config' || req.url.startsWith('/download')) {
+  // Handle absolute and relative paths for API endpoints
+  const urlPath = req.url.replace(/^\.\//, '/');
+  if (
+    urlPath === '/config' ||
+    urlPath.startsWith('/download') ||
+    urlPath.startsWith('/feature-flag')
+  ) {
     const proxiedReq = req.clone({
-      url: `${PRODUCTION_URL}${req.url}`,
+      url: `${PRODUCTION_URL}${urlPath.startsWith('/') ? '' : '/'}${urlPath}`,
     });
     return next(proxiedReq);
   }
@@ -32,6 +38,6 @@ export function proxyInterceptor(
   return next(req);
 }
 
-function isLocalhost(hostname: string): boolean {
-  return hostname === 'localhost' || hostname === '127.0.0.1';
+function shouldProxy(hostname: string): boolean {
+  return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === 'rapaglaz.github.io';
 }
