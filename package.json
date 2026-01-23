@@ -59,7 +59,7 @@
     "@playwright/test": "1.58.0",
     "@tailwindcss/postcss": "4.1.18",
     "@types/node": "24.10.9",
-    "@vitest/coverage-v8": "4.0.17",
+    "@vitest/coverage-v8": "4.0.18",
     "angular-eslint": "21.1.0",
     "daisyui": "5.5.14",
     "eslint": "9.39.2",
@@ -79,7 +79,7 @@
     "type-fest": "5.4.1",
     "typescript": "5.9.3",
     "typescript-eslint": "8.53.1",
-    "vitest": "4.0.17"
+    "vitest": "4.0.18"
   },
   "packageManager": "pnpm@10.28.1"
 }
