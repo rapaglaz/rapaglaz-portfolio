@@ -18,6 +18,9 @@ jobs:
   detect-changes:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
     outputs:
       app: ${{ steps.filter.outputs.app }}
       e2e: ${{ steps.filter.outputs.e2e }}
@@ -89,6 +92,9 @@ jobs:
     needs: [detect-changes]
     if: ${{ needs.detect-changes.outputs.run_quality == 'true' }}
     timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
         with:
@@ -111,6 +117,8 @@ jobs:
     needs: [detect-changes]
     if: ${{ needs.detect-changes.outputs.run_workflow_lint == 'true' }}
     timeout-minutes: 5
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
         with:
@@ -132,6 +140,8 @@ jobs:
     needs: detect-changes
     if: ${{ needs.detect-changes.outputs.run_e2e == 'true' }}
     timeout-minutes: 15
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
         with:
@@ -159,6 +169,8 @@ jobs:
     needs: [detect-changes]
     if: ${{ needs.detect-changes.outputs.run_build == 'true' }}
     timeout-minutes: 5
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
         with:
