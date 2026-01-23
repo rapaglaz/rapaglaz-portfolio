@@ -49,6 +49,18 @@ describe('ConfigService', () => {
     httpMock.expectNone('./config');
   });
 
+  it('uses test key on github pages preview', async () => {
+    vi.stubGlobal('location', {
+      ...originalLocation,
+      hostname: 'rapaglaz.github.io',
+    });
+
+    const config = await firstValueFrom(service.getConfig());
+
+    expect(config.turnstileSiteKey).toBe('1x00000000000000000000AA');
+    httpMock.expectNone('./config');
+  });
+
   it('fetches production config from endpoint', async () => {
     vi.stubGlobal('location', {
       ...originalLocation,
