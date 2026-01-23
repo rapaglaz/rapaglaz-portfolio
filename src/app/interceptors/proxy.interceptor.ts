@@ -22,11 +22,15 @@ export function proxyInterceptor(
     return next(req);
   }
 
-  // Handle both absolute and relative paths for API endpoints
+  // Handle absolute and relative paths for API endpoints
   const urlPath = req.url.replace(/^\.\//, '/');
-  if (urlPath === '/config' || urlPath.startsWith('/download')) {
+  if (
+    urlPath === '/config' ||
+    urlPath.startsWith('/download') ||
+    urlPath.startsWith('/feature-flag')
+  ) {
     const proxiedReq = req.clone({
-      url: `${PRODUCTION_URL}${urlPath}`,
+      url: `${PRODUCTION_URL}${urlPath.startsWith('/') ? '' : '/'}${urlPath}`,
     });
     return next(proxiedReq);
   }
