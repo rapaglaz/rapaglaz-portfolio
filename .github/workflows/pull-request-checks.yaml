@@ -9,26 +9,12 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
 
 jobs:
-  pick-runner:
-    runs-on: ubuntu-latest
-    outputs:
-      chosen: ${{ steps.pick.outputs.chosen }}
-    steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
-      - id: pick
-        uses: ./.github/actions/pick-runner-action
-        with:
-          primary-runner: 'self-hosted'
-        env:
-          GH_TOKEN: ${{ secrets.RUNNER_PICK_TOKEN }}
-
   detect-changes:
-    runs-on: ${{ needs.pick-runner.outputs.chosen }}
-    needs: pick-runner
+    runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
       app: ${{ steps.filter.outputs.app }}
@@ -95,8 +81,8 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
   quality-check:
-    runs-on: ${{ needs.pick-runner.outputs.chosen }}
-    needs: [pick-runner, detect-changes]
+    runs-on: ubuntu-latest
+    needs: [detect-changes]
     if: ${{ needs.detect-changes.outputs.run_quality == 'true' }}
     timeout-minutes: 5
     steps:
@@ -116,8 +102,8 @@ jobs:
           PR_BASE: ${{ github.base_ref }}
 
   workflow-lint:
-    runs-on: ${{ needs.pick-runner.outputs.chosen }}
-    needs: [pick-runner, detect-changes]
+    runs-on: ubuntu-latest
+    needs: [detect-changes]
     if: ${{ needs.detect-changes.outputs.run_workflow_lint == 'true' }}
     timeout-minutes: 5
     steps:
@@ -160,8 +146,8 @@ jobs:
           retention-days: 7
 
   build:
-    runs-on: ${{ needs.pick-runner.outputs.chosen }}
-    needs: [pick-runner, detect-changes]
+    runs-on: ubuntu-latest
+    needs: [detect-changes]
     if: ${{ needs.detect-changes.outputs.run_build == 'true' }}
     timeout-minutes: 5
     steps:
@@ -169,36 +155,16 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Run Build Action
-        uses: ./.github/actions/build-action
+      - name: Setup environment
+        uses: ./.github/actions/workspace-setup-action
+
+      - name: Run build
+        shell: bash
+        run: pnpm run build --base-href /${{ github.event.repository.name }}/previews/pr-${{ github.event.pull_request.number }}/
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
-          chosen-runner: ${{ needs.pick-runner.outputs.chosen }}
-
-  preview:
-    # only when using self-hosted runner
-    if: ${{ needs.pick-runner.outputs.chosen == 'self-hosted' && needs.build.result == 'success' }}
-    runs-on: ${{ needs.pick-runner.outputs.chosen }}
-    timeout-minutes: 5
-    needs: [build, pick-runner, detect-changes]
-    env:
-      PR_NUMBER: ${{ github.event.pull_request.number }}
-      COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
-    steps:
-      - name: Deploy from cached artifact
-        if: ${{ github.event_name == 'pull_request' && github.event.action != 'closed' }}
-        run: bash "$HOME/pr-preview.sh" deploy-cached
-
-      - name: Preview comment
-        uses: marocchino/sticky-pull-request-comment@773744901bac0e8cbb5a0dc842800d45e9b2b405 # v2
-        with:
-          header: preview
-          message: |
-            **Preview**: [**pr-${{ github.event.pull_request.number }}**](https://pr-${{ github.event.pull_request.number }}.${{ github.event.repository.name }}.preview.istari.home.arpa)
-
-            <details>
-            <summary>Preview Details</summary>
-
-            - **Commit:** [${{ github.event.pull_request.head.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.event.pull_request.head.sha }})
-            - **Build:** [${{ github.run_id }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
-            - **Runner:** `${{ runner.name }}`
-            </details>
+          name: build-artifact-pr
+          path: dist/rapaglaz-portfolio/browser
+          retention-days: 1

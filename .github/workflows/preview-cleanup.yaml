@@ -3,32 +3,29 @@ name: Preview Cleanup
 on:
   pull_request:
     types: [closed]
-  workflow_dispatch:
-    inputs:
-      pr:
-        description: 'PR number to cleanup (optional for manual runs)'
-        required: false
-        type: string
 
 permissions:
-  contents: read
-
-concurrency:
-  group: pr-preview-cleanup-${{ github.event.pull_request.number || inputs.pr }}
-  cancel-in-progress: false
+  contents: write
 
 jobs:
   cleanup:
-    runs-on: self-hosted
-    env:
-      PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr }}
+    runs-on: ubuntu-latest
     steps:
-      - name: Validate PR number
-        shell: bash
-        run: |
-          [[ -n "${PR_NUMBER}" ]] || { echo "PR_NUMBER is required"; exit 1; }
-          [[ "${PR_NUMBER}" =~ ^[0-9]+$ ]] || { echo "Invalid PR_NUMBER: ${PR_NUMBER}"; exit 1; }
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
 
-      - name: Run preview cleanup
-        shell: bash
-        run: bash "$HOME/pr-preview.sh" cleanup
+      - name: Delete Preview Directory
+        run: |
+          PREVIEW_DIR="previews/pr-${{ github.event.pull_request.number }}"
+          if [ -d "$PREVIEW_DIR" ]; then
+            rm -rf "$PREVIEW_DIR"
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add .
+            git commit -m "docs: cleanup preview for PR #${{ github.event.pull_request.number }}"
+            git push origin gh-pages
+          else
+            echo "Preview directory $PREVIEW_DIR not found, skipping."
+          fi

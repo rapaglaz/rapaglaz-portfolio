@@ -1,26 +1,11 @@
 name: Build Action
 description: 'This action will build the application'
 
-inputs:
-  chosen-runner:
-    required: true
-    description: 'The runner to use for the build'
-
 runs:
   using: 'composite'
   steps:
     - name: Setup environment
       uses: ./.github/actions/workspace-setup-action
-
     - name: Run build
       shell: bash
       run: pnpm run build
-
-    - name: Pack & upload preview artifact
-      shell: bash
-      if: ${{ inputs.chosen-runner == 'self-hosted' && github.event_name == 'pull_request' }}
-      env:
-        PREVIEW_DIST_PATH: dist/rapaglaz-portfolio/browser
-        PR_NUMBER: ${{ github.event.pull_request.number }}
-        COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
-      run: bash "$HOME/pr-preview.sh" pack
