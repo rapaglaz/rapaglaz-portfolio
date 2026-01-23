@@ -47,6 +47,24 @@ describe('ConfigService', () => {
 
     expect(config.turnstileSiteKey).toBe('1x00000000000000000000AA');
     httpMock.expectNone('./config');
+    httpMock.expectNone('./config');
+  });
+
+  it('fetches config from endpoint for GitHub Pages', async () => {
+    vi.stubGlobal('location', {
+      ...originalLocation,
+      hostname: 'rapaglaz.github.io',
+    });
+
+    const mockConfig = { turnstileSiteKey: 'production-key-123' };
+    const configPromise = firstValueFrom(service.getConfig());
+
+    const req = httpMock.expectOne('./config');
+    expect(req.request.method).toBe('GET');
+    req.flush(mockConfig);
+
+    const config = await configPromise;
+    expect(config).toEqual(mockConfig);
   });
 
   it('fetches config from endpoint for GitHub Pages', async () => {
