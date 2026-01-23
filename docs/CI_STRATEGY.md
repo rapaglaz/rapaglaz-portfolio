@@ -42,29 +42,6 @@ On main I run the full validation:
 E2E runs against the preview server on port 4233 for SSG.
 Locally it can run against the dev server on 4200.
 
-## Reusable Actions
-
-### Build Action (`.github/actions/build-action`)
-
-Composite action that sets up the environment and builds the Angular application.
-
-**Inputs:**
-
-- `base-href` (optional): Base href for the application. If not provided, builds with default settings.
-
-**Usage:**
-
-```yaml
-- uses: ./.github/actions/build-action
-  with:
-    base-href: /my-app/preview/ # optional
-```
-
-This action is used by:
-
-- PR preview builds (with custom base-href for subdirectory deployment)
-- Production builds (without base-href for root deployment)
-
 ## Lighthouse CI
 
 Lighthouse is feedback only. It does not block merges.
