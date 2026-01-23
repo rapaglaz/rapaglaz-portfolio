@@ -47,6 +47,7 @@ describe('ConfigService', () => {
 
     expect(config.turnstileSiteKey).toBe('1x00000000000000000000AA');
     httpMock.expectNone('./config');
+    httpMock.expectNone('./config');
   });
 
   it('fetches config from endpoint for GitHub Pages', async () => {
