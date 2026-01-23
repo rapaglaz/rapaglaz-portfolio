@@ -15,12 +15,12 @@ Built with Angular 21, standalone components, signals, no Zone.js. Static build 
 - Feature flag for “Open to Work” (Worker + KV)
 - Unit tests with Vitest, E2E with Playwright + axe
 - Tailwind CSS 4 + DaisyUI + small custom CSS
-- CI runs privately on my NAS, workflows are not in this repo
+- CI/CD with GitHub Actions
 
 ## Docs
 
 - [Architecture](./docs/ARCHITECTURE.md)
-- [CI/CD strategy (private)](./docs/CI_STRATEGY.md)
+- [CI/CD strategy](./docs/CI_STRATEGY.md)
 - [Security notes](./docs/SECURITY.md)
 - [Local setup](./docs/SETUP.md)
 
