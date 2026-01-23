@@ -172,7 +172,7 @@ jobs:
 
       - name: Run build
         shell: bash
-        run: pnpm run build --base-href /${{ github.event.repository.name }}/previews/pr-${{ github.event.pull_request.number }}/
+        run: pnpm run build -- --base-href=/${{ github.event.repository.name }}/previews/pr-${{ github.event.pull_request.number }}/ --output-path=dist/rapaglaz-portfolio/browser
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
