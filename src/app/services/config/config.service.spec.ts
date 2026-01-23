@@ -34,7 +34,7 @@ describe('ConfigService', () => {
     const config = await firstValueFrom(service.getConfig());
 
     expect(config.turnstileSiteKey).toBe('1x00000000000000000000AA');
-    httpMock.expectNone('/config');
+    httpMock.expectNone('./config');
   });
 
   it('uses test key on 127.0.0.1', async () => {
@@ -46,7 +46,24 @@ describe('ConfigService', () => {
     const config = await firstValueFrom(service.getConfig());
 
     expect(config.turnstileSiteKey).toBe('1x00000000000000000000AA');
-    httpMock.expectNone('/config');
+    httpMock.expectNone('./config');
+  });
+
+  it('fetches config from endpoint for GitHub Pages', async () => {
+    vi.stubGlobal('location', {
+      ...originalLocation,
+      hostname: 'rapaglaz.github.io',
+    });
+
+    const mockConfig = { turnstileSiteKey: 'production-key-123' };
+    const configPromise = firstValueFrom(service.getConfig());
+
+    const req = httpMock.expectOne('./config');
+    expect(req.request.method).toBe('GET');
+    req.flush(mockConfig);
+
+    const config = await configPromise;
+    expect(config).toEqual(mockConfig);
   });
 
   it('fetches production config from endpoint', async () => {
@@ -58,7 +75,7 @@ describe('ConfigService', () => {
     const mockConfig = { turnstileSiteKey: 'production-key-123' };
     const configPromise = firstValueFrom(service.getConfig());
 
-    const req = httpMock.expectOne('/config');
+    const req = httpMock.expectOne('./config');
     expect(req.request.method).toBe('GET');
     req.flush(mockConfig);
 
@@ -75,7 +92,7 @@ describe('ConfigService', () => {
     const invalidConfig = {};
     const configPromise = firstValueFrom(service.getConfig());
 
-    const req = httpMock.expectOne('/config');
+    const req = httpMock.expectOne('./config');
     req.flush(invalidConfig);
 
     await expect(configPromise).rejects.toThrow(/Invalid config response/);
@@ -90,7 +107,7 @@ describe('ConfigService', () => {
     const invalidConfig = { turnstileSiteKey: '' };
     const configPromise = firstValueFrom(service.getConfig());
 
-    const req = httpMock.expectOne('/config');
+    const req = httpMock.expectOne('./config');
     req.flush(invalidConfig);
 
     await expect(configPromise).rejects.toThrow(/Invalid config response/);
@@ -105,7 +122,7 @@ describe('ConfigService', () => {
     const invalidConfig = { turnstileSiteKey: 12345 };
     const configPromise = firstValueFrom(service.getConfig());
 
-    const req = httpMock.expectOne('/config');
+    const req = httpMock.expectOne('./config');
     req.flush(invalidConfig);
 
     await expect(configPromise).rejects.toThrow(/Invalid config response/);
@@ -119,7 +136,7 @@ describe('ConfigService', () => {
 
     const configPromise = firstValueFrom(service.getConfig());
 
-    const req = httpMock.expectOne('/config');
+    const req = httpMock.expectOne('./config');
     req.error(new ProgressEvent('error'), { status: 500, statusText: 'Internal Server Error' });
 
     await expect(configPromise).rejects.toThrow(/Failed to fetch config/);
@@ -137,7 +154,7 @@ describe('ConfigService', () => {
     const config1Promise = firstValueFrom(service.getConfig());
 
     // Verify HTTP request is made
-    const req = httpMock.expectOne('/config');
+    const req = httpMock.expectOne('./config');
     req.flush(mockConfig);
 
     const config1 = await config1Promise;
@@ -148,6 +165,6 @@ describe('ConfigService', () => {
 
     // Verify same config is returned without making another HTTP request
     expect(config2).toEqual(mockConfig);
-    httpMock.expectNone('/config');
+    httpMock.expectNone('./config');
   });
 });

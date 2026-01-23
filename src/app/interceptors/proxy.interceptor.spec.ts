@@ -1,5 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import { HttpHandlerFn, HttpRequest } from '@angular/common/http';
+import '@angular/compiler';
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { describe, expect, it, vi } from 'vitest';
@@ -14,11 +15,11 @@ describe('proxyInterceptor', () => {
     });
 
     const next: HttpHandlerFn = vi.fn(req => of(req as any));
-    const req = new HttpRequest('GET', '/config');
+    const req = new HttpRequest('GET', './config');
 
     TestBed.runInInjectionContext(() => proxyInterceptor(req, next));
 
-    expect(next).toHaveBeenCalledWith(expect.objectContaining({ url: '/config' }));
+    expect(next).toHaveBeenCalledWith(expect.objectContaining({ url: './config' }));
   });
 
   it('proxies config requests on localhost', () => {
@@ -29,7 +30,7 @@ describe('proxyInterceptor', () => {
     });
 
     const next: HttpHandlerFn = vi.fn(req => of(req as any));
-    const req = new HttpRequest('GET', '/config');
+    const req = new HttpRequest('GET', './config');
 
     TestBed.runInInjectionContext(() => proxyInterceptor(req, next));
 
@@ -46,7 +47,7 @@ describe('proxyInterceptor', () => {
     });
 
     const next: HttpHandlerFn = vi.fn(req => of(req as any));
-    const req = new HttpRequest('GET', '/download?file=cv/Paul_Glaz_CV_EN.pdf');
+    const req = new HttpRequest('GET', './download?file=cv/Paul_Glaz_CV_EN.pdf');
 
     TestBed.runInInjectionContext(() => proxyInterceptor(req, next));
 
@@ -56,7 +57,33 @@ describe('proxyInterceptor', () => {
       }),
     );
   });
+});
 
+describe('proxyInterceptor - feature flags', () => {
+  it('proxies feature-flag requests on github pages preview', () => {
+    TestBed.configureTestingModule({
+      providers: [
+        {
+          provide: DOCUMENT,
+          useValue: { defaultView: { location: { hostname: 'rapaglaz.github.io' } } },
+        },
+      ],
+    });
+
+    const next: HttpHandlerFn = vi.fn(req => of(req as any));
+    const req = new HttpRequest('GET', '/feature-flag/openToWork');
+
+    TestBed.runInInjectionContext(() => proxyInterceptor(req, next));
+
+    expect(next).toHaveBeenCalledWith(
+      expect.objectContaining({
+        url: 'https://rapaglaz.de/feature-flag/openToWork',
+      }),
+    );
+  });
+});
+
+describe('proxyInterceptor - non-proxied', () => {
   it('does not proxy non-config requests on localhost', () => {
     TestBed.configureTestingModule({
       providers: [

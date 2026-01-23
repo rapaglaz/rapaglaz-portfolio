@@ -32,7 +32,7 @@ describe('TranslocoHttpLoader', () => {
       },
     });
 
-    const req = httpMock.expectOne('/i18n/en.json');
+    const req = httpMock.expectOne('./i18n/en.json');
     expect(req.request.method).toBe('GET');
     req.flush(enJson);
 
@@ -50,7 +50,7 @@ describe('TranslocoHttpLoader', () => {
       },
     });
 
-    const req = httpMock.expectOne('/i18n/de.json');
+    const req = httpMock.expectOne('./i18n/de.json');
     expect(req.request.method).toBe('GET');
     req.flush(deJson);
 
@@ -68,7 +68,7 @@ describe('TranslocoHttpLoader', () => {
       },
     });
 
-    const req = httpMock.expectOne('/i18n/en.json');
+    const req = httpMock.expectOne('./i18n/en.json');
     req.error(new ProgressEvent('error'), { status: 404, statusText: 'Not Found' });
 
     expect(receivedError).toBeDefined();
@@ -83,7 +83,7 @@ describe('TranslocoHttpLoader', () => {
       },
     });
 
-    const req = httpMock.expectOne('/i18n/en.json');
+    const req = httpMock.expectOne('./i18n/en.json');
     req.error(new ProgressEvent('error'), { status: 0, statusText: 'Network error' });
 
     expect(receivedError).toBeDefined();

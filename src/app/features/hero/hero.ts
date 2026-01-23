@@ -15,7 +15,7 @@ export class Hero {
   private readonly featureFlagService = inject(FeatureFlagService);
   private readonly openToWorkFlag = this.featureFlagService.getFlagSignal('openToWork');
 
-  protected readonly avatarImage = '/images/IMG_2290-384.webp';
+  protected readonly avatarImage = './images/IMG_2290-384.webp';
   protected readonly openToWork = this.openToWorkFlag.flag;
   protected readonly isFeatureFlagLoaded = this.openToWorkFlag.isLoaded;
 }

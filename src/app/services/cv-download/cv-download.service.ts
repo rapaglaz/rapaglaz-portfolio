@@ -35,7 +35,7 @@ export class CvDownloadService {
   private readonly document = inject(DOCUMENT);
   private readonly platformId = inject(PLATFORM_ID);
 
-  private readonly downloadEndpoint = '/download';
+  private readonly downloadEndpoint = './download';
 
   private readonly activeLang = toSignal(this.transloco.langChanges$, {
     initialValue: this.transloco.getActiveLang(),
