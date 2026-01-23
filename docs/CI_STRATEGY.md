@@ -1,15 +1,15 @@
-# CI/CD strategy (private)
+# CI/CD strategy
 
-The actual CI pipeline lives on my NAS, so workflows are not in this repo.
-I still keep a clear, simple strategy and the repo has scripts to run checks locally.
+CI/CD runs on GitHub Actions with GitHub-hosted runners.
+Workflows are in `.github/workflows/`.
 
 ## Goals
 
 - fast feedback on normal changes
-- don’t merge broken stuff
-- don’t burn time for docs-only changes
+- don't merge broken stuff
+- don't burn time for docs-only changes
 
-## What the private pipeline does
+## Pull request workflow
 
 I use path-based checks to decide what to run.
 High level flow:
@@ -17,14 +17,15 @@ High level flow:
 - docs-only: skip heavy checks
 - app code changed: format + lint + i18n checks, and unit tests
 - app or e2e changed: run Playwright E2E
-- if quality or E2E ran: run a build job
-- if workflows changed (in the private repo): run actionlint
+- if quality or E2E ran: run a build job and deploy PR preview
+- if workflows changed: run actionlint
 
 Notes:
 
 - i18n checks run when app files or translations changed
 - unit tests with coverage only run when app files changed
 - Sonar runs when tests ran and the token is available
+- PR previews deploy to GitHub Pages at `previews/pr-{number}/`
 
 ## Main branch checks
 
