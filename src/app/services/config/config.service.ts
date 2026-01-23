@@ -40,7 +40,7 @@ export class ConfigService {
       return of({ turnstileSiteKey: this.TEST_TURNSTILE_KEY });
     }
 
-    if (this.shouldUseTestKey()) {
+    if (this.isLocalhost()) {
       return of({ turnstileSiteKey: this.TEST_TURNSTILE_KEY });
     }
 
@@ -60,7 +60,7 @@ export class ConfigService {
     );
   }
 
-  private shouldUseTestKey(): boolean {
+  private isLocalhost(): boolean {
     if (!isPlatformBrowser(this.platformId)) {
       return false;
     }
@@ -71,8 +71,6 @@ export class ConfigService {
     }
 
     const hostname = win.location.hostname;
-    return (
-      hostname === 'localhost' || hostname === '127.0.0.1' || hostname === 'rapaglaz.github.io'
-    );
+    return hostname === 'localhost' || hostname === '127.0.0.1';
   }
 }

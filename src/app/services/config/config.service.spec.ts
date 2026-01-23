@@ -49,16 +49,21 @@ describe('ConfigService', () => {
     httpMock.expectNone('./config');
   });
 
-  it('uses test key on github pages preview', async () => {
+  it('fetches config from endpoint for GitHub Pages', async () => {
     vi.stubGlobal('location', {
       ...originalLocation,
       hostname: 'rapaglaz.github.io',
     });
 
-    const config = await firstValueFrom(service.getConfig());
+    const mockConfig = { turnstileSiteKey: 'production-key-123' };
+    const configPromise = firstValueFrom(service.getConfig());
 
-    expect(config.turnstileSiteKey).toBe('1x00000000000000000000AA');
-    httpMock.expectNone('./config');
+    const req = httpMock.expectOne('./config');
+    expect(req.request.method).toBe('GET');
+    req.flush(mockConfig);
+
+    const config = await configPromise;
+    expect(config).toEqual(mockConfig);
   });
 
   it('fetches production config from endpoint', async () => {
