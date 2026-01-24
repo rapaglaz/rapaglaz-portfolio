@@ -3,15 +3,15 @@ name: Main Branch Checks
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+      - 'LICENCE.md'
   workflow_dispatch:
 
 concurrency:
   group: ${{ github.ref }}
   cancel-in-progress: true
-
-permissions:
-  contents: read
-  statuses: write
 
 jobs:
   quality-check:
@@ -37,6 +37,7 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: read
+      statuses: write
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 

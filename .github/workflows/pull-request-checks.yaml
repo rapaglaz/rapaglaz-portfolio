@@ -2,6 +2,14 @@ name: Pull Request Checks
 
 on:
   pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+      - 'LICENCE.md'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - '.npmrc'
   workflow_dispatch:
 
 concurrency:
@@ -9,10 +17,8 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: write
-  pull-requests: write
-  pages: write
-  deployments: write
+  contents: read
+  pull-requests: read
 
 jobs:
   detect-changes:
@@ -26,10 +32,12 @@ jobs:
       e2e: ${{ steps.filter.outputs.e2e }}
       i18n: ${{ steps.filter.outputs.i18n }}
       ci: ${{ steps.filter.outputs.ci }}
+      deps: ${{ steps.filter.outputs.deps }}
       run_quality: ${{ steps.aggregate.outputs.run_quality }}
       run_e2e: ${{ steps.aggregate.outputs.run_e2e }}
       run_build: ${{ steps.aggregate.outputs.run_build }}
       run_workflow_lint: ${{ steps.aggregate.outputs.run_workflow_lint }}
+      only_deps: ${{ steps.aggregate.outputs.only_deps }}
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
         with:
@@ -45,7 +53,6 @@ jobs:
               - 'public/**'
               - 'angular.json'
               - 'tsconfig*.json'
-              - 'package.json'
               - 'eslint.config.mjs'
             e2e:
               - 'e2e/**/*.ts'
@@ -54,6 +61,11 @@ jobs:
               - 'public/i18n/**'
             ci:
               - '.github/workflows/**'
+            deps:
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'pnpm-workspace.yaml'
+              - '.npmrc'
 
       - name: Aggregate change flags
         id: aggregate
@@ -63,12 +75,13 @@ jobs:
           run_e2e=false
           run_build=false
           run_workflow_lint=false
+          only_deps=false
 
           if [[ "${{ steps.filter.outputs.ci }}" == "true" ]]; then
             run_workflow_lint=true
           fi
 
-          if [[ "${{ steps.filter.outputs.app }}" == "true" || "${{ steps.filter.outputs.i18n }}" == "true" ]]; then
+          if [[ "${{ steps.filter.outputs.app }}" == "true" || "${{ steps.filter.outputs.i18n }}" == "true" || "${{ steps.filter.outputs.deps }}" == "true" ]]; then
             run_quality=true
           fi
 
@@ -76,8 +89,12 @@ jobs:
             run_e2e=true
           fi
 
-          if [[ "$run_quality" == "true" || "$run_e2e" == "true" ]]; then
+          if [[ "${{ steps.filter.outputs.app }}" == "true" || "${{ steps.filter.outputs.i18n }}" == "true" || "${{ steps.filter.outputs.e2e }}" == "true" ]]; then
             run_build=true
+          fi
+
+          if [[ "${{ steps.filter.outputs.deps }}" == "true" && "${{ steps.filter.outputs.app }}" != "true" && "${{ steps.filter.outputs.i18n }}" != "true" && "${{ steps.filter.outputs.e2e }}" != "true" && "${{ steps.filter.outputs.ci }}" != "true" ]]; then
+            only_deps=true
           fi
 
           {
@@ -85,12 +102,13 @@ jobs:
             echo "run_e2e=$run_e2e"
             echo "run_build=$run_build"
             echo "run_workflow_lint=$run_workflow_lint"
+            echo "only_deps=$only_deps"
           } >> "$GITHUB_OUTPUT"
 
   quality-check:
     runs-on: ubuntu-latest
     needs: [detect-changes]
-    if: ${{ needs.detect-changes.outputs.run_quality == 'true' }}
+    if: ${{ needs.detect-changes.outputs.run_quality == 'true' && needs.detect-changes.outputs.only_deps != 'true' }}
     timeout-minutes: 5
     permissions:
       contents: read
@@ -124,13 +142,10 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Install actionlint
-        run: |
-          bash <(curl -sL https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
-        shell: bash
-
       - name: Run actionlint
-        run: ./actionlint -color
+        run: |
+          bash <(curl https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash)
+          ./actionlint -color
         shell: bash
 
   e2e-tests:
@@ -138,7 +153,7 @@ jobs:
     container:
       image: mcr.microsoft.com/playwright:v1.58.0-noble@sha256:35c7d48b4ccaf3aca5018f5f1bf7f50c7da7d61d176c530741f4f2e9ca336c34
     needs: detect-changes
-    if: ${{ needs.detect-changes.outputs.run_e2e == 'true' }}
+    if: ${{ needs.detect-changes.outputs.run_e2e == 'true' && needs.detect-changes.outputs.only_deps != 'true' }}
     timeout-minutes: 15
     permissions:
       contents: read
@@ -167,7 +182,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     needs: [detect-changes]
-    if: ${{ needs.detect-changes.outputs.run_build == 'true' }}
+    if: ${{ needs.detect-changes.outputs.run_build == 'true' && needs.detect-changes.outputs.only_deps != 'true' }}
     timeout-minutes: 5
     permissions:
       contents: read

@@ -40,6 +40,21 @@
       "prPriority": -1
     },
     {
+      "matchPackagePatterns": ["^@angular"],
+      "groupName": "Angular packages",
+      "prPriority": 10
+    },
+    {
+      "matchPackagePatterns": ["^eslint", "^@typescript-eslint"],
+      "groupName": "ESLint packages",
+      "prPriority": 5
+    },
+    {
+      "matchPackagePatterns": ["^@playwright"],
+      "groupName": "Playwright packages",
+      "prPriority": 5
+    },
+    {
       "matchUpdateTypes": ["major"],
       "minimumReleaseAge": "7 days",
       "prPriority": -5
@@ -64,11 +79,19 @@
       "automerge": true,
       "labels": ["automerge", "dependencies", "renovate"],
       "commitMessagePrefix": "chore(automerge-deps):"
+    },
+    {
+      "matchUpdateTypes": ["lockFileMaintenance"],
+      "groupName": "Lockfile maintenance",
+      "labels": ["lockfile-maintenance", "dependencies", "renovate"],
+      "commitMessagePrefix": "chore(lockfile):",
+      "automerge": false,
+      "ignoreTests": true
     }
   ],
   "vulnerabilityAlerts": {
     "enabled": true,
     "dependencyDashboardApproval": true,
-    "labels": ["security"]
+    "labels": ["security", "dependencies"]
   }
 }
