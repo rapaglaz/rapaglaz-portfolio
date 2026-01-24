@@ -14,7 +14,8 @@ Workflows are in `.github/workflows/`.
 I use path-based checks to decide what to run.
 High level flow:
 
-- docs-only: skip heavy checks
+- docs-only: skip PR checks
+- dependency-only: run dependency install only (separate workflow)
 - app code changed: format + lint + i18n checks, and unit tests
 - app or e2e changed: run Playwright E2E
 - if quality or E2E ran: run a build job and deploy PR preview
@@ -27,6 +28,9 @@ Notes:
 - Sonar runs when tests ran and the token is available
 - PR previews deploy to GitHub Pages at `previews/pr-{number}/`
 - Build action supports optional `base-href` parameter for PR previews
+- Docs-only changes are ignored by `pull-request-checks.yaml`
+- Dependency-only PRs run `dependency-check.yaml` (install only)
+- Angular build cache (`.angular/cache`) is reused in CI
 
 ## Main branch checks
 
@@ -45,6 +49,6 @@ Locally it can run against the dev server on 4200.
 ## Lighthouse CI
 
 Lighthouse is feedback only. It does not block merges.
-It runs against the preview server, 3 runs, desktop preset.
+It runs against the preview server, 3 runs, desktop preset, and only on source changes.
 
 If you want the config, check `.lighthouserc.cjs`.
