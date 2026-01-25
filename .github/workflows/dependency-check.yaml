@@ -63,3 +63,6 @@ jobs:
 
       - name: Setup environment
         uses: ./.github/actions/workspace-setup-action
+
+      - name: Run dependency audit
+        run: pnpm audit --audit-level high
