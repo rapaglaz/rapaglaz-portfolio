@@ -160,11 +160,8 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - name: Setup environment
-        uses: ./.github/actions/workspace-setup-action
-
       - name: Build application
-        run: pnpm run build
+        uses: ./.github/actions/build-action
 
       - name: Run Playwright tests
         run: pnpm exec playwright test
