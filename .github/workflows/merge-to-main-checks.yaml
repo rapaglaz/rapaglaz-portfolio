@@ -47,8 +47,18 @@ jobs:
       - name: Run Playwright tests
         run: pnpm exec playwright test
 
-      - name: Upload Playwright report
+      - name: Check Playwright report
         if: failure()
+        id: check-report
+        run: |
+          if [ -d "playwright-report" ] && [ -n "$(ls -A playwright-report 2>/dev/null)" ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upload Playwright report
+        if: failure() && steps.check-report.outputs.exists == 'true'
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: playwright-report-main
