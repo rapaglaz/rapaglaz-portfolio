@@ -10,10 +10,6 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Create Angular cache directory
-      shell: bash
-      run: mkdir -p .angular/cache
-
     - name: Restore Angular build cache
       uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5
       with:

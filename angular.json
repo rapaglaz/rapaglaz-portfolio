@@ -4,7 +4,12 @@
   "cli": {
     "packageManager": "pnpm",
     "schematicCollections": ["angular-eslint", "playwright-ng-schematics"],
-    "analytics": false
+    "analytics": false,
+    "cache": {
+      "enabled": true,
+      "path": ".angular/cache",
+      "environment": "all"
+    }
   },
   "newProjectRoot": "projects",
   "projects": {

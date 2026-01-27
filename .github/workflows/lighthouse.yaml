@@ -26,7 +26,7 @@ jobs:
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
         id: filter
         with:
-          base: ${{ github.event.pull_request.base.ref || github.ref }}
+          base: ${{ github.event.pull_request.base.ref || 'main' }}
           filters: |
             source:
               - 'src/**'
@@ -155,10 +155,12 @@ jobs:
         if: always()
         id: check-reports
         run: |
-          if [ -d ".lighthouseci" ] && [ -n "$(ls -A .lighthouseci 2>/dev/null)" ]; then
+          if [ -d ".lighthouseci" ] && [ "$(ls -A .lighthouseci 2>/dev/null | wc -l)" -gt 0 ]; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Directory .lighthouseci exists with files"
           else
             echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "Directory .lighthouseci does not exist or is empty"
           fi
 
       - name: Upload Lighthouse reports
