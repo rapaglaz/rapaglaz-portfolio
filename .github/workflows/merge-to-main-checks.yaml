@@ -41,11 +41,8 @@ jobs:
     steps:
       - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
 
-      - name: Setup environment
-        uses: ./.github/actions/workspace-setup-action
-
       - name: Build application
-        run: pnpm run build
+        uses: ./.github/actions/build-action
 
       - name: Run Playwright tests
         run: pnpm exec playwright test

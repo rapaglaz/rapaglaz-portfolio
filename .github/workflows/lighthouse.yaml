@@ -45,14 +45,11 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Setup environment
-        uses: ./.github/actions/workspace-setup-action
-
       - name: Install Lighthouse CI
         run: npm install -g @lhci/cli@0.15.x
 
       - name: Build application
-        run: pnpm run build
+        uses: ./.github/actions/build-action
 
       - name: Run Lighthouse CI
         run: lhci autorun --config=.lighthouserc.cjs

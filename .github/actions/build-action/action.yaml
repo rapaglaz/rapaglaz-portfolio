@@ -10,8 +10,17 @@ inputs:
 runs:
   using: 'composite'
   steps:
+    - name: Restore Angular build cache
+      uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5
+      with:
+        path: .angular/cache
+        key: ${{ runner.os }}-angular-${{ hashFiles('**/pnpm-lock.yaml', 'angular.json', 'tsconfig*.json') }}
+        restore-keys: |
+          ${{ runner.os }}-angular-
+
     - name: Setup environment
       uses: ./.github/actions/workspace-setup-action
+
     - name: Run build
       shell: bash
       run: |
