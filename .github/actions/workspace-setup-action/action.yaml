@@ -30,14 +30,6 @@ runs:
         restore-keys: |
           ${{ runner.os }}-pnpm-store-
 
-    - name: Setup Angular build cache
-      uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5
-      with:
-        path: .angular/cache
-        key: ${{ runner.os }}-angular-cache-${{ hashFiles('angular.json', 'tsconfig*.json', 'pnpm-lock.yaml') }}
-        restore-keys: |
-          ${{ runner.os }}-angular-cache-
-
     - name: Install dependencies
       shell: bash
       run: pnpm install --frozen-lockfile
