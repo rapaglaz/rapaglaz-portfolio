@@ -51,18 +51,8 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Setup Node.js
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6
-        with:
-          node-version-file: '.nvmrc'
-
-      - name: Cache npm
-        uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-npm-lhci-${{ hashFiles('.lighthouserc.cjs') }}
-          restore-keys: |
-            ${{ runner.os }}-npm-lhci-
+      - name: Setup environment
+        uses: ./.github/actions/workspace-setup-action
 
       - name: Install Lighthouse CI
         run: npm install -g @lhci/cli@0.15.x
