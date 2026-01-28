@@ -4,6 +4,11 @@ on:
   workflow_dispatch:
   pull_request:
     types: [opened, synchronize, reopened]
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'angular.json'
+      - '.lighthouserc.cjs'
   schedule:
     - cron: '0 6 * * 1' # Every Monday at 6:00 AM
 
@@ -14,6 +19,7 @@ concurrency:
 jobs:
   detect-changes:
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
     timeout-minutes: 5
     permissions:
       contents: read
@@ -26,7 +32,6 @@ jobs:
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
         id: filter
         with:
-          base: ${{ github.event.pull_request.base.ref || 'main' }}
           filters: |
             source:
               - 'src/**'
@@ -45,6 +50,9 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup environment
+        uses: ./.github/actions/workspace-setup-action
 
       - name: Install Lighthouse CI
         run: npm install -g @lhci/cli@0.15.x
@@ -150,23 +158,3 @@ jobs:
             > **Thresholds:** Performance ≥90%, Accessibility ≥95%, Best Practices ≥95%, SEO ≥95%
 
             ${{ steps.format.outputs.public_url && format('**[View Full Lighthouse Report →]({0})**', steps.format.outputs.public_url) || '' }}
-
-      - name: Check Lighthouse reports directory
-        if: always()
-        id: check-reports
-        run: |
-          if [ -d ".lighthouseci" ] && [ "$(ls -A .lighthouseci 2>/dev/null | wc -l)" -gt 0 ]; then
-            echo "exists=true" >> "$GITHUB_OUTPUT"
-            echo "Directory .lighthouseci exists with files"
-          else
-            echo "exists=false" >> "$GITHUB_OUTPUT"
-            echo "Directory .lighthouseci does not exist or is empty"
-          fi
-
-      - name: Upload Lighthouse reports
-        if: always() && steps.check-reports.outputs.exists == 'true'
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
-        with:
-          name: lighthouse-reports-${{ github.event_name }}-${{ github.run_number }}
-          path: .lighthouseci/
-          retention-days: 14

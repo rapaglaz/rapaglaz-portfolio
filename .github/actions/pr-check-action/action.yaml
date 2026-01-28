@@ -32,6 +32,7 @@ runs:
       with:
         name: coverage-reports
         path: coverage/
+        retention-days: 3
         if-no-files-found: ignore
 
     - name: SonarCloud PR Analysis
