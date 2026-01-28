@@ -4,6 +4,11 @@ on:
   workflow_dispatch:
   pull_request:
     types: [opened, synchronize, reopened]
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'angular.json'
+      - '.lighthouserc.cjs'
   schedule:
     - cron: '0 6 * * 1' # Every Monday at 6:00 AM
 
@@ -27,7 +32,6 @@ jobs:
         uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
         id: filter
         with:
-          base: ${{ github.event.pull_request.base.ref }}
           filters: |
             source:
               - 'src/**'
@@ -38,7 +42,7 @@ jobs:
   lighthouse:
     runs-on: ubuntu-latest
     needs: detect-changes
-    if: ${{ always() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || needs.detect-changes.outputs.source == 'true') }}
+    if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || needs.detect-changes.outputs.source == 'true' }}
     continue-on-error: true
     timeout-minutes: 15
     permissions:
@@ -46,6 +50,19 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: Cache npm
+        uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-lhci-${{ hashFiles('.lighthouserc.cjs') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-lhci-
 
       - name: Install Lighthouse CI
         run: npm install -g @lhci/cli@0.15.x
