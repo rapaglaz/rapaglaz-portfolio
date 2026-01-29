@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@angular/cdk':
-        specifier: 21.1.1
-        version: 21.1.1(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2))(@angular/platform-browser@21.1.2(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)))(rxjs@7.8.2)
+        specifier: 21.1.2
+        version: 21.1.2(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2))(@angular/platform-browser@21.1.2(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)))(rxjs@7.8.2)
       '@angular/common':
         specifier: 21.1.2
         version: 21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2))(rxjs@7.8.2)
@@ -364,8 +364,8 @@ packages:
       vitest:
         optional: true
 
-  '@angular/cdk@21.1.1':
-    resolution: {integrity: sha512-lzscv+A6FCQdyWIr0t0QHXEgkLzS9wJwgeOOOhtxbixxxuk7xVXdcK/jnswE1Maugh1m696jUkOhZpffks3psA==}
+  '@angular/cdk@21.1.2':
+    resolution: {integrity: sha512-0q+PhBKmjKO0Yi353VCpMxT0g787cllLhdpyxh00i3twxNWvFkQZgy2Ih187ZXydvW+u9mFkK9+UGLzncQ0yng==}
     peerDependencies:
       '@angular/common': ^21.0.0 || ^22.0.0
       '@angular/core': ^21.0.0 || ^22.0.0
@@ -4853,7 +4853,7 @@ snapshots:
       - tsx
       - yaml
 
-  '@angular/cdk@21.1.1(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2))(@angular/platform-browser@21.1.2(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)))(rxjs@7.8.2)':
+  '@angular/cdk@21.1.2(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2))(@angular/platform-browser@21.1.2(@angular/common@21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)))(rxjs@7.8.2)':
     dependencies:
       '@angular/common': 21.1.2(@angular/core@21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2))(rxjs@7.8.2)
       '@angular/core': 21.1.2(@angular/compiler@21.1.2)(rxjs@7.8.2)
