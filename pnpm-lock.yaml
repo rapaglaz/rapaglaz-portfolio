@@ -76,8 +76,8 @@ importers:
         specifier: 21.1.2
         version: 21.1.2(@angular/compiler@21.1.2)(typescript@5.9.3)
       '@axe-core/playwright':
-        specifier: 4.11.0
-        version: 4.11.0(playwright-core@1.58.1)
+        specifier: 4.11.1
+        version: 4.11.1(playwright-core@1.58.1)
       '@commitlint/cli':
         specifier: 20.3.1
         version: 20.3.1(@types/node@24.10.10)(typescript@5.9.3)
@@ -453,8 +453,8 @@ packages:
   '@asamuzakjp/nwsapi@2.3.9':
     resolution: {integrity: sha512-n8GuYSrI9bF7FFZ/SjhwevlHc8xaVlb/7HmHelnc/PZXBD2ZR49NnN9sMMuDdEGPeeRQ5d0hqlSlEpgCX3Wl0Q==}
 
-  '@axe-core/playwright@4.11.0':
-    resolution: {integrity: sha512-70vBT/Ylqpm65RQz2iCG2o0JJCEG/WCNyefTr2xcOcr1CoSee60gNQYUMZZ7YukoKkFLv26I/jjlsvwwp532oQ==}
+  '@axe-core/playwright@4.11.1':
+    resolution: {integrity: sha512-mKEfoUIB1MkVTht0BGZFXtSAEKXMJoDkyV5YZ9jbBmZCcWDz71tegNsdTkIN8zc/yMi5Gm2kx7Z5YQ9PfWNAWw==}
     peerDependencies:
       playwright-core: '>= 1.0.0'
 
@@ -4830,7 +4830,7 @@ snapshots:
 
   '@asamuzakjp/nwsapi@2.3.9': {}
 
-  '@axe-core/playwright@4.11.0(playwright-core@1.58.1)':
+  '@axe-core/playwright@4.11.1(playwright-core@1.58.1)':
     dependencies:
       axe-core: 4.11.1
       playwright-core: 1.58.1
