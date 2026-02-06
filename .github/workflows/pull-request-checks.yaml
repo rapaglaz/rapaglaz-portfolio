@@ -151,7 +151,7 @@ jobs:
   e2e-tests:
     runs-on: ubuntu-latest
     container:
-      image: mcr.microsoft.com/playwright:v1.58.1-noble@sha256:feae0b1581609d3dc2ba22567b4703dd6a3e7a219984bb86a19ed35007148a91
+      image: mcr.microsoft.com/playwright:v1.58.2-noble@sha256:6446946a1d9fd62d9ae501312a2d76a43ee688542b21622056a372959b65d63d
     needs: detect-changes
     if: ${{ needs.detect-changes.outputs.run_e2e == 'true' && needs.detect-changes.outputs.only_deps != 'true' }}
     timeout-minutes: 15
