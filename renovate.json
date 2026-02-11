@@ -1,97 +1,62 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended",
-    "docker:pinDigests",
-    "abandonments:recommended",
-    "helpers:pinGitHubActionDigests",
-    ":configMigration",
-    ":pinDevDependencies",
-    ":semanticCommits",
-    ":semanticCommitTypeAll(chore)",
-    ":enableVulnerabilityAlerts",
-    "security:minimumReleaseAgeNpm"
+    "config:best-practices",
+    ":dependencyDashboard",
+    ":pinAllExceptPeerDependencies",
+    "group:monorepos",
+    "group:recommended"
   ],
-  "dependencyDashboardTitle": "Dependency Dashboard",
-  "branchPrefix": "renovate/",
-  "timezone": "Europe/Berlin",
-  "schedule": ["* 7-19 * * 1-5"],
-  "dependencyDashboard": false,
-  "prCreation": "not-pending",
-  "prHourlyLimit": 2,
-  "prConcurrentLimit": 10,
   "rangeStrategy": "bump",
-  "separateMajorMinor": true,
-  "respectLatest": true,
-  "labels": ["dependencies", "renovate"],
-  "assigneesFromCodeOwners": true,
-  "reviewersFromCodeOwners": true,
+  "prConcurrentLimit": 10,
+  "prHourlyLimit": 6,
   "lockFileMaintenance": {
     "enabled": true,
-    "automerge": false,
-    "recreateWhen": "auto",
-    "schedule": ["before 08:00 on Monday"]
+    "schedule": ["before 3am on Monday"]
+  },
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["security"],
+    "schedule": ["at any time"]
   },
   "packageRules": [
     {
-      "matchManagers": ["github-actions"],
-      "groupName": "GitHub Actions",
-      "minimumReleaseAge": "3 days",
-      "prPriority": -1
-    },
-    {
-      "matchPackagePatterns": ["^@angular"],
-      "groupName": "Angular packages",
-      "prPriority": 10
-    },
-    {
-      "matchPackagePatterns": ["^eslint", "^@typescript-eslint"],
-      "groupName": "ESLint packages",
-      "prPriority": 5
-    },
-    {
-      "matchPackagePatterns": ["^@playwright"],
-      "groupName": "Playwright packages",
-      "prPriority": 5
-    },
-    {
+      "description": "Require approval for major updates",
       "matchUpdateTypes": ["major"],
-      "minimumReleaseAge": "7 days",
-      "prPriority": -5
+      "dependencyDashboardApproval": true
     },
     {
-      "matchManagers": ["npm"],
-      "matchDepTypes": ["dependencies", "devDependencies"],
-      "matchCurrentVersion": "!=null",
-      "labels": ["security", "dependencies"],
-      "prPriority": 20,
-      "matchSourceUrls": [
-        "https://github.com/advisories{/,}**",
-        "https://nvd.nist.gov/vuln/detail/{/,}**"
-      ]
+      "description": "Automerge minor updates for stable versions",
+      "matchUpdateTypes": ["minor"],
+      "matchCurrentVersion": "!/^0/",
+      "automerge": true,
+      "automergeType": "pr",
+      "labels": ["automerge"],
+      "minimumReleaseAge": "3 days"
     },
     {
-      "matchManagers": ["npm"]
-    },
-    {
+      "description": "Automerge patch updates for stable versions",
       "matchUpdateTypes": ["patch"],
       "matchCurrentVersion": "!/^0/",
       "automerge": true,
-      "labels": ["automerge", "dependencies", "renovate"],
-      "commitMessagePrefix": "chore(automerge-deps):"
+      "automergeType": "pr",
+      "labels": ["automerge"],
+      "minimumReleaseAge": "1 day"
     },
     {
-      "matchUpdateTypes": ["lockFileMaintenance"],
-      "groupName": "Lockfile maintenance",
-      "labels": ["lockfile-maintenance", "dependencies", "renovate"],
-      "commitMessagePrefix": "chore(lockfile):",
-      "automerge": false,
-      "ignoreTests": true
+      "description": "Require approval for unstable versions (0.x)",
+      "matchCurrentVersion": "/^0/",
+      "matchUpdateTypes": ["minor", "patch"],
+      "dependencyDashboardApproval": true,
+      "labels": ["unstable-version"]
+    },
+    {
+      "description": "High priority for security vulnerabilities",
+      "matchUpdateTypes": ["major", "minor", "patch"],
+      "vulnerabilityAlerts": {
+        "enabled": true
+      },
+      "prPriority": 10
     }
-  ],
-  "vulnerabilityAlerts": {
-    "enabled": true,
-    "dependencyDashboardApproval": true,
-    "labels": ["security", "dependencies"]
-  }
+  ]
 }
