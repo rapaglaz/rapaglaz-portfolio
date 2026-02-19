@@ -1,12 +1,9 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:best-practices",
-    ":dependencyDashboard",
-    ":pinAllExceptPeerDependencies",
-    "group:monorepos",
-    "group:recommended"
-  ],
+  "extends": ["config:best-practices", ":pinAllExceptPeerDependencies"],
+  "dependencyDashboardTitle": "Dependency Dashboard",
+  "dependencyDashboardLabels": ["dependencies"],
+  "dependencyDashboardAutoclose": true,
   "rangeStrategy": "bump",
   "prConcurrentLimit": 10,
   "prHourlyLimit": 6,
@@ -26,12 +23,10 @@
       "dependencyDashboardApproval": true
     },
     {
-      "description": "Automerge minor updates for stable versions",
+      "description": "Create PR for minor updates",
       "matchUpdateTypes": ["minor"],
       "matchCurrentVersion": "!/^0/",
-      "automerge": true,
-      "automergeType": "pr",
-      "labels": ["automerge"],
+      "automerge": false,
       "minimumReleaseAge": "3 days"
     },
     {
@@ -39,8 +34,7 @@
       "matchUpdateTypes": ["patch"],
       "matchCurrentVersion": "!/^0/",
       "automerge": true,
-      "automergeType": "pr",
-      "labels": ["automerge"],
+      "automergeType": "branch",
       "minimumReleaseAge": "1 day"
     },
     {
@@ -52,10 +46,7 @@
     },
     {
       "description": "High priority for security vulnerabilities",
-      "matchUpdateTypes": ["major", "minor", "patch"],
-      "vulnerabilityAlerts": {
-        "enabled": true
-      },
+      "isVulnerabilityAlert": true,
       "prPriority": 10
     }
   ]
