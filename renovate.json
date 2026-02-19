@@ -46,6 +46,7 @@
     },
     {
       "description": "High priority for security vulnerabilities",
+      "matchUpdateTypes": ["major", "minor", "patch"],
       "isVulnerabilityAlert": true,
       "prPriority": 10
     }
