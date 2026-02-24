@@ -16,7 +16,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { finalize, map, startWith } from 'rxjs';
 import { CONTACT_ITEMS } from '../../content';
-import { CvDownloadService, FeatureFlagService, LoggerService, ToastService } from '../../services';
+import { CvDownloadService, FeatureFlagService, ToastService } from '../../services';
 import { Badge } from '../../ui';
 import { withErrorToast } from '../../utils/rxjs';
 import { LanguageSwitcher } from '../language-switcher/language-switcher';
@@ -35,7 +35,6 @@ export class Navbar {
   private readonly cvDownloadService = inject(CvDownloadService);
   private readonly toastService = inject(ToastService);
   private readonly translocoService = inject(TranslocoService);
-  private readonly logger = inject(LoggerService);
   private readonly featureFlagService = inject(FeatureFlagService);
   private readonly document = inject(DOCUMENT);
   private readonly platformId = inject(PLATFORM_ID);
