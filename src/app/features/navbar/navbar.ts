@@ -16,14 +16,14 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { finalize, map, startWith } from 'rxjs';
 import { CONTACT_ITEMS } from '../../content';
-import { CvDownloadService, FeatureFlagService, ToastService } from '../../services';
-import { Badge, ButtonDirective } from '../../ui';
+import { CvDownloadService, FeatureFlagService, LoggerService, ToastService } from '../../services';
+import { Badge } from '../../ui';
 import { withErrorToast } from '../../utils/rxjs';
 import { LanguageSwitcher } from '../language-switcher/language-switcher';
 
 @Component({
   selector: 'app-navbar',
-  imports: [ButtonDirective, Badge, LanguageSwitcher, TranslocoModule],
+  imports: [Badge, LanguageSwitcher, TranslocoModule],
   templateUrl: './navbar.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -35,6 +35,7 @@ export class Navbar {
   private readonly cvDownloadService = inject(CvDownloadService);
   private readonly toastService = inject(ToastService);
   private readonly translocoService = inject(TranslocoService);
+  private readonly logger = inject(LoggerService);
   private readonly featureFlagService = inject(FeatureFlagService);
   private readonly document = inject(DOCUMENT);
   private readonly platformId = inject(PLATFORM_ID);
@@ -63,8 +64,6 @@ export class Navbar {
 
   constructor() {
     afterNextRender(() => {
-      if (!isPlatformBrowser(this.platformId)) return;
-
       const navbar = this.navbarRef().nativeElement;
       const rootStyle = this.document.documentElement.style;
       const updateHeight = (): void => {
@@ -78,18 +77,26 @@ export class Navbar {
         return;
       }
 
-      const resizeObserver = new ResizeObserver(updateHeight);
+      let debounceTimer: ReturnType<typeof setTimeout> | undefined;
+      const debouncedUpdate = (): void => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(updateHeight, 100);
+      };
+
+      const resizeObserver = new ResizeObserver(debouncedUpdate);
       resizeObserver.observe(navbar);
-      this.destroyRef.onDestroy(() => resizeObserver.disconnect());
+      this.destroyRef.onDestroy(() => {
+        clearTimeout(debounceTimer);
+        resizeObserver.disconnect();
+      });
     });
   }
 
-  contactEmail(): void {
-    const emailItem = CONTACT_ITEMS.find(item => item.id === 'email');
-    if (emailItem) {
-      if (!isPlatformBrowser(this.platformId)) return;
-      this.document.defaultView?.location.assign(emailItem.href);
-    }
+  protected contactEmail(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    const href = CONTACT_ITEMS.find(item => item.id === 'email')?.href;
+    if (!href) return;
+    this.document.defaultView?.location.assign(href);
   }
 
   protected handleDownloadCV(): void {
