@@ -9,7 +9,8 @@ const portfolioRoute = (): Promise<Type<Portfolio>> =>
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: portfolioRoute,
+    redirectTo: DEFAULT_LANG,
+    pathMatch: 'full',
   },
   ...AVAILABLE_LANGS.map(lang => ({
     path: lang,
