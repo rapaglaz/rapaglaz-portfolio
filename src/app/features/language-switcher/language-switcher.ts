@@ -77,7 +77,7 @@ export class LanguageSwitcher {
     const isActive = this.currentLang() === lang;
     const stateClasses = isActive
       ? 'text-primary dark:text-primary/80 font-extrabold dark:font-bold pointer-events-none cursor-default'
-      : 'text-primary/80 dark:text-base-content/80 hover:text-primary hover:scale-115 font-semibold hover:cursor-pointer hover:text-shadow-primary';
+      : 'text-primary/90 dark:text-base-content/80 hover:text-primary hover:scale-115 font-semibold hover:cursor-pointer hover:text-shadow-primary';
     return `${baseClasses} ${stateClasses}`;
   }
 }
