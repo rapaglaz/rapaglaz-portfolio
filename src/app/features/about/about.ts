@@ -5,7 +5,20 @@ import { SectionWrapper } from '../../ui';
 @Component({
   selector: 'app-about',
   imports: [TranslocoModule, SectionWrapper],
-  templateUrl: './about.html',
+  template: `
+    <app-section-wrapper
+      sectionId="about"
+      titleKey="portfolio.about.title">
+      @let wrapper = sectionWrapper();
+      <div
+        class="animate-content"
+        [class.visible]="wrapper.scrollReveal.isVisible()">
+        <p class="text-base-content/90 text-lg leading-relaxed">
+          {{ 'portfolio.about.description' | transloco }}
+        </p>
+      </div>
+    </app-section-wrapper>
+  `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class About {
