@@ -1,18 +1,19 @@
 import { Routes } from '@angular/router';
-import { AVAILABLE_LANGS, DEFAULT_LANG } from './utils/i18n';
+import { AVAILABLE_LANGS } from './utils/i18n';
+
+const loadPortfolio = () => import('./portfolio/portfolio').then(m => m.Portfolio);
 
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: DEFAULT_LANG,
-    pathMatch: 'full',
+    loadComponent: loadPortfolio,
   },
   ...AVAILABLE_LANGS.map(lang => ({
     path: lang,
-    loadComponent: () => import('./portfolio/portfolio').then(m => m.Portfolio),
+    loadComponent: loadPortfolio,
   })),
   {
     path: '**',
-    redirectTo: DEFAULT_LANG,
+    redirectTo: '',
   },
 ];
