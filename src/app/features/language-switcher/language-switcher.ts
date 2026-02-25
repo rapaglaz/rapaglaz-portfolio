@@ -25,7 +25,7 @@ import { AVAILABLE_LANGS, isAvailableLang, LANG_LABELS } from '../../utils/i18n'
         </button>
         @if (!last) {
           <span
-            class="text-primary/70 select-none"
+            class="text-base-content/70 select-none"
             aria-hidden="true">
             /
           </span>
@@ -73,11 +73,11 @@ export class LanguageSwitcher {
 
   protected getLangClasses(lang: string): string {
     const baseClasses =
-      'btn btn-link text-xl md:text-lg transition-all duration-300 no-underline px-1.5 inline-flex items-center justify-center';
+      'btn btn-link text-2xl md:text-lg transition-all duration-400 no-underline px-1.5 inline-flex items-center justify-center';
     const isActive = this.currentLang() === lang;
     const stateClasses = isActive
-      ? 'text-primary dark:text-base-content/80 scale-110 font-bold pointer-events-none cursor-default'
-      : 'text-primary dark:text-base-content/80 hover:text-primary hover:cursor-pointer hover:scale-110 hover:font-bold"';
+      ? 'text-primary dark:text-primary/80 scale-110 font-bold pointer-events-none cursor-default'
+      : 'text-primary dark:text-base-content/80 hover:text-primary hover:cursor-pointer hover:scale-105 font-semibold hover:font-bold';
     return `${baseClasses} ${stateClasses}`;
   }
 }
