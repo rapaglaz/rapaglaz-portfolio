@@ -1,8 +1,9 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, PLATFORM_ID } from '@angular/core';
-import { catchError, defer, map, Observable, of, shareReplay, throwError } from 'rxjs';
+import { catchError, map, Observable, of, shareReplay, throwError } from 'rxjs';
 import * as v from 'valibot';
+import { API_BASE_URL } from '../../utils/tokens/api-base-url.token';
 
 const ConfigSchema = v.object({
   turnstileSiteKey: v.pipe(v.string(), v.minLength(1, 'Turnstile site key cannot be empty')),
@@ -17,20 +18,25 @@ export class ConfigService {
   private readonly http = inject(HttpClient);
   private readonly document = inject(DOCUMENT);
   private readonly platformId = inject(PLATFORM_ID);
-  private readonly configUrl = './config';
+  private readonly configUrl = `${inject(API_BASE_URL)}/config`;
   // Cloudflare test key, always passes in dev so no real key needed
   private readonly TEST_TURNSTILE_KEY = '1x00000000000000000000AA';
 
-  // cache config; reset on error so a transient failure doesn't stick
   private config$: Observable<Config> | null = null;
+  private configFetchAttempts = 0;
+  // 3 retries after the initial attempt = 4 total fetches before giving up
+  private static readonly MAX_CONFIG_RETRIES = 3;
 
   getConfig(): Observable<Config> {
-    this.config$ ??= defer(() => this.fetchConfig()).pipe(
-      shareReplay(1),
+    this.config$ ??= this.fetchConfig().pipe(
       catchError(err => {
-        this.config$ = null;
+        // Reset before shareReplay so the counter tracks HTTP-level errors
+        if (this.configFetchAttempts++ < ConfigService.MAX_CONFIG_RETRIES) {
+          this.config$ = null;
+        }
         return throwError(() => err);
       }),
+      shareReplay({ bufferSize: 1, refCount: false }),
     );
     return this.config$;
   }
@@ -40,7 +46,7 @@ export class ConfigService {
       return of({ turnstileSiteKey: this.TEST_TURNSTILE_KEY });
     }
 
-    if (this.isLocalhost()) {
+    if (this.isLocalDev()) {
       return of({ turnstileSiteKey: this.TEST_TURNSTILE_KEY });
     }
 
@@ -48,7 +54,7 @@ export class ConfigService {
       map((response: unknown) => {
         const result = v.safeParse(ConfigSchema, response);
         if (!result.success) {
-          const issues = result.issues.map((i: v.BaseIssue<unknown>) => i.message).join(', ');
+          const issues = result.issues.map(i => i.message).join(', ');
           throw new Error(`Invalid config response: ${issues}`);
         }
         return result.output;
@@ -60,7 +66,7 @@ export class ConfigService {
     );
   }
 
-  private isLocalhost(): boolean {
+  private isLocalDev(): boolean {
     if (!isPlatformBrowser(this.platformId)) {
       return false;
     }
