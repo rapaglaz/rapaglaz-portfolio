@@ -5,7 +5,7 @@ import { ToastContainer, ToastType } from '../../ui';
 
 type SubscriptionLike = { unsubscribe(): void };
 
-const NAVBAR_OFFSET = '5rem';
+const NAVBAR_OFFSET = 'var(--navbar-height, 5rem)';
 const DEFAULT_DURATION_MS = 15_000;
 
 @Injectable({ providedIn: 'root' })
@@ -26,10 +26,9 @@ export class ToastService {
     this.overlayRef = overlayRef;
 
     const componentRef = overlayRef.attach(new ComponentPortal(ToastContainer));
-    const instance = componentRef.instance as ToastContainer;
-    instance.data.set({ message, type });
+    componentRef.setInput('data', { message, type });
 
-    this.dismissSubscription = instance.dismissed.subscribe(() => this.dismiss());
+    this.dismissSubscription = componentRef.instance.dismissed.subscribe(() => this.dismiss());
     this.startDismissTimer(duration);
   }
 
