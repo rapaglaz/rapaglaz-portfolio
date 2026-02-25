@@ -73,11 +73,11 @@ export class LanguageSwitcher {
 
   protected getLangClasses(lang: string): string {
     const baseClasses =
-      'btn btn-link text-shadow-xs text-shadow-primary text-xl md:text-lg transition-all duration-400 no-underline px-1.5 inline-flex items-center justify-center';
+      'btn btn-link text-shadow-primary-xs text-xl md:text-lg transition-all duration-400 no-underline px-1.5';
     const isActive = this.currentLang() === lang;
     const stateClasses = isActive
-      ? 'text-primary dark:text-primary/80 scale-110 font-bold pointer-events-none cursor-default'
-      : 'text-primary dark:text-base-content/80 hover:text-primary hover:cursor-pointer hover:scale-105 hover:font-bold';
+      ? 'text-primary dark:text-primary/80 font-extrabold dark:font-bold pointer-events-none cursor-default'
+      : 'text-primary/90 dark:text-base-content/80 hover:text-primary hover:scale-115 font-semibold hover:cursor-pointer hover:text-shadow-primary';
     return `${baseClasses} ${stateClasses}`;
   }
 }
