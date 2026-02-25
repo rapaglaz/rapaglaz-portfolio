@@ -276,6 +276,10 @@ html {
   filter: drop-shadow(0 2px 6px color-mix(in srgb, var(--color-primary) 55%, transparent));
 }
 
+@utility icon-shadow-primary-xs {
+  filter: drop-shadow(0 1px 4px color-mix(in srgb, var(--color-primary) 55%, transparent));
+}
+
 /* Base ocean text outline effect - used for hero names and section titles */
 .text-ocean-outline {
   --text-outline-color: rgba(var(--ocean-outline) / 0.3);

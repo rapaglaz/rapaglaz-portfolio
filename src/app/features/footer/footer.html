@@ -2,16 +2,15 @@
   <div class="container mx-auto max-w-5xl py-8">
     <div class="flex flex-col items-center justify-between gap-6 md:flex-row md:gap-4">
       <div class="text-sm text-(--color-text-subtle)">
-        © {{ currentYear() }} {{ 'common.firstName' | transloco }}
+        © {{ currentYear }} {{ 'common.firstName' | transloco }}
         {{ 'common.lastName' | transloco }}
       </div>
-      <div class="flex items-center gap-6">
+      <div class="flex items-center gap-8 sm:gap-6">
         <button
           (click)="contactEmail()"
           class="hover:text-primary flex cursor-pointer items-center text-(--color-text-subtle) transition duration-300 hover:scale-105"
           type="button"
-          aria-label="Email"
-          title="Email">
+          aria-label="Email">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -19,7 +18,7 @@
             stroke="currentColor"
             stroke-width="2"
             stroke-linecap="round"
-            class="h-6 w-6"
+            class="icon-shadow-primary-xs h-7 w-7 sm:h-6 sm:w-6"
             stroke-linejoin="round">
             <path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7" />
             <rect
@@ -35,10 +34,9 @@
           target="_blank"
           rel="noopener noreferrer"
           class="hover:text-primary flex items-center text-(--color-text-subtle) transition duration-300 hover:scale-105"
-          aria-label="LinkedIn"
-          title="LinkedIn">
+          aria-label="LinkedIn">
           <svg
-            class="h-5 w-5"
+            class="icon-shadow-primary-xs h-7 w-7 sm:h-6 sm:w-6"
             fill="currentColor"
             viewBox="0 0 24 24"
             xmlns="http://www.w3.org/2000/svg">
@@ -51,10 +49,9 @@
           target="_blank"
           rel="noopener noreferrer"
           class="hover:text-primary flex items-center text-(--color-text-subtle) transition duration-300 hover:scale-105"
-          aria-label="GitHub"
-          title="GitHub">
+          aria-label="GitHub">
           <svg
-            class="h-6 w-6"
+            class="icon-shadow-primary-xs h-7 w-7 sm:h-6 sm:w-6"
             fill="currentColor"
             viewBox="0 0 24 24"
             xmlns="http://www.w3.org/2000/svg">
