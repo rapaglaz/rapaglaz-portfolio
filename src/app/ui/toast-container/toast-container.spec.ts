@@ -17,7 +17,7 @@ describe('ToastContainer', () => {
   });
 
   it('displays the message from data', () => {
-    fixture.componentInstance.data.set({ message: 'Download complete!', type: 'success' });
+    fixture.componentRef.setInput('data', { message: 'Download complete!', type: 'success' });
     fixture.detectChanges();
 
     const message = element.querySelector('p');
@@ -25,7 +25,7 @@ describe('ToastContainer', () => {
   });
 
   it('uses assertive aria-live for errors', () => {
-    fixture.componentInstance.data.set({ message: 'Failed to download', type: 'error' });
+    fixture.componentRef.setInput('data', { message: 'Failed to download', type: 'error' });
     fixture.detectChanges();
 
     const container = element.querySelector('[role="alert"]');
@@ -33,13 +33,13 @@ describe('ToastContainer', () => {
   });
 
   it('uses polite aria-live for success and info', () => {
-    fixture.componentInstance.data.set({ message: 'Success!', type: 'success' });
+    fixture.componentRef.setInput('data', { message: 'Success!', type: 'success' });
     fixture.detectChanges();
 
     let container = element.querySelector('[role="alert"]');
     expect(container?.getAttribute('aria-live')).toBe('polite');
 
-    fixture.componentInstance.data.set({ message: 'Info', type: 'info' });
+    fixture.componentRef.setInput('data', { message: 'Info', type: 'info' });
     fixture.detectChanges();
 
     container = element.querySelector('[role="alert"]');
