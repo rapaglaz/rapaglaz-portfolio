@@ -1,0 +1,7 @@
+@reference '../../../styles.css';
+
+:host {
+  @apply rounded-full border font-bold;
+  @apply bg-primary/10 shadow-primary/15 border-slate-700 text-slate-900 opacity-100 shadow-lg;
+  @apply dark:shadow-primary/5 dark:border-emerald-200/80 dark:text-emerald-200/80 dark:opacity-80 dark:shadow-xl;
+}

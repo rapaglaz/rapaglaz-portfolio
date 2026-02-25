@@ -10,6 +10,7 @@
 .hero-avatar-wrapper {
   @apply animate-[fadeInUp_0.5s_ease-out_0.45s_both];
 }
+
 .hero-avatar-wrapper img {
   @apply h-auto;
   object-position: center -25px;
