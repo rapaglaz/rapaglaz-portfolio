@@ -30,6 +30,7 @@ describe('SectionWrapper', () => {
     const heading = element.querySelector('h2');
 
     expect(section?.id).toBe('about');
-    expect(heading?.textContent?.trim()).toBe('ABOUT ME');
+    expect(heading?.textContent?.trim()).toBe('About Me');
+    expect(heading?.classList.contains('uppercase')).toBe(true);
   });
 });
