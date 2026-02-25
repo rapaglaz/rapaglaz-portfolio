@@ -71,12 +71,16 @@ describe('ScrollRevealDirective', () => {
     expect(component.isVisible()).toBe(true);
   });
 
-  it('emits false when element does not intersect', () => {
-    observerCallback([{ isIntersecting: true } as IntersectionObserverEntry]);
-    expect(component.isVisible()).toBe(true);
+  it('disconnects observer after first intersection', () => {
+    const entry = { isIntersecting: true } as IntersectionObserverEntry;
+    observerCallback([entry]);
+    expect(disconnectSpy).toHaveBeenCalledOnce();
+  });
 
+  it('does not emit when element is not intersecting', () => {
+    const emitSpy = vi.spyOn(component, 'onVisibilityChange');
     observerCallback([{ isIntersecting: false } as IntersectionObserverEntry]);
-    expect(component.isVisible()).toBe(false);
+    expect(emitSpy).not.toHaveBeenCalled();
   });
 
   it('disconnects observer on destroy', () => {

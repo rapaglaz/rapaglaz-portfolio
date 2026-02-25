@@ -1,35 +1,37 @@
-import { Directive, ElementRef, effect, inject, output } from '@angular/core';
+import { DestroyRef, Directive, ElementRef, inject, OnInit, output } from '@angular/core';
 
 @Directive({
   selector: '[appScrollReveal]',
 })
-export class ScrollRevealDirective {
+export class ScrollRevealDirective implements OnInit {
   private readonly elementRef = inject(ElementRef);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly visibilityChange = output<boolean>();
 
-  constructor() {
-    effect(onCleanup => {
-      if (typeof IntersectionObserver === 'undefined') {
-        this.visibilityChange.emit(true);
-        return;
-      }
+  ngOnInit(): void {
+    if (typeof IntersectionObserver === 'undefined') {
+      this.visibilityChange.emit(true);
+      return;
+    }
 
-      const observer = new IntersectionObserver(
-        entries => {
-          entries.forEach(entry => {
-            this.visibilityChange.emit(entry.isIntersecting);
-          });
-        },
-        {
-          root: null,
-          threshold: 0.25,
-        },
-      );
+    const observer = new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            this.visibilityChange.emit(true);
+            observer.disconnect();
+          }
+        });
+      },
+      {
+        root: null,
+        threshold: 0.25,
+      },
+    );
 
-      observer.observe(this.elementRef.nativeElement);
+    observer.observe(this.elementRef.nativeElement);
 
-      onCleanup(() => observer.disconnect());
-    });
+    this.destroyRef.onDestroy(() => observer.disconnect());
   }
 }
