@@ -24,8 +24,8 @@ describe('ToastService', () => {
 
     createdRef = {
       attach: vi.fn().mockReturnValue({
+        setInput: vi.fn(),
         instance: {
-          data: { set: vi.fn() },
           dismissed: { subscribe: vi.fn(() => ({ unsubscribe: vi.fn() })) },
         },
       }),
