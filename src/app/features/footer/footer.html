@@ -1,14 +1,14 @@
 <footer class="border-base-300 mt-8 border-t">
   <div class="container mx-auto max-w-5xl py-8">
     <div class="flex flex-col items-center justify-between gap-6 md:flex-row md:gap-4">
-      <div class="text-sm text-(--color-text-subtle)">
+      <div class="text-shadow-primary-xs font-medium text-(--color-text-subtle)">
         © {{ currentYear }} {{ 'common.firstName' | transloco }}
         {{ 'common.lastName' | transloco }}
       </div>
       <div class="flex items-center gap-8 sm:gap-6">
         <button
           (click)="contactEmail()"
-          class="hover:text-primary flex cursor-pointer items-center text-(--color-text-subtle) transition duration-300 hover:scale-105"
+          class="hover:text-primary flex cursor-pointer items-center text-(--color-text-subtle) transition duration-400 hover:scale-115"
           type="button"
           aria-label="Email">
           <svg
@@ -16,7 +16,7 @@
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            stroke-width="2"
+            stroke-width="2.5"
             stroke-linecap="round"
             class="icon-shadow-primary-xs h-7 w-7 sm:h-6 sm:w-6"
             stroke-linejoin="round">
@@ -33,7 +33,7 @@
           href="https://www.linkedin.com/in/paul-glaz/"
           target="_blank"
           rel="noopener noreferrer"
-          class="hover:text-primary flex items-center text-(--color-text-subtle) transition duration-300 hover:scale-105"
+          class="hover:text-primary flex items-center text-(--color-text-subtle) transition duration-400 hover:scale-115"
           aria-label="LinkedIn">
           <svg
             class="icon-shadow-primary-xs h-7 w-7 sm:h-6 sm:w-6"
@@ -48,7 +48,7 @@
           href="https://github.com/rapaglaz"
           target="_blank"
           rel="noopener noreferrer"
-          class="hover:text-primary flex items-center text-(--color-text-subtle) transition duration-300 hover:scale-105"
+          class="hover:text-primary flex items-center text-(--color-text-subtle) transition duration-400 hover:scale-115"
           aria-label="GitHub">
           <svg
             class="icon-shadow-primary-xs h-7 w-7 sm:h-6 sm:w-6"
