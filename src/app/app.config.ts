@@ -26,7 +26,7 @@ import {
 import { Observable } from 'rxjs';
 import { App } from './app';
 import { routes } from './app.routes';
-import { proxyInterceptor, turnstileInterceptor } from './interceptors';
+import { turnstileInterceptor } from './interceptors';
 import {
   AVAILABLE_LANGS,
   type AvailableLang,
@@ -81,7 +81,7 @@ export function initTranslocoDefaultLang(): Observable<unknown> {
 const baseProviders = [
   provideBrowserGlobalErrorListeners(),
   ...(isDevMode() ? [] : [provideClientHydration(withEventReplay())]),
-  provideHttpClient(withInterceptors([proxyInterceptor, turnstileInterceptor])),
+  provideHttpClient(withInterceptors([turnstileInterceptor])),
   provideTranslocoWithDynamicLang(),
 ];
 
