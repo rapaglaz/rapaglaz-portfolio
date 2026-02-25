@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { TranslocoService } from '@jsverse/transloco';
-import { isAvailableLang, LANG_LABELS } from '../../utils/i18n';
+import { AVAILABLE_LANGS, isAvailableLang, LANG_LABELS } from '../../utils/i18n';
 
 @Component({
   selector: 'app-language-switcher',
@@ -15,7 +15,7 @@ import { isAvailableLang, LANG_LABELS } from '../../utils/i18n';
       [cdkListboxValue]="selectedLang()"
       (cdkListboxValueChange)="handleValueChange($event)"
       aria-label="Language selection">
-      @for (lang of availableLanguages(); track lang; let last = $last) {
+      @for (lang of availableLangs; track lang; let last = $last) {
         <button
           type="button"
           [cdkOption]="lang"
@@ -25,7 +25,7 @@ import { isAvailableLang, LANG_LABELS } from '../../utils/i18n';
         </button>
         @if (!last) {
           <span
-            class="text-base-content select-none"
+            class="text-base-content/70 select-none"
             aria-hidden="true">
             /
           </span>
@@ -39,7 +39,7 @@ export class LanguageSwitcher {
   private readonly translocoService = inject(TranslocoService);
   private readonly router = inject(Router);
 
-  protected readonly availableLangs = this.translocoService.getAvailableLangs() as string[];
+  protected readonly availableLangs = AVAILABLE_LANGS;
 
   protected readonly currentLang = toSignal(this.translocoService.langChanges$, {
     initialValue: this.translocoService.getActiveLang(),
@@ -49,13 +49,9 @@ export class LanguageSwitcher {
 
   protected handleValueChange(event: ListboxValueChangeEvent<string>): void {
     const next = event.value[0];
-    if (typeof next === 'string' && next) {
+    if (next) {
       this.changeLang(next);
     }
-  }
-
-  protected availableLanguages(): string[] {
-    return this.availableLangs.filter(lang => this.availableLangs.includes(lang));
   }
 
   protected changeLang(lang: string): void {
@@ -77,11 +73,11 @@ export class LanguageSwitcher {
 
   protected getLangClasses(lang: string): string {
     const baseClasses =
-      'btn btn-link btn-sm text-base transition-all duration-200 no-underline p-0 min-h-0 h-auto w-8 inline-flex items-center justify-center';
+      'btn btn-link text-2xl md:text-lg transition-all duration-400 no-underline px-1.5 inline-flex items-center justify-center';
     const isActive = this.currentLang() === lang;
     const stateClasses = isActive
-      ? 'text-primary font-bold pointer-events-none cursor-default'
-      : 'text-base-content font-normal hover:text-primary cursor-pointer';
+      ? 'text-primary dark:text-primary/80 scale-110 font-bold pointer-events-none cursor-default'
+      : 'text-primary dark:text-base-content/80 hover:text-primary hover:cursor-pointer hover:scale-105 font-semibold hover:font-bold';
     return `${baseClasses} ${stateClasses}`;
   }
 }

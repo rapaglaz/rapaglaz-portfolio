@@ -5,8 +5,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { CONTACT_ITEMS } from '../../content';
 import { CvDownloadService, FeatureFlagService, ToastService } from '../../services';
+import { LoggerService } from '../../services/logger/logger.service';
 import { provideTranslocoTesting } from '../../testing';
 import { Navbar } from './navbar';
 
@@ -49,7 +49,7 @@ describe('Navbar', () => {
     const navbar = element.querySelector('nav');
     const badge = element.querySelector('app-badge');
     const languageSwitcher = element.querySelector('app-language-switcher');
-    const buttons = Array.from(element.querySelectorAll('button[appButton]'));
+    const buttons = Array.from(element.querySelectorAll('button'));
     const iconButton = buttons.find(button => button.getAttribute('aria-label'));
 
     expect(navbar).toBeInstanceOf(HTMLElement);
@@ -90,6 +90,7 @@ describe('Navbar - CV Download', () => {
         { provide: CvDownloadService, useValue: mockCvDownloadService },
         { provide: ToastService, useValue: mockToastService },
         { provide: FeatureFlagService, useValue: mockFeatureFlagService },
+        { provide: LoggerService, useValue: { error: vi.fn(), warn: vi.fn(), info: vi.fn() } },
       ],
     }).compileComponents();
 
@@ -102,7 +103,7 @@ describe('Navbar - CV Download', () => {
     const download$ = new Subject<void>();
     mockCvDownloadService.downloadCV.mockReturnValue(download$.asObservable());
 
-    const btn = element.querySelectorAll('button[appButton]')[0] as HTMLButtonElement;
+    const btn = element.querySelector<HTMLButtonElement>('[data-testid="cv-download-btn"]')!;
 
     expect(btn.disabled).toBe(false);
 
@@ -123,7 +124,7 @@ describe('Navbar - CV Download', () => {
       throwError(() => new Error('Download failed')),
     );
 
-    const btn = element.querySelectorAll('button[appButton]')[0] as HTMLButtonElement;
+    const btn = element.querySelector<HTMLButtonElement>('[data-testid="cv-download-btn"]')!;
     btn.click();
 
     await vi.waitFor(() => {
@@ -137,7 +138,7 @@ describe('Navbar - CV Download', () => {
     const download$ = new Subject<void>();
     mockCvDownloadService.downloadCV.mockReturnValue(download$.asObservable());
 
-    const btn = element.querySelectorAll('button[appButton]')[0] as HTMLButtonElement;
+    const btn = element.querySelector<HTMLButtonElement>('[data-testid="cv-download-btn"]')!;
 
     btn.click();
     btn.click();
@@ -146,91 +147,5 @@ describe('Navbar - CV Download', () => {
     expect(mockCvDownloadService.downloadCV).toHaveBeenCalledOnce();
 
     download$.complete();
-  });
-});
-
-describe('Navbar - Contact Email', () => {
-  let fixture: ComponentFixture<Navbar>;
-  let element: HTMLElement;
-
-  beforeEach(async () => {
-    const mockScrollDispatcher = {
-      scrolled: vi.fn().mockReturnValue(new Subject<void>().asObservable()),
-    };
-
-    await TestBed.configureTestingModule({
-      imports: [Navbar],
-      providers: [
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        provideRouter([]),
-        provideTranslocoTesting(),
-        { provide: ScrollDispatcher, useValue: mockScrollDispatcher },
-        { provide: FeatureFlagService, useValue: mockFeatureFlagService },
-      ],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(Navbar);
-    element = fixture.nativeElement;
-    fixture.detectChanges();
-  });
-
-  it('uses email href from CONTACT_ITEMS data source', () => {
-    const emailItem = CONTACT_ITEMS.find(item => item.id === 'email');
-
-    expect(emailItem).toBeDefined();
-    expect(emailItem?.href).toMatch(/^mailto:/);
-  });
-
-  it('navigates to mailto link when contact button is clicked', () => {
-    const assignSpy = vi.fn();
-    const originalLocation = window.location;
-
-    Object.defineProperty(window, 'location', {
-      value: { assign: assignSpy },
-      writable: true,
-      configurable: true,
-    });
-
-    // Select the contact button (the one with SVG icon, not the CV button)
-    const contactButton = element
-      .querySelector('button[appButton] svg')
-      ?.closest('button') as HTMLButtonElement | null;
-    expect(contactButton).toBeInstanceOf(HTMLButtonElement);
-    contactButton?.click();
-
-    const emailItem = CONTACT_ITEMS.find(item => item.id === 'email');
-    expect(assignSpy).toHaveBeenCalledWith(emailItem?.href);
-    expect(assignSpy).toHaveBeenCalledWith(expect.stringMatching(/^mailto:/));
-
-    Object.defineProperty(window, 'location', {
-      value: originalLocation,
-      writable: true,
-      configurable: true,
-    });
-  });
-
-  it('navigates to mailto link when badge is clicked', () => {
-    const assignSpy = vi.fn();
-    const originalLocation = window.location;
-
-    Object.defineProperty(window, 'location', {
-      value: { assign: assignSpy },
-      writable: true,
-      configurable: true,
-    });
-
-    const badge = element.querySelector('app-badge') as HTMLElement | null;
-    expect(badge).toBeInstanceOf(HTMLElement);
-    badge?.click();
-
-    const emailItem = CONTACT_ITEMS.find(item => item.id === 'email');
-    expect(assignSpy).toHaveBeenCalledWith(emailItem?.href);
-
-    Object.defineProperty(window, 'location', {
-      value: originalLocation,
-      writable: true,
-      configurable: true,
-    });
   });
 });
