@@ -32,7 +32,7 @@
         "
         [attr.aria-busy]="isDownloading()"
         (click)="handleDownloadCV()"
-        class="text-primary dark:text-base-content/80 hover:text-primary flex items-center p-0 text-2xl font-semibold no-underline transition-all duration-400 hover:scale-105 hover:cursor-pointer hover:font-bold disabled:cursor-not-allowed disabled:opacity-50 sm:mr-1.5 md:text-lg">
+        class="text-primary dark:text-base-content/80 hover:text-primary flex items-center p-0 text-xl text-shadow-xs text-shadow-primary font-semibold no-underline transition-all duration-400 hover:scale-105 hover:cursor-pointer hover:font-bold disabled:cursor-not-allowed disabled:opacity-50 sm:mr-1.5 md:text-lg">
         @if (isDownloading()) {
           <span
             class="loading loading-dots loading-sm text-primary"
@@ -46,7 +46,7 @@
         type="button"
         [attr.aria-label]="'common.navbar.contactMe' | transloco"
         (click)="contactEmail()"
-        class="text-primary dark:text-base-content/80 hover:text-primary transition-all duration-400 hover:scale-105 hover:cursor-pointer hover:font-bold">
+        class="text-primary dark:text-base-content/80 hover:text-primary text-shadow-xs text-shadow-primary transition-all duration-400 hover:scale-105 hover:cursor-pointer hover:font-bold">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
@@ -54,7 +54,7 @@
           stroke="currentColor"
           stroke-width="2.3"
           stroke-linecap="round"
-          class="h-6 w-6 sm:h-[1.3rem] sm:w-[1.3rem]"
+          class="h-6 w-6 sm:h-[1.3rem] sm:w-[1.3rem] icon-shadow-primary"
           stroke-linejoin="round">
           <path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7" />
           <rect
