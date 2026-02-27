@@ -52,7 +52,7 @@
     "@axe-core/playwright": "4.11.1",
     "@commitlint/cli": "20.4.2",
     "@commitlint/config-conventional": "20.4.2",
-    "@eslint/js": "9.39.2",
+    "@eslint/js": "9.39.3",
     "@jsverse/transloco-keys-manager": "8.1.0",
     "@jsverse/transloco-utils": "8.2.1",
     "@jsverse/transloco-validator": "8.2.1",
@@ -62,7 +62,7 @@
     "@vitest/coverage-v8": "4.0.18",
     "angular-eslint": "21.2.0",
     "daisyui": "5.5.19",
-    "eslint": "9.39.2",
+    "eslint": "9.39.3",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.5",
     "http-server": "14.1.1",
@@ -78,7 +78,7 @@
     "tailwindcss": "4.2.1",
     "type-fest": "5.4.4",
     "typescript": "5.9.3",
-    "typescript-eslint": "8.56.0",
+    "typescript-eslint": "8.56.1",
     "vitest": "4.0.18"
   },
   "packageManager": "pnpm@10.30.0"
