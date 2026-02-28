@@ -1,0 +1,73 @@
+name: Format Lighthouse Results
+description: 'Parses .lighthouseci output and exposes scores as outputs.'
+
+outputs:
+  performance:
+    description: 'Performance score (0-100)'
+    value: ${{ steps.parse.outputs.performance }}
+  accessibility:
+    description: 'Accessibility score (0-100)'
+    value: ${{ steps.parse.outputs.accessibility }}
+  best_practices:
+    description: 'Best Practices score (0-100)'
+    value: ${{ steps.parse.outputs.best_practices }}
+  seo:
+    description: 'SEO score (0-100)'
+    value: ${{ steps.parse.outputs.seo }}
+  perf_status:
+    description: 'Performance status emoji (✅ / ⚠️)'
+    value: ${{ steps.parse.outputs.perf_status }}
+  a11y_status:
+    description: 'Accessibility status emoji (✅ / ⚠️)'
+    value: ${{ steps.parse.outputs.a11y_status }}
+  bp_status:
+    description: 'Best Practices status emoji (✅ / ⚠️)'
+    value: ${{ steps.parse.outputs.bp_status }}
+  seo_status:
+    description: 'SEO status emoji (✅ / ⚠️)'
+    value: ${{ steps.parse.outputs.seo_status }}
+  a11y_pass:
+    description: 'Accessibility pass/fail label (✅ PASS / ⚠️ BELOW THRESHOLD)'
+    value: ${{ steps.parse.outputs.a11y_pass }}
+  public_url:
+    description: 'Public Lighthouse report URL (empty if not available)'
+    value: ${{ steps.parse.outputs.public_url }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Parse Lighthouse report
+      id: parse
+      shell: bash
+      run: |
+        if [ -f ".lighthouseci/links.json" ]; then
+          public_url=$(jq -r 'to_entries[0].value // empty' .lighthouseci/links.json 2>/dev/null || echo "")
+        else
+          public_url=""
+        fi
+
+        latest_report=$(find .lighthouseci -name 'lhr-*.json' -type f 2>/dev/null | sort -t'-' -k2 -n | tail -1)
+
+        if [ -z "$latest_report" ] || [ ! -f "$latest_report" ]; then
+          echo "Error: No LHR report found" && exit 1
+        fi
+
+        perf=$(jq -r '(.categories.performance.score * 100) | round' "$latest_report")
+        a11y=$(jq -r '(.categories.accessibility.score * 100) | round' "$latest_report")
+        bp=$(jq -r '(.categories["best-practices"].score * 100) | round' "$latest_report")
+        seo=$(jq -r '(.categories.seo.score * 100) | round' "$latest_report")
+
+        get_status() { [ "$1" -ge "$2" ] && echo "✅" || echo "⚠️"; }
+
+        {
+          echo "performance=$perf"
+          echo "accessibility=$a11y"
+          echo "best_practices=$bp"
+          echo "seo=$seo"
+          echo "perf_status=$(get_status "$perf" 90)"
+          echo "a11y_status=$(get_status "$a11y" 95)"
+          echo "bp_status=$(get_status "$bp" 95)"
+          echo "seo_status=$(get_status "$seo" 95)"
+          echo "a11y_pass=$([ "$a11y" -ge 95 ] && echo '✅ PASS' || echo '⚠️ BELOW THRESHOLD')"
+          echo "public_url=$public_url"
+        } >> "$GITHUB_OUTPUT"
