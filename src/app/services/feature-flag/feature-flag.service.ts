@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, PLATFORM_ID, Signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, map, Observable, of, shareReplay, startWith } from 'rxjs';
+import { API_FEATURE_FLAG_URL } from '../../utils/tokens/api-urls.token';
 
 export type FeatureFlagResponse = Record<string, boolean>;
 export type FeatureFlagValue = boolean | null;
@@ -18,7 +19,7 @@ export type FeatureFlagSignal = {
 export class FeatureFlagService {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly http = inject(HttpClient);
-  private readonly flagUrl = 'https://rapaglaz.de/feature-flag';
+  private readonly flagUrl = inject(API_FEATURE_FLAG_URL);
   private readonly observableCache = new Map<string, Observable<FeatureFlagValue>>();
   private readonly signalCache = new Map<string, FeatureFlagSignal>();
 

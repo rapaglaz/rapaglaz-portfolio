@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { catchError, map, Observable, of, shareReplay, throwError } from 'rxjs';
 import * as v from 'valibot';
-import { API_BASE_URL } from '../../utils/tokens/api-base-url.token';
+import { API_BASE_URL } from '../../utils/tokens/api-urls.token';
 
 const ConfigSchema = v.object({
   turnstileSiteKey: v.pipe(v.string(), v.minLength(1, 'Turnstile site key cannot be empty')),

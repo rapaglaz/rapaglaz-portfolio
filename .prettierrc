@@ -4,6 +4,7 @@
   "singleAttributePerLine": true,
   "singleQuote": true,
   "bracketSameLine": true,
+  "trailingComma": "all",
   "overrides": [
     {
       "files": "*.html",
