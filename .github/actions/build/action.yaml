@@ -1,5 +1,5 @@
-name: Build Action
-description: 'This action will build the application'
+name: Build
+description: 'Builds the application.'
 
 inputs:
   base-href:
@@ -11,13 +11,14 @@ runs:
   using: 'composite'
   steps:
     - name: Setup environment
-      uses: ./.github/actions/workspace-setup-action
+      uses: ./.github/actions/workspace-setup
 
     - name: Run build
       shell: bash
       run: |
-        if [ -n "${{ inputs.base-href }}" ]; then
-          pnpm run build --base-href=${{ inputs.base-href }}
+        BASE_HREF="${{ inputs.base-href }}"
+        if [ -n "$BASE_HREF" ]; then
+          pnpm run build "--base-href=$BASE_HREF"
         else
           pnpm run build
         fi
