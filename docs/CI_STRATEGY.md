@@ -11,26 +11,9 @@ Workflows are in `.github/workflows/`.
 
 ## Pull request workflow
 
-I use path-based checks to decide what to run.
-High level flow:
+Docs-only PRs (`docs/**`, `*.md`) are excluded at the trigger level with `paths-ignore` — the workflow simply doesn't run.
 
-- docs-only: skip PR checks
-- dependency-only: run dependency install only (separate workflow)
-- app code changed: format + lint + i18n checks, and unit tests
-- app or e2e changed: run Playwright E2E
-- if quality or E2E ran: run a build job and deploy PR preview
-- if workflows changed: run actionlint
-
-Notes:
-
-- i18n checks run when app files or translations changed
-- unit tests with coverage only run when app files changed
-- Sonar runs when tests ran and the token is available
-- PR previews deploy to GitHub Pages at `previews/pr-{number}/`
-- Build action supports optional `base-href` parameter for PR previews
-- Docs-only changes are ignored by `pull-request-checks.yaml`
-- Dependency-only PRs run `dependency-check.yaml` (install only)
-- Angular build cache (`.angular/cache`) is reused in CI
+For everything else, all jobs run on every PR. Renovate PRs are the one exception: `workflow-lint`, `e2e-tests`, `lighthouse`, and `deploy-preview` are skipped for branches starting with `renovate/` — a dependency bump doesn't need actionlint, Playwright, or a preview deployment.
 
 ## Main branch checks
 

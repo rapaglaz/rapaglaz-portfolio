@@ -10,10 +10,6 @@ inputs:
     description: 'Whether to run i18n validation'
     required: false
     default: 'true'
-  only-i18n:
-    description: 'Skip format/lint checks (only i18n files changed)'
-    required: false
-    default: 'false'
   coverage-artifact-name:
     description: 'Name for the uploaded coverage artifact'
     required: false
@@ -41,12 +37,10 @@ runs:
       uses: ./.github/actions/workspace-setup
 
     - name: Run format check
-      if: ${{ inputs.only-i18n != 'true' }}
       shell: bash
       run: pnpm run format:check
 
     - name: Run lint
-      if: ${{ inputs.only-i18n != 'true' }}
       shell: bash
       run: pnpm run lint
 
