@@ -35,6 +35,9 @@ jobs:
             -Dsonar.branch.name=main
 
   e2e-tests:
+    permissions:
+      contents: read
+      statuses: write
     uses: ./.github/workflows/e2e.yaml
     with:
       report-artifact-name: playwright-report-main

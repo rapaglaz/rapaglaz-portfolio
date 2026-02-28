@@ -102,6 +102,9 @@ jobs:
   e2e-tests:
     needs: [detect-changes, build]
     if: ${{ needs.detect-changes.outputs.app == 'true' || needs.detect-changes.outputs.e2e == 'true' }}
+    permissions:
+      contents: read
+      statuses: write
     uses: ./.github/workflows/e2e.yaml
     with:
       checkout-ref: ${{ github.event.pull_request.head.sha }}
