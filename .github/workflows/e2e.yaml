@@ -1,0 +1,75 @@
+name: E2E Tests (Reusable)
+
+on:
+  workflow_call:
+    inputs:
+      checkout-ref:
+        description: 'Git ref to checkout. Defaults to the branch/SHA that triggered the caller workflow.'
+        type: string
+        required: false
+        default: ''
+      build-artifact-name:
+        description: 'Name of a pre-built dist artifact to download. When empty, builds the application from scratch.'
+        type: string
+        required: false
+        default: ''
+      report-artifact-name:
+        description: 'Name for the uploaded Playwright report artifact (only uploaded on failure).'
+        type: string
+        required: true
+      report-retention-days:
+        description: 'Days to retain the Playwright report artifact.'
+        type: number
+        required: false
+        default: 3
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    container:
+      # IMPORTANT: keep version in sync with @playwright/test in package.json
+      image: mcr.microsoft.com/playwright:v1.58.2-noble@sha256:6446946a1d9fd62d9ae501312a2d76a43ee688542b21622056a372959b65d63d
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      statuses: write
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: ${{ inputs.checkout-ref }}
+
+      - name: Download build artifact
+        if: ${{ inputs.build-artifact-name != '' }}
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: ${{ inputs.build-artifact-name }}
+          path: dist/rapaglaz-portfolio/browser
+
+      - name: Setup environment
+        if: ${{ inputs.build-artifact-name != '' }}
+        uses: ./.github/actions/workspace-setup
+
+      - name: Build application
+        if: ${{ inputs.build-artifact-name == '' }}
+        uses: ./.github/actions/build
+
+      - name: Run Playwright tests
+        run: pnpm exec playwright test
+
+      - name: Check Playwright report
+        if: failure()
+        id: check-report
+        run: |
+          if [ -d "playwright-report" ] && [ -n "$(ls -A playwright-report 2>/dev/null)" ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upload Playwright report
+        if: failure() && steps.check-report.outputs.exists == 'true'
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: ${{ inputs.report-artifact-name }}
+          path: playwright-report/
+          retention-days: ${{ inputs.report-retention-days }}

@@ -1,0 +1,80 @@
+name: Quality Check
+description: 'Runs format, lint, i18n, tests, and SonarCloud scan.'
+
+inputs:
+  run-tests:
+    description: 'Whether to run unit tests with coverage'
+    required: false
+    default: 'true'
+  run-i18n-check:
+    description: 'Whether to run i18n validation'
+    required: false
+    default: 'true'
+  only-i18n:
+    description: 'Skip format/lint checks (only i18n files changed)'
+    required: false
+    default: 'false'
+  coverage-artifact-name:
+    description: 'Name for the uploaded coverage artifact'
+    required: false
+    default: 'coverage-reports'
+  coverage-retention-days:
+    description: 'Days to retain coverage artifact (0 = default/unlimited)'
+    required: false
+    default: '0'
+  sonar-token:
+    description: 'SonarCloud token'
+    required: false
+    default: ''
+  github-token:
+    description: 'GitHub token for API access'
+    required: true
+  sonar-extra-args:
+    description: 'Extra -D arguments appended to the SonarCloud scan'
+    required: false
+    default: ''
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup environment
+      uses: ./.github/actions/workspace-setup
+
+    - name: Run format check
+      if: ${{ inputs.only-i18n != 'true' }}
+      shell: bash
+      run: pnpm run format:check
+
+    - name: Run lint
+      if: ${{ inputs.only-i18n != 'true' }}
+      shell: bash
+      run: pnpm run lint
+
+    - name: Run i18n validation
+      if: ${{ inputs.run-i18n-check == 'true' }}
+      shell: bash
+      run: pnpm run i18n:check
+
+    - name: Run tests with coverage
+      if: ${{ inputs.run-tests == 'true' }}
+      shell: bash
+      run: pnpm run test:coverage
+
+    - name: Upload coverage reports
+      if: ${{ inputs.run-tests == 'true' && always() }}
+      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+      with:
+        name: ${{ inputs.coverage-artifact-name }}
+        path: coverage/
+        retention-days: ${{ inputs.coverage-retention-days != '0' && inputs.coverage-retention-days || '' }}
+        if-no-files-found: ignore
+
+    - name: SonarCloud Scan
+      if: ${{ inputs.run-tests == 'true' && inputs.sonar-token != '' && !failure() }}
+      uses: SonarSource/sonarqube-scan-action@a31c9398be7ace6bbfaf30c0bd5d415f843d45e9 # v7
+      env:
+        SONAR_HOST_URL: https://sonarcloud.io
+        SONAR_TOKEN: ${{ inputs.sonar-token }}
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+      with:
+        args: ${{ inputs.sonar-extra-args }}
