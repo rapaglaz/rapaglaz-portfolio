@@ -47,21 +47,3 @@ No secrets in the repo.
 Sensitive values live in GitHub Secrets or Cloudflare config.
 
 Renovate handles dependency updates.
-
-## Threat model (simple)
-
-| Threat         | What I do                  | Risk |
-| -------------- | -------------------------- | ---- |
-| XSS            | Angular sanitisation       | Low  |
-| Clickjacking   | `X-Frame-Options: DENY`    | None |
-| MITM           | HSTS + Cloudflare SSL      | None |
-| CV scraping    | Turnstile + signed URLs    | Low  |
-| DDoS           | Cloudflare edge protection | Low  |
-| Leaked secrets | none in repo               | None |
-
-Attack surface is small. That’s good.
-
-## If something breaks
-
-The Worker can be patched fast.
-Then I fix the code in the repo and run checks.

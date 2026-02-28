@@ -7,8 +7,6 @@ How to run this locally.
 - Node.js 24 (see `.nvmrc`)
 - pnpm 10+
 
-Playwright needs browsers installed once.
-
 ## Install
 
 ```bash
