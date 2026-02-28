@@ -19,10 +19,8 @@ For everything else, all jobs run on every PR. Renovate PRs are the one exceptio
 
 On main I run the full validation:
 
-- quality checks (format, lint, i18n)
-- unit tests + coverage
-- Playwright E2E
-- build (only if quality and E2E are green)
+- quality checks (format, lint, i18n, tests + coverage)
+- Playwright E2E (builds the app as part of the run)
 
 ## E2E target
 
