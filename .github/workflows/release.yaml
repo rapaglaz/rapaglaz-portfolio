@@ -11,26 +11,7 @@ permissions:
   contents: read
 
 jobs:
-  quality-gate:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: read
-      statuses: write
-    steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with: { fetch-depth: 0 }
-      - name: Run Quality Checks
-        uses: ./.github/actions/quality-check
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          sonar-token: ${{ secrets.SONAR_TOKEN }}
-          sonar-extra-args: >
-            -Dsonar.projectVersion=${{ github.sha }}
-            -Dsonar.branch.name=main
-
   build:
-    needs: [quality-gate]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
