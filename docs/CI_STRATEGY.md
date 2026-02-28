@@ -7,13 +7,10 @@ Workflows are in `.github/workflows/`.
 
 - fast feedback on normal changes
 - don't merge broken stuff
-- don't burn time for docs-only changes
 
 ## Pull request workflow
 
-Docs-only PRs (`docs/**`, `*.md`) are excluded at the trigger level with `paths-ignore` — the workflow simply doesn't run.
-
-For everything else, all jobs run on every PR. Renovate PRs are the one exception: `workflow-lint`, `e2e-tests`, `lighthouse`, and `deploy-preview` are skipped for branches starting with `renovate/` — a dependency bump doesn't need actionlint, Playwright, or a preview deployment.
+All PRs run the full pipeline. Renovate PRs are the one exception: `workflow-lint`, `e2e-tests`, `lighthouse`, and `deploy-preview` are skipped for branches starting with `renovate/` — a dependency bump doesn't need actionlint, Playwright, or a preview deployment.
 
 ## Main branch checks
 
