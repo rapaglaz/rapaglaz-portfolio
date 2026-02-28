@@ -94,9 +94,10 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Run actionlint
-        uses: raven-actions/actionlint@e01d1ea33dd6a5ed517d95b4c0c357560ac6f518 # v2.1.1
-        with:
-          version: '1.7.11'
+        shell: bash
+        run: |
+          bash <(curl -s https://raw.githubusercontent.com/rhysd/actionlint/main/scripts/download-actionlint.bash) 1.7.11
+          ./actionlint -color
 
   e2e-tests:
     needs: [detect-changes, build]
