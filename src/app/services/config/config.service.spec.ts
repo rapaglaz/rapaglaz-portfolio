@@ -3,7 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { API_BASE_URL } from '../../utils/tokens/api-base-url.token';
+import { API_BASE_URL } from '../../utils/tokens/api-urls.token';
 import { ConfigService } from './config.service';
 
 describe('ConfigService', () => {

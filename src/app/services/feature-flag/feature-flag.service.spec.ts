@@ -4,37 +4,54 @@ import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { afterEach, describe, expect, it } from 'vitest';
+import { API_FEATURE_FLAG_URL } from '../../utils/tokens/api-urls.token';
 import { FeatureFlagService } from './feature-flag.service';
 
-describe('FeatureFlagService', () => {
-  let service: FeatureFlagService;
-  let httpMock: HttpTestingController;
+type Platform = 'browser' | 'server';
 
-  const flagUrl = 'https://rapaglaz.de/feature-flag';
+type FeatureFlagHarness = {
+  service: FeatureFlagService;
+  httpMock: HttpTestingController;
+  flagName: string;
+  flagUrl: string;
+  flagUrlWithName: string;
+};
+
+const createHarness = (platformId: Platform = 'browser'): FeatureFlagHarness => {
+  TestBed.resetTestingModule();
+  TestBed.configureTestingModule({
+    providers: [
+      FeatureFlagService,
+      provideHttpClient(),
+      provideHttpClientTesting(),
+      { provide: PLATFORM_ID, useValue: platformId },
+    ],
+  });
+
+  const service = TestBed.inject(FeatureFlagService);
+  const httpMock = TestBed.inject(HttpTestingController);
+  const flagUrl = TestBed.inject(API_FEATURE_FLAG_URL);
   const flagName = 'openToWork';
-  const flagUrlWithName = `${flagUrl}/${flagName}`;
 
-  const setup = (platformId: 'browser' | 'server' = 'browser'): void => {
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({
-      providers: [
-        FeatureFlagService,
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        { provide: PLATFORM_ID, useValue: platformId },
-      ],
-    });
-
-    service = TestBed.inject(FeatureFlagService);
-    httpMock = TestBed.inject(HttpTestingController);
+  return {
+    service,
+    httpMock,
+    flagName,
+    flagUrl,
+    flagUrlWithName: `${flagUrl}/${flagName}`,
   };
+};
+
+describe('FeatureFlagService', () => {
+  let httpMock: HttpTestingController;
 
   afterEach(() => {
     httpMock.verify();
   });
 
   it('returns true for valid response', async () => {
-    setup();
+    const { service, httpMock: currentHttpMock, flagName, flagUrlWithName } = createHarness();
+    httpMock = currentHttpMock;
 
     const flagPromise = lastValueFrom(service.getFlag$(flagName));
     const req = httpMock.expectOne(flagUrlWithName);
@@ -45,7 +62,8 @@ describe('FeatureFlagService', () => {
   });
 
   it('returns false when response is invalid', async () => {
-    setup();
+    const { service, httpMock: currentHttpMock, flagName, flagUrlWithName } = createHarness();
+    httpMock = currentHttpMock;
 
     const flagPromise = lastValueFrom(service.getFlag$(flagName));
     const req = httpMock.expectOne(flagUrlWithName);
@@ -55,7 +73,8 @@ describe('FeatureFlagService', () => {
   });
 
   it('returns false on request error', async () => {
-    setup();
+    const { service, httpMock: currentHttpMock, flagName, flagUrlWithName } = createHarness();
+    httpMock = currentHttpMock;
 
     const flagPromise = lastValueFrom(service.getFlag$(flagName));
     const req = httpMock.expectOne(flagUrlWithName);
@@ -65,7 +84,8 @@ describe('FeatureFlagService', () => {
   });
 
   it('reuses a cached flag observable for multiple subscribers', async () => {
-    setup();
+    const { service, httpMock: currentHttpMock, flagName, flagUrlWithName } = createHarness();
+    httpMock = currentHttpMock;
 
     const first$ = service.getFlag$(flagName);
     const second$ = service.getFlag$(flagName);
@@ -80,7 +100,13 @@ describe('FeatureFlagService', () => {
   });
 
   it('does not request flags on the server platform', async () => {
-    setup('server');
+    const {
+      service,
+      httpMock: currentHttpMock,
+      flagName,
+      flagUrlWithName,
+    } = createHarness('server');
+    httpMock = currentHttpMock;
 
     await expect(firstValueFrom(service.getFlag$(flagName))).resolves.toBe(null);
 
@@ -89,34 +115,15 @@ describe('FeatureFlagService', () => {
 });
 
 describe('FeatureFlagService - Signal API', () => {
-  let service: FeatureFlagService;
   let httpMock: HttpTestingController;
-
-  const flagUrl = 'https://rapaglaz.de/feature-flag';
-  const flagName = 'openToWork';
-  const flagUrlWithName = `${flagUrl}/${flagName}`;
-
-  const setup = (platformId: 'browser' | 'server' = 'browser'): void => {
-    TestBed.resetTestingModule();
-    TestBed.configureTestingModule({
-      providers: [
-        FeatureFlagService,
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        { provide: PLATFORM_ID, useValue: platformId },
-      ],
-    });
-
-    service = TestBed.inject(FeatureFlagService);
-    httpMock = TestBed.inject(HttpTestingController);
-  };
 
   afterEach(() => {
     httpMock.verify();
   });
 
   it('returns signal pair with flag and isLoaded', async () => {
-    setup();
+    const { service, httpMock: currentHttpMock, flagName, flagUrlWithName } = createHarness();
+    httpMock = currentHttpMock;
 
     const { flag, isLoaded } = TestBed.runInInjectionContext(() => service.getFlagSignal(flagName));
 
@@ -134,7 +141,8 @@ describe('FeatureFlagService - Signal API', () => {
   });
 
   it('caches signal pairs to avoid redundant toSignal calls', () => {
-    setup();
+    const { service, httpMock: currentHttpMock, flagName, flagUrlWithName } = createHarness();
+    httpMock = currentHttpMock;
 
     const first = TestBed.runInInjectionContext(() => service.getFlagSignal(flagName));
     const second = TestBed.runInInjectionContext(() => service.getFlagSignal(flagName));
@@ -149,7 +157,13 @@ describe('FeatureFlagService - Signal API', () => {
   });
 
   it('returns loaded=true for SSR without making requests', () => {
-    setup('server');
+    const {
+      service,
+      httpMock: currentHttpMock,
+      flagName,
+      flagUrlWithName,
+    } = createHarness('server');
+    httpMock = currentHttpMock;
 
     const { flag, isLoaded } = TestBed.runInInjectionContext(() => service.getFlagSignal(flagName));
 
@@ -160,7 +174,8 @@ describe('FeatureFlagService - Signal API', () => {
   });
 
   it('returns loaded=true for empty flag name without making requests', () => {
-    setup();
+    const { service, httpMock: currentHttpMock, flagUrl } = createHarness();
+    httpMock = currentHttpMock;
 
     const { flag, isLoaded } = TestBed.runInInjectionContext(() => service.getFlagSignal(''));
 
@@ -171,7 +186,8 @@ describe('FeatureFlagService - Signal API', () => {
   });
 
   it('handles errors by setting flag to false and isLoaded to true', async () => {
-    setup();
+    const { service, httpMock: currentHttpMock, flagName, flagUrlWithName } = createHarness();
+    httpMock = currentHttpMock;
 
     const { flag, isLoaded } = TestBed.runInInjectionContext(() => service.getFlagSignal(flagName));
 
