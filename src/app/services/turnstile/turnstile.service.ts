@@ -1,15 +1,19 @@
+import { Overlay, OverlayRef } from '@angular/cdk/overlay';
+import { ComponentPortal } from '@angular/cdk/portal';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
-import {
-  ApplicationRef,
-  createComponent,
-  EnvironmentInjector,
-  inject,
-  Injectable,
-  PLATFORM_ID,
-} from '@angular/core';
+import { ComponentRef, inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { getBrowserCultureLang } from '@jsverse/transloco';
-import { defer, finalize, Observable, of, shareReplay, switchMap, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import {
+  catchError,
+  defer,
+  finalize,
+  Observable,
+  of,
+  retry,
+  shareReplay,
+  switchMap,
+  throwError,
+} from 'rxjs';
 import { TurnstileModal } from '../../ui';
 import { LoggerService } from '../logger/logger.service';
 
@@ -35,17 +39,19 @@ type TurnstileWindow = Window & { turnstile?: TurnstileAPI };
 type WidgetContext = {
   widgetId: string;
   container: HTMLElement | null;
-  modalRef: ReturnType<typeof createComponent<TurnstileModal>> | null;
+  modalRef: ComponentRef<TurnstileModal> | null;
   modalSubscription: { unsubscribe(): void } | null;
+  overlayRef: OverlayRef | null;
 };
 
 @Injectable({ providedIn: 'root' })
 export class TurnstileService {
-  private readonly appRef = inject(ApplicationRef);
-  private readonly injector = inject(EnvironmentInjector);
+  private readonly overlay = inject(Overlay);
   private readonly document = inject(DOCUMENT);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly logger = inject(LoggerService);
+
+  private static readonly SCRIPT_SRC = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
 
   private scriptLoad$: Observable<void> | null = null;
 
@@ -70,28 +76,30 @@ export class TurnstileService {
       return this.scriptLoad$;
     }
 
-    const script = this.document.createElement('script');
-    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
-    script.async = true;
-    script.defer = true;
+    this.scriptLoad$ = defer(() => {
+      this.document.head
+        .querySelector<HTMLScriptElement>(`script[src="${TurnstileService.SCRIPT_SRC}"]`)
+        ?.remove();
 
-    if (!this.document.head) {
-      return throwError(() => new Error('document.head not available'));
-    }
+      const script = this.document.createElement('script');
+      script.src = TurnstileService.SCRIPT_SRC;
+      script.async = true;
+      script.defer = true;
+      this.document.head.appendChild(script);
 
-    this.document.head.appendChild(script);
-
-    this.scriptLoad$ = new Observable<void>(subscriber => {
-      script.onload = (): void => {
-        if (win.turnstile) {
-          subscriber.next();
-          subscriber.complete();
-        } else {
-          subscriber.error(new Error('Turnstile API not available'));
-        }
-      };
-      script.onerror = (): void => subscriber.error(new Error('Failed to load Turnstile script'));
+      return new Observable<void>(subscriber => {
+        script.onload = (): void => {
+          if (win.turnstile) {
+            subscriber.next();
+            subscriber.complete();
+          } else {
+            subscriber.error(new Error('Turnstile API not available'));
+          }
+        };
+        script.onerror = (): void => subscriber.error(new Error('Failed to load Turnstile script'));
+      });
     }).pipe(
+      retry({ count: 2 }),
       catchError(err => {
         this.scriptLoad$ = null;
         return throwError(() => err);
@@ -125,7 +133,7 @@ export class TurnstileService {
             size: 'normal',
             appearance: 'interaction-only',
             execution: 'render',
-            language: getBrowserCultureLang().toLowerCase(),
+            language: getBrowserCultureLang()?.toLowerCase(),
             callback: token => {
               subscriber.next(token);
               subscriber.complete();
@@ -162,21 +170,20 @@ export class TurnstileService {
       container: null,
       modalRef: null,
       modalSubscription: null,
+      overlayRef: null,
     };
   }
 
   private showModalWithWidget(context: WidgetContext): void {
     if (context.modalRef || !context.container) return;
 
-    const body = this.document.body;
-    if (!body) return;
-
-    context.modalRef = createComponent(TurnstileModal, {
-      environmentInjector: this.injector,
+    const overlayRef = this.overlay.create({
+      hasBackdrop: false,
+      scrollStrategy: this.overlay.scrollStrategies.block(),
     });
 
-    this.appRef.attachView(context.modalRef.hostView);
-    body.appendChild(context.modalRef.location.nativeElement);
+    context.overlayRef = overlayRef;
+    context.modalRef = overlayRef.attach(new ComponentPortal(TurnstileModal));
 
     const container = context.container;
     context.modalSubscription = context.modalRef.instance.widgetReady.subscribe(
@@ -213,10 +220,11 @@ export class TurnstileService {
 
     if (context.modalRef) {
       context.modalRef.instance.restoreFocus();
-      const modalElement = context.modalRef.location.nativeElement;
-      modalElement?.parentNode?.removeChild(modalElement);
-      this.appRef.detachView(context.modalRef.hostView);
-      context.modalRef.destroy();
+    }
+
+    if (context.overlayRef) {
+      context.overlayRef.dispose();
+      context.overlayRef = null;
     }
   }
 }

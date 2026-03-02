@@ -1,4 +1,4 @@
-import { DOCUMENT, isPlatformBrowser } from '@angular/common';
+import { DOCUMENT } from '@angular/common';
 import {
   afterNextRender,
   ChangeDetectionStrategy,
@@ -6,7 +6,6 @@ import {
   ElementRef,
   inject,
   output,
-  PLATFORM_ID,
   signal,
   viewChild,
 } from '@angular/core';
@@ -27,7 +26,6 @@ export class TurnstileModal {
   readonly isLoading = signal(true);
 
   private readonly document = inject(DOCUMENT);
-  private readonly platformId = inject(PLATFORM_ID);
   private previousActiveElement: HTMLElement | null = null;
 
   constructor() {
@@ -45,15 +43,10 @@ export class TurnstileModal {
   }
 
   private focusDialog(): void {
-    const dialog = this.dialogElement().nativeElement;
-    if (isPlatformBrowser(this.platformId)) {
-      dialog.focus();
-    }
+    this.dialogElement().nativeElement.focus();
   }
 
   restoreFocus(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      this.previousActiveElement?.focus();
-    }
+    this.previousActiveElement?.focus();
   }
 }
