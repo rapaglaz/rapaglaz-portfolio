@@ -128,9 +128,10 @@ jobs:
         id: check
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
-          MERGED=$(gh pr view ${{ github.event.pull_request.number }} \
-            --repo ${{ github.repository }} \
+          MERGED=$(gh pr view "$PR_NUMBER" \
+            --repo "$GITHUB_REPOSITORY" \
             --json merged -q '.merged')
           echo "merged=$MERGED" >> "$GITHUB_OUTPUT"
 
