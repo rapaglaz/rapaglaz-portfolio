@@ -32,7 +32,7 @@
         "
         [attr.aria-busy]="isDownloading()"
         (click)="handleDownloadCV()"
-        class="text-primary/90 dark:text-base-content/80 hover:text-primary text-shadow-primary-xs hover:text-shadow-primary flex items-center p-0 text-xl font-semibold transition-all duration-400 hover:scale-115 hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 sm:mr-1.5 md:text-lg">
+        class="text-primary/90 dark:text-base-content/80 hover:text-primary text-shadow-primary-xs hover:text-shadow-primary flex items-center text-xl font-semibold transition-all duration-400 hover:scale-115 hover:cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 sm:mr-1.5 md:text-lg">
         @if (isDownloading()) {
           <span
             class="loading loading-dots loading-sm text-primary"
@@ -54,7 +54,7 @@
           stroke="currentColor"
           stroke-width="2"
           stroke-linecap="round"
-          class="icon-shadow-primary-xs h-6 w-6 sm:h-[1.3rem] sm:w-[1.3rem]"
+          class="hover:icon-shadow-primary-xs h-6 w-6 sm:h-[1.3rem] sm:w-[1.3rem]"
           stroke-linejoin="round">
           <path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7" />
           <rect
