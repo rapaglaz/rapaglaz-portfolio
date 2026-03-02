@@ -23,7 +23,7 @@ import {
   translocoConfig,
   TranslocoService,
 } from '@jsverse/transloco';
-import { Observable } from 'rxjs';
+import { catchError, EMPTY, Observable } from 'rxjs';
 import { App } from './app';
 import { routes } from './app.routes';
 import { turnstileInterceptor } from './interceptors';
@@ -73,9 +73,20 @@ export function provideTranslocoWithDynamicLang(): EnvironmentProviders {
 
 export function initTranslocoDefaultLang(): Observable<unknown> {
   const transloco = inject(TranslocoService);
+  const document = inject(DOCUMENT);
   const defaultLang = inject(DEFAULT_LANG_TOKEN);
   transloco.setActiveLang(defaultLang);
-  return transloco.load(defaultLang);
+  document.documentElement.lang = defaultLang;
+  return transloco.load(defaultLang).pipe(
+    catchError(() => {
+      if (defaultLang !== DEFAULT_LANG) {
+        transloco.setActiveLang(DEFAULT_LANG);
+        document.documentElement.lang = DEFAULT_LANG;
+        return transloco.load(DEFAULT_LANG);
+      }
+      return EMPTY;
+    }),
+  );
 }
 
 const baseProviders = [
@@ -96,6 +107,11 @@ export const appConfig: ApplicationConfig = {
 export function bootstrap(): Promise<ApplicationRef> {
   return bootstrapApplication(App, appConfig).catch(err => {
     console.error('[ERROR] Bootstrap failed:', err);
+    const errorEl = document.createElement('div');
+    errorEl.style.cssText =
+      'display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;text-align:center;padding:1rem';
+    errorEl.textContent = 'Failed to load the application. Please refresh the page.';
+    document.body.replaceChildren(errorEl);
     throw err;
   });
 }
