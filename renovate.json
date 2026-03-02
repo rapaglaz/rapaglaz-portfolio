@@ -5,11 +5,15 @@
   "dependencyDashboardLabels": ["dependencies"],
   "dependencyDashboardAutoclose": true,
   "rangeStrategy": "bump",
-  "prConcurrentLimit": 10,
-  "prHourlyLimit": 6,
+  "platformAutomerge": true,
+  "prConcurrentLimit": 4,
+  "prHourlyLimit": 4,
   "lockFileMaintenance": {
     "enabled": true,
-    "schedule": ["before 3am on Monday"]
+    "schedule": ["before 3am on Monday"],
+    "automerge": true,
+    "automergeType": "pr",
+    "automergeStrategy": "squash"
   },
   "vulnerabilityAlerts": {
     "enabled": true,
@@ -26,7 +30,6 @@
       "description": "Create PR for minor updates",
       "matchUpdateTypes": ["minor"],
       "matchCurrentVersion": "!/^0/",
-      "automerge": false,
       "minimumReleaseAge": "3 days"
     },
     {
@@ -34,7 +37,8 @@
       "matchUpdateTypes": ["patch"],
       "matchCurrentVersion": "!/^0/",
       "automerge": true,
-      "automergeType": "branch",
+      "automergeType": "pr",
+      "automergeStrategy": "squash",
       "minimumReleaseAge": "1 day"
     },
     {
@@ -45,10 +49,27 @@
       "labels": ["unstable-version"]
     },
     {
-      "description": "High priority for security vulnerabilities",
-      "matchUpdateTypes": ["major", "minor", "patch"],
+      "description": "Automerge patch vulnerability alerts; prioritise all security updates",
       "isVulnerabilityAlert": true,
-      "prPriority": 10
+      "matchUpdateTypes": ["major", "minor", "patch"],
+      "prPriority": 10,
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash"
+    },
+    {
+      "description": "Group Angular",
+      "matchPackagePrefixes": ["@angular/", "@angular-devkit/", "@angular-eslint/"],
+      "matchUpdateTypes": ["major", "minor", "patch"],
+      "groupName": "Angular packages",
+      "groupSlug": "angular"
+    },
+    {
+      "description": "Group vitest",
+      "matchPackageNames": ["vitest", "@vitest/coverage-v8"],
+      "matchUpdateTypes": ["major", "minor", "patch"],
+      "groupName": "Vitest",
+      "groupSlug": "vitest"
     }
   ]
 }
