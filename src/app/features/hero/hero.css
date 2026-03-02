@@ -1,6 +1,6 @@
 .hero-section {
   min-height: 100svh;
-  padding-top: var(--navbar-height, 5rem);
+  padding-top: var(--navbar-height, 7rem);
 }
 
 .hero-content {
