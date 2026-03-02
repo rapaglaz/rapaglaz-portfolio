@@ -59,10 +59,14 @@
     },
     {
       "description": "Group Angular",
-      "matchPackagePrefixes": ["@angular/", "@angular-devkit/", "@angular-eslint/"],
       "matchUpdateTypes": ["major", "minor", "patch"],
       "groupName": "Angular packages",
-      "groupSlug": "angular"
+      "groupSlug": "angular",
+      "matchPackageNames": [
+        "@angular/{/,}**",
+        "@angular-devkit/{/,}**",
+        "@angular-eslint/{/,}**"
+      ]
     },
     {
       "description": "Group vitest",
