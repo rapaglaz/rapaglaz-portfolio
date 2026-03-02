@@ -17,7 +17,7 @@ describe('StrictTranslocoMissingHandler', () => {
   });
 
   it('logs warning in development mode and returns key as fallback', () => {
-    const warnSpy = vi.spyOn(loggerService, 'warn').mockImplementation(() => {});
+    const warnSpy = vi.spyOn(loggerService, 'warn');
     const missingKey = 'missing.translation.key';
 
     const result = handler.handle(missingKey);
@@ -30,8 +30,8 @@ describe('StrictTranslocoMissingHandler', () => {
     // Mock production environment
     vi.stubGlobal('ngDevMode', false);
 
-    const errorSpy = vi.spyOn(loggerService, 'error').mockImplementation(() => {});
-    const warnSpy = vi.spyOn(loggerService, 'warn').mockImplementation(() => {});
+    const errorSpy = vi.spyOn(loggerService, 'error');
+    const warnSpy = vi.spyOn(loggerService, 'warn');
     const missingKey = 'missing.production.key';
 
     // Should not throw, even in production
