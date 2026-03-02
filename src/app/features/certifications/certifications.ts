@@ -43,8 +43,12 @@ export class Certifications {
   protected readonly getCertDelay = buildDelayGetter('certifications');
 
   private formatDate(isoDate: string, formatter: Intl.DateTimeFormat): string {
-    const [year, month] = isoDate.split('-');
-    const date = new Date(parseInt(year), parseInt(month) - 1);
-    return formatter.format(date);
+    const parts = isoDate.split('-');
+    const year = parseInt(parts[0] ?? '', 10);
+    const month = parseInt(parts[1] ?? '', 10);
+    if (isNaN(year) || isNaN(month) || month < 1 || month > 12) {
+      return isoDate;
+    }
+    return formatter.format(new Date(year, month - 1, 1));
   }
 }
