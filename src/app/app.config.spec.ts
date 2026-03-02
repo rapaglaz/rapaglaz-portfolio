@@ -48,19 +48,22 @@ describe('app i18n config', () => {
   it('initializes active language with the default locale', async () => {
     const transloco = TestBed.inject(TranslocoService);
     const loader = TestBed.inject(TRANSLOCO_LOADER) as InlineLoader;
+    const document = TestBed.inject(DOCUMENT);
     await TestBed.runInInjectionContext(initTranslocoDefaultLang);
 
     expect(transloco.getActiveLang()).toBe(DEFAULT_LANG);
     expect(loader.calls).toContain(DEFAULT_LANG);
+    expect(document.documentElement.lang).toBe(DEFAULT_LANG);
   });
 
   it('uses the url segment when a supported locale is in the path', async () => {
-    TestBed.overrideProvider(DOCUMENT, {
-      useValue: {
-        location: { pathname: '/de' },
-        baseURI: 'http://localhost/de',
-      } as Document,
-    });
+    const mockDocument = {
+      location: { pathname: '/de' },
+      baseURI: 'http://localhost/de',
+      documentElement: { lang: '' },
+    } as unknown as Document;
+
+    TestBed.overrideProvider(DOCUMENT, { useValue: mockDocument });
 
     const transloco = TestBed.inject(TranslocoService);
     const loader = TestBed.inject(TRANSLOCO_LOADER) as InlineLoader;
@@ -68,5 +71,6 @@ describe('app i18n config', () => {
 
     expect(transloco.getActiveLang()).toBe('de');
     expect(loader.calls).toContain('de');
+    expect(mockDocument.documentElement.lang).toBe('de');
   });
 });
