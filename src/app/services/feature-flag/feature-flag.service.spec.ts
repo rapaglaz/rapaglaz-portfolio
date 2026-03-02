@@ -5,6 +5,7 @@ import { TestBed } from '@angular/core/testing';
 import { firstValueFrom, lastValueFrom } from 'rxjs';
 import { afterEach, describe, expect, it } from 'vitest';
 import { API_FEATURE_FLAG_URL } from '../../utils/tokens/api-urls.token';
+import { LoggerService } from '../logger/logger.service';
 import { FeatureFlagService } from './feature-flag.service';
 
 type Platform = 'browser' | 'server';
@@ -17,6 +18,8 @@ type FeatureFlagHarness = {
   flagUrlWithName: string;
 };
 
+const mockLogger = { error: vi.fn(), warn: vi.fn(), info: vi.fn() };
+
 const createHarness = (platformId: Platform = 'browser'): FeatureFlagHarness => {
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
@@ -25,6 +28,7 @@ const createHarness = (platformId: Platform = 'browser'): FeatureFlagHarness => 
       provideHttpClient(),
       provideHttpClientTesting(),
       { provide: PLATFORM_ID, useValue: platformId },
+      { provide: LoggerService, useValue: mockLogger },
     ],
   });
 
