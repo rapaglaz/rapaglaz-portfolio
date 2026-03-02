@@ -14,6 +14,9 @@ outputs:
   seo:
     description: 'SEO score (0-100)'
     value: ${{ steps.parse.outputs.seo }}
+  average:
+    description: 'Average score (0-100), rounded to 1 decimal place'
+    value: ${{ steps.parse.outputs.average }}
   perf_status:
     description: 'Performance status emoji (✅ / ⚠️)'
     value: ${{ steps.parse.outputs.perf_status }}
@@ -57,6 +60,15 @@ runs:
         bp=$(jq -r '(.categories["best-practices"].score * 100) | round' "$latest_report")
         seo=$(jq -r '(.categories.seo.score * 100) | round' "$latest_report")
 
+        # Get raw scores for average calculation (not rounded yet)
+        perf_raw=$(jq -r '.categories.performance.score * 100' "$latest_report")
+        a11y_raw=$(jq -r '.categories.accessibility.score * 100' "$latest_report")
+        bp_raw=$(jq -r '.categories["best-practices"].score * 100' "$latest_report")
+        seo_raw=$(jq -r '.categories.seo.score * 100' "$latest_report")
+
+        # Calculate average and round to 1 decimal place
+        avg=$(echo "($perf_raw + $a11y_raw + $bp_raw + $seo_raw) / 4" | bc -l | LC_ALL=C awk '{printf "%.1f", $1}')
+
         get_status() { [ "$1" -ge "$2" ] && echo "✅" || echo "⚠️"; }
 
         {
@@ -64,6 +76,7 @@ runs:
           echo "accessibility=$a11y"
           echo "best_practices=$bp"
           echo "seo=$seo"
+          echo "average=$avg"
           echo "perf_status=$(get_status "$perf" 90)"
           echo "a11y_status=$(get_status "$a11y" 95)"
           echo "bp_status=$(get_status "$bp" 95)"
