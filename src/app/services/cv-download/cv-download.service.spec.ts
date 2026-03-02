@@ -5,6 +5,7 @@ import { TranslocoService } from '@jsverse/transloco';
 import { firstValueFrom, of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { provideTranslocoTesting } from '../../testing';
+import { API_BASE_URL } from '../../utils/tokens/api-base-url.token';
 import { ConfigService } from '../config/config.service';
 import { TurnstileService } from '../turnstile/turnstile.service';
 import { CvDownloadService, TURNSTILE_TOKEN } from './cv-download.service';
@@ -23,6 +24,7 @@ describe('CvDownloadService', () => {
         provideHttpClientTesting(),
         provideTranslocoTesting(),
         CvDownloadService,
+        { provide: API_BASE_URL, useValue: '' },
         { provide: ConfigService, useValue: { getConfig: vi.fn() } },
         { provide: TurnstileService, useValue: { getToken$: vi.fn() } },
       ],
@@ -47,7 +49,7 @@ describe('CvDownloadService', () => {
     const downloadPromise = firstValueFrom(service.downloadCV());
 
     const req = httpMock.expectOne(
-      `./download?file=${encodeURIComponent('cv/Paul_Glaz_CV_DE.pdf')}`,
+      `/download?file=${encodeURIComponent('cv/Paul_Glaz_CV_DE.pdf')}`,
     );
     expect(req.request.method).toBe('GET');
     expect(req.request.context.get(TURNSTILE_TOKEN)).toBe('token-123');
@@ -76,7 +78,7 @@ describe('CvDownloadService', () => {
     const downloadPromise = firstValueFrom(service.downloadCV());
 
     const req = httpMock.expectOne(
-      `./download?file=${encodeURIComponent('cv/Paul_Glaz_CV_EN.pdf')}`,
+      `/download?file=${encodeURIComponent('cv/Paul_Glaz_CV_EN.pdf')}`,
     );
     req.error(new ProgressEvent('error'), { status: 500, statusText: 'Internal Server Error' });
 

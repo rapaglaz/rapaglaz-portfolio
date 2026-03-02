@@ -5,6 +5,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoService } from '@jsverse/transloco';
 import { map, Observable, switchMap, throwError } from 'rxjs';
 import { getBrowserLanguage } from '../../utils/i18n';
+import { API_BASE_URL } from '../../utils/tokens/api-base-url.token';
 import { ConfigService } from '../config/config.service';
 import { LoggerService } from '../logger/logger.service';
 import { TurnstileService } from '../turnstile/turnstile.service';
@@ -20,9 +21,12 @@ export function triggerBrowserDownload(document: Document, blob: Blob, filename:
   link.href = downloadUrl;
   link.download = filename;
   document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  win.URL.revokeObjectURL(downloadUrl);
+  try {
+    link.click();
+  } finally {
+    document.body.removeChild(link);
+    win.URL.revokeObjectURL(downloadUrl);
+  }
 }
 
 @Injectable({ providedIn: 'root' })
@@ -34,8 +38,7 @@ export class CvDownloadService {
   private readonly loggerService = inject(LoggerService);
   private readonly document = inject(DOCUMENT);
   private readonly platformId = inject(PLATFORM_ID);
-
-  private readonly downloadEndpoint = './download';
+  private readonly downloadEndpoint = `${inject(API_BASE_URL)}/download`;
 
   private readonly activeLang = toSignal(this.transloco.langChanges$, {
     initialValue: this.transloco.getActiveLang(),
