@@ -37,33 +37,20 @@ describe('TurnstileService (integration)', () => {
     );
   });
 
-  it('fails when Turnstile script cannot be loaded', async () => {
-    let scriptEl: HTMLScriptElement | null = null;
+  it('fails and retries when Turnstile script cannot be loaded', async () => {
     const appendSpy = vi.spyOn(document.head!, 'appendChild').mockImplementation(el => {
-      scriptEl = el as HTMLScriptElement;
+      // Fire onerror as a microtask so it processes during `await` in Zone.js.
+      // retry({ count: 2 }) is synchronous (no delay scheduler), so each retry
+      // subscribes immediately and the next microtask is queued before `await` resumes.
+      void Promise.resolve().then(() => (el as HTMLScriptElement).onerror?.(new Event('error')));
       return el;
     });
 
-    const tokenPromise = firstValueFrom(service.getToken$('site-key'));
+    await expect(firstValueFrom(service.getToken$('site-key'))).rejects.toThrow(
+      'Failed to load Turnstile script',
+    );
 
-    expect(scriptEl).not.toBeNull();
-    if (!scriptEl) {
-      throw new Error('Turnstile script element was not appended');
-    }
-    const script = scriptEl as {
-      src: string;
-      async: boolean;
-      defer: boolean;
-      onerror?: (event: Event) => void;
-    };
-    expect(script.src).toContain('challenges.cloudflare.com/turnstile/v0/api.js');
-    expect(script.async).toBe(true);
-    expect(script.defer).toBe(true);
-    script.onerror?.(new Event('error'));
-
-    await expect(tokenPromise).rejects.toThrow('Failed to load Turnstile script');
-
-    appendSpy.mockRestore();
+    expect(appendSpy).toHaveBeenCalledTimes(3); // initial + 2 retries
   });
 
   it('propagates Turnstile verification errors and cleans up widget', async () => {
