@@ -35,7 +35,7 @@ runs:
 
           | Score | Status | Threshold |
           |:-----:|:------:|:---------:|
-          | **${{ steps.format.outputs.accessibility }}%** | ${{ steps.format.outputs.a11y_pass }} | ≥ 95% |
+          | **${{ steps.format.outputs.average }}%** | ${{ steps.format.outputs.a11y_pass }} | ≥ 95% |
 
           ### All Categories
 
@@ -46,6 +46,6 @@ runs:
           | Best Practices | **${{ steps.format.outputs.best_practices }}%** | ${{ steps.format.outputs.bp_status }} |
           | SEO | **${{ steps.format.outputs.seo }}%** | ${{ steps.format.outputs.seo_status }} |
 
-          > **Thresholds:** Performance ≥90%, Accessibility ≥95%, Best Practices ≥95%, SEO ≥95%
+          > **Thresholds:** Performance ≥95%, Accessibility ≥95%, Best Practices ≥95%, SEO ≥95%
 
           ${{ steps.format.outputs.public_url && format('**[View Full Lighthouse Report →]({0})**', steps.format.outputs.public_url) || '' }}
