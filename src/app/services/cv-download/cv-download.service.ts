@@ -5,7 +5,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoService } from '@jsverse/transloco';
 import { map, Observable, switchMap, throwError } from 'rxjs';
 import { getBrowserLanguage } from '../../utils/i18n';
-import { API_BASE_URL } from '../../utils/tokens/api-base-url.token';
+import { API_BASE_URL } from '../../utils/tokens/api-urls.token';
 import { ConfigService } from '../config/config.service';
 import { LoggerService } from '../logger/logger.service';
 import { TurnstileService } from '../turnstile/turnstile.service';

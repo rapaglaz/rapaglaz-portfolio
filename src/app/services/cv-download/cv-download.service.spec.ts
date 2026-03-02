@@ -5,7 +5,6 @@ import { TranslocoService } from '@jsverse/transloco';
 import { firstValueFrom, of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { provideTranslocoTesting } from '../../testing';
-import { API_BASE_URL } from '../../utils/tokens/api-base-url.token';
 import { ConfigService } from '../config/config.service';
 import { TurnstileService } from '../turnstile/turnstile.service';
 import { CvDownloadService, TURNSTILE_TOKEN } from './cv-download.service';
@@ -24,7 +23,6 @@ describe('CvDownloadService', () => {
         provideHttpClientTesting(),
         provideTranslocoTesting(),
         CvDownloadService,
-        { provide: API_BASE_URL, useValue: '' },
         { provide: ConfigService, useValue: { getConfig: vi.fn() } },
         { provide: TurnstileService, useValue: { getToken$: vi.fn() } },
       ],
