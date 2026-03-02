@@ -128,23 +128,20 @@ jobs:
         id: check
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
-          MERGED=$(gh pr view "$PR_NUMBER" \
-            --repo "$GITHUB_REPOSITORY" \
-            --json state -q '.state')
-          if [[ "$MERGED" == "OPEN" ]]; then
-            echo "merged=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "merged=true" >> "$GITHUB_OUTPUT"
-          fi
+          MERGED=$(gh pr view ${{ github.event.pull_request.number }} \
+            --repo ${{ github.repository }} \
+            --json merged -q '.merged')
+          echo "merged=$MERGED" >> "$GITHUB_OUTPUT"
 
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        if: ${{ steps.check.outputs.merged == 'false' }}
         if: ${{ steps.check.outputs.merged == 'false' }}
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Download build artifact
+        if: ${{ steps.check.outputs.merged == 'false' }}
         if: ${{ steps.check.outputs.merged == 'false' }}
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
         with:
@@ -152,6 +149,7 @@ jobs:
           path: build-output
 
       - name: Deploy preview
+        if: ${{ steps.check.outputs.merged == 'false' }}
         if: ${{ steps.check.outputs.merged == 'false' }}
         uses: ./.github/actions/deploy-preview
         with:
