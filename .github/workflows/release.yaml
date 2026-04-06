@@ -45,11 +45,11 @@ jobs:
       - name: Deploy (FTP)
         uses: milanmk/actions-file-deployer@a00e148bb1217946578a008944d5ead78974c405 # 1.17
         with:
-          remote-protocol: "ftp"
+          remote-protocol: 'ftp'
           remote-host: ${{ secrets.SERVER }}
           remote-user: ${{ secrets.USER }}
           remote-password: ${{ secrets.PASS }}
-          remote-path: "/"
-          local-path: "./dist/rapaglaz-portfolio/browser"
-          sync: "full"
-          ftp-options: "set ftp:ssl-force true"
+          remote-path: '/'
+          local-path: './dist/rapaglaz-portfolio/browser'
+          sync: 'full'
+          ftp-options: 'set ftp:ssl-force true'
