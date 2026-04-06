@@ -1,0 +1,8 @@
+User-agent: *
+
+Allow: /
+
+Disallow: /download
+Disallow: /config
+
+Crawl-delay: 2
