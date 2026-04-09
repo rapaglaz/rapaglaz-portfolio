@@ -42,8 +42,8 @@ importers:
         specifier: 5.2.8
         version: 5.2.8
       '@jsverse/transloco':
-        specifier: 8.2.1
-        version: 8.2.1(@angular/core@21.2.7(@angular/compiler@21.2.7)(rxjs@7.8.2))(rxjs@7.8.2)(typescript@5.9.3)
+        specifier: 8.3.0
+        version: 8.3.0(@angular/core@21.2.7(@angular/compiler@21.2.7)(rxjs@7.8.2))(rxjs@7.8.2)(typescript@5.9.3)
       rxjs:
         specifier: 7.8.2
         version: 7.8.2
@@ -1089,8 +1089,8 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  '@jsverse/transloco@8.2.1':
-    resolution: {integrity: sha512-uuapT1vNi/P9wqklO2VY/sIj8HPVQJ1h+IJFhPbiQvk1FP/vgn2LLwGz/iIcet2bAMJVKKxO8FXytdrwRXXyvg==}
+  '@jsverse/transloco@8.3.0':
+    resolution: {integrity: sha512-p69/MhhAsTabDAffaiMALx4u9AwAqx24CjdECaCkUKSpCGbiYQUJPCsV4OsWjaSOxDNm9HuIX6NmqbfNZ0S3KA==}
     peerDependencies:
       '@angular/core': '>=16.0.0'
       rxjs: '>=6.0.0'
@@ -5580,7 +5580,7 @@ snapshots:
     dependencies:
       find-duplicated-property-keys: 1.2.9
 
-  '@jsverse/transloco@8.2.1(@angular/core@21.2.7(@angular/compiler@21.2.7)(rxjs@7.8.2))(rxjs@7.8.2)(typescript@5.9.3)':
+  '@jsverse/transloco@8.3.0(@angular/core@21.2.7(@angular/compiler@21.2.7)(rxjs@7.8.2))(rxjs@7.8.2)(typescript@5.9.3)':
     dependencies:
       '@angular/core': 21.2.7(@angular/compiler@21.2.7)(rxjs@7.8.2)
       '@jsverse/transloco-utils': 8.3.0(typescript@5.9.3)
