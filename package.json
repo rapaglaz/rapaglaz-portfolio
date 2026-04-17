@@ -25,7 +25,7 @@
     "prepare": "[ -n \"$CI\" ] || lefthook install"
   },
   "dependencies": {
-    "@angular/cdk": "21.2.6",
+    "@angular/cdk": "21.2.7",
     "@angular/common": "21.2.9",
     "@angular/compiler": "21.2.9",
     "@angular/core": "21.2.9",
