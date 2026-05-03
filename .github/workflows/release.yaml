@@ -43,7 +43,7 @@ jobs:
           path: ./dist/rapaglaz-portfolio/browser
 
       - name: Deploy (FTP)
-        uses: milanmk/actions-file-deployer@a00e148bb1217946578a008944d5ead78974c405 # 1.17
+        uses: milanmk/actions-file-deployer@b204fec5b826c391b116c40b789df470a4fb6870 # 1.18
         with:
           remote-protocol: 'ftp'
           remote-host: ${{ secrets.SERVER }}
