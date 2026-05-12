@@ -10,3 +10,4 @@ onlyBuiltDependencies:
   - lefthook
   - lmdb
   - msgpackr-extract
+minimumReleaseAge: 2160
