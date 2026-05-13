@@ -3,6 +3,7 @@ name: Deploy GH Pages
 on:
   push:
     branches: [gh-pages]
+  workflow_dispatch:
 
 concurrency:
   group: gh-pages-deploy
