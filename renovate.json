@@ -62,7 +62,11 @@
       "matchUpdateTypes": ["major", "minor", "patch"],
       "groupName": "Angular packages",
       "groupSlug": "angular",
-      "matchPackageNames": ["@angular/{/,}**", "@angular-devkit/{/,}**", "@angular-eslint/{/,}**"]
+      "matchPackageNames": [
+        "@angular/{/,}**",
+        "@angular-devkit/{/,}**",
+        "@angular-eslint/{/,}**"
+      ]
     },
     {
       "description": "Group vitest",
@@ -81,10 +85,10 @@
     {
       "description": "Group GitHub Actions",
       "matchManagers": ["github-actions"],
-      "excludePackageNames": ["pnpm/action-setup"],
       "matchUpdateTypes": ["major", "minor", "patch"],
       "groupName": "GitHub Actions",
-      "groupSlug": "github-actions"
+      "groupSlug": "github-actions",
+      "matchPackageNames": ["!pnpm/action-setup"]
     },
     {
       "description": "Group TypeScript tooling",
