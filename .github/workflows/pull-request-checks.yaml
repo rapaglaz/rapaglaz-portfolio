@@ -9,7 +9,24 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  quality-check:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+
+      - name: Run Lint
+        uses: ./.github/actions/quality-check
+        with:
+          mode: lint
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  test:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -21,9 +38,10 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
-      - name: Run Quality Check
+      - name: Run Tests
         uses: ./.github/actions/quality-check
         with:
+          mode: test
           run-tests: ${{ !startsWith(github.head_ref, 'renovate/') }}
           run-i18n-check: ${{ !startsWith(github.head_ref, 'renovate/') }}
           coverage-artifact-name: coverage-reports
@@ -88,7 +106,7 @@ jobs:
     needs: [build]
     if: ${{ !startsWith(github.head_ref, 'renovate/') }}
     continue-on-error: true
-    timeout-minutes: 15
+    timeout-minutes: 8
     permissions:
       contents: read
       pull-requests: write
