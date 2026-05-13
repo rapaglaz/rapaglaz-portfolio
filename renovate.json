@@ -16,6 +16,9 @@
     "automergeStrategy": "squash"
   },
   "osvVulnerabilityAlerts": true,
+  "vulnerabilityAlerts": {
+    "enabled": false
+  },
   "packageRules": [
     {
       "description": "Require approval for major updates",
