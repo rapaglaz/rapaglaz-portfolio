@@ -80,10 +80,10 @@
     {
       "description": "Group GitHub Actions",
       "matchManagers": ["github-actions"],
+      "excludePackageNames": ["pnpm/action-setup"],
       "matchUpdateTypes": ["major", "minor", "patch"],
       "groupName": "GitHub Actions",
-      "groupSlug": "github-actions",
-      "matchPackageNames": ["!pnpm/action-setup"]
+      "groupSlug": "github-actions"
     },
     {
       "description": "Group TypeScript tooling",
