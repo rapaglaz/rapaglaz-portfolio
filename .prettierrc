@@ -13,9 +13,5 @@
       }
     }
   ],
-  "plugins": [
-    "prettier-plugin-organize-imports",
-    "prettier-plugin-jsdoc",
-    "prettier-plugin-tailwindcss"
-  ]
+  "plugins": ["prettier-plugin-organize-imports", "prettier-plugin-tailwindcss"]
 }
