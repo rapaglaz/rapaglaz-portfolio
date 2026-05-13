@@ -104,6 +104,7 @@
     {
       "description": "Group Playwright testing",
       "matchPackageNames": [
+        "@playwright/test",
         "@axe-core/playwright",
         "playwright-ng-schematics",
         "mcr.microsoft.com/playwright"
