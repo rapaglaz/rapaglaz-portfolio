@@ -7,10 +7,11 @@
   "rangeStrategy": "bump",
   "platformAutomerge": true,
   "prConcurrentLimit": 4,
-  "prHourlyLimit": 4,
+  "rebaseWhen": "behind-base-branch",
+  "verifyScmContents": true,
   "lockFileMaintenance": {
     "enabled": true,
-    "schedule": ["before 3am on Monday"],
+    "schedule": ["on Monday"],
     "automerge": true,
     "automergeType": "pr",
     "automergeStrategy": "squash"
@@ -70,6 +71,46 @@
       "matchUpdateTypes": ["major", "minor", "patch"],
       "groupName": "Vitest",
       "groupSlug": "vitest"
+    },
+    {
+      "description": "Group pnpm ecosystem",
+      "matchPackageNames": ["pnpm", "pnpm/action-setup"],
+      "matchUpdateTypes": ["major", "minor", "patch"],
+      "groupName": "pnpm",
+      "groupSlug": "pnpm"
+    },
+    {
+      "description": "Group GitHub Actions",
+      "matchManagers": ["github-actions"],
+      "excludePackageNames": ["pnpm/action-setup"],
+      "matchUpdateTypes": ["major", "minor", "patch"],
+      "groupName": "GitHub Actions",
+      "groupSlug": "github-actions"
+    },
+    {
+      "description": "Group TypeScript tooling",
+      "matchPackageNames": ["typescript-eslint", "@types/{/,}**"],
+      "matchUpdateTypes": ["major", "minor", "patch"],
+      "groupName": "TypeScript tooling",
+      "groupSlug": "typescript-tooling"
+    },
+    {
+      "description": "Group commitlint",
+      "matchPackageNames": ["@commitlint/{/,}**"],
+      "matchUpdateTypes": ["major", "minor", "patch"],
+      "groupName": "commitlint",
+      "groupSlug": "commitlint"
+    },
+    {
+      "description": "Group Playwright testing",
+      "matchPackageNames": [
+        "@axe-core/playwright",
+        "playwright-ng-schematics",
+        "mcr.microsoft.com/playwright"
+      ],
+      "matchUpdateTypes": ["major", "minor", "patch"],
+      "groupName": "Playwright testing",
+      "groupSlug": "playwright-testing"
     }
   ]
 }
