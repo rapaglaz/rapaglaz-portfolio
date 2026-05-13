@@ -8,7 +8,6 @@
   "platformAutomerge": true,
   "prConcurrentLimit": 4,
   "rebaseWhen": "behind-base-branch",
-  "verifyScmContents": true,
   "lockFileMaintenance": {
     "enabled": true,
     "schedule": ["on Monday"],
