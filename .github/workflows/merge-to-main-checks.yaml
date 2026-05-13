@@ -13,7 +13,22 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  quality-check:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 1
+      - name: Run Lint
+        uses: ./.github/actions/quality-check
+        with:
+          mode: lint
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  test:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -23,9 +38,10 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 0
-      - name: Run Quality Checks
+      - name: Run Tests
         uses: ./.github/actions/quality-check
         with:
+          mode: test
           coverage-artifact-name: coverage-reports-main
           sonar-token: ${{ secrets.SONAR_TOKEN }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -33,11 +49,31 @@ jobs:
             -Dsonar.projectVersion=${{ github.sha }}
             -Dsonar.branch.name=main
 
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 1
+      - name: Build application
+        uses: ./.github/actions/build
+      - name: Upload build artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: build-artifact-main
+          path: dist/rapaglaz-portfolio/browser
+          retention-days: 1
+
   e2e-tests:
+    needs: [build]
     permissions:
       contents: read
       statuses: write
     uses: ./.github/workflows/e2e.yaml
     with:
+      build-artifact-name: build-artifact-main
       report-artifact-name: playwright-report-main
       report-retention-days: 7

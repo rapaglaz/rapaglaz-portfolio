@@ -2,6 +2,10 @@ name: Quality Check
 description: 'Runs format, lint, i18n, tests, and SonarCloud scan.'
 
 inputs:
+  mode:
+    description: 'Which checks to run: lint | test | all'
+    required: false
+    default: 'all'
   run-tests:
     description: 'Whether to run unit tests with coverage'
     required: false
@@ -37,25 +41,27 @@ runs:
       uses: ./.github/actions/workspace-setup
 
     - name: Run format check
+      if: ${{ inputs.mode == 'lint' || inputs.mode == 'all' }}
       shell: bash
       run: pnpm run format:check
 
     - name: Run lint
+      if: ${{ inputs.mode == 'lint' || inputs.mode == 'all' }}
       shell: bash
       run: pnpm run lint
 
     - name: Run i18n validation
-      if: ${{ inputs.run-i18n-check == 'true' }}
+      if: ${{ (inputs.mode == 'test' || inputs.mode == 'all') && inputs.run-i18n-check == 'true' }}
       shell: bash
       run: pnpm run i18n:check
 
     - name: Run tests with coverage
-      if: ${{ inputs.run-tests == 'true' }}
+      if: ${{ (inputs.mode == 'test' || inputs.mode == 'all') && inputs.run-tests == 'true' }}
       shell: bash
       run: pnpm run test:coverage
 
     - name: Upload coverage reports
-      if: ${{ inputs.run-tests == 'true' && always() }}
+      if: ${{ (inputs.mode == 'test' || inputs.mode == 'all') && inputs.run-tests == 'true' && always() }}
       uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
       with:
         name: ${{ inputs.coverage-artifact-name }}
@@ -64,7 +70,7 @@ runs:
         if-no-files-found: ignore
 
     - name: SonarCloud Scan
-      if: ${{ inputs.run-tests == 'true' && inputs.sonar-token != '' && !failure() }}
+      if: ${{ (inputs.mode == 'test' || inputs.mode == 'all') && inputs.run-tests == 'true' && inputs.sonar-token != '' && !failure() }}
       uses: SonarSource/sonarqube-scan-action@59db25f34e16620e48ab4bb9e4a5dce155cb5432 # v8
       env:
         SONAR_HOST_URL: https://sonarcloud.io
