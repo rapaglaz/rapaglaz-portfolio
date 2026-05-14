@@ -4,7 +4,6 @@
   "dependencyDashboardTitle": "Dependency Dashboard",
   "dependencyDashboardLabels": ["dependencies"],
   "dependencyDashboardAutoclose": true,
-  "onboarding": false,
   "forkProcessing": "disabled",
   "rangeStrategy": "bump",
   "platformAutomerge": true,
