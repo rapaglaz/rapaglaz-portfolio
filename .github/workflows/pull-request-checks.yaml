@@ -130,3 +130,18 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
   # TODO: add Cloudflare Pages preview deploy once CF project is configured
+
+  quality-check:
+    needs: [lint, test, build]
+    runs-on: ubuntu-latest
+    if: always()
+    permissions: {}
+    steps:
+      - name: Check all required jobs passed
+        run: |
+          if [[ "${{ needs.lint.result }}" != "success" || \
+                "${{ needs.test.result }}" != "success" || \
+                "${{ needs.build.result }}" != "success" ]]; then
+            echo "One or more required jobs failed"
+            exit 1
+          fi
