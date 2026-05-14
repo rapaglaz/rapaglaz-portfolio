@@ -37,6 +37,9 @@ jobs:
           key: renovate-cache-${{ github.run_id }}
           restore-keys: renovate-cache-
 
+      - name: Fix Renovate cache dir permissions
+        run: mkdir -p /tmp/renovate-cache && chmod -R 777 /tmp/renovate-cache
+
       - uses: renovatebot/github-action@693b9ef15eec82123529a37c782242f091365961 # v46.1.14
         with:
           token: ${{ secrets.RENOVATE_TOKEN }}
