@@ -14,3 +14,27 @@ minimumReleaseAge: 2160
 minimumReleaseAgeExclude:
   # Renovate security update: pnpm@11.1.0 || 11.1.2
   - pnpm@11.1.0 || 11.1.2
+  # Renovate security update: @angular/build@21.2.11
+  - "@angular/build@21.2.11"
+  # Renovate security update: @angular/cdk@21.2.11
+  - "@angular/cdk@21.2.11"
+  # Renovate security update: @angular/cli@21.2.11
+  - "@angular/cli@21.2.11"
+  # Renovate security update: @angular/common@21.2.13
+  - "@angular/common@21.2.13"
+  # Renovate security update: @angular/compiler@21.2.13
+  - "@angular/compiler@21.2.13"
+  # Renovate security update: @angular/compiler-cli@21.2.13
+  - "@angular/compiler-cli@21.2.13"
+  # Renovate security update: @angular/core@21.2.13
+  - "@angular/core@21.2.13"
+  # Renovate security update: @angular/forms@21.2.13
+  - "@angular/forms@21.2.13"
+  # Renovate security update: @angular/platform-browser@21.2.13
+  - "@angular/platform-browser@21.2.13"
+  # Renovate security update: @angular/platform-server@21.2.13
+  - "@angular/platform-server@21.2.13"
+  # Renovate security update: @angular/router@21.2.13
+  - "@angular/router@21.2.13"
+  # Renovate security update: @angular/ssr@21.2.11
+  - "@angular/ssr@21.2.11"
