@@ -7,7 +7,7 @@
   "forkProcessing": "disabled",
   "rangeStrategy": "bump",
   "platformAutomerge": true,
-  "prConcurrentLimit": 4,
+  "prConcurrentLimit": 2,
   "rebaseWhen": "behind-base-branch",
   "lockFileMaintenance": {
     "enabled": true,
