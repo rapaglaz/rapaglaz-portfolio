@@ -16,3 +16,5 @@ minimumReleaseAgeExclude:
   - pnpm@11.1.0 || 11.1.2
   # Renovate security update: daisyui@5.5.20
   - daisyui@5.5.20
+  # Renovate security update: lefthook@2.1.8
+  - lefthook@2.1.8
