@@ -1,0 +1,56 @@
+name: E2E Tests
+description: 'Runs Playwright E2E tests. Requires a Playwright container on the calling job.'
+
+inputs:
+  build-artifact-name:
+    description: 'Name of a pre-built dist artifact to download. When empty, builds the application from scratch.'
+    required: false
+    default: ''
+  report-artifact-name:
+    description: 'Name for the uploaded Playwright report artifact (only uploaded on failure).'
+    required: true
+  report-retention-days:
+    description: 'Days to retain the Playwright report artifact.'
+    required: false
+    default: '3'
+
+runs:
+  using: composite
+  steps:
+    - name: Download build artifact
+      if: ${{ inputs.build-artifact-name != '' }}
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+      with:
+        name: ${{ inputs.build-artifact-name }}
+        path: dist/rapaglaz-portfolio/browser
+
+    - name: Setup environment
+      if: ${{ inputs.build-artifact-name != '' }}
+      uses: ./.github/actions/workspace-setup
+
+    - name: Build application
+      if: ${{ inputs.build-artifact-name == '' }}
+      uses: ./.github/actions/build
+
+    - name: Run Playwright tests
+      shell: bash
+      run: pnpm exec playwright test
+
+    - name: Check Playwright report
+      if: failure()
+      id: check-report
+      shell: bash
+      run: |
+        if [ -d "playwright-report" ] && [ -n "$(ls -A playwright-report 2>/dev/null)" ]; then
+          echo "exists=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "exists=false" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Upload Playwright report
+      if: failure() && steps.check-report.outputs.exists == 'true'
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+      with:
+        name: ${{ inputs.report-artifact-name }}
+        path: playwright-report/
+        retention-days: ${{ inputs.report-retention-days }}
