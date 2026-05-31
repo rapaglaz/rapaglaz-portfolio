@@ -6,12 +6,14 @@
   "dependencyDashboardAutoclose": true,
   "forkProcessing": "disabled",
   "rangeStrategy": "bump",
+  "schedule": ["before 6am"],
   "platformAutomerge": true,
-  "prConcurrentLimit": 2,
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 3,
   "rebaseWhen": "behind-base-branch",
   "lockFileMaintenance": {
     "enabled": true,
-    "schedule": ["on Monday"],
+    "schedule": ["before 6am on Monday"],
     "automerge": true,
     "automergeType": "pr",
     "automergeStrategy": "squash"
@@ -63,6 +65,7 @@
       "isVulnerabilityAlert": true,
       "matchUpdateTypes": ["major", "minor", "patch"],
       "prPriority": 10,
+      "minimumReleaseAge": "1 day",
       "automerge": true,
       "automergeType": "pr",
       "automergeStrategy": "squash"
@@ -118,7 +121,7 @@
         "playwright-ng-schematics",
         "mcr.microsoft.com/playwright"
       ],
-      "matchUpdateTypes": ["major", "minor", "patch"],
+      "matchUpdateTypes": ["major", "minor", "patch", "digest"],
       "groupName": "Playwright testing",
       "groupSlug": "playwright-testing"
     }
