@@ -18,3 +18,5 @@ minimumReleaseAgeExclude:
   - daisyui@5.5.20
   # Renovate security update: lefthook@2.1.8
   - lefthook@2.1.8
+  # Renovate security update: eslint-plugin-prettier@5.5.6
+  - eslint-plugin-prettier@5.5.6
