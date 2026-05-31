@@ -7,7 +7,7 @@
   "forkProcessing": "disabled",
   "rangeStrategy": "bump",
   "platformAutomerge": true,
-  "prConcurrentLimit": 4,
+  "prConcurrentLimit": 2,
   "rebaseWhen": "behind-base-branch",
   "lockFileMaintenance": {
     "enabled": true,
@@ -17,9 +17,6 @@
     "automergeStrategy": "squash"
   },
   "osvVulnerabilityAlerts": true,
-  "vulnerabilityAlerts": {
-    "enabled": false
-  },
   "customManagers": [
     {
       "description": "Track Playwright Docker image version in e2e workflow",
