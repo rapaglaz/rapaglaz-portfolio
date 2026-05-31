@@ -20,6 +20,19 @@
   "vulnerabilityAlerts": {
     "enabled": false
   },
+  "customManagers": [
+    {
+      "description": "Track Playwright Docker image version in e2e workflow",
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.github/workflows/e2e\\.yaml$/"],
+      "matchStrings": [
+        "mcr\\.microsoft\\.com/playwright:(?<currentValue>[^@\\s]+)@(?<currentDigest>sha256:[a-f0-9]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "depNameTemplate": "mcr.microsoft.com/playwright",
+      "versioningTemplate": "regex:^v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-(?<compatibility>[a-z]+)$"
+    }
+  ],
   "packageRules": [
     {
       "description": "Require approval for major updates",
