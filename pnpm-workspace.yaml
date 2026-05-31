@@ -18,3 +18,7 @@ minimumReleaseAgeExclude:
   - daisyui@5.5.20
   # Renovate security update: lefthook@2.1.8
   - lefthook@2.1.8
+  # Renovate security update: @vitest/coverage-v8@4.1.7
+  - "@vitest/coverage-v8@4.1.7"
+  # Renovate security update: vitest@4.1.7
+  - vitest@4.1.7
