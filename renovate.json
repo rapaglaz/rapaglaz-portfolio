@@ -17,9 +17,6 @@
     "automergeStrategy": "squash"
   },
   "osvVulnerabilityAlerts": true,
-  "vulnerabilityAlerts": {
-    "enabled": false
-  },
   "customManagers": [
     {
       "description": "Track Playwright Docker image version in e2e workflow",

@@ -2,11 +2,5 @@ allowBuilds:
   '@parcel/watcher': true
   esbuild: true
   lefthook: true
-  lmdb: true
-  msgpackr-extract: true
-onlyBuiltDependencies:
-  - '@parcel/watcher'
-  - esbuild
-  - lefthook
-  - lmdb
-  - msgpackr-extract
+  lmdb: false
+  msgpackr-extract: false
