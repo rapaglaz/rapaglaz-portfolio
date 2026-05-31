@@ -54,7 +54,7 @@ jobs:
             -Dsonar.pullrequest.base=${{ github.base_ref }}
             -Dsonar.newCode.referenceBranch=main
 
-  workflow-lint:
+  actionlint:
     runs-on: ubuntu-latest
     if: ${{ !startsWith(github.head_ref, 'renovate/') }}
     timeout-minutes: 5
