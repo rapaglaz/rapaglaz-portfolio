@@ -12,8 +12,8 @@ onlyBuiltDependencies:
   - msgpackr-extract
 minimumReleaseAge: 2160
 minimumReleaseAgeExclude:
-  # Renovate security update: pnpm@11.1.0 || 11.1.2
-  - pnpm@11.1.0 || 11.1.2
+  # Renovate security update: pnpm@11.1.0 || 11.1.2 || 11.4.0
+  - pnpm@11.1.0 || 11.1.2 || 11.4.0
   # Renovate security update: daisyui@5.5.20
   - daisyui@5.5.20
   # Renovate security update: lefthook@2.1.8
