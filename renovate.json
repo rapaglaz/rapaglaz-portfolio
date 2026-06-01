@@ -1,24 +1,35 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:best-practices", ":pinAllExceptPeerDependencies"],
+  "timezone": "Europe/Berlin",
+  "schedule": ["before 10am every weekday"],
   "dependencyDashboardTitle": "Dependency Dashboard",
   "dependencyDashboardLabels": ["dependencies"],
   "dependencyDashboardAutoclose": true,
+  "labels": ["dependencies"],
   "forkProcessing": "disabled",
   "rangeStrategy": "bump",
-  "schedule": ["before 6am"],
   "platformAutomerge": true,
-  "prConcurrentLimit": 5,
+  "prConcurrentLimit": 8,
   "prHourlyLimit": 3,
-  "rebaseWhen": "behind-base-branch",
+  "internalChecksFilter": "strict",
+  "separateMajorMinor": true,
+  "separateMinorPatch": true,
+  "minimumReleaseAge": "3 days",
   "lockFileMaintenance": {
     "enabled": true,
-    "schedule": ["before 6am on Monday"],
+    "schedule": ["before 3am on Monday"],
     "automerge": true,
     "automergeType": "pr",
     "automergeStrategy": "squash"
   },
   "osvVulnerabilityAlerts": true,
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["security"],
+    "schedule": ["at any time"],
+    "vulnerabilityFixStrategy": "highest"
+  },
   "customManagers": [
     {
       "description": "Track Playwright Docker image version in e2e workflow",
@@ -34,55 +45,122 @@
   ],
   "packageRules": [
     {
-      "description": "Require approval for major updates",
-      "matchUpdateTypes": ["major"],
-      "dependencyDashboardApproval": true
-    },
-    {
-      "description": "Create PR for minor updates",
-      "matchUpdateTypes": ["minor"],
-      "matchCurrentVersion": "!/^0/",
-      "minimumReleaseAge": "3 days"
-    },
-    {
-      "description": "Automerge patch updates for stable versions",
-      "matchUpdateTypes": ["patch"],
-      "matchCurrentVersion": "!/^0/",
-      "automerge": true,
-      "automergeType": "pr",
-      "automergeStrategy": "squash",
-      "minimumReleaseAge": "3 days"
-    },
-    {
-      "description": "Require approval for unstable versions (0.x)",
-      "matchCurrentVersion": "/^0/",
-      "matchUpdateTypes": ["minor", "patch"],
-      "dependencyDashboardApproval": true,
-      "labels": ["unstable-version"]
-    },
-    {
-      "description": "Automerge patch vulnerability alerts; prioritise all security updates",
+      "description": "Prioritise all vulnerability alerts",
       "isVulnerabilityAlert": true,
-      "matchUpdateTypes": ["major", "minor", "patch"],
-      "prPriority": 10,
-      "minimumReleaseAge": "1 day",
+      "matchPackageNames": ["*"],
+      "labels": ["security"],
+      "prPriority": 10
+    },
+    {
+      "description": "Automerge patch vulnerability alerts for stable versions",
+      "isVulnerabilityAlert": true,
+      "matchCurrentVersion": "!/^0/",
+      "matchUpdateTypes": ["patch"],
+      "minimumReleaseAge": "0 days",
       "automerge": true,
       "automergeType": "pr",
       "automergeStrategy": "squash"
     },
     {
-      "description": "Group Angular",
-      "matchUpdateTypes": ["major", "minor", "patch"],
-      "groupName": "Angular packages",
-      "groupSlug": "angular",
-      "matchPackageNames": ["@angular/{/,}**", "@angular-devkit/{/,}**", "@angular-eslint/{/,}**"]
+      "description": "Require approval for minor vulnerability alerts",
+      "isVulnerabilityAlert": true,
+      "matchUpdateTypes": ["minor"],
+      "dependencyDashboardApproval": true,
+      "automerge": false
     },
     {
-      "description": "Group vitest",
-      "matchPackageNames": ["vitest", "@vitest/coverage-v8"],
-      "matchUpdateTypes": ["major", "minor", "patch"],
-      "groupName": "Vitest",
-      "groupSlug": "vitest"
+      "description": "Require approval for major vulnerability alerts",
+      "isVulnerabilityAlert": true,
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true,
+      "automerge": false
+    },
+    {
+      "description": "Require approval for all major updates",
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true,
+      "automerge": false,
+      "labels": ["major-update"]
+    },
+    {
+      "description": "Create PR for stable minor updates",
+      "matchCurrentVersion": "!/^0/",
+      "matchUpdateTypes": ["minor"],
+      "automerge": false
+    },
+    {
+      "description": "Automerge stable patch updates",
+      "matchCurrentVersion": "!/^0/",
+      "matchUpdateTypes": ["patch"],
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash"
+    },
+    {
+      "description": "Require approval for unstable 0.x updates",
+      "matchCurrentVersion": "/^0/",
+      "matchUpdateTypes": ["minor", "patch"],
+      "dependencyDashboardApproval": true,
+      "automerge": false,
+      "labels": ["unstable-version"]
+    },
+    {
+      "description": "Group Angular ecosystem updates",
+      "matchPackageNames": [
+        "@angular/**",
+        "@angular-devkit/**",
+        "@angular-eslint/**",
+        "rxjs",
+        "tslib"
+      ],
+      "groupName": "Angular ecosystem",
+      "groupSlug": "angular",
+      "automerge": false
+    },
+    {
+      "description": "Group linting and formatting tools",
+      "matchPackageNames": [
+        "eslint",
+        "@eslint/**",
+        "typescript-eslint",
+        "@typescript-eslint/**",
+        "prettier",
+        "eslint-config-prettier",
+        "eslint-plugin-*"
+      ],
+      "groupName": "linting and formatting",
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash"
+    },
+    {
+      "description": "Group testing tools",
+      "matchPackageNames": [
+        "vitest",
+        "@vitest/**",
+        "@playwright/test",
+        "@playwright/**",
+        "@axe-core/playwright",
+        "playwright-ng-schematics",
+        "mcr.microsoft.com/playwright",
+        "@testing-library/**"
+      ],
+      "groupName": "testing tools",
+      "groupSlug": "testing-tools",
+      "matchUpdateTypes": ["minor", "patch", "digest"],
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash"
+    },
+    {
+      "description": "Group Tailwind ecosystem updates",
+      "matchPackageNames": ["tailwindcss", "@tailwindcss/**", "tailwind-*"],
+      "groupName": "Tailwind ecosystem",
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true,
+      "automergeType": "pr",
+      "automergeStrategy": "squash"
     },
     {
       "description": "Group pnpm ecosystem",
@@ -100,30 +178,18 @@
       "matchPackageNames": ["!pnpm/action-setup"]
     },
     {
-      "description": "Group TypeScript tooling",
-      "matchPackageNames": ["typescript-eslint", "@types/{/,}**"],
+      "description": "Group TypeScript types",
+      "matchPackageNames": ["@types/**"],
       "matchUpdateTypes": ["major", "minor", "patch"],
-      "groupName": "TypeScript tooling",
-      "groupSlug": "typescript-tooling"
+      "groupName": "TypeScript types",
+      "groupSlug": "typescript-types"
     },
     {
       "description": "Group commitlint",
-      "matchPackageNames": ["@commitlint/{/,}**"],
+      "matchPackageNames": ["@commitlint/**"],
       "matchUpdateTypes": ["major", "minor", "patch"],
       "groupName": "commitlint",
       "groupSlug": "commitlint"
-    },
-    {
-      "description": "Group Playwright testing",
-      "matchPackageNames": [
-        "@playwright/test",
-        "@axe-core/playwright",
-        "playwright-ng-schematics",
-        "mcr.microsoft.com/playwright"
-      ],
-      "matchUpdateTypes": ["major", "minor", "patch", "digest"],
-      "groupName": "Playwright testing",
-      "groupSlug": "playwright-testing"
     }
   ]
 }
