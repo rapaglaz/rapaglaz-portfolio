@@ -64,7 +64,7 @@
     "daisyui": "5.5.20",
     "eslint": "9.39.4",
     "eslint-config-prettier": "10.1.8",
-    "eslint-plugin-prettier": "5.5.5",
+    "eslint-plugin-prettier": "5.5.6",
     "jsdom": "29.1.1",
     "lefthook": "2.1.9",
     "lint-staged": "16.4.0",
@@ -76,7 +76,7 @@
     "serve": "14.2.6",
     "tailwindcss": "4.3.0",
     "typescript": "5.9.3",
-    "typescript-eslint": "8.59.3",
+    "typescript-eslint": "8.59.4",
     "vitest": "4.1.7"
   },
   "packageManager": "pnpm@11.1.2"
