@@ -62,7 +62,7 @@ runs:
 
     - name: Upload coverage reports
       if: ${{ (inputs.mode == 'test' || inputs.mode == 'all') && inputs.run-tests == 'true' && always() }}
-      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       with:
         name: ${{ inputs.coverage-artifact-name }}
         path: coverage/
@@ -71,7 +71,7 @@ runs:
 
     - name: SonarCloud Scan
       if: ${{ (inputs.mode == 'test' || inputs.mode == 'all') && inputs.run-tests == 'true' && inputs.sonar-token != '' && !failure() }}
-      uses: SonarSource/sonarqube-scan-action@7006c4492b2e0ee0f816d36501671557c97f5995 # v8
+      uses: SonarSource/sonarqube-scan-action@7006c4492b2e0ee0f816d36501671557c97f5995 # v8.1.0
       env:
         SONAR_HOST_URL: https://sonarcloud.io
         SONAR_TOKEN: ${{ inputs.sonar-token }}
