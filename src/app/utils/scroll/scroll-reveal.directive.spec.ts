@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ScrollRevealDirective } from './scroll-reveal.directive';
@@ -13,7 +13,6 @@ import { ScrollRevealDirective } from './scroll-reveal.directive';
     </div>
   `,
   imports: [ScrollRevealDirective],
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class TestHostComponent {
   readonly isVisible = signal(false);

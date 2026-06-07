@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, viewChild } from '@angular/core';
+import { Component, viewChild } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
 import { SectionWrapper } from '../../ui';
 
@@ -19,7 +19,6 @@ import { SectionWrapper } from '../../ui';
       </div>
     </app-section-wrapper>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class About {
   protected readonly sectionWrapper = viewChild.required(SectionWrapper);

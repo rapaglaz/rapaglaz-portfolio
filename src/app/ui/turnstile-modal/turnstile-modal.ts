@@ -1,7 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import {
   afterNextRender,
-  ChangeDetectionStrategy,
   Component,
   ElementRef,
   inject,
@@ -15,7 +14,6 @@ import { TranslocoModule } from '@jsverse/transloco';
   selector: 'app-turnstile-modal',
   imports: [TranslocoModule],
   templateUrl: './turnstile-modal.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TurnstileModal {
   protected readonly widgetContainer =

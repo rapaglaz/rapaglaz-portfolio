@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 
 export type ToastType = 'success' | 'error' | 'info';
 
@@ -10,7 +10,7 @@ export type ToastData = {
 @Component({
   selector: 'app-toast-container',
   styleUrl: './toast-container.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+
   template: `
     <div
       class="toast-enter pointer-events-auto px-2.5"

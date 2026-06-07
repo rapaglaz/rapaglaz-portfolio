@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, viewChild } from '@angular/core';
+import { Component, computed, viewChild } from '@angular/core';
 import { translateObjectSignal, TranslocoModule } from '@jsverse/transloco';
 import { SectionWrapper } from '../../ui';
 import { buildDelayGetter } from '../../utils/animation';
@@ -6,7 +6,7 @@ import { buildDelayGetter } from '../../utils/animation';
 @Component({
   selector: 'app-languages',
   imports: [TranslocoModule, SectionWrapper],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+
   template: `
     <app-section-wrapper
       sectionId="languages"

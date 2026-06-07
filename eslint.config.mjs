@@ -50,7 +50,6 @@ export default defineConfig(
       '@angular-eslint/prefer-signals': 'warn',
       '@angular-eslint/prefer-standalone': 'warn',
       '@angular-eslint/use-lifecycle-interface': 'error',
-      '@angular-eslint/no-conflicting-lifecycle': 'error',
 
       // TypeScript specific rules
       '@typescript-eslint/no-explicit-any': 'error',

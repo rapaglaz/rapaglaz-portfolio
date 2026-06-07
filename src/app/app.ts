@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Footer, Navbar } from './features';
 
@@ -12,6 +12,5 @@ import { Footer, Navbar } from './features';
     </div>
     <app-footer />
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class App {}

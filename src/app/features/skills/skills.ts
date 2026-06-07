@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, viewChild } from '@angular/core';
+import { Component, viewChild } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
 import { SKILL_CATEGORIES } from '../../content';
 import { SectionWrapper } from '../../ui';
@@ -7,7 +7,7 @@ import { buildDelayGetter } from '../../utils/animation';
 @Component({
   selector: 'app-skills',
   imports: [TranslocoModule, SectionWrapper],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+
   template: `
     <app-section-wrapper
       sectionId="skills"
