@@ -2,11 +2,11 @@
 
 Personal portfolio site. Small app, mostly static sections.
 
-Built with Angular 21, standalone components, signals, no Zone.js. Static build with hydration.
+Built with Angular 22, standalone components, signals, no Zone.js. Static build with hydration.
 
 ## What’s inside
 
-- Angular 21 (standalone, signals, OnPush)
+- Angular 22 (standalone, signals, OnPush)
 - Zoneless setup (no `zone.js` dependency)
 - Static build (SSG via `outputMode: static`) + client hydration
 - Transloco i18n (runtime switch, JSON in `public/i18n`)

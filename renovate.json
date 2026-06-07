@@ -14,6 +14,7 @@
   "prHourlyLimit": 3,
   "reviewers": [],
   "assignees": [],
+  "reviewersSampleSize": 0,
   "reviewersFromCodeOwners": false,
   "internalChecksFilter": "strict",
   "separateMajorMinor": true,

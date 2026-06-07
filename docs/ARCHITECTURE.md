@@ -9,13 +9,16 @@ I organise by feature, not by layers inside every folder.
 Shared bits go to a shared place.
 
 ```plaintext
-src/
-├── app/           # bootstrap + routing + top-level view
-├── features/      # hero, navbar, contact, etc
-├── ui/            # small reusable presentational pieces
-├── services/      # shared logic (cv download, toast, config, turnstile)
-├── utils/         # helpers (i18n, rxjs, scroll, animation)
-└── content/       # typed static content
+src/app/
+├── app.ts / app.config.ts / app.routes.ts   # bootstrap, routing, providers
+├── portfolio/     # top-level portfolio shell component
+├── features/      # hero, navbar, about, skills, certifications, contact, footer
+├── ui/            # small reusable presentational pieces (badge, section-wrapper, toast-container, turnstile-modal)
+├── services/      # shared logic (cv-download, feature-flag, turnstile, toast, config, logger)
+├── interceptors/  # HTTP interceptors (turnstile token injection)
+├── utils/         # helpers (i18n, rxjs, scroll, animation, tokens)
+├── content/       # typed static content (skills, certifications, contact)
+└── testing/       # shared test helpers (transloco loader, window mocks)
 ```
 
 I try to keep features isolated (no feature → feature imports). One exception:
@@ -36,14 +39,24 @@ Signals are used for small UI state. RxJS stays for async work (HTTP, events, Tu
 Production build is static (`outputMode: static`). Angular pre-renders and outputs HTML.
 On the client side it hydrates, so it does not repaint the whole page.
 
+### Routing + lazy loading
+
+All routes (`/`, `/en`, `/de`) use `loadComponent` to lazy-load the `Portfolio` shell.
+There is one component entry point; the URL segment only determines the active language.
+
 ## State and services
 
 Most sections have no real business logic. The interesting parts are in services:
 
-- CV download: get config -> get Turnstile token -> call backend endpoint -> trigger browser download
+- CV download: get config → get Turnstile token → call backend endpoint → trigger browser download
 - Turnstile: load script once, render widget, show modal when needed, cleanup properly
 - Toasts: CDK overlay, explicit cleanup
 - Feature flag: read `openToWork` from a Cloudflare Worker + KV
+- Logger: centralised logging service, does not expose internal details to users
+
+HTTP interceptors handle cross-cutting concerns:
+
+- `turnstile.interceptor`: injects `X-Turnstile-Token` header via `HttpContext`
 
 ## Feature flag (Open to Work)
 
