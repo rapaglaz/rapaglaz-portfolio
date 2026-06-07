@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
 import { createScrollRevealState, ScrollRevealDirective } from '../../utils/scroll';
 
@@ -32,7 +32,6 @@ import { createScrollRevealState, ScrollRevealDirective } from '../../utils/scro
       </div>
     </section>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SectionWrapper {
   readonly sectionId = input.required<string>();

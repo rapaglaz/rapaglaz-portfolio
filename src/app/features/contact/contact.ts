@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, viewChild } from '@angular/core';
+import { Component, viewChild } from '@angular/core';
 import { translateObjectSignal, translateSignal, TranslocoModule } from '@jsverse/transloco';
 import { CONTACT_ITEMS, type ContactItem } from '../../content';
 import { SectionWrapper } from '../../ui';
@@ -8,7 +8,6 @@ import { buildDelayGetter } from '../../utils/animation';
   selector: 'app-contact',
   imports: [TranslocoModule, SectionWrapper],
   templateUrl: './contact.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Contact {
   protected readonly sectionWrapper = viewChild.required(SectionWrapper);

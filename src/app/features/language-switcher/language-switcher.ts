@@ -1,5 +1,5 @@
 import { CdkListboxModule, type ListboxValueChangeEvent } from '@angular/cdk/listbox';
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { TranslocoService } from '@jsverse/transloco';
@@ -33,7 +33,6 @@ import { AVAILABLE_LANGS, isAvailableLang, LANG_LABELS } from '../../utils/i18n'
       }
     </div>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LanguageSwitcher {
   private readonly translocoService = inject(TranslocoService);

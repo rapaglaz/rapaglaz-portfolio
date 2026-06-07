@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, viewChild } from '@angular/core';
+import { Component, computed, inject, viewChild } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { CERTIFICATIONS, type Certification } from '../../content';
@@ -13,7 +13,6 @@ type CertificationWithFormattedDate = Certification & {
   selector: 'app-certifications',
   imports: [TranslocoModule, SectionWrapper],
   templateUrl: './certifications.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Certifications {
   protected readonly sectionWrapper = viewChild.required(SectionWrapper);

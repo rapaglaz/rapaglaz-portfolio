@@ -1,5 +1,5 @@
 import { DOCUMENT } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, inject } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
 import { Meta } from '@angular/platform-browser';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { About, Certifications, Contact, Hero, Languages, Skills } from '../features';
@@ -12,7 +12,7 @@ const SEO_LINK_ATTR = 'data-seo-id';
 @Component({
   selector: 'app-portfolio',
   imports: [TranslocoPipe, Hero, About, Skills, Languages, Certifications, Contact],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+
   template: `
     <a
       href="#main-content"

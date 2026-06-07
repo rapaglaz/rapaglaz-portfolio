@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 
 export type BadgeSize = 'sm' | 'md' | 'lg' | 'xl';
 
@@ -13,7 +13,7 @@ const SIZE_CLASSES: Record<BadgeSize, string> = {
   selector: 'app-badge',
   imports: [],
   template: `<ng-content />`,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+
   styleUrl: './badge.css',
   host: {
     '[class]': 'sizeClasses()',

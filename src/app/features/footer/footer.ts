@@ -1,5 +1,5 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, PLATFORM_ID } from '@angular/core';
+import { Component, inject, PLATFORM_ID } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
 import { CONTACT_ITEMS } from '../../content';
 
@@ -7,7 +7,6 @@ import { CONTACT_ITEMS } from '../../content';
   selector: 'app-footer',
   templateUrl: './footer.html',
   imports: [TranslocoModule],
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Footer {
   private readonly document = inject(DOCUMENT);

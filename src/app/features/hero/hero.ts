@@ -1,5 +1,5 @@
 import { NgOptimizedImage } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
 import { FeatureFlagService } from '../../services';
 import { Badge } from '../../ui';
@@ -9,7 +9,6 @@ import { Badge } from '../../ui';
   imports: [NgOptimizedImage, TranslocoModule, Badge],
   templateUrl: './hero.html',
   styleUrl: './hero.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Hero {
   private readonly featureFlagService = inject(FeatureFlagService);

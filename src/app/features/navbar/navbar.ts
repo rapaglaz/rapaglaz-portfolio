@@ -2,7 +2,6 @@ import { ScrollDispatcher } from '@angular/cdk/scrolling';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import {
   afterNextRender,
-  ChangeDetectionStrategy,
   Component,
   computed,
   DestroyRef,
@@ -25,7 +24,6 @@ import { LanguageSwitcher } from '../language-switcher/language-switcher';
   selector: 'app-navbar',
   imports: [Badge, LanguageSwitcher, TranslocoModule],
   templateUrl: './navbar.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Navbar {
   private readonly navbarRef = viewChild.required<ElementRef<HTMLElement>>('navbar');
