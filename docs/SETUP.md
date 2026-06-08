@@ -5,7 +5,7 @@ How to run this locally.
 ## Requirements
 
 - Node.js 24 (see `.nvmrc`)
-- pnpm 10+
+- pnpm 11+
 
 Playwright needs browsers installed once.
 
