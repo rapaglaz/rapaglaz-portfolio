@@ -68,7 +68,7 @@
     "jsdom": "29.1.1",
     "lefthook": "2.1.9",
     "lint-staged": "17.0.8",
-    "playwright-ng-schematics": "21.1.0",
+    "playwright-ng-schematics": "21.1.1",
     "postcss": "8.5.15",
     "prettier": "3.8.4",
     "prettier-plugin-organize-imports": "4.3.0",
