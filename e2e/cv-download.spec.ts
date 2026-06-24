@@ -13,14 +13,14 @@ test.describe('CV Download', () => {
     const enDownloadPromise = page.waitForEvent('download');
     await cvButton.click();
     const enDownload = await enDownloadPromise;
-    expect(enDownload.suggestedFilename()).toBe('Paul_Glaz_CV_EN.pdf');
+    expect(enDownload.suggestedFilename()).toBe('Radoslaw_Pawel_Glaz_CV-EN.pdf');
 
     await switchLanguage(page, 'DE');
 
     const deDownloadPromise = page.waitForEvent('download');
     await cvButton.click();
     const deDownload = await deDownloadPromise;
-    expect(deDownload.suggestedFilename()).toBe('Paul_Glaz_CV_DE.pdf');
+    expect(deDownload.suggestedFilename()).toBe('Radoslaw_Pawel_Glaz_CV-DE.pdf');
   });
 });
 

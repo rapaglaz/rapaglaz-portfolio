@@ -49,7 +49,7 @@ describe('CvDownloadService', () => {
     const downloadPromise = firstValueFrom(service.downloadCV());
 
     const req = httpMock.expectOne(
-      `/download?file=${encodeURIComponent('cv/Paul_Glaz_CV_DE.pdf')}`,
+      `/download?file=${encodeURIComponent('cv/Radoslaw_Pawel_Glaz_CV-DE.pdf')}`,
     );
     expect(req.request.method).toBe('GET');
     expect(req.request.context.get(TURNSTILE_TOKEN)).toBe('token-123');
@@ -78,7 +78,7 @@ describe('CvDownloadService', () => {
     const downloadPromise = firstValueFrom(service.downloadCV());
 
     const req = httpMock.expectOne(
-      `/download?file=${encodeURIComponent('cv/Paul_Glaz_CV_EN.pdf')}`,
+      `/download?file=${encodeURIComponent('cv/Radoslaw_Pawel_Glaz_CV-EN.pdf')}`,
     );
     req.error(new ProgressEvent('error'), { status: 500, statusText: 'Internal Server Error' });
 
