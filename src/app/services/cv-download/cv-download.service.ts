@@ -46,7 +46,7 @@ export class CvDownloadService {
 
   private readonly cvFilename = computed(() => {
     const lang = this.detectLanguage();
-    return `Paul_Glaz_CV_${lang}.pdf`;
+    return `Radoslaw_Pawel_Glaz_CV-${lang.toUpperCase()}.pdf`;
   });
 
   downloadCV(): Observable<void> {
