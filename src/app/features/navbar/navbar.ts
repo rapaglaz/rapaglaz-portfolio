@@ -52,13 +52,15 @@ export class Navbar {
     { initialValue: 0 },
   );
 
-  private readonly openToWorkFlag = this.featureFlagService.getFlagSignal('openToWork');
+  private readonly openToWorkFlag = this.featureFlagService.getFlag('openToWork');
 
   protected readonly isScrolled = computed(() => this.scrollY() > 0);
   protected readonly isDownloading = signal(false);
   protected readonly canDownload = computed(() => !this.isDownloading());
-  protected readonly openToWork = this.openToWorkFlag.flag;
-  protected readonly isFeatureFlagLoaded = this.openToWorkFlag.isLoaded;
+  // hasValue() guards value(), which throws while the resource is in the error state.
+  protected readonly openToWork = computed(
+    () => this.openToWorkFlag.hasValue() && this.openToWorkFlag.value(),
+  );
 
   constructor() {
     afterNextRender(() => {

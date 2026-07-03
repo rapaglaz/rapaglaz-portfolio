@@ -11,10 +11,11 @@ import { provideTranslocoTesting } from '../../testing';
 import { Navbar } from './navbar';
 
 const mockFeatureFlagService = {
-  getFlag$: vi.fn().mockReturnValue(of(true)),
-  getFlagSignal: vi.fn().mockReturnValue({
-    flag: () => true,
-    isLoaded: () => true,
+  getFlag: vi.fn().mockReturnValue({
+    value: () => true,
+    hasValue: () => true,
+    isLoading: () => false,
+    error: () => undefined,
   }),
 };
 
