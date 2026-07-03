@@ -31,6 +31,16 @@ describe('ConfigService', () => {
     vi.stubGlobal('location', originalLocation);
   });
 
+  // getConfig() retries 3 times after the initial attempt, so a failing
+  // subscription fires 4 requests before the error reaches the subscriber.
+  const flushAllAttempts = (
+    respond: (req: ReturnType<HttpTestingController['expectOne']>) => void,
+  ): void => {
+    for (let attempt = 0; attempt < 4; attempt++) {
+      respond(httpMock.expectOne('/config'));
+    }
+  };
+
   it('uses test key on localhost', async () => {
     vi.stubGlobal('location', {
       ...originalLocation,
@@ -98,8 +108,7 @@ describe('ConfigService', () => {
     const invalidConfig = {};
     const configPromise = firstValueFrom(service.getConfig());
 
-    const req = httpMock.expectOne('/config');
-    req.flush(invalidConfig);
+    flushAllAttempts(req => req.flush(invalidConfig));
 
     await expect(configPromise).rejects.toThrow(/Invalid config response/);
   });
@@ -113,8 +122,7 @@ describe('ConfigService', () => {
     const invalidConfig = { turnstileSiteKey: '' };
     const configPromise = firstValueFrom(service.getConfig());
 
-    const req = httpMock.expectOne('/config');
-    req.flush(invalidConfig);
+    flushAllAttempts(req => req.flush(invalidConfig));
 
     await expect(configPromise).rejects.toThrow(/Invalid config response/);
   });
@@ -128,8 +136,7 @@ describe('ConfigService', () => {
     const invalidConfig = { turnstileSiteKey: 12345 };
     const configPromise = firstValueFrom(service.getConfig());
 
-    const req = httpMock.expectOne('/config');
-    req.flush(invalidConfig);
+    flushAllAttempts(req => req.flush(invalidConfig));
 
     await expect(configPromise).rejects.toThrow(/Invalid config response/);
   });
@@ -142,10 +149,28 @@ describe('ConfigService', () => {
 
     const configPromise = firstValueFrom(service.getConfig());
 
-    const req = httpMock.expectOne('/config');
-    req.error(new ProgressEvent('error'), { status: 500, statusText: 'Internal Server Error' });
+    flushAllAttempts(req =>
+      req.error(new ProgressEvent('error'), { status: 500, statusText: 'Internal Server Error' }),
+    );
 
     await expect(configPromise).rejects.toThrow(/Failed to fetch config/);
+  });
+
+  it('recovers when a retry attempt succeeds after transient errors', async () => {
+    vi.stubGlobal('location', {
+      ...originalLocation,
+      hostname: 'rapaglaz.de',
+    });
+
+    const mockConfig = { turnstileSiteKey: 'recovered-key-123' };
+    const configPromise = firstValueFrom(service.getConfig());
+
+    httpMock
+      .expectOne('/config')
+      .error(new ProgressEvent('error'), { status: 500, statusText: 'Internal Server Error' });
+    httpMock.expectOne('/config').flush(mockConfig);
+
+    await expect(configPromise).resolves.toEqual(mockConfig);
   });
 
   it('caches config response - multiple calls make only one HTTP request', async () => {
