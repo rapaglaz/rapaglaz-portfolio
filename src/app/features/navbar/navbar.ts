@@ -1,33 +1,22 @@
 import { ScrollDispatcher } from '@angular/cdk/scrolling';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
-import {
-  afterNextRender,
-  Component,
-  computed,
-  DestroyRef,
-  ElementRef,
-  inject,
-  PLATFORM_ID,
-  signal,
-  viewChild,
-} from '@angular/core';
+import { Component, computed, DestroyRef, inject, PLATFORM_ID, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { finalize, map, startWith } from 'rxjs';
 import { CONTACT_ITEMS } from '../../content';
 import { CvDownloadService, FeatureFlagService, LoggerService, ToastService } from '../../services';
 import { Badge } from '../../ui';
+import { MeasureNavbarHeightDirective } from '../../utils/layout';
 import { withErrorToast } from '../../utils/rxjs';
 import { LanguageSwitcher } from '../language-switcher/language-switcher';
 
 @Component({
   selector: 'app-navbar',
-  imports: [Badge, LanguageSwitcher, TranslocoModule],
+  imports: [Badge, LanguageSwitcher, MeasureNavbarHeightDirective, TranslocoModule],
   templateUrl: './navbar.html',
 })
 export class Navbar {
-  private readonly navbarRef = viewChild.required<ElementRef<HTMLElement>>('navbar');
-
   private readonly scrollDispatcher = inject(ScrollDispatcher);
   private readonly destroyRef = inject(DestroyRef);
   private readonly cvDownloadService = inject(CvDownloadService);
@@ -61,36 +50,6 @@ export class Navbar {
   protected readonly openToWork = computed(
     () => this.openToWorkFlag.hasValue() && this.openToWorkFlag.value(),
   );
-
-  constructor() {
-    afterNextRender(() => {
-      const navbar = this.navbarRef().nativeElement;
-      const rootStyle = this.document.documentElement.style;
-      const updateHeight = (): void => {
-        const height = navbar.getBoundingClientRect().height;
-        rootStyle.setProperty('--navbar-height', `${height}px`);
-      };
-
-      updateHeight();
-
-      if (typeof ResizeObserver === 'undefined') {
-        return;
-      }
-
-      let debounceTimer: ReturnType<typeof setTimeout> | undefined;
-      const debouncedUpdate = (): void => {
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(updateHeight, 100);
-      };
-
-      const resizeObserver = new ResizeObserver(debouncedUpdate);
-      resizeObserver.observe(navbar);
-      this.destroyRef.onDestroy(() => {
-        clearTimeout(debounceTimer);
-        resizeObserver.disconnect();
-      });
-    });
-  }
 
   protected contactEmail(): void {
     if (!isPlatformBrowser(this.platformId)) return;
