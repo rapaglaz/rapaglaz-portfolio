@@ -19,7 +19,7 @@ src/app/
 ├── ui/             # reusable presentational pieces
 ├── services/       # cv-download, feature-flag, turnstile, toast, config, logger
 ├── interceptors/   # turnstile token injection
-├── utils/          # i18n, rxjs, scroll, animation, tokens
+├── utils/          # i18n, rxjs, scroll, animation, layout, tokens
 ├── content/        # typed static content (const objects)
 └── testing/        # shared test helpers
 ```
@@ -33,7 +33,7 @@ No feature→feature imports. One exception: navbar→language-switcher.
 - `inject()` in class fields, not constructor injection
 - `type` over `interface`
 - `@if` / `@for` control flow — not `*ngIf` / `*ngFor`
-- Signals for UI state, RxJS for async (HTTP, events, Turnstile)
+- Signals for UI state, RxJS for async (HTTP, events, Turnstile); feature flag uses `httpResource`
 - No `zone.js` — updates must be explicit
 - Guard all browser API access with `isPlatformBrowser(PLATFORM_ID)`
 - Validate all external HTTP responses with Valibot before use
