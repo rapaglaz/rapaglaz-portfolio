@@ -16,7 +16,7 @@ src/app/
 ├── ui/            # small reusable presentational pieces (badge, section-wrapper, toast-container, turnstile-modal)
 ├── services/      # shared logic (cv-download, feature-flag, turnstile, toast, config, logger)
 ├── interceptors/  # HTTP interceptors (turnstile token injection)
-├── utils/         # helpers (i18n, rxjs, scroll, animation, tokens)
+├── utils/         # helpers (i18n, rxjs, scroll, animation, layout, tokens)
 ├── content/       # typed static content (skills, certifications, contact)
 └── testing/       # shared test helpers (transloco loader, window mocks)
 ```
@@ -32,7 +32,14 @@ Everything is standalone. Most components are presentational, so `OnPush` is the
 If something needs state, I keep it close to the feature or in a service.
 
 Signals are used for small UI state. RxJS stays for async work (HTTP, events, Turnstile).
+The feature flag is the one exception — it uses `httpResource`, so the value arrives
+as a signal already and there is no manual subscribe anywhere.
 `zone.js` is not in dependencies, so updates are explicit.
+
+DOM measuring lives in directives, not components. Scroll reveal was already a directive,
+and the navbar height (`--navbar-height` CSS variable via ResizeObserver) moved into
+`MeasureNavbarHeightDirective` in `utils/layout` to follow the same pattern.
+The navbar component keeps only state and actions.
 
 ### SSG + hydration
 
@@ -51,7 +58,8 @@ Most sections have no real business logic. The interesting parts are in services
 - CV download: get config → get Turnstile token → call backend endpoint → trigger browser download
 - Turnstile: load script once, render widget, show modal when needed, cleanup properly
 - Toasts: CDK overlay, explicit cleanup
-- Feature flag: read `openToWork` from a Cloudflare Worker + KV
+- Feature flag: read `openToWork` from a Cloudflare Worker + KV, exposed as `httpResource`
+- Config: fetched once per app life, `retry({ count: 3 })` + `shareReplay`, no manual retry counter
 - Logger: centralised logging service, does not expose internal details to users
 
 HTTP interceptors handle cross-cutting concerns:
@@ -65,6 +73,15 @@ Runtime toggle for the navbar badge. It is a single public flag, not a full syst
 - `GET https://rapaglaz.de/feature-flag/openToWork` → `{ "openToWork": true | false }`
 - Missing flag returns `404`, frontend treats it as `false`
 - Storage is Cloudflare KV, updated manually
+
+On the frontend it is one `httpResource` per flag name, cached in a plain Map.
+The old version had a dual Observable + Signal API with two LRU caches — way too much
+machinery for a single flag, so it is gone. Validation happens in the resource `parse`
+option (Valibot), anything unexpected becomes `false`. On the server the resource URL
+is `undefined`, so no request fires during prerender.
+
+One gotcha: `value()` throws in the error state even when `defaultValue` is set.
+Components read the flag through `hasValue()` inside a computed instead.
 
 ## Testing approach
 
