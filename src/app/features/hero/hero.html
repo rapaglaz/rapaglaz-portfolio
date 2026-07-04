@@ -17,7 +17,7 @@
         </div>
       </div>
 
-      @if (isFeatureFlagLoaded() && openToWork()) {
+      @if (openToWork()) {
         <div class="mt-12 md:hidden">
           <app-badge
             data-testid="hero-badge-mobile"

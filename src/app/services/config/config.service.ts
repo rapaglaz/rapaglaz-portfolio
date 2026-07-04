@@ -1,7 +1,7 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, PLATFORM_ID } from '@angular/core';
-import { catchError, map, Observable, of, shareReplay, throwError } from 'rxjs';
+import { catchError, map, Observable, of, retry, shareReplay, throwError } from 'rxjs';
 import * as v from 'valibot';
 import { API_BASE_URL } from '../../utils/tokens/api-urls.token';
 
@@ -23,19 +23,12 @@ export class ConfigService {
   private readonly TEST_TURNSTILE_KEY = '1x00000000000000000000AA';
 
   private config$: Observable<Config> | null = null;
-  private configFetchAttempts = 0;
   // 3 retries after the initial attempt = 4 total fetches before giving up
   private static readonly MAX_CONFIG_RETRIES = 3;
 
   getConfig(): Observable<Config> {
     this.config$ ??= this.fetchConfig().pipe(
-      catchError(err => {
-        // Reset before shareReplay so the counter tracks HTTP-level errors
-        if (this.configFetchAttempts++ < ConfigService.MAX_CONFIG_RETRIES) {
-          this.config$ = null;
-        }
-        return throwError(() => err);
-      }),
+      retry({ count: ConfigService.MAX_CONFIG_RETRIES }),
       shareReplay({ bufferSize: 1, refCount: false }),
     );
     return this.config$;
