@@ -25,6 +25,10 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          # build exactly the commit Main Branch Checks validated, not
+          # whatever main points at when this workflow starts
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
       - name: Build
         uses: ./.github/actions/build
       - name: Upload build artifact
