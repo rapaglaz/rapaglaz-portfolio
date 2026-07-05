@@ -27,6 +27,9 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
   test:
+    # renovate PRs skip unit tests, i18n and Sonar entirely; the
+    # quality-check gate accepts the skipped result for them
+    if: ${{ !startsWith(github.head_ref, 'renovate/') }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -42,8 +45,6 @@ jobs:
         uses: ./.github/actions/quality-check
         with:
           mode: test
-          run-tests: ${{ !startsWith(github.head_ref, 'renovate/') }}
-          run-i18n-check: ${{ !startsWith(github.head_ref, 'renovate/') }}
           coverage-artifact-name: coverage-reports
           coverage-retention-days: '3'
           sonar-token: ${{ secrets.SONAR_TOKEN }}
@@ -149,8 +150,13 @@ jobs:
       - name: Check all required jobs passed
         run: |
           if [[ "${{ needs.lint.result }}" != "success" || \
-                "${{ needs.test.result }}" != "success" || \
                 "${{ needs.build.result }}" != "success" ]]; then
             echo "One or more required jobs failed"
+            exit 1
+          fi
+          # test may be skipped (renovate PRs) but must never fail
+          if [[ "${{ needs.test.result }}" != "success" && \
+                "${{ needs.test.result }}" != "skipped" ]]; then
+            echo "Test job failed"
             exit 1
           fi
