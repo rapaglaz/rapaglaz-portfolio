@@ -40,9 +40,13 @@ export async function visitPortfolio(page: Page, url = '/', openToWork = true): 
 }
 
 // mocks only Turnstile API (frontend) - use when tests need to mock backend errors
-export async function mockTurnstileAPI(page: Page): Promise<void> {
-  // Mock Turnstile API - instant auto-pass like test key
-  await page.addInitScript(() => {
+// outcome 'error' fires the widget's error-callback instead of issuing a token
+export async function mockTurnstileAPI(
+  page: Page,
+  outcome: 'token' | 'error' = 'token',
+): Promise<void> {
+  // must be registered before page.goto - init scripts don't apply to a loaded page
+  await page.addInitScript(mockOutcome => {
     (window as Window & { turnstile?: unknown }).turnstile = {
       render: (
         _container: HTMLElement,
@@ -52,14 +56,20 @@ export async function mockTurnstileAPI(page: Page): Promise<void> {
           'before-interactive-callback'?: () => void;
         },
       ): string => {
-        setTimeout(() => options.callback?.('test-token'), 50);
+        setTimeout(() => {
+          if (mockOutcome === 'error') {
+            options['error-callback']?.();
+          } else {
+            options.callback?.('test-token');
+          }
+        }, 50);
         return 'mock-widget-id';
       },
       remove: (): void => {
         // Mock cleanup - no-op
       },
     };
-  });
+  }, outcome);
 
   // Block real Cloudflare script to ensure mock is used
   await page.route('**/challenges.cloudflare.com/**', route => route.abort());
