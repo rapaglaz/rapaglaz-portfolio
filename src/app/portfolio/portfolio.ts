@@ -8,6 +8,8 @@ import { AVAILABLE_LANGS, type AvailableLang, DEFAULT_LANG } from '../utils/i18n
 const SITE_ORIGIN = 'https://rapaglaz.de';
 const OG_LOCALE: Record<AvailableLang, string> = { de: 'de_DE', en: 'en_US' };
 const SEO_LINK_ATTR = 'data-seo-id';
+const SEO_ROLE = 'Frontend Engineer';
+const SEO_IMAGE = `${SITE_ORIGIN}/images/IMG_2290-384.webp`;
 
 @Component({
   selector: 'app-portfolio',
@@ -36,7 +38,8 @@ export class Portfolio {
   private readonly meta = inject(Meta);
   private readonly document = inject(DOCUMENT);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly activeLang = inject(TranslocoService).getActiveLang() as AvailableLang;
+  private readonly transloco = inject(TranslocoService);
+  private readonly activeLang = this.transloco.getActiveLang() as AvailableLang;
 
   constructor() {
     this.initSeoTags();
@@ -45,6 +48,24 @@ export class Portfolio {
 
   private initSeoTags(): void {
     const locale = OG_LOCALE[this.activeLang] ?? OG_LOCALE[DEFAULT_LANG];
+    // the app initializer loads the active language before anything
+    // renders, so synchronous translate() is safe here
+    const name = `${this.transloco.translate('common.firstName')} ${this.transloco.translate('common.lastName')}`;
+    const title = `${name} - ${SEO_ROLE}`;
+    const description = this.transloco.translate<string>('portfolio.hero.description');
+    const pageUrl = `${SITE_ORIGIN}/${this.activeLang}`;
+
+    this.meta.updateTag({ name: 'description', content: description });
+    this.meta.updateTag({ property: 'og:title', content: title });
+    this.meta.updateTag({ property: 'og:description', content: description });
+    this.meta.updateTag({ property: 'og:type', content: 'website' });
+    this.meta.updateTag({ property: 'og:url', content: pageUrl });
+    this.meta.updateTag({ property: 'og:image', content: SEO_IMAGE });
+    this.meta.updateTag({ property: 'og:site_name', content: name });
+    this.meta.updateTag({ name: 'twitter:card', content: 'summary' });
+    this.meta.updateTag({ name: 'twitter:title', content: title });
+    this.meta.updateTag({ name: 'twitter:description', content: description });
+    this.meta.updateTag({ name: 'twitter:image', content: SEO_IMAGE });
 
     this.meta.updateTag({ property: 'og:locale', content: locale });
 
@@ -91,7 +112,23 @@ export class Portfolio {
 
   private cleanupSeoTags(): void {
     this.document.head.querySelectorAll(`link[${SEO_LINK_ATTR}]`).forEach(el => el.remove());
-    this.meta.removeTag('property="og:locale"');
-    this.meta.removeTag('property="og:locale:alternate"');
+    // name="description" stays: it pre-exists in index.html and is only updated
+    const ogProperties = [
+      'og:title',
+      'og:description',
+      'og:type',
+      'og:url',
+      'og:image',
+      'og:site_name',
+      'og:locale',
+      'og:locale:alternate',
+    ];
+    const twitterNames = ['twitter:card', 'twitter:title', 'twitter:description', 'twitter:image'];
+    for (const property of ogProperties) {
+      this.meta.removeTag(`property="${property}"`);
+    }
+    for (const name of twitterNames) {
+      this.meta.removeTag(`name="${name}"`);
+    }
   }
 }
