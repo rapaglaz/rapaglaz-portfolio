@@ -40,7 +40,7 @@ Flow:
 
 1. User clicks "CV"
 2. Turnstile runs (sometimes invisible, sometimes it asks)
-3. Frontend sends the token to the Worker (via `X-Turnstile-Token` header, injected by `turnstile.interceptor`)
+3. Frontend sends the token to the Worker (via `cf-turnstile-response` header, injected by `turnstile.interceptor`)
 4. Worker validates the token against Cloudflare
 5. If ok, Worker returns a signed R2 URL
 

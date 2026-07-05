@@ -36,9 +36,9 @@
   },
   "customManagers": [
     {
-      "description": "Track Playwright Docker image version in e2e workflow",
+      "description": "Track Playwright Docker image version in workflows",
       "customType": "regex",
-      "managerFilePatterns": ["/^\\.github/workflows/e2e\\.yaml$/"],
+      "managerFilePatterns": ["/^\\.github/workflows/.+\\.ya?ml$/"],
       "matchStrings": [
         "mcr\\.microsoft\\.com/playwright:(?<currentValue>[^@\\s]+)@(?<currentDigest>sha256:[a-f0-9]+)"
       ],
