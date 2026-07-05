@@ -45,9 +45,10 @@ Can also be triggered manually via `workflow_dispatch`.
 
 Flow:
 
-1. Build the app (SSG).
-2. Upload the build artifact.
-3. Deploy via FTPS to the production server (`SamKirkland/FTP-Deploy-Action`).
+1. Download the `build-artifact-main` artifact from the triggering Main Branch Checks run — the exact build that e2e ran against. No rebuild.
+2. Deploy via FTPS to the production server (`SamKirkland/FTP-Deploy-Action`).
+
+Manual `workflow_dispatch` runs have no triggering workflow, so they build the app (SSG) first and deploy that artifact.
 
 Credentials (`SERVER`, `USER`, `PASS`) live in GitHub Secrets.
 
