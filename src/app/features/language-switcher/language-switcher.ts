@@ -1,9 +1,8 @@
 import { CdkListboxModule, type ListboxValueChangeEvent } from '@angular/cdk/listbox';
 import { Component, computed, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { TranslocoService } from '@jsverse/transloco';
-import { AVAILABLE_LANGS, isAvailableLang, LANG_LABELS } from '../../utils/i18n';
+import { AVAILABLE_LANGS, injectActiveLang, isAvailableLang, LANG_LABELS } from '../../utils/i18n';
 
 @Component({
   selector: 'app-language-switcher',
@@ -40,9 +39,7 @@ export class LanguageSwitcher {
 
   protected readonly availableLangs = AVAILABLE_LANGS;
 
-  protected readonly currentLang = toSignal(this.translocoService.langChanges$, {
-    initialValue: this.translocoService.getActiveLang(),
-  });
+  protected readonly currentLang = injectActiveLang();
 
   protected readonly selectedLang = computed<readonly string[]>(() => [this.currentLang()]);
 
