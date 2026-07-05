@@ -23,9 +23,9 @@ Jobs: `lint`, `test`, `actionlint`, `build`, `e2e-tests`, `lighthouse`, `quality
 
 - `lint`, `test`, `actionlint`, `build` run in parallel.
 - `e2e-tests` and `lighthouse` depend on `build` (reuse the build artifact).
-- `quality-check` is a gate job — fails if any of `lint`, `test`, or `build` failed. Branch protection requires it to pass.
+- `quality-check` is a gate job — fails if `lint` or `build` failed, or if `test` failed (a skipped `test` is accepted). Branch protection requires it to pass.
 
-Renovate PRs skip `actionlint`, `e2e-tests`, and `lighthouse`. The `test` job still runs but skips unit tests and i18n validation — a dependency bump doesn't need those.
+Renovate PRs skip `test`, `actionlint`, `e2e-tests`, and `lighthouse` — a dependency bump doesn't need those, and lockfile changes are still covered by `lint` and `build`.
 
 SonarQube analysis runs inside the `test` job on both PR and main, using `sonar-token` from GitHub Secrets.
 
