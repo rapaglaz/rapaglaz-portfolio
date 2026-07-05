@@ -18,6 +18,9 @@
 **/node_modules/
 .deno/
 
+# Locally installed agent skills (gitignored)
+.agents/
+
 # Lockfiles
 *.lock
 bun.lockb
