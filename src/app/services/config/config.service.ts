@@ -29,6 +29,12 @@ export class ConfigService {
   getConfig(): Observable<Config> {
     this.config$ ??= this.fetchConfig().pipe(
       retry({ count: ConfigService.MAX_CONFIG_RETRIES }),
+      catchError((err: unknown) => {
+        // shareReplay would replay the error forever; drop the cached
+        // observable so the next getConfig() call fetches again
+        this.config$ = null;
+        return throwError(() => err);
+      }),
       shareReplay({ bufferSize: 1, refCount: false }),
     );
     return this.config$;

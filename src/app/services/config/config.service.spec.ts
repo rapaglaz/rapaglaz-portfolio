@@ -173,6 +173,28 @@ describe('ConfigService', () => {
     await expect(configPromise).resolves.toEqual(mockConfig);
   });
 
+  it('fetches again on a later call after all attempts failed', async () => {
+    vi.stubGlobal('location', {
+      ...originalLocation,
+      hostname: 'rapaglaz.de',
+    });
+
+    const firstPromise = firstValueFrom(service.getConfig());
+
+    flushAllAttempts(req =>
+      req.error(new ProgressEvent('error'), { status: 500, statusText: 'Internal Server Error' }),
+    );
+
+    await expect(firstPromise).rejects.toThrow(/Failed to fetch config/);
+
+    const mockConfig = { turnstileSiteKey: 'recovered-key-456' };
+    const secondPromise = firstValueFrom(service.getConfig());
+
+    httpMock.expectOne('/config').flush(mockConfig);
+
+    await expect(secondPromise).resolves.toEqual(mockConfig);
+  });
+
   it('caches config response - multiple calls make only one HTTP request', async () => {
     vi.stubGlobal('location', {
       ...originalLocation,
