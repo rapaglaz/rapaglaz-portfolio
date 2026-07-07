@@ -62,11 +62,6 @@ export class Portfolio {
     this.meta.updateTag({ property: 'og:url', content: pageUrl });
     this.meta.updateTag({ property: 'og:image', content: SEO_IMAGE });
     this.meta.updateTag({ property: 'og:site_name', content: name });
-    this.meta.updateTag({ name: 'twitter:card', content: 'summary' });
-    this.meta.updateTag({ name: 'twitter:title', content: title });
-    this.meta.updateTag({ name: 'twitter:description', content: description });
-    this.meta.updateTag({ name: 'twitter:image', content: SEO_IMAGE });
-
     this.meta.updateTag({ property: 'og:locale', content: locale });
 
     for (const lang of AVAILABLE_LANGS) {
@@ -123,12 +118,8 @@ export class Portfolio {
       'og:locale',
       'og:locale:alternate',
     ];
-    const twitterNames = ['twitter:card', 'twitter:title', 'twitter:description', 'twitter:image'];
     for (const property of ogProperties) {
       this.meta.removeTag(`property="${property}"`);
-    }
-    for (const name of twitterNames) {
-      this.meta.removeTag(`name="${name}"`);
     }
   }
 }

@@ -77,8 +77,6 @@ describe('Portfolio', () => {
     expect(byProperty('og:url')).toBe('https://rapaglaz.de/en');
     expect(byProperty('og:image')).toBe('https://rapaglaz.de/images/IMG_2290-384.webp');
     expect(byProperty('og:description')).toContain('Frontend Engineer');
-    expect(byName('twitter:card')).toBe('summary');
-    expect(byName('twitter:title')).toBe('Paul Glaz - Frontend Engineer');
     expect(byName('description')).toContain('Frontend Engineer');
   });
 
@@ -87,7 +85,7 @@ describe('Portfolio', () => {
 
     const head = TestBed.inject(DOCUMENT).head;
     expect(head.querySelector('meta[property="og:title"]')).toBeNull();
-    expect(head.querySelector('meta[name="twitter:card"]')).toBeNull();
+    expect(head.querySelector('meta[property="og:image"]')).toBeNull();
     expect(head.querySelector('link[data-seo-id]')).toBeNull();
   });
 });
