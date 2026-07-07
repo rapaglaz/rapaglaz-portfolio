@@ -1,6 +1,9 @@
+import { DOCUMENT } from '@angular/common';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
+import { firstValueFrom } from 'rxjs';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { provideTranslocoTesting } from '../testing';
 import { Portfolio } from './portfolio';
@@ -14,6 +17,10 @@ describe('Portfolio', () => {
       imports: [Portfolio],
       providers: [provideHttpClient(), provideHttpClientTesting(), provideTranslocoTesting()],
     }).compileComponents();
+
+    // the app initializer preloads translations in production; mirror
+    // that so constructor-time translate() sees loaded values
+    await firstValueFrom(TestBed.inject(TranslocoService).load('en'));
 
     fixture = TestBed.createComponent(Portfolio);
     element = fixture.nativeElement;
@@ -55,5 +62,30 @@ describe('Portfolio', () => {
     const languages = main?.querySelector('[data-testid="section-languages"]');
     const languageCards = languages?.querySelectorAll('[data-testid="language-card"]');
     expect(languageCards?.length).toBeGreaterThan(0);
+  });
+
+  it('sets social and description meta tags for the active language', () => {
+    const head = TestBed.inject(DOCUMENT).head;
+    const byProperty = (property: string): string | null | undefined =>
+      head.querySelector(`meta[property="${property}"]`)?.getAttribute('content');
+    const byName = (name: string): string | null | undefined =>
+      head.querySelector(`meta[name="${name}"]`)?.getAttribute('content');
+
+    expect(byProperty('og:title')).toBe('Paul Glaz - Frontend Engineer');
+    expect(byProperty('og:site_name')).toBe('Paul Glaz');
+    expect(byProperty('og:type')).toBe('website');
+    expect(byProperty('og:url')).toBe('https://rapaglaz.de/en');
+    expect(byProperty('og:image')).toBe('https://rapaglaz.de/images/IMG_2290-384.webp');
+    expect(byProperty('og:description')).toContain('Frontend Engineer');
+    expect(byName('description')).toContain('Frontend Engineer');
+  });
+
+  it('removes social meta tags on destroy', () => {
+    fixture.destroy();
+
+    const head = TestBed.inject(DOCUMENT).head;
+    expect(head.querySelector('meta[property="og:title"]')).toBeNull();
+    expect(head.querySelector('meta[property="og:image"]')).toBeNull();
+    expect(head.querySelector('link[data-seo-id]')).toBeNull();
   });
 });
