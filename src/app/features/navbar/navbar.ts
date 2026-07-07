@@ -4,9 +4,9 @@ import { Component, computed, DestroyRef, inject, PLATFORM_ID, signal } from '@a
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { finalize, map, startWith } from 'rxjs';
-import { CONTACT_ITEMS } from '../../content';
 import { CvDownloadService, FeatureFlagService, LoggerService, ToastService } from '../../services';
 import { Badge } from '../../ui';
+import { injectContactEmailOpener } from '../../utils/contact';
 import { MeasureNavbarHeightDirective } from '../../utils/layout';
 import { withErrorToast } from '../../utils/rxjs';
 import { LanguageSwitcher } from '../language-switcher/language-switcher';
@@ -41,22 +41,11 @@ export class Navbar {
     { initialValue: 0 },
   );
 
-  private readonly openToWorkFlag = this.featureFlagService.getFlag('openToWork');
-
   protected readonly isScrolled = computed(() => this.scrollY() > 0);
   protected readonly isDownloading = signal(false);
   protected readonly canDownload = computed(() => !this.isDownloading());
-  // hasValue() guards value(), which throws while the resource is in the error state.
-  protected readonly openToWork = computed(
-    () => this.openToWorkFlag.hasValue() && this.openToWorkFlag.value(),
-  );
-
-  protected contactEmail(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-    const href = CONTACT_ITEMS.find(item => item.id === 'email')?.href;
-    if (!href) return;
-    this.document.defaultView?.location.assign(href);
-  }
+  protected readonly openToWork = this.featureFlagService.getFlagValue('openToWork');
+  protected readonly contactEmail = injectContactEmailOpener();
 
   protected handleDownloadCV(): void {
     if (!this.canDownload()) return;

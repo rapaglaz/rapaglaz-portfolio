@@ -17,6 +17,7 @@ const mockFeatureFlagService = {
     isLoading: () => false,
     error: () => undefined,
   }),
+  getFlagValue: vi.fn().mockReturnValue(() => true),
 };
 
 describe('Navbar', () => {

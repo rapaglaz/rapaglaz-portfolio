@@ -1,9 +1,9 @@
-import { Component, computed, inject, viewChild } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { Component, computed, viewChild } from '@angular/core';
+import { TranslocoModule } from '@jsverse/transloco';
 import { CERTIFICATIONS, type Certification } from '../../content';
 import { SectionWrapper } from '../../ui';
 import { buildDelayGetter } from '../../utils/animation';
+import { injectActiveLang } from '../../utils/i18n';
 
 type CertificationWithFormattedDate = Certification & {
   formattedDate: string;
@@ -17,11 +17,7 @@ type CertificationWithFormattedDate = Certification & {
 export class Certifications {
   protected readonly sectionWrapper = viewChild.required(SectionWrapper);
 
-  private readonly transloco = inject(TranslocoService);
-
-  private readonly activeLang = toSignal(this.transloco.langChanges$, {
-    initialValue: this.transloco.getActiveLang(),
-  });
+  private readonly activeLang = injectActiveLang();
 
   private readonly dateFormatter = computed(() => {
     const locale = this.activeLang();

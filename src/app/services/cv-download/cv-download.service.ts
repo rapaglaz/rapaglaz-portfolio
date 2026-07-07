@@ -1,10 +1,8 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpContext, HttpContextToken } from '@angular/common/http';
 import { computed, inject, Injectable, PLATFORM_ID } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { TranslocoService } from '@jsverse/transloco';
 import { map, Observable, switchMap, throwError } from 'rxjs';
-import { getBrowserLanguage } from '../../utils/i18n';
+import { getBrowserLanguage, injectActiveLang } from '../../utils/i18n';
 import { API_BASE_URL } from '../../utils/tokens/api-urls.token';
 import { ConfigService } from '../config/config.service';
 import { LoggerService } from '../logger/logger.service';
@@ -32,7 +30,6 @@ export function triggerBrowserDownload(document: Document, blob: Blob, filename:
 @Injectable({ providedIn: 'root' })
 export class CvDownloadService {
   private readonly http = inject(HttpClient);
-  private readonly transloco = inject(TranslocoService);
   private readonly turnstileService = inject(TurnstileService);
   private readonly configService = inject(ConfigService);
   private readonly loggerService = inject(LoggerService);
@@ -40,9 +37,7 @@ export class CvDownloadService {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly downloadEndpoint = `${inject(API_BASE_URL)}/download`;
 
-  private readonly activeLang = toSignal(this.transloco.langChanges$, {
-    initialValue: this.transloco.getActiveLang(),
-  });
+  private readonly activeLang = injectActiveLang();
 
   private readonly cvFilename = computed(() => {
     const lang = this.detectLanguage();
