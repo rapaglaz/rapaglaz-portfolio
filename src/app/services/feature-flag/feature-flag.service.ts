@@ -1,6 +1,6 @@
 import { isPlatformBrowser } from '@angular/common';
 import { httpResource, HttpResourceRef } from '@angular/common/http';
-import { inject, Injectable, Injector, PLATFORM_ID } from '@angular/core';
+import { computed, inject, Injectable, Injector, PLATFORM_ID, Signal } from '@angular/core';
 import * as v from 'valibot';
 import { API_FEATURE_FLAG_URL } from '../../utils/tokens/api-urls.token';
 
@@ -21,6 +21,12 @@ export class FeatureFlagService {
   // be bound to the root injector instead of the caller's injection context.
   private readonly injector = inject(Injector);
   private readonly cache = new Map<string, HttpResourceRef<boolean>>();
+
+  // hasValue() guards value(), which throws while the resource is in the error state
+  getFlagValue(name: string): Signal<boolean> {
+    const resource = this.getFlag(name);
+    return computed(() => resource.hasValue() && resource.value());
+  }
 
   getFlag(name: string): HttpResourceRef<boolean> {
     let resource = this.cache.get(name);

@@ -1,7 +1,6 @@
-import { DOCUMENT, isPlatformBrowser } from '@angular/common';
-import { Component, inject, PLATFORM_ID } from '@angular/core';
+import { Component } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
-import { CONTACT_ITEMS } from '../../content';
+import { injectContactEmailOpener } from '../../utils/contact';
 
 @Component({
   selector: 'app-footer',
@@ -9,18 +8,6 @@ import { CONTACT_ITEMS } from '../../content';
   imports: [TranslocoModule],
 })
 export class Footer {
-  private readonly document = inject(DOCUMENT);
-  private readonly platformId = inject(PLATFORM_ID);
-
   protected readonly currentYear = new Date().getFullYear();
-
-  protected contactEmail(): void {
-    const emailItem = CONTACT_ITEMS.find(item => item.id === 'email');
-
-    if (!emailItem?.href) return;
-    if (!isPlatformBrowser(this.platformId)) return;
-
-    const win = this.document.defaultView;
-    win?.location.assign(emailItem?.href);
-  }
+  protected readonly contactEmail = injectContactEmailOpener();
 }

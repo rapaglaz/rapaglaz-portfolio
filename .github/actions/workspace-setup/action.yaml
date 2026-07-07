@@ -17,8 +17,11 @@ runs:
       uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
       with:
         path: .angular/cache
-        key: angular-cache-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+        # github.sha keeps the key unique so every run uploads a fresh
+        # cache; an exact-match hit would otherwise never be updated
+        key: angular-cache-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
         restore-keys: |
+          angular-cache-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
           angular-cache-${{ runner.os }}-
 
     - name: Install dependencies
