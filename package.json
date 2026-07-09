@@ -66,7 +66,7 @@
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.6",
     "jsdom": "29.1.1",
-    "lefthook": "2.1.9",
+    "lefthook": "2.1.10",
     "lint-staged": "17.0.8",
     "playwright-ng-schematics": "21.1.1",
     "postcss": "8.5.16",
