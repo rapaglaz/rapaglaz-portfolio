@@ -112,8 +112,8 @@ importers:
         specifier: 22.0.0
         version: 22.0.0(@angular/cli@22.0.7(@types/node@24.13.3)(chokidar@5.0.0))(chokidar@5.0.0)(eslint@10.4.1(jiti@2.7.0))(typescript-eslint@8.61.1(eslint@10.4.1(jiti@2.7.0))(typescript@6.0.3))(typescript@6.0.3)
       daisyui:
-        specifier: 5.6.0
-        version: 5.6.0
+        specifier: 5.6.1
+        version: 5.6.1
       eslint:
         specifier: 10.4.1
         version: 10.4.1(jiti@2.7.0)
@@ -2521,8 +2521,8 @@ packages:
     resolution: {integrity: sha512-wD5oz5xibMOPHzy13CyGmogB3phdvcDaB5t0W/Nr5Z2O/agcB8YwOz6e2Lsp10pNDzBoDO9nVa3RGs/2BttpHQ==}
     engines: {node: '>= 6'}
 
-  daisyui@5.6.0:
-    resolution: {integrity: sha512-zogSaxtxZqm4I7QqHmjk/8k1oXW1EtK5Tf4fnS8e4PPQrOukMId9WDGHCUanP2duBZBBLA5E1JHDbOdwRqc/Gg==}
+  daisyui@5.6.1:
+    resolution: {integrity: sha512-pIss+Pv4OFD6zpULyIfsJGOQv1vYD+RvM0lBjVL42+m4S79s1Kk/TEexH/cxTl2J9HGg7tejOmeLlc/R+p8feA==}
 
   data-urls@7.0.0:
     resolution: {integrity: sha512-23XHcCF+coGYevirZceTVD7NdJOqVn+49IHyxgszm+JIiHLoB2TkmPtsYkNWT1pvRSGkc35L6NHs0yHkN2SumA==}
@@ -6832,7 +6832,7 @@ snapshots:
 
   css-what@7.0.0: {}
 
-  daisyui@5.6.0: {}
+  daisyui@5.6.1: {}
 
   data-urls@7.0.0:
     dependencies:
