@@ -1,10 +1,5 @@
 export type SkillCategoryId =
-  | 'frontend'
-  | 'testing'
-  | 'devops'
-  | 'architecture'
-  | 'backend'
-  | 'soft-skills';
+  'frontend' | 'testing' | 'devops' | 'architecture' | 'backend' | 'soft-skills';
 
 export type Skill = {
   readonly id: string;
