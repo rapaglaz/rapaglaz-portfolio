@@ -70,13 +70,13 @@
     "lint-staged": "17.0.8",
     "playwright-ng-schematics": "21.1.1",
     "postcss": "8.5.20",
-    "prettier": "3.9.0",
+    "prettier": "3.9.1",
     "prettier-plugin-organize-imports": "4.3.0",
     "prettier-plugin-tailwindcss": "0.8.1",
     "serve": "14.2.6",
     "tailwindcss": "4.3.2",
     "typescript": "6.0.3",
-    "typescript-eslint": "8.62.0",
+    "typescript-eslint": "8.62.1",
     "vitest": "4.1.10"
   },
   "packageManager": "pnpm@11.9.0"
