@@ -70,7 +70,7 @@
     "lint-staged": "17.1.1",
     "playwright-ng-schematics": "22.0.3",
     "postcss": "8.5.22",
-    "prettier": "3.9.4",
+    "prettier": "3.9.5",
     "prettier-plugin-organize-imports": "4.3.0",
     "prettier-plugin-tailwindcss": "0.8.1",
     "serve": "14.2.6",
