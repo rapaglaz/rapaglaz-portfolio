@@ -57,6 +57,7 @@
         "angular": "Angular",
         "typescript": "TypeScript",
         "rxjs": "RxJS",
+        "ngrx": "NgRx",
         "nx": "Nx",
         "javascript": "JavaScript/ES6+",
         "tailwind": "Tailwind CSS",
