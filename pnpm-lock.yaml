@@ -94,8 +94,8 @@ importers:
         specifier: 8.4.0
         version: 8.4.0(typescript@6.0.3)
       '@jsverse/transloco-validator':
-        specifier: 8.3.0
-        version: 8.3.0
+        specifier: 8.4.0
+        version: 8.4.0
       '@playwright/test':
         specifier: ^1.61.1
         version: 1.61.1
@@ -1100,8 +1100,8 @@ packages:
     resolution: {integrity: sha512-0gJIpjX15a1UmBmwxHI3fXDu0VElU4FaunbYv6O13DOkhdSY8eV6Whdljokv5dJqXSLKdMxI624upkN13enKJg==}
     engines: {node: '>=18'}
 
-  '@jsverse/transloco-validator@8.3.0':
-    resolution: {integrity: sha512-CQKfAfPTCrZoX4+OM49HJfkwAD6ZpAutahFnCERBE1QOMdObcBZSmUV9I3GEMrICt2RiNvIhelsVGLGBm4G8rw==}
+  '@jsverse/transloco-validator@8.4.0':
+    resolution: {integrity: sha512-tPKxO+b8BJruARSx+44W7aNj1DaTH5o41FtT7/r+Nuk6YdiFpSFHsKcH1yH3tRsLGrc/jkAym5DTtuP0d1GNag==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -5320,7 +5320,7 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  '@jsverse/transloco-validator@8.3.0':
+  '@jsverse/transloco-validator@8.4.0':
     dependencies:
       find-duplicated-property-keys: 1.2.9
 
