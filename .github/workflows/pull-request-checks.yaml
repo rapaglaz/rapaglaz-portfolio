@@ -142,7 +142,7 @@ jobs:
   # TODO: add Cloudflare Pages preview deploy once CF project is configured
 
   quality-check:
-    needs: [lint, test, build]
+    needs: [lint, test, build, e2e-tests]
     runs-on: ubuntu-latest
     if: always()
     permissions: {}
@@ -154,9 +154,14 @@ jobs:
             echo "One or more required jobs failed"
             exit 1
           fi
-          # test may be skipped (renovate PRs) but must never fail
+          # test and e2e-tests may be skipped (renovate PRs) but must never fail
           if [[ "${{ needs.test.result }}" != "success" && \
                 "${{ needs.test.result }}" != "skipped" ]]; then
             echo "Test job failed"
+            exit 1
+          fi
+          if [[ "${{ needs.e2e-tests.result }}" != "success" && \
+                "${{ needs.e2e-tests.result }}" != "skipped" ]]; then
+            echo "E2E tests job failed"
             exit 1
           fi
