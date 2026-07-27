@@ -54,7 +54,7 @@
     "@commitlint/config-conventional": "21.2.0",
     "@eslint/js": "10.0.1",
     "@jsverse/transloco-keys-manager": "8.1.1",
-    "@jsverse/transloco-utils": "8.3.0",
+    "@jsverse/transloco-utils": "8.4.0",
     "@jsverse/transloco-validator": "8.3.0",
     "@playwright/test": "^1.61.1",
     "@tailwindcss/postcss": "4.3.3",
