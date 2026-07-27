@@ -91,8 +91,8 @@ importers:
         specifier: 8.1.1
         version: 8.1.1(supports-color@7.2.0)(typescript@6.0.3)
       '@jsverse/transloco-utils':
-        specifier: 8.3.0
-        version: 8.3.0(typescript@6.0.3)
+        specifier: 8.4.0
+        version: 8.4.0(typescript@6.0.3)
       '@jsverse/transloco-validator':
         specifier: 8.3.0
         version: 8.3.0
@@ -1095,10 +1095,6 @@ packages:
     resolution: {integrity: sha512-+2Z3UqAo8FViHnex7V9xFo2gIF7kb3aF0eRKGXLGxHzftLfwiPEbTuSAkSOcwFHCqReHIrNGdLSMSEw1TmH8CQ==}
     engines: {node: '>=20.19.0'}
     hasBin: true
-
-  '@jsverse/transloco-utils@8.3.0':
-    resolution: {integrity: sha512-HZPDKadKiL3l4iZ51PF7gv7txBgrR7gQB6crdfLSrXsCvCTGDnnhd3y5qO02pBWbWMDKRXKU0clv2dd3jeTSFA==}
-    engines: {node: '>=18'}
 
   '@jsverse/transloco-utils@8.4.0':
     resolution: {integrity: sha512-0gJIpjX15a1UmBmwxHI3fXDu0VElU4FaunbYv6O13DOkhdSY8eV6Whdljokv5dJqXSLKdMxI624upkN13enKJg==}
@@ -2301,15 +2297,6 @@ packages:
 
   cosmiconfig@8.3.6:
     resolution: {integrity: sha512-kcZ6+W5QzcJ3P1Mt+83OUv/oHFqZHIx8DuxG6eZ5RGMERoLqp4BuGjhHLYGK+Kf5XVkQvqBSmAy/nGWN3qDgEA==}
-    engines: {node: '>=14'}
-    peerDependencies:
-      typescript: '>=4.9.5'
-    peerDependenciesMeta:
-      typescript:
-        optional: true
-
-  cosmiconfig@9.0.1:
-    resolution: {integrity: sha512-hr4ihw+DBqcvrsEDioRO31Z17x71pUYoNe/4h6Z0wB72p7MU7/9gH8Q3s12NFhHPfYBBOV3qyfUxmr/Yn3shnQ==}
     engines: {node: '>=14'}
     peerDependencies:
       typescript: '>=4.9.5'
@@ -4917,8 +4904,8 @@ snapshots:
       '@commitlint/execute-rule': 21.0.1
       '@commitlint/resolve-extends': 21.2.0
       '@commitlint/types': 21.2.0
-      cosmiconfig: 9.0.1(typescript@6.0.3)
-      cosmiconfig-typescript-loader: 6.3.0(@types/node@24.13.3)(cosmiconfig@9.0.1(typescript@6.0.3))(typescript@6.0.3)
+      cosmiconfig: 9.0.2(typescript@6.0.3)
+      cosmiconfig-typescript-loader: 6.3.0(@types/node@24.13.3)(cosmiconfig@9.0.2(typescript@6.0.3))(typescript@6.0.3)
       es-toolkit: 1.47.0
       is-plain-obj: 4.1.0
       picocolors: 1.1.1
@@ -5324,13 +5311,6 @@ snapshots:
     transitivePeerDependencies:
       - '@75lb/nature'
       - supports-color
-      - typescript
-
-  '@jsverse/transloco-utils@8.3.0(typescript@6.0.3)':
-    dependencies:
-      cosmiconfig: 8.3.6(typescript@6.0.3)
-      tslib: 2.8.1
-    transitivePeerDependencies:
       - typescript
 
   '@jsverse/transloco-utils@8.4.0(typescript@6.0.3)':
@@ -6482,10 +6462,10 @@ snapshots:
       object-assign: 4.1.1
       vary: 1.1.2
 
-  cosmiconfig-typescript-loader@6.3.0(@types/node@24.13.3)(cosmiconfig@9.0.1(typescript@6.0.3))(typescript@6.0.3):
+  cosmiconfig-typescript-loader@6.3.0(@types/node@24.13.3)(cosmiconfig@9.0.2(typescript@6.0.3))(typescript@6.0.3):
     dependencies:
       '@types/node': 24.13.3
-      cosmiconfig: 9.0.1(typescript@6.0.3)
+      cosmiconfig: 9.0.2(typescript@6.0.3)
       jiti: 2.6.1
       typescript: 6.0.3
 
@@ -6495,15 +6475,6 @@ snapshots:
       js-yaml: 4.2.0
       parse-json: 5.2.0
       path-type: 4.0.0
-    optionalDependencies:
-      typescript: 6.0.3
-
-  cosmiconfig@9.0.1(typescript@6.0.3):
-    dependencies:
-      env-paths: 2.2.1
-      import-fresh: 3.3.1
-      js-yaml: 4.2.0
-      parse-json: 5.2.0
     optionalDependencies:
       typescript: 6.0.3
 
