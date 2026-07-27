@@ -18,6 +18,7 @@ export const SKILL_CATEGORIES: readonly SkillCategory[] = [
       { id: 'typescript' },
       { id: 'rxjs' },
       { id: 'nx' },
+      { id: 'ngrx' },
       { id: 'javascript' },
       { id: 'tailwind' },
       { id: 'html-css' },
