@@ -36,22 +36,22 @@ importers:
         specifier: 22.0.8
         version: 22.0.8(@angular/common@22.0.8(@angular/core@22.0.8(@angular/compiler@22.0.8)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.0.8(@angular/compiler@22.0.8)(rxjs@7.8.2))(@angular/platform-server@22.0.8(@angular/common@22.0.8(@angular/core@22.0.8(@angular/compiler@22.0.8)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/compiler@22.0.8)(@angular/core@22.0.8(@angular/compiler@22.0.8)(rxjs@7.8.2))(@angular/platform-browser@22.0.8(@angular/common@22.0.8(@angular/core@22.0.8(@angular/compiler@22.0.8)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.0.8(@angular/compiler@22.0.8)(rxjs@7.8.2)))(rxjs@7.8.2))(@angular/router@22.0.8(@angular/common@22.0.8(@angular/core@22.0.8(@angular/compiler@22.0.8)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.0.8(@angular/compiler@22.0.8)(rxjs@7.8.2))(@angular/platform-browser@22.0.8(@angular/common@22.0.8(@angular/core@22.0.8(@angular/compiler@22.0.8)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.0.8(@angular/compiler@22.0.8)(rxjs@7.8.2)))(rxjs@7.8.2))
       '@fontsource/inter':
-        specifier: 5.3.0
+        specifier: ^5.3.0
         version: 5.3.0
       '@fontsource/manrope':
-        specifier: 5.3.0
+        specifier: ^5.3.0
         version: 5.3.0
       '@jsverse/transloco':
         specifier: 8.3.0
         version: 8.3.0(@angular/core@22.0.8(@angular/compiler@22.0.8)(rxjs@7.8.2))(rxjs@7.8.2)(typescript@6.0.3)
       rxjs:
-        specifier: 7.8.2
+        specifier: ^7.8.2
         version: 7.8.2
       tslib:
-        specifier: 2.8.1
+        specifier: ^2.8.1
         version: 2.8.1
       valibot:
-        specifier: 1.4.2
+        specifier: ^1.4.2
         version: 1.4.2(typescript@6.0.3)
     devDependencies:
       '@angular-eslint/builder':
@@ -76,7 +76,7 @@ importers:
         specifier: 22.0.8
         version: 22.0.8(@angular/compiler@22.0.8)(typescript@6.0.3)
       '@axe-core/playwright':
-        specifier: 4.12.1
+        specifier: ^4.12.1
         version: 4.12.1(playwright-core@1.61.1)
       '@commitlint/cli':
         specifier: 21.2.1
@@ -97,13 +97,13 @@ importers:
         specifier: 8.3.0
         version: 8.3.0
       '@playwright/test':
-        specifier: 1.61.1
+        specifier: ^1.61.1
         version: 1.61.1
       '@tailwindcss/postcss':
         specifier: 4.3.3
         version: 4.3.3
       '@types/node':
-        specifier: 24.13.3
+        specifier: ^24.13.3
         version: 24.13.3
       '@vitest/coverage-v8':
         specifier: 4.1.10
@@ -118,10 +118,10 @@ importers:
         specifier: 10.7.0
         version: 10.7.0(jiti@2.7.0)
       eslint-config-prettier:
-        specifier: 10.1.8
+        specifier: ^10.1.8
         version: 10.1.8(eslint@10.7.0(jiti@2.7.0))
       eslint-plugin-prettier:
-        specifier: 5.5.6
+        specifier: ^5.5.6
         version: 5.5.6(eslint-config-prettier@10.1.8(eslint@10.7.0(jiti@2.7.0)))(eslint@10.7.0(jiti@2.7.0))(prettier@3.9.6)
       jsdom:
         specifier: 29.1.1
@@ -139,22 +139,22 @@ importers:
         specifier: 8.5.23
         version: 8.5.23
       prettier:
-        specifier: 3.9.6
+        specifier: ^3.9.6
         version: 3.9.6
       prettier-plugin-organize-imports:
-        specifier: 4.3.0
+        specifier: ^4.3.0
         version: 4.3.0(prettier@3.9.6)(typescript@6.0.3)
       prettier-plugin-tailwindcss:
-        specifier: 0.8.1
+        specifier: ^0.8.1
         version: 0.8.1(prettier-plugin-organize-imports@4.3.0(prettier@3.9.6)(typescript@6.0.3))(prettier@3.9.6)
       serve:
-        specifier: 14.2.6
+        specifier: ^14.2.6
         version: 14.2.6
       tailwindcss:
         specifier: 4.3.3
         version: 4.3.3
       typescript:
-        specifier: 6.0.3
+        specifier: ~6.0.3
         version: 6.0.3
       typescript-eslint:
         specifier: 8.65.0
