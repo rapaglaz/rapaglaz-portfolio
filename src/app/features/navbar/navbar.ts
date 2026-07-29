@@ -15,6 +15,7 @@ import { LanguageSwitcher } from '../language-switcher/language-switcher';
   selector: 'app-navbar',
   imports: [Badge, LanguageSwitcher, MeasureNavbarHeightDirective, TranslocoModule],
   templateUrl: './navbar.html',
+  styleUrl: './navbar.css',
 })
 export class Navbar {
   private readonly scrollDispatcher = inject(ScrollDispatcher);
