@@ -115,8 +115,8 @@ importers:
         specifier: 22.1.0
         version: 22.1.0(@angular/cli@22.0.8(@types/node@24.13.3)(chokidar@5.0.0)(supports-color@7.2.0))(chokidar@5.0.0)(eslint@10.7.0(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript-eslint@8.65.0(eslint@10.7.0(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@6.0.3))(typescript@6.0.3)
       daisyui:
-        specifier: 5.6.19
-        version: 5.6.19
+        specifier: 5.6.20
+        version: 5.6.20
       eslint:
         specifier: 10.7.0
         version: 10.7.0(jiti@2.7.0)(supports-color@7.2.0)
@@ -2346,8 +2346,8 @@ packages:
     resolution: {integrity: sha512-wD5oz5xibMOPHzy13CyGmogB3phdvcDaB5t0W/Nr5Z2O/agcB8YwOz6e2Lsp10pNDzBoDO9nVa3RGs/2BttpHQ==}
     engines: {node: '>= 6'}
 
-  daisyui@5.6.19:
-    resolution: {integrity: sha512-J5iHUuC8QjoCI24YGKx9s93BrgJXfDAYoJBdY5/Y6tSDoIyN0kXLAdVQfzvq0Tg5cSjN3k4mPPqAQc+HALmSZA==}
+  daisyui@5.6.20:
+    resolution: {integrity: sha512-A03Bxgsn6bE7IBLfOOL4HKuSWbCASNGZrP7IFpjaKCpT4jwCdU1sWZmeabwvp4cdhzX4qhUMOpCxj3fvlRCt7w==}
 
   data-urls@7.0.0:
     resolution: {integrity: sha512-23XHcCF+coGYevirZceTVD7NdJOqVn+49IHyxgszm+JIiHLoB2TkmPtsYkNWT1pvRSGkc35L6NHs0yHkN2SumA==}
@@ -3561,10 +3561,6 @@ packages:
     engines: {node: '>=18.0'}
     peerDependencies:
       postcss: ^8.4.31
-
-  postcss@8.5.24:
-    resolution: {integrity: sha512-8RyVklq0owXUTa4xlpzu4l9AaVKIdQvAcOHZWaMh98HgySsUtxRVf/chRe3dsSLqb6i40BzGRzEUddRaI+9TSw==}
-    engines: {node: ^10 || ^12 || >=14}
 
   postcss@8.5.25:
     resolution: {integrity: sha512-DTPx3RWSSnWyzLxQnlH0rJP+EW5ekl16ZU4/psbIhA0e53kJfdgaN5vKM+xP7yJtXVu+nfdVFmlgFDEKAe4Pyw==}
@@ -6557,7 +6553,7 @@ snapshots:
 
   css-what@7.0.0: {}
 
-  daisyui@5.6.19: {}
+  daisyui@5.6.20: {}
 
   data-urls@7.0.0:
     dependencies:
@@ -7779,12 +7775,6 @@ snapshots:
     dependencies:
       postcss: 8.5.25
 
-  postcss@8.5.24:
-    dependencies:
-      nanoid: 3.3.16
-      picocolors: 1.1.1
-      source-map-js: 1.2.1
-
   postcss@8.5.25:
     dependencies:
       nanoid: 3.3.16
@@ -8315,7 +8305,7 @@ snapshots:
       esbuild: 0.28.1
       fdir: 6.5.0(picomatch@4.0.5)
       picomatch: 4.0.5
-      postcss: 8.5.24
+      postcss: 8.5.25
       rollup: 4.60.2
       tinyglobby: 0.2.17
     optionalDependencies:
