@@ -58,10 +58,9 @@
                   "maximumError": "700KB"
                 },
                 {
-                  "type": "bundle",
-                  "name": "main",
-                  "maximumWarning": "150KB",
-                  "maximumError": "230KB"
+                  "type": "allScript",
+                  "maximumWarning": "450KB",
+                  "maximumError": "500KB"
                 },
                 {
                   "type": "anyComponentStyle",

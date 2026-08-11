@@ -3,8 +3,8 @@
   padding-top: var(--navbar-height, 7rem);
 }
 
-.hero-avatar-wrapper {
-  @apply animate-[fadeInUp_0.5s_ease-out_0.3s_both];
+.hero-avatar {
+  @apply animate-[fadeInUp_1.1s_cubic-bezier(0.4,0,0.2,1)_0.6s_both];
 }
 
 .hero-avatar-wrapper img {
@@ -13,14 +13,10 @@
 }
 
 .hero-about {
-  @apply animate-[fadeInUp_0.5s_ease-out_0.8s_both];
+  @apply animate-[fadeInUp_1.1s_cubic-bezier(0.4,0,0.2,1)_0.9s_both];
 }
 
 .hero-name {
-  @apply animate-[fadeInUp_0.5s_ease-out_0.6s_both];
-}
-
-.hero-name-paul,
-.hero-name-glaz {
   font-family: 'Manrope', 'Inter', sans-serif;
+  @apply animate-[fadeInUp_1s_cubic-bezier(0.4,0,0.2,1)_0.5s_both];
 }
