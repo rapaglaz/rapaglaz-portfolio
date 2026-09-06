@@ -11,11 +11,10 @@ Workflows are in `.github/workflows/`.
 
 ## Workflows
 
-There are three workflows:
+There are two workflows:
 
 - `pull-request-checks.yaml` — runs on every PR
-- `merge-to-main-checks.yaml` — runs on push to main (skips docs/markdown changes)
-- `release.yaml` (Deploy) — triggers after Main Branch Checks succeed, deploys to production
+- `main-branch-ci-cd.yaml` (Main Branch CI/CD) — runs on push to main (skips docs/markdown changes), and deploys to production when checks pass
 
 ## Pull request workflow
 
@@ -29,26 +28,24 @@ Renovate PRs skip `test`, `actionlint`, `e2e-tests`, and `lighthouse` — a depe
 
 SonarQube analysis runs inside the `test` job on both PR and main, using `sonar-token` from GitHub Secrets.
 
-## Main branch checks
+## Main branch CI/CD
 
-Jobs: `lint`, `test`, `build`, `e2e-tests` — all run on every push to main.
+Jobs: `lint`, `test`, `build`, `e2e-tests`, `deploy` — all run on every push to main.
 
-`lint`, `test`, `build` are parallel. `e2e-tests` depends on `build`.
+`lint`, `test`, `build` are parallel. `e2e-tests` depends on `build`. `deploy` depends on all four.
 
 Pushes that only touch `docs/**` or `*.md` are ignored via `paths-ignore`.
 
+Can also be triggered manually via `workflow_dispatch` (runs the full pipeline, including deploy).
+
 ## Deploy
 
-Triggered automatically when Main Branch Checks completes successfully.
-Renovate bot pushes are excluded — dependency bumps don't deploy.
-Can also be triggered manually via `workflow_dispatch`.
+The `deploy` job runs only if `lint`, `test`, `build`, and `e2e-tests` all succeeded, and the push actor is not `renovate[bot]` (dependency bumps don't deploy).
 
 Flow:
 
-1. Download the `build-artifact-main` artifact from the triggering Main Branch Checks run — the exact build that e2e ran against. No rebuild.
+1. Download the `build-artifact-main` artifact produced by the `build` job in the same run — the exact build that e2e ran against. No rebuild.
 2. Deploy via FTPS to the production server (`SamKirkland/FTP-Deploy-Action`).
-
-Manual `workflow_dispatch` runs have no triggering workflow, so they build the app (SSG) first and deploy that artifact.
 
 Credentials (`SERVER`, `USER`, `PASS`) live in GitHub Secrets.
 
