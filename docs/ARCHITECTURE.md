@@ -107,7 +107,7 @@ Locally `pnpm run e2e` uses the dev server on 4200.
 ### Lighthouse CI
 
 Lighthouse is feedback only. It does not block merges.
-Config is in `.lighthouserc.cjs` and uses `pnpm run preview` (port 4233).
+Runs directly via the `lighthouse` CLI (see `.github/actions/lighthouse/report`) against `pnpm run preview` (port 4233), 3 runs with the median performance score picked.
 
 ## i18n
 

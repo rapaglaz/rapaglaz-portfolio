@@ -32,9 +32,6 @@ outputs:
   a11y_pass:
     description: 'Accessibility pass/fail label (✅ PASS / ⚠️ BELOW THRESHOLD)'
     value: ${{ steps.parse.outputs.a11y_pass }}
-  public_url:
-    description: 'Public Lighthouse report URL (empty if not available)'
-    value: ${{ steps.parse.outputs.public_url }}
 
 runs:
   using: 'composite'
@@ -43,16 +40,10 @@ runs:
       id: parse
       shell: bash
       run: |
-        if [ -f ".lighthouseci/links.json" ]; then
-          public_url=$(jq -r 'to_entries[0].value // empty' .lighthouseci/links.json 2>/dev/null || echo "")
-        else
-          public_url=""
-        fi
+        latest_report=".lighthouseci/lhr.json"
 
-        latest_report=$(find .lighthouseci -name 'lhr-*.json' -type f 2>/dev/null | sort -t'-' -k2 -n | tail -1)
-
-        if [ -z "$latest_report" ] || [ ! -f "$latest_report" ]; then
-          echo "Error: No LHR report found" && exit 1
+        if [ ! -f "$latest_report" ]; then
+          echo "Error: No LHR report found at $latest_report" && exit 1
         fi
 
         # A category score can come back null when Lighthouse fails to produce
@@ -91,5 +82,4 @@ runs:
           echo "bp_status=$(get_status "$bp" 95)"
           echo "seo_status=$(get_status "$seo" 95)"
           echo "a11y_pass=$([ "$a11y" != "N/A" ] && [ "$a11y" -ge 95 ] && echo '✅ PASS' || echo '⚠️ BELOW THRESHOLD')"
-          echo "public_url=$public_url"
         } >> "$GITHUB_OUTPUT"

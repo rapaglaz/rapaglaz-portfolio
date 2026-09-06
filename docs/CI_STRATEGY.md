@@ -58,12 +58,21 @@ E2E runs against the static build served on port 4233.
 Playwright runs inside the official `mcr.microsoft.com/playwright` container.
 Locally `pnpm run e2e` uses the dev server on 4200.
 
-## Lighthouse CI
+## Lighthouse
 
 Lighthouse is feedback only. It does not block merges.
-Runs on PRs only (not on main). 3 runs, desktop preset.
-Results are posted as a PR comment via the GitHub token.
-Config is in `.lighthouserc.cjs`.
+Runs on PRs only (not on main). 3 runs, desktop preset, the run with the
+median performance score is used for reporting.
+Results are posted as a PR comment via the GitHub token; the full HTML
+report is uploaded as a workflow artifact (`lighthouse-report`).
+
+Runs the `lighthouse` CLI directly (`.github/actions/lighthouse/report`)
+rather than `treosh/lighthouse-ci-action`/`@lhci/cli` - the latter pins an
+older Lighthouse version that reliably fails with `NO_LCP` on a bare local
+server (the page paints too fast for Chrome to ever record a Largest
+Contentful Paint candidate), even with `throttlingMethod: devtools` and
+aggressive throttling values. The `lighthouse` CLI's current release
+doesn't have this problem with plain `--throttling-method=devtools`.
 
 ## Concurrency
 
