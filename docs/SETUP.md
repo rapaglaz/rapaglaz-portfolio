@@ -109,14 +109,19 @@ Preview is on <http://localhost:4233>.
 
 ## Lighthouse
 
-I run Lighthouse CI against the preview server.
+I run Lighthouse against the preview server.
 
 ```bash
 pnpm run build
-pnpm exec lhci autorun --config=.lighthouserc.cjs
+pnpm run preview &
+pnpm exec lighthouse http://localhost:4233 --preset=desktop --throttling-method=devtools
 ```
 
-It does 3 runs, desktop preset. Reports go to `.lighthouseci/`.
+`--throttling-method=devtools` matters here: on a bare local server the page
+paints fast enough that Chrome sometimes never records a Largest Contentful
+Paint candidate at all (`NO_LCP`), which the default `simulate` throttling
+can't work around since it needs a real candidate to extrapolate from. CI
+does 3 runs, desktop preset, and reports go to `.lighthouseci/`.
 
 ## Common issues
 

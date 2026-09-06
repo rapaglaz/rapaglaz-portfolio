@@ -1,11 +1,7 @@
 name: Lighthouse Report
-description: 'Runs Lighthouse CI and posts results as a PR comment.'
+description: 'Runs Lighthouse against the local preview server and posts results as a PR comment.'
 
 inputs:
-  config-path:
-    description: 'Path to the Lighthouse CI config file'
-    required: false
-    default: '.lighthouserc.cjs'
   github-token:
     description: 'GitHub token for posting the PR comment'
     required: true
@@ -13,11 +9,58 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Run Lighthouse CI
-      uses: treosh/lighthouse-ci-action@3e7e23fb74242897f95c0ba9cabad3d0227b9b18 # 12.6.2
+    - name: Start preview server
+      shell: bash
+      run: nohup pnpm run preview > preview-server.log 2>&1 &
+
+    - name: Wait for preview server
+      shell: bash
+      run: |
+        for _ in $(seq 1 30); do
+          if curl -sf http://localhost:4233 > /dev/null; then
+            exit 0
+          fi
+          sleep 1
+        done
+        echo "Preview server did not start in time" >&2
+        cat preview-server.log
+        exit 1
+
+    - name: Run Lighthouse
+      shell: bash
+      run: |
+        mkdir -p .lighthouseci
+        for i in 1 2 3; do
+          pnpm exec lighthouse http://localhost:4233 \
+            --output=json --output=html \
+            --output-path=".lighthouseci/run-$i" \
+            --chrome-flags="--headless --no-sandbox" \
+            --preset=desktop \
+            --throttling-method=devtools \
+            --only-categories=performance,accessibility,best-practices,seo \
+            --quiet
+        done
+
+        # Take the run whose performance score is the median of the 3 - a
+        # bare localhost server has near-zero network latency, and even
+        # with devtools throttling a single run occasionally still misses
+        # an LCP candidate (see .github/actions/lighthouse/format for the
+        # null-score fallback). The median guards against picking that
+        # outlier run.
+        s1=$(jq -r '.categories.performance.score // 0' .lighthouseci/run-1.report.json)
+        s2=$(jq -r '.categories.performance.score // 0' .lighthouseci/run-2.report.json)
+        s3=$(jq -r '.categories.performance.score // 0' .lighthouseci/run-3.report.json)
+        median_run=$(printf '%s 1\n%s 2\n%s 3\n' "$s1" "$s2" "$s3" | sort -n -k1,1 | awk 'NR==2{print $2}')
+
+        cp ".lighthouseci/run-${median_run}.report.json" .lighthouseci/lhr.json
+        cp ".lighthouseci/run-${median_run}.report.html" .lighthouseci/lhr.html
+
+    - name: Upload Lighthouse HTML report
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       with:
-        configPath: ${{ inputs.config-path }}
-        temporaryPublicStorage: true
+        name: lighthouse-report
+        path: .lighthouseci/lhr.html
+        retention-days: 7
 
     - name: Format Lighthouse results
       id: format
@@ -48,4 +91,4 @@ runs:
 
           > **Thresholds:** Performance ≥95%, Accessibility ≥95%, Best Practices ≥95%, SEO ≥95%
 
-          ${{ steps.format.outputs.public_url && format('**[View Full Lighthouse Report →]({0})**', steps.format.outputs.public_url) || '' }}
+          Full report available in this run's workflow artifacts (`lighthouse-report`).
