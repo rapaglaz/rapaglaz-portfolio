@@ -4,7 +4,10 @@ module.exports = {
       numberOfRuns: 3,
       startServerCommand: 'pnpm run preview',
       url: ['http://localhost:4233'],
-      startServerReadyPattern: 'Available on',
+      // `serve` prints "Accepting connections at ..." when ready - the
+      // previous pattern never matched, so LHCI always burned the full
+      // 30s timeout before (maybe) auditing an unready server.
+      startServerReadyPattern: 'Accepting connections',
       startServerReadyTimeout: 30000,
       settings: {
         preset: 'desktop',
