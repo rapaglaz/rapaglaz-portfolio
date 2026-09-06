@@ -32,9 +32,6 @@ outputs:
   a11y_pass:
     description: 'Accessibility pass/fail label (✅ PASS / ⚠️ BELOW THRESHOLD)'
     value: ${{ steps.parse.outputs.a11y_pass }}
-  public_url:
-    description: 'Public Lighthouse report URL (empty if not available)'
-    value: ${{ steps.parse.outputs.public_url }}
 
 runs:
   using: 'composite'
@@ -43,33 +40,36 @@ runs:
       id: parse
       shell: bash
       run: |
-        if [ -f ".lighthouseci/links.json" ]; then
-          public_url=$(jq -r 'to_entries[0].value // empty' .lighthouseci/links.json 2>/dev/null || echo "")
-        else
-          public_url=""
+        latest_report=".lighthouseci/lhr.json"
+
+        if [ ! -f "$latest_report" ]; then
+          echo "Error: No LHR report found at $latest_report" && exit 1
         fi
 
-        latest_report=$(find .lighthouseci -name 'lhr-*.json' -type f 2>/dev/null | sort -t'-' -k2 -n | tail -1)
+        # A category score can come back null when Lighthouse fails to produce
+        # a value for a required audit (e.g. a flaky run) - fall back to "N/A"
+        # instead of crashing the step, since these assertions are warn-only.
+        round_score() { jq -r "(.categories.$1.score // empty) * 100 | round" "$latest_report" 2>/dev/null || echo "N/A"; }
+        raw_score() { jq -r ".categories.$1.score // 0" "$latest_report"; }
 
-        if [ -z "$latest_report" ] || [ ! -f "$latest_report" ]; then
-          echo "Error: No LHR report found" && exit 1
-        fi
+        perf=$(round_score performance); [ -z "$perf" ] && perf="N/A"
+        a11y=$(round_score accessibility); [ -z "$a11y" ] && a11y="N/A"
+        bp=$(round_score '"best-practices"'); [ -z "$bp" ] && bp="N/A"
+        seo=$(round_score seo); [ -z "$seo" ] && seo="N/A"
 
-        perf=$(jq -r '(.categories.performance.score * 100) | round' "$latest_report")
-        a11y=$(jq -r '(.categories.accessibility.score * 100) | round' "$latest_report")
-        bp=$(jq -r '(.categories["best-practices"].score * 100) | round' "$latest_report")
-        seo=$(jq -r '(.categories.seo.score * 100) | round' "$latest_report")
-
-        # Get raw scores for average calculation (not rounded yet)
-        perf_raw=$(jq -r '.categories.performance.score * 100' "$latest_report")
-        a11y_raw=$(jq -r '.categories.accessibility.score * 100' "$latest_report")
-        bp_raw=$(jq -r '.categories["best-practices"].score * 100' "$latest_report")
-        seo_raw=$(jq -r '.categories.seo.score * 100' "$latest_report")
+        # Raw scores for the average - missing categories count as 0
+        perf_raw=$(raw_score performance)
+        a11y_raw=$(raw_score accessibility)
+        bp_raw=$(raw_score '"best-practices"')
+        seo_raw=$(raw_score seo)
 
         # Calculate average and round to 1 decimal place
-        avg=$(echo "($perf_raw + $a11y_raw + $bp_raw + $seo_raw) / 4" | bc -l | LC_ALL=C awk '{printf "%.1f", $1}')
+        avg=$(echo "(($perf_raw + $a11y_raw + $bp_raw + $seo_raw) / 4) * 100" | bc -l | LC_ALL=C awk '{printf "%.1f", $1}')
 
-        get_status() { [ "$1" -ge "$2" ] && echo "✅" || echo "⚠️"; }
+        get_status() {
+          [ "$1" = "N/A" ] && { echo "⚠️"; return; }
+          [ "$1" -ge "$2" ] && echo "✅" || echo "⚠️"
+        }
 
         {
           echo "performance=$perf"
@@ -81,6 +81,5 @@ runs:
           echo "a11y_status=$(get_status "$a11y" 95)"
           echo "bp_status=$(get_status "$bp" 95)"
           echo "seo_status=$(get_status "$seo" 95)"
-          echo "a11y_pass=$([ "$a11y" -ge 95 ] && echo '✅ PASS' || echo '⚠️ BELOW THRESHOLD')"
-          echo "public_url=$public_url"
+          echo "a11y_pass=$([ "$a11y" != "N/A" ] && [ "$a11y" -ge 95 ] && echo '✅ PASS' || echo '⚠️ BELOW THRESHOLD')"
         } >> "$GITHUB_OUTPUT"
