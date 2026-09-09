@@ -71,7 +71,7 @@
     "jsdom": "30.0.1",
     "lefthook": "2.1.12",
     "lighthouse": "13.4.1",
-    "lint-staged": "17.4.1",
+    "lint-staged": "17.5.0",
     "playwright-ng-schematics": "22.0.3",
     "postcss": "8.5.28",
     "prettier": "3.9.6",
