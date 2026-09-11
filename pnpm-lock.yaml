@@ -216,8 +216,8 @@ importers:
         specifier: 22.2.0
         version: 22.2.0(chokidar@5.0.0)(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript-eslint@8.69.0(eslint@10.9.1(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@6.0.3))(typescript@6.0.3)
       daisyui:
-        specifier: 5.7.32
-        version: 5.7.32
+        specifier: 5.7.33
+        version: 5.7.33
       eslint:
         specifier: 10.9.1
         version: 10.9.1(jiti@2.7.0)(supports-color@7.2.0)
@@ -2612,8 +2612,8 @@ packages:
     resolution: {integrity: sha512-wD5oz5xibMOPHzy13CyGmogB3phdvcDaB5t0W/Nr5Z2O/agcB8YwOz6e2Lsp10pNDzBoDO9nVa3RGs/2BttpHQ==}
     engines: {node: '>= 6'}
 
-  daisyui@5.7.32:
-    resolution: {integrity: sha512-8JQFneb+okHxzPimTGvRKX+5XF03GyAwGw7BaV6+6XpzW0klGuzc4rdfUpLQxIYPKEziwwlrsYfcxoltF2Rowg==}
+  daisyui@5.7.33:
+    resolution: {integrity: sha512-jVTQTI2Yl9U1V2IRh5NchqTX3oDN5iWZtN+D/MqfXn/8t36M89v0wmeysd9z5QVssmVgftOLEbOw1R1RMIoUlw==}
 
   data-urls@7.0.0:
     resolution: {integrity: sha512-23XHcCF+coGYevirZceTVD7NdJOqVn+49IHyxgszm+JIiHLoB2TkmPtsYkNWT1pvRSGkc35L6NHs0yHkN2SumA==}
@@ -6865,7 +6865,7 @@ snapshots:
 
   css-what@7.0.0: {}
 
-  daisyui@5.7.32: {}
+  daisyui@5.7.33: {}
 
   data-urls@7.0.0:
     dependencies:
