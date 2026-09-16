@@ -71,8 +71,8 @@ describe('Portfolio', () => {
     const byName = (name: string): string | null | undefined =>
       head.querySelector(`meta[name="${name}"]`)?.getAttribute('content');
 
-    expect(byProperty('og:title')).toBe('Paul Glaz - Frontend Engineer');
-    expect(byProperty('og:site_name')).toBe('Paul Glaz');
+    expect(byProperty('og:title')).toBe('Radoslaw Glaz - Frontend Engineer');
+    expect(byProperty('og:site_name')).toBe('Radoslaw Glaz');
     expect(byProperty('og:type')).toBe('website');
     expect(byProperty('og:url')).toBe('https://rapaglaz.de/en');
     expect(byProperty('og:image')).toBe('https://rapaglaz.de/images/IMG_2290-384.webp');
