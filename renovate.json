@@ -194,6 +194,11 @@
       "matchUpdateTypes": ["major", "minor", "patch"],
       "groupName": "commitlint",
       "groupSlug": "commitlint"
+    },
+    {
+      "description": "Hold jsdom back from 30.1.x: its WebIDL wrapper refactor breaks vitest 4.1.11's URL.createObjectURL/Blob compat shim (blob[implSymbol] is undefined), failing any test that calls URL.createObjectURL on a Blob. Re-allow once vitest ships a fix.",
+      "matchPackageNames": ["jsdom"],
+      "allowedVersions": "<30.1.0"
     }
   ]
 }
