@@ -69,7 +69,15 @@ older Lighthouse version that reliably fails with `NO_LCP` on a bare local
 server (the page paints too fast for Chrome to ever record a Largest
 Contentful Paint candidate), even with `throttlingMethod: devtools` and
 aggressive throttling values. The `lighthouse` CLI's current release
-doesn't have this problem with plain `--throttling-method=devtools`.
+doesn't have this problem for the scored categories with plain
+`--throttling-method=devtools`.
+
+The job log can still show `LanternError: NO_LCP` (up to once per run, so
+up to 3 times) - that comes from Lighthouse's separate trace-engine "Insights"
+analysis (`@paulirish/trace_engine`), not from the scored audits, and
+doesn't affect the reported category scores. It's cosmetic log noise, and
+the `lighthouse` job also runs with `continue-on-error: true`, so it never
+blocks the PR either way.
 
 ## Concurrency
 
