@@ -10,7 +10,9 @@ const defaultBaseURL = isCI || isSSG ? 'http://localhost:4233' : 'http://localho
 const baseURL = process.env['PLAYWRIGHT_TEST_BASE_URL'] ?? defaultBaseURL;
 const webServerCommand =
   process.env['PLAYWRIGHT_WEB_SERVER_COMMAND'] ??
-  (isCI || isSSG ? 'pnpm run preview' : 'pnpm run start');
+  (isCI || isSSG
+    ? 'node node_modules/serve/build/main.js dist/rapaglaz-portfolio/browser -l 4233'
+    : 'pnpm run start');
 const webServerUrl = process.env['PLAYWRIGHT_WEB_SERVER_URL'] ?? defaultBaseURL;
 
 export default defineConfig({
