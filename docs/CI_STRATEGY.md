@@ -24,7 +24,7 @@ Jobs: `lint`, `test`, `actionlint`, `build`, `e2e-tests`, `lighthouse`, `quality
 - `e2e-tests` and `lighthouse` depend on `build` (reuse the build artifact).
 - `quality-check` is a gate job — requires `lint`, `test`, `build`, and `e2e-tests` to succeed. Failed, cancelled, or skipped jobs fail the gate. Branch protection requires it to pass.
 
-Unit tests and E2E run for every PR, including all Renovate dependency updates. Dependency updates can introduce runtime regressions even when lint and build pass. Renovate PRs still skip `actionlint` and `lighthouse`.
+Renovate PRs run the same checks as other PRs, including `actionlint`. Lighthouse runs after a successful build and remains non-blocking feedback. Dependency updates can introduce runtime regressions even when lint and build pass.
 
 SonarQube analysis runs inside the `test` job on both PR and main, using `sonar-token` from GitHub Secrets.
 
