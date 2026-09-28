@@ -27,9 +27,6 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
   test:
-    # renovate PRs skip unit tests, i18n and Sonar entirely; the
-    # quality-check gate accepts the skipped result for them
-    if: ${{ !startsWith(github.head_ref, 'renovate/') }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -91,9 +88,6 @@ jobs:
 
   e2e-tests:
     needs: [build]
-    # always run for the testing-tools group: it bumps vitest/playwright/axe-core,
-    # the exact packages e2e-tests exists to guard against version-mismatch breakage
-    if: ${{ !startsWith(github.head_ref, 'renovate/') || contains(github.head_ref, 'testing-tools') }}
     runs-on: ubuntu-latest
     container:
       image: mcr.microsoft.com/playwright:v1.63.0-noble@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27
@@ -156,14 +150,11 @@ jobs:
             echo "One or more required jobs failed"
             exit 1
           fi
-          # test and e2e-tests may be skipped (renovate PRs) but must never fail
-          if [[ "${{ needs.test.result }}" != "success" && \
-                "${{ needs.test.result }}" != "skipped" ]]; then
-            echo "Test job failed"
+          if [[ "${{ needs.test.result }}" != "success" ]]; then
+            echo "Test job did not succeed"
             exit 1
           fi
-          if [[ "${{ needs.e2e-tests.result }}" != "success" && \
-                "${{ needs.e2e-tests.result }}" != "skipped" ]]; then
-            echo "E2E tests job failed"
+          if [[ "${{ needs.e2e-tests.result }}" != "success" ]]; then
+            echo "E2E tests job did not succeed"
             exit 1
           fi
