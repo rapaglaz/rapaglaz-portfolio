@@ -58,7 +58,7 @@
     "@jsverse/transloco-keys-manager": "8.1.1",
     "@jsverse/transloco-utils": "8.4.0",
     "@jsverse/transloco-validator": "8.4.0",
-    "@playwright/test": "1.62.1",
+    "@playwright/test": "1.63.0",
     "@tailwindcss/postcss": "4.3.3",
     "@types/node": "24.13.6",
     "@vitest/coverage-v8": "5.0.2",
