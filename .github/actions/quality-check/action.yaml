@@ -63,7 +63,7 @@ runs:
 
     - name: SonarCloud Scan
       if: ${{ (inputs.mode == 'test' || inputs.mode == 'all') && inputs.sonar-token != '' && !failure() }}
-      uses: SonarSource/sonarqube-scan-action@d209202bc7d53ff1cc128f7f907dac145c9d6ae9 # v8.3
+      uses: SonarSource/sonarqube-scan-action@d209202bc7d53ff1cc128f7f907dac145c9d6ae9 # v8.3.0
       env:
         SONAR_HOST_URL: https://sonarcloud.io
         SONAR_TOKEN: ${{ inputs.sonar-token }}
