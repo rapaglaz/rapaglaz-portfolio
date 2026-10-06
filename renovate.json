@@ -1,83 +1,48 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:best-practices", ":pinAllExceptPeerDependencies"],
+  "extends": ["config:best-practices"],
   "timezone": "Europe/Berlin",
-  "schedule": ["before 10am every weekday"],
+  "schedule": ["before 10am on monday"],
   "dependencyDashboardTitle": "Dependency Dashboard",
   "dependencyDashboardLabels": ["dependencies"],
-  "dependencyDashboardAutoclose": true,
   "labels": ["dependencies"],
-  "forkProcessing": "disabled",
-  "rangeStrategy": "bump",
-  "platformAutomerge": true,
-  "prConcurrentLimit": 8,
+  "automergeType": "pr",
+  "automergeStrategy": "squash",
   "prHourlyLimit": 3,
-  "reviewers": [],
-  "assignees": [],
-  "reviewersSampleSize": 0,
-  "reviewersFromCodeOwners": false,
   "internalChecksFilter": "strict",
   "separateMajorMinor": true,
-  "separateMinorPatch": true,
   "minimumReleaseAge": "3 days",
   "lockFileMaintenance": {
     "enabled": true,
-    "schedule": ["before 3am on Monday"],
-    "automerge": true,
-    "automergeType": "pr",
-    "automergeStrategy": "squash"
+    "schedule": ["before 3am on the first day of the month"],
+    "automerge": true
   },
   "osvVulnerabilityAlerts": true,
   "vulnerabilityAlerts": {
     "enabled": true,
     "labels": ["security"],
+    "groupName": null,
+    "minimumReleaseAge": "0 days",
     "schedule": ["at any time"],
     "vulnerabilityFixStrategy": "highest"
   },
-  "customManagers": [
-    {
-      "description": "Track Playwright Docker image version in workflows",
-      "customType": "regex",
-      "managerFilePatterns": ["/^\\.github/workflows/.+\\.ya?ml$/"],
-      "matchStrings": [
-        "mcr\\.microsoft\\.com/playwright:(?<currentValue>[^@\\s]+)@(?<currentDigest>sha256:[a-f0-9]+)"
-      ],
-      "datasourceTemplate": "docker",
-      "depNameTemplate": "mcr.microsoft.com/playwright",
-      "versioningTemplate": "regex:^v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-(?<compatibility>[a-z]+)$"
-    }
-  ],
   "packageRules": [
     {
-      "description": "Prioritise all vulnerability alerts",
-      "isVulnerabilityAlert": true,
-      "matchPackageNames": ["*"],
-      "labels": ["security"],
-      "prPriority": 10
-    },
-    {
-      "description": "Automerge patch vulnerability alerts for stable versions",
-      "isVulnerabilityAlert": true,
+      "description": "One weekly PR for all stable patch, digest and pin updates (patches automerged below)",
       "matchCurrentVersion": "!/^0/",
-      "matchUpdateTypes": ["patch"],
-      "minimumReleaseAge": "0 days",
-      "automerge": true,
-      "automergeType": "pr",
-      "automergeStrategy": "squash"
+      "matchUpdateTypes": ["patch", "digest", "pin"],
+      "groupName": "patch dependencies"
     },
     {
-      "description": "Require approval for minor vulnerability alerts",
-      "isVulnerabilityAlert": true,
+      "description": "Digest and pin updates have no release age to wait on: never automerge",
+      "matchUpdateTypes": ["digest", "pin"],
+      "automerge": false
+    },
+    {
+      "description": "One weekly PR for all stable minor updates (merged manually)",
+      "matchCurrentVersion": "!/^0/",
       "matchUpdateTypes": ["minor"],
-      "dependencyDashboardApproval": true,
-      "automerge": false
-    },
-    {
-      "description": "Require approval for major vulnerability alerts",
-      "isVulnerabilityAlert": true,
-      "matchUpdateTypes": ["major"],
-      "dependencyDashboardApproval": true,
-      "automerge": false
+      "groupName": "minor dependencies"
     },
     {
       "description": "Require approval for all major updates",
@@ -87,18 +52,10 @@
       "labels": ["major-update"]
     },
     {
-      "description": "Create PR for stable minor updates",
-      "matchCurrentVersion": "!/^0/",
-      "matchUpdateTypes": ["minor"],
-      "automerge": false
-    },
-    {
       "description": "Automerge stable patch updates",
       "matchCurrentVersion": "!/^0/",
       "matchUpdateTypes": ["patch"],
-      "automerge": true,
-      "automergeType": "pr",
-      "automergeStrategy": "squash"
+      "automerge": true
     },
     {
       "description": "Require approval for unstable 0.x updates",
@@ -109,91 +66,22 @@
       "labels": ["unstable-version"]
     },
     {
-      "description": "Group Angular ecosystem updates",
+      "description": "Angular packages: update together (majors included, still approval-gated), no automerge, run ng update manually",
       "matchPackageNames": [
         "@angular/**",
         "@angular-devkit/**",
+        "@schematics/angular",
         "@angular-eslint/**",
-        "rxjs",
-        "tslib"
+        "angular-eslint"
       ],
-      "groupName": "Angular ecosystem",
-      "groupSlug": "angular",
+      "groupName": "angular",
       "automerge": false
     },
     {
-      "description": "Group linting and formatting tools",
-      "matchPackageNames": [
-        "eslint",
-        "@eslint/**",
-        "typescript-eslint",
-        "@typescript-eslint/**",
-        "prettier",
-        "eslint-config-prettier",
-        "eslint-plugin-*"
-      ],
-      "groupName": "linting and formatting",
-      "matchUpdateTypes": ["minor", "patch"],
-      "automerge": true,
-      "automergeType": "pr",
-      "automergeStrategy": "squash"
-    },
-    {
-      "description": "Group testing tools",
-      "matchPackageNames": [
-        "vitest",
-        "@vitest/**",
-        "@playwright/test",
-        "@playwright/**",
-        "@axe-core/playwright",
-        "playwright-ng-schematics",
-        "mcr.microsoft.com/playwright",
-        "@testing-library/**"
-      ],
-      "groupName": "testing tools",
-      "groupSlug": "testing-tools",
-      "matchUpdateTypes": ["minor", "patch", "digest"],
-      "automerge": true,
-      "automergeType": "pr",
-      "automergeStrategy": "squash"
-    },
-    {
-      "description": "Group Tailwind ecosystem updates",
-      "matchPackageNames": ["tailwindcss", "@tailwindcss/**", "tailwind-*"],
-      "groupName": "Tailwind ecosystem",
-      "matchUpdateTypes": ["minor", "patch"],
-      "automerge": true,
-      "automergeType": "pr",
-      "automergeStrategy": "squash"
-    },
-    {
-      "description": "Group pnpm ecosystem",
-      "matchPackageNames": ["pnpm", "pnpm/action-setup"],
-      "matchUpdateTypes": ["major", "minor", "patch"],
-      "groupName": "pnpm",
-      "groupSlug": "pnpm"
-    },
-    {
-      "description": "Group GitHub Actions",
-      "matchManagers": ["github-actions"],
-      "matchUpdateTypes": ["major", "minor", "patch"],
-      "groupName": "GitHub Actions",
-      "groupSlug": "github-actions",
-      "matchPackageNames": ["!pnpm/action-setup"]
-    },
-    {
-      "description": "Group TypeScript types",
-      "matchPackageNames": ["@types/**"],
-      "matchUpdateTypes": ["major", "minor", "patch"],
-      "groupName": "TypeScript types",
-      "groupSlug": "typescript-types"
-    },
-    {
-      "description": "Group commitlint",
-      "matchPackageNames": ["@commitlint/**"],
-      "matchUpdateTypes": ["major", "minor", "patch"],
-      "groupName": "commitlint",
-      "groupSlug": "commitlint"
+      "description": "Playwright npm package and Docker image must stay in sync: one PR, no automerge",
+      "matchPackageNames": ["@playwright/test", "mcr.microsoft.com/playwright"],
+      "groupName": "playwright",
+      "automerge": false
     }
   ]
 }
