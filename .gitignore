@@ -42,6 +42,7 @@ pnpm-debug.log*
 testem.log
 /typings
 __screenshots__/
+.vitest
 
 # System files
 .DS_Store

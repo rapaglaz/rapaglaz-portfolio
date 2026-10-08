@@ -3,12 +3,7 @@ import { provideTransloco, Translation, TranslocoLoader } from '@jsverse/translo
 import { Observable, of } from 'rxjs';
 import deTranslations from '../../../public/i18n/de.json';
 import enTranslations from '../../../public/i18n/en.json';
-import {
-  AVAILABLE_LANGS,
-  DEFAULT_LANG,
-  isAvailableLang,
-  type AvailableLang,
-} from '../utils/i18n/languages';
+import { AVAILABLE_LANGS, DEFAULT_LANG, isAvailableLang, type AvailableLang } from '../utils/i18n';
 
 // loads translations synchronously from imports, no HTTP needed in tests
 export class TranslocoTestLoader implements TranslocoLoader {
