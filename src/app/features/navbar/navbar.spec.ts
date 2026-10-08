@@ -5,8 +5,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { CvDownloadService, FeatureFlagService, ToastService } from '../../services';
-import { LoggerService } from '../../services/logger/logger.service';
+import { CvDownloadService, FeatureFlagService, LoggerService, ToastService } from '../../services';
 import { provideTranslocoTesting } from '../../testing';
 import { Navbar } from './navbar';
 
