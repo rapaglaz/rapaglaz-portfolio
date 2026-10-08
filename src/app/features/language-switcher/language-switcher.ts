@@ -1,7 +1,6 @@
 import { CdkListboxModule, type ListboxValueChangeEvent } from '@angular/cdk/listbox';
 import { Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslocoService } from '@jsverse/transloco';
 import { AVAILABLE_LANGS, injectActiveLang, isAvailableLang, LANG_LABELS } from '../../utils/i18n';
 
 @Component({
@@ -34,7 +33,6 @@ import { AVAILABLE_LANGS, injectActiveLang, isAvailableLang, LANG_LABELS } from 
   `,
 })
 export class LanguageSwitcher {
-  private readonly translocoService = inject(TranslocoService);
   private readonly router = inject(Router);
 
   protected readonly availableLangs = AVAILABLE_LANGS;
@@ -45,6 +43,7 @@ export class LanguageSwitcher {
 
   protected handleValueChange(event: ListboxValueChangeEvent<string>): void {
     const next = event.value[0];
+    event.listbox.value = this.selectedLang();
     if (next) {
       this.changeLang(next);
     }
@@ -56,8 +55,10 @@ export class LanguageSwitcher {
     }
 
     const { fragment } = this.router.parseUrl(this.router.url);
-    this.translocoService.setActiveLang(lang);
-    void this.router.navigate(['/', lang], { fragment: fragment ?? undefined });
+    void this.router.navigate(['/', lang], {
+      fragment: fragment ?? undefined,
+      queryParamsHandling: 'preserve',
+    });
   }
 
   protected getLangLabel(lang: string): string {

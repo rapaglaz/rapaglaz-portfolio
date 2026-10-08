@@ -120,6 +120,14 @@ Runtime has a strict missing handler, so missing keys are loud.
 Routes are `/en` and `/de`. The URL segment decides the active language.
 Root `/` falls back to the default language (`en`).
 
+The app initializer loads the initial translations for SSR and hydration. A route resolver
+then loads and activates the URL's language and updates `<html lang>` before creating the
+portfolio, including on Back/Forward navigation. The language switcher only navigates and
+preserves query parameters and the fragment; its selection follows the resolved language.
+If German translations fail to load, the resolver redirects to `/en` with the same URL extras
+and replaces the failed history entry. If English cannot be loaded, navigation is cancelled
+and the current route and language remain active.
+
 I validate translations with:
 
 ```bash
