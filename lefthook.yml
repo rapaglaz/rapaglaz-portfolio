@@ -8,8 +8,7 @@ pre-commit:
       run: mise exec -- actionlint
     zizmor:
       glob: '.github/**/*.{yml,yaml}'
-      # Report-only until the existing findings are fixed; then drop --no-exit-codes
-      run: mise exec -- zizmor --offline --no-exit-codes .github
+      run: mise exec -- zizmor --offline --config .github/zizmor.yml .
 commit-msg:
   commands:
     commitlint:

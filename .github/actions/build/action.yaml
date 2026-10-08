@@ -15,8 +15,9 @@ runs:
 
     - name: Run build
       shell: bash
+      env:
+        BASE_HREF: ${{ inputs.base-href }}
       run: |
-        BASE_HREF="${{ inputs.base-href }}"
         if [ -n "$BASE_HREF" ]; then
           pnpm run build "--base-href=$BASE_HREF"
         else

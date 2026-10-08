@@ -1,0 +1,10 @@
+rules:
+  # The `$/...` self-repository syntax is not documented by GitHub Actions, so
+  # `./.github/actions/...` stays until it is verified to work on runners.
+  self-repository:
+    disable: true
+  # FTP-Deploy-Action publishes both a tag and a branch named v4.4.0. The pin matches
+  # the tag, zizmor resolves the comment to the branch.
+  ref-version-mismatch:
+    ignore:
+      - main-branch-ci-cd.yaml:111
