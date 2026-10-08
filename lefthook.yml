@@ -3,6 +3,13 @@ pre-commit:
   commands:
     lint-staged:
       run: pnpm exec lint-staged
+    actionlint:
+      glob: '.github/**/*.{yml,yaml}'
+      run: mise exec -- actionlint
+    zizmor:
+      glob: '.github/**/*.{yml,yaml}'
+      # Report-only until the existing findings are fixed; then drop --no-exit-codes
+      run: mise exec -- zizmor --offline --no-exit-codes .github
 commit-msg:
   commands:
     commitlint:
