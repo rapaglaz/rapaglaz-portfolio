@@ -1,13 +1,13 @@
 import { DOCUMENT } from '@angular/common';
 import { TestBed } from '@angular/core/testing';
 import {
+  Translation,
   TRANSLOCO_LOADER,
   TRANSLOCO_MISSING_HANDLER,
-  Translation,
   TranslocoLoader,
   TranslocoService,
 } from '@jsverse/transloco';
-import { Observable, of } from 'rxjs';
+import { firstValueFrom, Observable, of, throwError, toArray } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { initTranslocoDefaultLang, provideTranslocoWithDynamicLang } from './app.config';
 import { AVAILABLE_LANGS, DEFAULT_LANG, StrictTranslocoMissingHandler } from './utils/i18n';
@@ -33,6 +33,7 @@ describe('app i18n config', () => {
 
   afterEach(() => {
     vi.unstubAllGlobals();
+    vi.restoreAllMocks();
     TestBed.resetTestingModule();
   });
 
@@ -72,5 +73,60 @@ describe('app i18n config', () => {
     expect(transloco.getActiveLang()).toBe('de');
     expect(loader.calls).toContain('de');
     expect(mockDocument.documentElement.lang).toBe('de');
+  });
+
+  it.each([
+    [undefined, 'http://localhost/de', 'de'],
+    ['', 'http://localhost/de/profile', 'de'],
+    ['/fr', 'http://localhost/de', 'en'],
+    ['', 'invalid-url', 'en'],
+    ['', 'http://localhost/', 'en'],
+  ])('resolves locale from pathname %s and base URI %s', async (pathname, baseURI, expected) => {
+    const mockDocument = { location: { pathname }, baseURI, documentElement: { lang: '' } };
+    TestBed.overrideProvider(DOCUMENT, { useValue: mockDocument });
+    const transloco = TestBed.inject(TranslocoService);
+    const loader = TestBed.inject(TRANSLOCO_LOADER) as InlineLoader;
+
+    await firstValueFrom(TestBed.runInInjectionContext(initTranslocoDefaultLang));
+
+    expect(transloco.getActiveLang()).toBe(expected);
+    expect(loader.calls).toEqual([expected]);
+    expect(mockDocument.documentElement.lang).toBe(expected);
+  });
+
+  it('falls back to English when the URL locale fails to load', async () => {
+    const mockDocument = {
+      location: { pathname: '/de' },
+      documentElement: { lang: '' },
+    };
+    TestBed.overrideProvider(DOCUMENT, { useValue: mockDocument });
+    const transloco = TestBed.inject(TranslocoService);
+    const load = vi
+      .spyOn(transloco, 'load')
+      .mockReturnValueOnce(throwError(() => new Error('German unavailable')))
+      .mockReturnValueOnce(of({ title: 'English content' }));
+
+    const result = await firstValueFrom(TestBed.runInInjectionContext(initTranslocoDefaultLang));
+
+    expect(result).toEqual({ title: 'English content' });
+    expect(load.mock.calls).toEqual([['de'], ['en']]);
+    expect(transloco.getActiveLang()).toBe('en');
+    expect(mockDocument.documentElement.lang).toBe('en');
+  });
+
+  it('completes without retrying when the default locale fails to load', async () => {
+    const transloco = TestBed.inject(TranslocoService);
+    const load = vi
+      .spyOn(transloco, 'load')
+      .mockReturnValue(throwError(() => new Error('English unavailable')));
+
+    const result = await firstValueFrom(
+      TestBed.runInInjectionContext(initTranslocoDefaultLang).pipe(toArray()),
+    );
+
+    expect(result).toEqual([]);
+    expect(load).toHaveBeenCalledExactlyOnceWith('en');
+    expect(transloco.getActiveLang()).toBe('en');
+    expect(TestBed.inject(DOCUMENT).documentElement.lang).toBe('en');
   });
 });
