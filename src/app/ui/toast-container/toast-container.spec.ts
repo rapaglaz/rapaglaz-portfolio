@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ToastContainer } from './toast-container';
 
 describe('ToastContainer', () => {
@@ -44,5 +44,14 @@ describe('ToastContainer', () => {
 
     container = element.querySelector('[role="alert"]');
     expect(container?.getAttribute('aria-live')).toBe('polite');
+  });
+
+  it('emits a dismissal when the close button is clicked', () => {
+    const dismissed = vi.fn();
+    fixture.componentInstance.dismissed.subscribe(dismissed);
+
+    element.querySelector<HTMLButtonElement>('button')!.click();
+
+    expect(dismissed).toHaveBeenCalledOnce();
   });
 });
