@@ -1,11 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { provideTranslocoTesting } from '../../testing';
 import { TurnstileModal } from './turnstile-modal';
 
 describe('TurnstileModal', () => {
   let fixture: ComponentFixture<TurnstileModal>;
-  let trigger: HTMLButtonElement;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -13,14 +12,9 @@ describe('TurnstileModal', () => {
       providers: [provideTranslocoTesting()],
     }).compileComponents();
 
-    trigger = document.createElement('button');
-    document.body.appendChild(trigger);
-    trigger.focus();
     fixture = TestBed.createComponent(TurnstileModal);
     fixture.detectChanges();
   });
-
-  afterEach(() => trigger.remove());
 
   it('emits widget container after view init', () => {
     const handleReady = vi.fn();
@@ -51,12 +45,14 @@ describe('TurnstileModal', () => {
     expect(element.querySelector('[role="status"]')).toBeInstanceOf(HTMLElement);
   });
 
-  it('focuses the dialog and restores focus to the triggering button', () => {
-    const dialog = (fixture.nativeElement as HTMLElement).querySelector('[role="dialog"]');
-    expect(document.activeElement).toBe(dialog);
-
-    fixture.componentInstance.restoreFocus();
-
-    expect(document.activeElement).toBe(trigger);
+  it('exposes a translated cancel action without adding a nested dialog', () => {
+    const cancel = vi.fn();
+    fixture.componentInstance.cancelled.subscribe(cancel);
+    const element = fixture.nativeElement as HTMLElement;
+    const button = element.querySelector<HTMLButtonElement>('[data-turnstile-cancel]');
+    expect(button?.textContent?.trim()).toBe('Cancel');
+    expect(element.querySelector('[role="dialog"]')).toBeNull();
+    button?.click();
+    expect(cancel).toHaveBeenCalledOnce();
   });
 });

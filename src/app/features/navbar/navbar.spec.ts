@@ -158,7 +158,7 @@ describe('Navbar - CV Download', () => {
     fixture.detectChanges();
   });
 
-  it('disables button during download and re-enables on completion', async () => {
+  it('keeps the busy button focusable and restores its available state on completion', async () => {
     const download$ = new Subject<void>();
     mockCvDownloadService.downloadCV.mockReturnValue(download$.asObservable());
 
@@ -166,15 +166,22 @@ describe('Navbar - CV Download', () => {
 
     expect(btn.disabled).toBe(false);
 
+    btn.focus();
     btn.click();
     fixture.detectChanges();
-    expect(btn.disabled).toBe(true);
+    expect(btn.disabled).toBe(false);
+    expect(btn.getAttribute('aria-disabled')).toBe('true');
+    expect(btn.getAttribute('aria-busy')).toBe('true');
+    expect(document.activeElement).toBe(btn);
 
     download$.complete();
 
     await vi.waitFor(() => {
       fixture.detectChanges();
       expect(btn.disabled).toBe(false);
+      expect(btn.getAttribute('aria-disabled')).toBe('false');
+      expect(btn.getAttribute('aria-busy')).toBe('false');
+      expect(mockToastService.error).not.toHaveBeenCalled();
     });
   });
 
