@@ -1,5 +1,5 @@
 name: Quality Check
-description: 'Runs format, lint, i18n, tests, and SonarCloud scan.'
+description: 'Runs format, lint, dependency boundaries, i18n, tests, and SonarCloud scan.'
 
 inputs:
   mode:
@@ -41,6 +41,11 @@ runs:
       if: ${{ inputs.mode == 'lint' || inputs.mode == 'all' }}
       shell: bash
       run: pnpm run lint
+
+    - name: Check dependency boundaries
+      if: ${{ inputs.mode == 'lint' || inputs.mode == 'all' }}
+      shell: bash
+      run: pnpm run deps:check
 
     - name: Run i18n validation
       if: ${{ inputs.mode == 'test' || inputs.mode == 'all' }}

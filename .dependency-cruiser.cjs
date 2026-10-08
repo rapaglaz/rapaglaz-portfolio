@@ -1,32 +1,46 @@
-// Report-only rollout: keep all rules at warn until the existing violations are reviewed.
+// Runtime architecture rules. See docs/DEPENDENCY_BOUNDARIES.md for the rollout decisions.
 module.exports = {
   forbidden: [
     {
       name: 'no-circular',
       comment: 'Runtime dependencies must not form cycles, including through barrel exports.',
-      severity: 'warn',
+      severity: 'error',
       from: { path: '^src/app/' },
       to: { circular: true },
     },
     {
       name: 'content-is-independent',
-      comment: 'Content must not depend on any application file, including other content files.',
-      severity: 'warn',
-      from: { path: '^src/app/content/' },
-      to: { path: '^src/app/' },
+      comment: 'Content may depend on its own layer for composition and barrel exports only.',
+      severity: 'error',
+      from: { path: '^src/app/content/', pathNot: '\\.spec\\.ts$' },
+      to: { path: '^src/app/', pathNot: '^src/app/content/' },
     },
     {
       name: 'utils-layer',
       comment: 'Utilities must not depend on features, UI, services, interceptors, or the shell.',
-      severity: 'warn',
-      from: { path: '^src/app/utils/' },
+      severity: 'error',
+      from: {
+        path: '^src/app/utils/',
+        // Specs may test collaborators; the missing handler has a narrower logger rule below.
+        pathNot: ['\\.spec\\.ts$', '^src/app/utils/i18n/transloco-missing-handler\\.ts$'],
+      },
       to: { path: '^src/app/(features|ui|services|interceptors|portfolio)/' },
+    },
+    {
+      name: 'missing-handler-layer',
+      comment: 'The missing translation handler uses the central logger to report missing keys.',
+      severity: 'error',
+      from: { path: '^src/app/utils/i18n/transloco-missing-handler\\.ts$' },
+      to: {
+        path: '^src/app/(features|ui|services|interceptors|portfolio)/',
+        pathNot: '^src/app/services/logger/logger\\.service\\.ts$',
+      },
     },
     {
       name: 'ui-layer',
       comment: 'UI may depend on its own layer and utilities; test helpers are checked separately.',
-      severity: 'warn',
-      from: { path: '^src/app/ui/' },
+      severity: 'error',
+      from: { path: '^src/app/ui/', pathNot: '\\.spec\\.ts$' },
       to: {
         path: '^src/app/(?!testing/)',
         pathNot: '^src/app/(ui|utils)/',
@@ -35,18 +49,36 @@ module.exports = {
     {
       name: 'services-layer',
       comment: 'Services may depend on their own layer, utilities, and content.',
-      severity: 'warn',
-      from: { path: '^src/app/services/' },
+      severity: 'error',
+      from: {
+        path: '^src/app/services/',
+        // Overlay services instantiate UI; the companion rule limits that exception below.
+        pathNot: [
+          '\\.spec\\.ts$',
+          '^src/app/services/(toast/toast|turnstile/turnstile)\\.service\\.ts$',
+        ],
+      },
       to: {
         path: '^src/app/(?!testing/)',
         pathNot: '^src/app/(services|utils|content)/',
       },
     },
     {
+      name: 'overlay-services-layer',
+      comment:
+        'Toast and Turnstile services own CDK overlay lifecycles and instantiate UI components.',
+      severity: 'error',
+      from: { path: '^src/app/services/(toast/toast|turnstile/turnstile)\\.service\\.ts$' },
+      to: {
+        path: '^src/app/(?!testing/)',
+        pathNot: ['^src/app/(services|utils|content)/', '^src/app/ui/index\\.ts$'],
+      },
+    },
+    {
       name: 'interceptors-layer',
       comment: 'Interceptors may depend on their own layer, services, and utilities.',
-      severity: 'warn',
-      from: { path: '^src/app/interceptors/' },
+      severity: 'error',
+      from: { path: '^src/app/interceptors/', pathNot: '\\.spec\\.ts$' },
       to: {
         path: '^src/app/(?!testing/)',
         pathNot: '^src/app/(interceptors|services|utils)/',
@@ -55,8 +87,8 @@ module.exports = {
     {
       name: 'features-layer',
       comment: 'Features may depend on UI, services, utilities, and content; peer rules follow.',
-      severity: 'warn',
-      from: { path: '^src/app/features/' },
+      severity: 'error',
+      from: { path: '^src/app/features/', pathNot: '\\.spec\\.ts$' },
       to: {
         path: '^src/app/(?!testing/)',
         pathNot: '^src/app/(features|ui|services|utils|content)/',
@@ -65,10 +97,10 @@ module.exports = {
     {
       name: 'no-cross-feature',
       comment: 'Each feature must stay independent of its peers, including the shared barrel.',
-      severity: 'warn',
+      severity: 'error',
       from: {
         path: '^src/app/features/([^/]+)/',
-        pathNot: '^src/app/features/navbar/',
+        pathNot: ['\\.spec\\.ts$', '^src/app/features/navbar/'],
       },
       to: {
         path: '^src/app/features/',
@@ -78,8 +110,8 @@ module.exports = {
     {
       name: 'navbar-feature-boundary',
       comment: 'Navbar composes the language switcher; this is the single allowed peer dependency.',
-      severity: 'warn',
-      from: { path: '^src/app/features/navbar/' },
+      severity: 'error',
+      from: { path: '^src/app/features/navbar/', pathNot: '\\.spec\\.ts$' },
       to: {
         path: '^src/app/features/',
         pathNot: '^src/app/features/(navbar|language-switcher)/',
@@ -87,25 +119,44 @@ module.exports = {
     },
     {
       name: 'portfolio-layer',
-      comment: 'The portfolio shell may compose features and UI; bootstrap needs require review.',
-      severity: 'warn',
-      from: { path: '^src/app/portfolio/' },
+      comment: 'The portfolio layer may compose features and UI.',
+      severity: 'error',
+      from: {
+        path: '^src/app/portfolio/',
+        // The shell component has a narrow exception for shared SEO language constants below.
+        pathNot: ['\\.spec\\.ts$', '^src/app/portfolio/portfolio\\.ts$'],
+      },
       to: {
         path: '^src/app/(?!testing/)',
         pathNot: '^src/app/(portfolio|features|ui)/',
       },
     },
     {
+      name: 'portfolio-component-layer',
+      comment:
+        'The shell uses shared language constants to build canonical and alternate SEO links.',
+      severity: 'error',
+      from: { path: '^src/app/portfolio/portfolio\\.ts$' },
+      to: {
+        path: '^src/app/(?!testing/)',
+        pathNot: ['^src/app/(portfolio|features|ui)/', '^src/app/utils/i18n/index\\.ts$'],
+      },
+    },
+    {
       name: 'no-portfolio-imports',
       comment: 'Application files outside the portfolio layer must not depend on the shell.',
-      severity: 'warn',
-      from: { path: '^src/app/', pathNot: '^src/app/portfolio/' },
+      severity: 'error',
+      from: {
+        path: '^src/app/',
+        // The router must load its shell; specs may exercise the shell directly.
+        pathNot: ['^src/app/portfolio/', '^src/app/app\\.routes\\.ts$', '\\.spec\\.ts$'],
+      },
       to: { path: '^src/app/portfolio/' },
     },
     {
       name: 'no-production-to-testing',
       comment: 'Only spec files and other testing helpers may import the testing layer.',
-      severity: 'warn',
+      severity: 'error',
       from: {
         path: '^src/app/',
         pathNot: ['\\.spec\\.ts$', '^src/app/testing/'],
@@ -115,7 +166,7 @@ module.exports = {
     {
       name: 'no-production-to-specs',
       comment: 'Production files must not import spec files.',
-      severity: 'warn',
+      severity: 'error',
       from: {
         path: '^src/app/',
         pathNot: ['\\.spec\\.ts$', '^src/app/testing/'],
