@@ -26,6 +26,15 @@ src/app/
 
 No feature→feature imports. One exception: navbar→language-switcher.
 
+Runtime layer boundaries and circular dependencies are checked by dependency-cruiser in
+`.dependency-cruiser.cjs`. Content stays within its own layer; utils cannot depend on higher layers;
+UI uses utils; services use utils and content; interceptors use services and utils; features use
+UI, services, utils, and content; portfolio composes features and UI. Imports within a layer are
+allowed. Only specs and testing helpers may import `testing`, and production files cannot import
+specs. Specs are exempt from layer rules, while cycles are errors and orphans are warnings.
+Type-only imports are ignored. Narrow exceptions for logging, overlays, SEO, and routing are
+documented in [Dependency boundaries](./docs/DEPENDENCY_BOUNDARIES.md).
+
 ## Conventions
 
 - Class names: PascalCase **without** "Component" suffix — `export class Hero`, not `HeroComponent` (ESLint error)
@@ -43,6 +52,7 @@ No feature→feature imports. One exception: navbar→language-switcher.
 
 ```bash
 pnpm run lint
+pnpm run deps:check
 pnpm run format:check
 pnpm test
 pnpm run i18n:check

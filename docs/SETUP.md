@@ -49,13 +49,19 @@ You can use `/en` or `/de` directly, and `/` defaults to English.
 Note: the feature flag endpoint is on `https://rapaglaz.de`.
 If you see CORS errors locally, the Worker must allow `http://localhost:4200`.
 
-## Checks (format/lint/i18n)
+## Checks (format/lint/dependencies/i18n)
 
 ```bash
 pnpm run format:check
 pnpm run lint
+pnpm run deps:check
 pnpm run i18n:check
 ```
+
+`deps:check` exits non-zero for forbidden runtime dependencies or circular imports.
+Use `pnpm run deps:graph` to generate a local HTML dependency matrix in
+`tmp/dependency-cruiser/dependencies.html`; `tmp/` is already git-ignored.
+See [Dependency boundaries](./DEPENDENCY_BOUNDARIES.md) for the rules and exceptions.
 
 ## Unit tests
 
