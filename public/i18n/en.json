@@ -112,7 +112,9 @@
         "title": "Security Verification",
         "description": "Please complete the security check to download the CV.",
         "footer": "Protected by Cloudflare Turnstile",
-        "loading": "Loading security check..."
+        "loading": "Loading security check...",
+        "cancel": "Cancel",
+        "close": "Close"
       }
     }
   }

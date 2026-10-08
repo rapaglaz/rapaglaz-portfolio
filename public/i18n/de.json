@@ -112,7 +112,9 @@
         "title": "Sicherheitsüberprüfung",
         "description": "Bitte schließen Sie die Sicherheitsprüfung ab, um den Lebenslauf herunterzuladen.",
         "footer": "Geschützt durch Cloudflare Turnstile",
-        "loading": "Sicherheitsprüfung wird geladen..."
+        "loading": "Sicherheitsprüfung wird geladen...",
+        "cancel": "Abbrechen",
+        "close": "Schließen"
       }
     }
   }

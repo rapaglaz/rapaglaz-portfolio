@@ -48,13 +48,16 @@ export class Navbar {
   protected readonly openToWork = this.featureFlagService.getFlagValue('openToWork');
   protected readonly contactEmail = injectContactEmailOpener();
 
-  protected handleDownloadCV(): void {
+  protected handleDownloadCV(trigger: HTMLButtonElement): void {
     if (!this.canDownload()) return;
 
+    if (isPlatformBrowser(this.platformId)) {
+      trigger.focus({ preventScroll: true });
+    }
     this.isDownloading.set(true);
 
     this.cvDownloadService
-      .downloadCV()
+      .downloadCV(trigger)
       .pipe(
         withErrorToast('portfolio.cv.error', this.toastService, this.translocoService, this.logger),
         finalize(() => this.isDownloading.set(false)),

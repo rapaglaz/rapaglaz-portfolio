@@ -3,7 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TranslocoService } from '@jsverse/transloco';
-import { firstValueFrom, of, throwError } from 'rxjs';
+import { EMPTY, firstValueFrom, of, throwError } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { provideTranslocoTesting } from '../../testing';
 import { API_BASE_URL } from '../../utils/tokens/api-urls.token';
@@ -73,6 +73,23 @@ describe('CvDownloadService', () => {
 
     httpMock.expectNone(req => /\.?\/download\?file=/.test(req.urlWithParams));
     await expect(downloadPromise).rejects.toThrow('Turnstile failed');
+  });
+
+  it('passes the download trigger to verification and completes cancellation without HTTP', () => {
+    const trigger = document.createElement('button');
+    vi.spyOn(configService, 'getConfig').mockReturnValue(of({ turnstileSiteKey: 'test-key' }));
+    const getToken = vi.spyOn(turnstileService, 'getToken$').mockReturnValue(EMPTY);
+    const next = vi.fn();
+    const error = vi.fn();
+    const complete = vi.fn();
+
+    service.downloadCV(trigger).subscribe({ next, error, complete });
+
+    expect(getToken).toHaveBeenCalledExactlyOnceWith('test-key', trigger);
+    expect(next).not.toHaveBeenCalled();
+    expect(error).not.toHaveBeenCalled();
+    expect(complete).toHaveBeenCalledOnce();
+    httpMock.expectNone(() => true);
   });
 
   it('propagates backend download errors', async () => {

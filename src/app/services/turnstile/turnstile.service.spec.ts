@@ -1,6 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
 import { firstValueFrom } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { provideTranslocoTesting } from '../../testing';
@@ -38,6 +39,93 @@ describe('TurnstileService (integration)', () => {
       expect.any(HTMLElement),
       expect.objectContaining({ sitekey: 'site-key' }),
     );
+  });
+
+  it.each(['en', 'de'])('uses the active %s locale for the widget', async locale => {
+    TestBed.inject(TranslocoService).setActiveLang(locale);
+    const render = vi.fn((_container: HTMLElement, options: Record<string, any>) => {
+      options['callback']('localized-token');
+      return 'localized-widget';
+    });
+    (window as any).turnstile = { render, remove: vi.fn() };
+
+    await firstValueFrom(service.getToken$('site-key'));
+
+    expect(render).toHaveBeenCalledWith(
+      expect.any(HTMLElement),
+      expect.objectContaining({ language: locale }),
+    );
+  });
+
+  it('cancels interactive verification without a token or error and releases the background', () => {
+    vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
+    const background = document.createElement('main');
+    const trigger = document.createElement('button');
+    background.appendChild(trigger);
+    document.body.appendChild(background);
+    trigger.focus();
+    const render = vi.fn(
+      (_container: HTMLElement, _options: Record<string, any>) => 'cancel-widget',
+    );
+    const remove = vi.fn();
+    (window as any).turnstile = { render, remove };
+    const next = vi.fn();
+    const error = vi.fn();
+    const complete = vi.fn();
+    const subscription = service.getToken$('site-key').subscribe({ next, error, complete });
+
+    try {
+      render.mock.calls[0][1]['before-interactive-callback']();
+      TestBed.tick();
+      const dialog = document.querySelector('[role="dialog"]');
+      expect(dialog?.getAttribute('aria-modal')).toBe('true');
+      expect(background.getAttribute('aria-hidden')).toBe('true');
+      dialog?.querySelector<HTMLButtonElement>('button')?.click();
+      TestBed.tick();
+
+      expect(subscription.closed).toBe(true);
+      expect(next).not.toHaveBeenCalled();
+      expect(error).not.toHaveBeenCalled();
+      expect(complete).toHaveBeenCalledOnce();
+      expect(remove).toHaveBeenCalledExactlyOnceWith('cancel-widget');
+      expect(document.querySelector('[role="dialog"]')).toBeNull();
+      expect(background.hasAttribute('aria-hidden')).toBe(false);
+      expect(document.activeElement).toBe(trigger);
+      render.mock.calls[0][1]['before-interactive-callback']();
+      render.mock.calls[0][1]['callback']('late-token');
+      expect(next).not.toHaveBeenCalled();
+      expect(document.querySelector('[role="dialog"]')).toBeNull();
+    } finally {
+      subscription.unsubscribe();
+      background.remove();
+    }
+  });
+
+  it('restores the supplied trigger when focus moves before interactive verification opens', () => {
+    vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
+    const trigger = document.createElement('button');
+    const otherAction = document.createElement('button');
+    document.body.append(trigger, otherAction);
+    trigger.focus();
+    const render = vi.fn(
+      (_container: HTMLElement, _options: Record<string, any>) => 'delayed-widget',
+    );
+    (window as any).turnstile = { render, remove: vi.fn() };
+    const subscription = service.getToken$('site-key', trigger).subscribe();
+
+    try {
+      otherAction.focus();
+      render.mock.calls[0][1]['before-interactive-callback']();
+      TestBed.tick();
+      document.querySelector<HTMLButtonElement>('[data-turnstile-cancel]')?.click();
+      TestBed.tick();
+      expect(subscription.closed).toBe(true);
+      expect(document.activeElement).toBe(trigger);
+    } finally {
+      subscription.unsubscribe();
+      trigger.remove();
+      otherAction.remove();
+    }
   });
 
   it('fails and retries when Turnstile script cannot be loaded', async () => {
@@ -154,7 +242,7 @@ describe('TurnstileService (integration)', () => {
       expect(widget.style.left).toBe('');
       expect(widget.style.position).toBe('');
       expect(dialog?.querySelector('[role="status"]')).toBeNull();
-      expect(document.activeElement).toBe(dialog);
+      expect(document.activeElement).toBe(dialog?.querySelector('[data-turnstile-close]'));
 
       options['callback']('interactive-token');
 
@@ -213,7 +301,9 @@ describe('TurnstileService (integration)', () => {
 
 describe('TurnstileService platform guards', () => {
   it('rejects verification during server rendering', async () => {
-    TestBed.configureTestingModule({ providers: [{ provide: PLATFORM_ID, useValue: 'server' }] });
+    TestBed.configureTestingModule({
+      providers: [provideTranslocoTesting(), { provide: PLATFORM_ID, useValue: 'server' }],
+    });
 
     await expect(
       firstValueFrom(TestBed.inject(TurnstileService).getToken$('site-key')),
@@ -225,7 +315,7 @@ describe('TurnstileService platform guards', () => {
   it('rejects verification when the document has no window', async () => {
     const serverDocument = document.implementation.createHTMLDocument();
     TestBed.configureTestingModule({
-      providers: [{ provide: DOCUMENT, useValue: serverDocument }],
+      providers: [provideTranslocoTesting(), { provide: DOCUMENT, useValue: serverDocument }],
     });
 
     await expect(

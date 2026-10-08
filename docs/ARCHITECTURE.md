@@ -60,7 +60,7 @@ There is one component entry point; the URL segment only determines the active l
 Most sections have no real business logic. The interesting parts are in services:
 
 - CV download: get config → get Turnstile token → call backend endpoint → trigger browser download
-- Turnstile: load script once, render widget, show modal when needed, cleanup properly
+- Turnstile: load the script once and render the widget in the active `en` or `de` locale. Interactive verification uses CDK Dialog with a labelled modal, a backdrop, focus trapping, and focus restoration to the CV button. Explicit focus-region boundaries surround the iframe for WebKit keyboard navigation. Closing, cancelling, Escape, or backdrop activation completes verification without a token or download; errors retain the existing error toast.
 - Toasts: CDK overlay, explicit cleanup
 - Feature flag: read `openToWork` from a Cloudflare Worker + KV, exposed as `httpResource`
 - Config: fetched once per app life, `retry({ count: 3 })` + `shareReplay`, no manual retry counter

@@ -1,8 +1,6 @@
-import { Overlay, OverlayRef } from '@angular/cdk/overlay';
-import { ComponentPortal } from '@angular/cdk/portal';
+import { Dialog, DialogRef } from '@angular/cdk/dialog';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
-import { ComponentRef, inject, Injectable, PLATFORM_ID } from '@angular/core';
-import { getBrowserCultureLang } from '@jsverse/transloco';
+import { inject, Injectable, PLATFORM_ID } from '@angular/core';
 import {
   catchError,
   defer,
@@ -11,10 +9,12 @@ import {
   of,
   retry,
   shareReplay,
+  Subscription,
   switchMap,
   throwError,
 } from 'rxjs';
 import { TurnstileModal } from '../../ui';
+import { DEFAULT_LANG, injectActiveLang, isAvailableLang } from '../../utils/i18n';
 import { LoggerService } from '../logger/logger.service';
 
 type TurnstileAPI = {
@@ -39,14 +39,14 @@ type TurnstileWindow = Window & { turnstile?: TurnstileAPI };
 type WidgetContext = {
   widgetId: string;
   container: HTMLElement | null;
-  modalRef: ComponentRef<TurnstileModal> | null;
-  modalSubscription: { unsubscribe(): void } | null;
-  overlayRef: OverlayRef | null;
+  dialogRef: DialogRef<undefined, TurnstileModal> | null;
+  subscriptions: Subscription;
 };
 
 @Injectable({ providedIn: 'root' })
 export class TurnstileService {
-  private readonly overlay = inject(Overlay);
+  private readonly dialog = inject(Dialog);
+  private readonly activeLang = injectActiveLang();
   private readonly document = inject(DOCUMENT);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly logger = inject(LoggerService);
@@ -55,12 +55,12 @@ export class TurnstileService {
 
   private scriptLoad$: Observable<void> | null = null;
 
-  getToken$(siteKey: string): Observable<string> {
+  getToken$(siteKey: string, restoreFocus?: HTMLElement): Observable<string> {
     if (!isPlatformBrowser(this.platformId)) {
       return throwError(() => new Error('Turnstile is only available in the browser'));
     }
 
-    return this.loadScript().pipe(switchMap(() => this.renderWidget(siteKey)));
+    return this.loadScript().pipe(switchMap(() => this.renderWidget(siteKey, restoreFocus)));
   }
 
   private loadScript(): Observable<void> {
@@ -110,7 +110,7 @@ export class TurnstileService {
     return this.scriptLoad$;
   }
 
-  private renderWidget(siteKey: string): Observable<string> {
+  private renderWidget(siteKey: string, restoreFocus?: HTMLElement): Observable<string> {
     return defer(() => {
       const win: TurnstileWindow | null = this.document.defaultView;
       if (!win?.turnstile || !this.document.body) {
@@ -128,19 +128,22 @@ export class TurnstileService {
         }
 
         try {
+          const language = this.activeLang();
           context.widgetId = turnstile.render(context.container, {
             sitekey: siteKey,
-            size: 'normal',
+            size: 'compact',
             appearance: 'interaction-only',
             execution: 'render',
-            language: getBrowserCultureLang()?.toLowerCase(),
+            language: isAvailableLang(language) ? language : DEFAULT_LANG,
             callback: token => {
               subscriber.next(token);
               subscriber.complete();
             },
             'error-callback': () => subscriber.error(new Error('Turnstile verification failed')),
             'before-interactive-callback': () => {
-              this.showModalWithWidget(context);
+              if (!subscriber.closed) {
+                this.showModalWithWidget(context, () => subscriber.complete(), restoreFocus);
+              }
             },
           });
         } catch (error) {
@@ -168,29 +171,45 @@ export class TurnstileService {
     return {
       widgetId: '',
       container: null,
-      modalRef: null,
-      modalSubscription: null,
-      overlayRef: null,
+      dialogRef: null,
+      subscriptions: new Subscription(),
     };
   }
 
-  private showModalWithWidget(context: WidgetContext): void {
-    if (context.modalRef || !context.container) return;
+  private showModalWithWidget(
+    context: WidgetContext,
+    onCancel: () => void,
+    restoreFocus?: HTMLElement,
+  ): void {
+    if (context.dialogRef || !context.container) return;
 
-    const overlayRef = this.overlay.create({
-      hasBackdrop: false,
-      scrollStrategy: this.overlay.scrollStrategies.block(),
+    const dialogRef = this.dialog.open<undefined, unknown, TurnstileModal>(TurnstileModal, {
+      ariaModal: true,
+      ariaLabelledBy: 'turnstile-modal-title',
+      ariaDescribedBy: 'turnstile-modal-description',
+      autoFocus: '[data-turnstile-close]',
+      restoreFocus: restoreFocus ?? true,
+      width: 'calc(100% - 2rem)',
+      maxWidth: '28rem',
+      backdropClass: ['cdk-overlay-dark-backdrop', 'backdrop-blur-sm'],
     });
 
-    context.overlayRef = overlayRef;
-    context.modalRef = overlayRef.attach(new ComponentPortal(TurnstileModal));
-
+    context.dialogRef = dialogRef;
     const container = context.container;
-    context.modalSubscription = context.modalRef.instance.widgetReady.subscribe(
-      (modalContainer: HTMLElement) => {
+    context.subscriptions.add(
+      dialogRef.componentInstance?.widgetReady.subscribe((modalContainer: HTMLElement) => {
         this.moveWidgetToModal(container, modalContainer);
-        context.modalRef?.instance.setLoading(false);
-      },
+        dialogRef.componentInstance?.setLoading(false);
+      }),
+    );
+    context.subscriptions.add(
+      dialogRef.componentInstance?.cancelled.subscribe(() => dialogRef.close()),
+    );
+    context.subscriptions.add(
+      dialogRef.closed.subscribe(() => {
+        context.dialogRef = null;
+        onCancel();
+      }),
     );
   }
 
@@ -210,21 +229,13 @@ export class TurnstileService {
       }
     }
 
-    if (context.modalSubscription) {
-      context.modalSubscription.unsubscribe();
-    }
+    context.subscriptions.unsubscribe();
 
     if (context.container) {
       context.container.parentNode?.removeChild(context.container);
     }
 
-    if (context.modalRef) {
-      context.modalRef.instance.restoreFocus();
-    }
-
-    if (context.overlayRef) {
-      context.overlayRef.dispose();
-      context.overlayRef = null;
-    }
+    context.dialogRef?.close();
+    context.dialogRef = null;
   }
 }

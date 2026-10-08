@@ -89,6 +89,54 @@ export async function mockCVDownload(page: Page): Promise<void> {
   });
 }
 
+// Interactive iframe exercises focus boundaries without contacting Cloudflare.
+export async function mockInteractiveTurnstile(page: Page): Promise<void> {
+  await page.addInitScript(() => {
+    let timer: ReturnType<typeof setTimeout>;
+    (window as Window & { turnstile?: unknown }).turnstile = {
+      render: (
+        container: HTMLElement,
+        options: {
+          language: string;
+          size: 'normal' | 'compact' | 'flexible';
+          callback: (token: string) => void;
+          'error-callback': () => void;
+          'before-interactive-callback': () => void;
+        },
+      ): string => {
+        const frame = document.createElement('iframe');
+        frame.title = 'Mock security verification';
+        frame.tabIndex = 0;
+        frame.width = options.size === 'compact' ? '150' : '300';
+        frame.height = options.size === 'compact' ? '140' : '65';
+        frame.dataset['mockLanguage'] = options.language;
+        frame.srcdoc =
+          '<html><head><style>button { min-height: 32px; margin-bottom: 8px; }</style></head><body><button id="verify">Verify</button><button id="fail">Fail verification</button></body></html>';
+        frame.addEventListener('load', () => {
+          frame.contentDocument
+            ?.getElementById('verify')
+            ?.addEventListener('click', () => options.callback('interactive-token'));
+          frame.contentDocument
+            ?.getElementById('fail')
+            ?.addEventListener('click', options['error-callback']);
+        });
+        container.appendChild(frame);
+        timer = setTimeout(options['before-interactive-callback'], 50);
+        return 'mock-interactive-widget';
+      },
+      remove: (): void => clearTimeout(timer),
+    };
+  });
+  await page.route('**/challenges.cloudflare.com/**', route => route.abort());
+  await page.route('**/download?file=**', route =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/pdf',
+      body: MOCK_PDF_CONTENT,
+    }),
+  );
+}
+
 // switches language and waits for translation to appear, ensures i18n working
 export async function switchLanguage(page: Page, lang: 'EN' | 'DE'): Promise<void> {
   await page.getByRole('option', { name: lang }).click();
