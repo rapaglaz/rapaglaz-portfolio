@@ -4,7 +4,8 @@ rules:
   self-repository:
     disable: true
   # FTP-Deploy-Action publishes both a tag and a branch named v4.4.0. The pin matches
-  # the tag, zizmor resolves the comment to the branch.
+  # the tag, zizmor resolves the comment to the branch. Matched by line number, so
+  # update it when the deploy step moves.
   ref-version-mismatch:
     ignore:
-      - main-branch-ci-cd.yaml:111
+      - main-branch-ci-cd.yaml:115
