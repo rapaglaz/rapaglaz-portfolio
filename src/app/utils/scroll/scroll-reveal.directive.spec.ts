@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, PLATFORM_ID, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ScrollRevealDirective } from './scroll-reveal.directive';
@@ -9,7 +9,13 @@ import { ScrollRevealDirective } from './scroll-reveal.directive';
     <div
       appScrollReveal
       (visibilityChange)="onVisibilityChange($event)">
-      Test Content
+      <div class="animate-container">
+        <a
+          class="animate-item"
+          href="#content"
+          >Test Content</a
+        >
+      </div>
     </div>
   `,
   imports: [ScrollRevealDirective],
@@ -85,5 +91,50 @@ describe('ScrollRevealDirective', () => {
   it('disconnects observer on destroy', () => {
     fixture.destroy();
     expect(disconnectSpy).toHaveBeenCalled();
+  });
+
+  it('reveals a focused link and its ancestors before an intersection occurs', async () => {
+    const link = fixture.nativeElement.querySelector('a') as HTMLAnchorElement;
+    link.focus();
+    await fixture.whenStable();
+
+    expect(component.isVisible()).toBe(true);
+    expect(link.classList.contains('reveal-on-focus')).toBe(true);
+    expect(link.parentElement?.classList.contains('reveal-on-focus')).toBe(true);
+    expect(disconnectSpy).toHaveBeenCalledOnce();
+
+    link.blur();
+    expect(link.classList.contains('reveal-on-focus')).toBe(true);
+  });
+
+  it('reveals content when IntersectionObserver is unavailable', async () => {
+    delete (globalThis as any).IntersectionObserver;
+    const fallback = TestBed.createComponent(TestHostComponent);
+    await fallback.whenStable();
+
+    expect(fallback.componentInstance.isVisible()).toBe(true);
+    const link = fallback.nativeElement.querySelector('a') as HTMLAnchorElement;
+    link.focus();
+    await fallback.whenStable();
+    expect(link.classList.contains('reveal-on-focus')).toBe(true);
+  });
+
+  it('reveals content on the server without observing browser elements', async () => {
+    fixture.destroy();
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [TestHostComponent],
+      providers: [{ provide: PLATFORM_ID, useValue: 'server' }],
+    });
+    observeSpy.mockClear();
+    const serverFixture = TestBed.createComponent(TestHostComponent);
+    await serverFixture.whenStable();
+
+    expect(serverFixture.componentInstance.isVisible()).toBe(true);
+    expect(observeSpy).not.toHaveBeenCalled();
+    const link = serverFixture.nativeElement.querySelector('a') as HTMLAnchorElement;
+    link.focus();
+    await serverFixture.whenStable();
+    expect(link.classList.contains('reveal-on-focus')).toBe(false);
   });
 });

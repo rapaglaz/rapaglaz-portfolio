@@ -237,9 +237,31 @@ html {
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    animation: none !important;
+    animation-delay: 0s !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+
+  :is(
+    .animate-title,
+    .animate-content,
+    .animate-container,
+    .animate-item,
+    .animate-pill,
+    .animate-cert
+  ) {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  [class*='hover:scale-'] {
+    scale: none !important;
+  }
+
+  /* DaisyUI dots animate inside their SVG mask, independently of CSS animations. */
+  .loading-dots {
+    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='4' cy='12' r='3'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3Ccircle cx='20' cy='12' r='3'/%3E%3C/svg%3E");
   }
 }
 
@@ -356,4 +378,26 @@ html {
 
 .animate-cert.visible {
   animation: fadeInLeft 0.5s ease-out forwards;
+}
+
+/* Keep focused content visible after focus leaves its entrance animation. */
+.reveal-on-focus:is(
+  .animate-title,
+  .animate-content,
+  .animate-container,
+  .animate-item,
+  .animate-pill,
+  .animate-cert
+) {
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+.navbar:focus-within,
+.toast-enter:focus-within {
+  animation-duration: 0.01ms !important;
+  animation-delay: 0s !important;
+  opacity: 1 !important;
+  transform: none !important;
 }
