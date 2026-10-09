@@ -33,11 +33,15 @@ describe('TurnstileModal', () => {
   it('shows the loading status until the widget is ready', () => {
     const element = fixture.nativeElement as HTMLElement;
     expect(element.querySelector('[role="status"]')).toBeInstanceOf(HTMLElement);
+    const spinner = element.querySelector('[role="status"] .loading-spinner');
+    expect(spinner).toBeInstanceOf(HTMLElement);
+    expect(spinner?.getAttribute('aria-hidden')).toBe('true');
 
     fixture.componentInstance.setLoading(false);
     fixture.detectChanges();
 
     expect(element.querySelector('[role="status"]')).toBeNull();
+    expect(element.querySelector('.loading-spinner')).toBeNull();
     expect(element.querySelector('#turnstile-widget-container')).toBeInstanceOf(HTMLElement);
 
     fixture.componentInstance.setLoading(true);

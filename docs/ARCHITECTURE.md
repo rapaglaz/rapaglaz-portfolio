@@ -113,11 +113,16 @@ are opaque so the content beneath them cannot lower contrast. Decorative borders
 are not treated as essential controls. These checks run after finite animations finish.
 
 Entrance animations, deliberate delays, and hover decoration remain enabled with
-`prefers-reduced-motion: no-preference`. With `reduce`, CSS disables animations, delays,
+`prefers-reduced-motion: no-preference`. With `reduce`, CSS disables entrance animations, delays,
 transitions, smooth scrolling, and hover scaling; scroll-reveal content is visible even before
 an intersection occurs. Motion E2E checks cover both preferences and changes after page load.
-The CV loading dots use a static SVG mask in reduce mode because the DaisyUI mask contains
-its own SVG animations. The busy state and loading label remain available.
+The CV loading dots retain DaisyUI's standard SVG animation: a 1.05-second cycle with no
+motion preference and a 3-second cycle with reduce. The busy state and loading label remain
+available. The verification spinner also uses DaisyUI's standard SVG mask: rotation takes
+2 seconds and the stroke cycle takes 1.5 seconds with no motion preference, or 8 and 6 seconds
+respectively with reduce.
+The standard no-preference SVG masks are applied explicitly to preserve their precedence over
+DaisyUI's generated default rules.
 
 Keyboard focus bypasses entrance effects in either mode. Scroll reveal marks the focused
 element and its ancestors so animated content stays visible after focus leaves, while other
