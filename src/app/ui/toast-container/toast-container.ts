@@ -19,7 +19,7 @@ export type ToastData = {
       data-testid="toast">
       <div
         [class]="
-          'relative flex items-center gap-4 rounded-lg border p-4 backdrop-blur-md transition-all duration-300 ' +
+          'relative flex items-center gap-4 rounded-lg border p-4 transition-all duration-300 ' +
           getAlertClasses()
         ">
         <p
@@ -69,12 +69,12 @@ export class ToastContainer {
     const type = this.data().type;
     switch (type) {
       case 'success':
-        return 'bg-green-500/5 border-green-500/30 text-green-700 dark:text-green-300 dark:shadow-sm shadow-green-500/20 dark:shadow-green-500/10';
+        return 'bg-base-100 border-green-500/30 text-green-700 dark:text-green-300 dark:shadow-sm shadow-green-500/20 dark:shadow-green-500/10';
       case 'error':
-        return 'bg-red-500/5 border-red-500/30 text-red-700 dark:text-red-300 dark:shadow-sm shadow-red-500/20 dark:shadow-red-500/10';
+        return 'bg-base-100 border-red-500/30 text-red-700 dark:text-red-300 dark:shadow-sm shadow-red-500/20 dark:shadow-red-500/10';
       case 'info':
       default:
-        return 'bg-blue-500/5 border-blue-500/30 text-blue-700 dark:text-blue-300 dark:shadow-sm shadow-blue-500/20 dark:shadow-blue-500/10';
+        return 'bg-base-100 border-blue-500/30 text-blue-700 dark:text-blue-300 dark:shadow-sm shadow-blue-500/20 dark:shadow-blue-500/10';
     }
   }
 

@@ -105,7 +105,12 @@ Playwright is used for user flows:
 - language switch
 - CV download (mocked backend)
 - Turnstile failure cases (script blocked / verification fails)
-- a11y check with axe on initial load
+- a11y checks with axe after EN/DE content is revealed in light and dark themes
+
+The contrast tests also read browser-computed theme pairs and interaction colors. Text requires
+4.5:1 contrast; icons and authored focus indicators require 3:1. Navbar and toast backgrounds
+are opaque so the content beneath them cannot lower contrast. Decorative borders and shadows
+are not treated as essential controls. These checks run after finite animations finish.
 
 In CI (and in `e2e:ssg`) tests run against the static build served on port 4233.
 Locally `pnpm run e2e` uses the dev server on 4200.
