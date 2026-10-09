@@ -209,15 +209,23 @@ test.describe('Motion preferences', () => {
       await expect(cv).toHaveAttribute('aria-busy', 'true');
       const dots = cv.locator('.loading-dots');
       await expect(dots).toBeVisible();
-      const mask = await dots.evaluate(element =>
-        decodeURIComponent(getComputedStyle(element).maskImage),
-      );
-      if (reducedMotion === 'reduce') {
-        expect(mask).not.toContain('<animate');
-      } else {
+      for (const preference of [
+        reducedMotion,
+        reducedMotion === 'reduce' ? 'no-preference' : 'reduce',
+      ] as const) {
+        await page.emulateMedia({ reducedMotion: preference });
+        const mask = await dots.evaluate(element =>
+          decodeURIComponent(getComputedStyle(element).maskImage),
+        );
         expect(mask).toContain('<animate');
+        expect(mask).toContain('<circle');
+        const duration = preference === 'reduce' ? '3s' : '1.05s';
+        expect([...mask.matchAll(/dur='([^']+)'/g)].map(match => match[1])).toEqual([
+          duration,
+          duration,
+          duration,
+        ]);
       }
-      expect(mask).toContain('<circle');
       await page.keyboard.press('Escape');
       await expect(dots).toHaveCount(0);
       await expect(cv).toHaveAttribute('aria-busy', 'false');
