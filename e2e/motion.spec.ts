@@ -26,6 +26,37 @@ async function readMotion(locator: Locator): Promise<{
 }
 
 test.describe('Motion preferences', () => {
+  test('reveals the decorative hero contours once and keeps them static with reduced motion', async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await visitPortfolio(page, '/de');
+    const contours = page.locator('.hero-contours');
+    await expect(contours).toHaveAttribute('aria-hidden', 'true');
+    expect(await contours.evaluate(element => getComputedStyle(element).pointerEvents)).toBe(
+      'none',
+    );
+    expect((await readMotion(contours)).animationName).toContain('hero-contours-enter');
+    await expect
+      .poll(() =>
+        contours.evaluate(element =>
+          element.getAnimations().every(a => a.playState === 'finished'),
+        ),
+      )
+      .toBe(true);
+    expect((await readMotion(contours)).opacity).toBe('0.3');
+
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    expect(await readMotion(contours)).toMatchObject({
+      animationName: 'none',
+      opacity: '0.3',
+      transform: 'none',
+    });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(
+      false,
+    );
+  });
+
   test('preserves intentional entrance delays and hover decoration with no preference', async ({
     page,
   }) => {

@@ -124,6 +124,10 @@ respectively with reduce.
 The standard no-preference SVG masks are applied explicitly to preserve their precedence over
 DaisyUI's generated default rules.
 
+The hero's decorative ocean contours fade into view once and stay static with reduced motion.
+They are hidden from assistive technology, ignore pointer events, and fade away behind the
+central content to preserve readability.
+
 Keyboard focus bypasses entrance effects in either mode. Scroll reveal marks the focused
 element and its ancestors so animated content stays visible after focus leaves, while other
 items keep their entrance effects. Navbar and toast focus also bypass their entrance delay.
