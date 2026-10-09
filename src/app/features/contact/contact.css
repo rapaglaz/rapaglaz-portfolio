@@ -1,0 +1,47 @@
+.contact-card-surface {
+  position: relative;
+  transition:
+    border-color 200ms ease-out,
+    translate 200ms ease-out;
+}
+
+.contact-card-surface::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  box-shadow: 0 8px 24px -12px color-mix(in srgb, var(--color-primary) 38%, transparent);
+  transition: opacity 200ms ease-out;
+}
+
+.contact-card:focus-visible .contact-card-surface {
+  border-color: var(--color-primary);
+}
+
+.contact-card:focus-visible .contact-card-surface::after {
+  opacity: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .contact-card:hover .contact-card-surface {
+    border-color: var(--color-primary);
+  }
+
+  .contact-card:hover .contact-card-surface::after {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .contact-card:focus-visible .contact-card-surface {
+    translate: 0 -4px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
+  .contact-card:hover .contact-card-surface {
+    translate: 0 -4px;
+  }
+}
