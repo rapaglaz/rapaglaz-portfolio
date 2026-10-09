@@ -4,7 +4,7 @@ import { provideRouter, withEnabledBlockingInitialNavigation } from '@angular/ro
 import { TRANSLOCO_LOADER } from '@jsverse/transloco';
 import { appConfigBase } from './app.config';
 import { routes } from './app.routes';
-import { TranslocoFsLoader } from './utils/i18n';
+import { TranslocoFsLoader } from './utils/i18n/transloco-fs-loader';
 
 const serverConfig: ApplicationConfig = {
   providers: [

@@ -126,9 +126,19 @@ The app initializer loads the initial translations for SSR and hydration. A rout
 then loads and activates the URL's language and updates `<html lang>` before creating the
 portfolio, including on Back/Forward navigation. The language switcher only navigates and
 preserves query parameters and the fragment; its selection follows the resolved language.
+The listbox is horizontal, uses a translated group label, and marks its autonyms with
+`lang="en"` or `lang="de"`. Arrow keys move focus; Enter or Space commits the language.
 If German translations fail to load, the resolver redirects to `/en` with the same URL extras
 and replaces the failed history entry. If English cannot be loaded, navigation is cancelled
 and the current route and language remain active.
+
+Bootstrap failures use the same URL locale detection and messages from the JSON dictionaries.
+Those messages are bundled so they remain available when Angular, Transloco, or translation
+requests fail. Footer action labels and new-tab cues also follow the active locale.
+The server translation loader is imported directly by the server configuration, keeping
+full translation dictionaries out of the browser JavaScript bundle.
+Certification dates use `Intl.DateTimeFormat` with the active language; years and the current
+two- or three-day durations do not require different numeric separators in English and German.
 
 I validate translations with:
 

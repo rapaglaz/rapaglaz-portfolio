@@ -36,7 +36,7 @@ describe('portfolio routes', () => {
   it.each([
     ['/', 'en', 'About Me'],
     ['/en', 'en', 'About Me'],
-    ['/de', 'de', 'Über Mich'],
+    ['/de', 'de', 'Über mich'],
   ])('synchronizes content and document language at %s', async (path, lang, heading) => {
     const harness = await RouterTestingHarness.create();
 

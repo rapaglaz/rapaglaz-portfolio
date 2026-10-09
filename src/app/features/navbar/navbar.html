@@ -29,7 +29,7 @@
         [attr.aria-label]="
           isDownloading()
             ? ('common.navbar.downloadingCV' | transloco)
-            : ('common.navbar.downloadCV' | transloco)
+            : ('common.navbar.downloadCVLabel' | transloco)
         "
         [attr.aria-busy]="isDownloading()"
         (click)="handleDownloadCV(cvButton)"

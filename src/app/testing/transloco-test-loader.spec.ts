@@ -5,7 +5,7 @@ import { TranslocoTestLoader } from './transloco-test-loader';
 describe('TranslocoTestLoader', () => {
   it.each([
     ['en', 'About Me'],
-    ['de', 'Über Mich'],
+    ['de', 'Über mich'],
     ['fr', 'About Me'],
   ])('emits the expected translation for %s', async (lang, title) => {
     const loader = new TranslocoTestLoader();

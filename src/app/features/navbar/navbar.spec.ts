@@ -4,7 +4,8 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { of, Subject, throwError } from 'rxjs';
+import { TranslocoService } from '@jsverse/transloco';
+import { firstValueFrom, of, Subject, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CvDownloadService, FeatureFlagService, LoggerService, ToastService } from '../../services';
 import { mockWindowLocation, mockWindowScrollY, provideTranslocoTesting } from '../../testing';
@@ -62,6 +63,22 @@ describe('Navbar', () => {
     expect(languageSwitcher).toBeInstanceOf(HTMLElement);
     expect(buttons.length).toBeGreaterThanOrEqual(2);
     expect(iconButton?.getAttribute('aria-label')?.trim()).toBeTruthy();
+  });
+
+  it.each([
+    ['en', 'Download CV'],
+    ['de', 'Lebenslauf herunterladen (CV)'],
+  ])('names the CV action in %s and includes its visible label', async (lang, label) => {
+    const transloco = TestBed.inject(TranslocoService);
+    await firstValueFrom(transloco.load(lang));
+    transloco.setActiveLang(lang);
+    await fixture.whenStable();
+    const button = (fixture.nativeElement as HTMLElement).querySelector(
+      '[data-testid="cv-download-btn"]',
+    );
+
+    expect(button?.getAttribute('aria-label')).toBe(label);
+    expect(label).toContain(button?.textContent?.trim());
   });
 
   it('opens the configured email address when the contact button is clicked', () => {

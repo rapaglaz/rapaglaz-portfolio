@@ -53,6 +53,24 @@ describe('LanguageSwitcher', () => {
     });
   });
 
+  it('exposes the horizontal orientation and each option language', () => {
+    expect(element.querySelector('[role="listbox"]')?.getAttribute('aria-orientation')).toBe(
+      'horizontal',
+    );
+    expect(element.querySelector('[aria-label="English"]')?.getAttribute('lang')).toBe('en');
+    expect(element.querySelector('[aria-label="Deutsch"]')?.getAttribute('lang')).toBe('de');
+  });
+
+  it('translates the listbox label when the active language changes', async () => {
+    await firstValueFrom(translocoService.load('de'));
+    translocoService.setActiveLang('de');
+    await fixture.whenStable();
+
+    expect(element.querySelector('[role="listbox"]')?.getAttribute('aria-label')).toBe(
+      'Sprachauswahl',
+    );
+  });
+
   it('marks the active language visually', async () => {
     translocoService.setActiveLang('en');
 

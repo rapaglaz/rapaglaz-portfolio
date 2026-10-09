@@ -1,22 +1,25 @@
 import { CdkListboxModule, type ListboxValueChangeEvent } from '@angular/cdk/listbox';
 import { Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { AVAILABLE_LANGS, injectActiveLang, isAvailableLang, LANG_LABELS } from '../../utils/i18n';
 
 @Component({
   selector: 'app-language-switcher',
-  imports: [CdkListboxModule],
+  imports: [CdkListboxModule, TranslocoPipe],
   template: `
     <div
       class="group flex items-center gap-x-1.5 md:gap-x-0.5"
       cdkListbox
+      cdkListboxOrientation="horizontal"
       [cdkListboxValue]="selectedLang()"
       (cdkListboxValueChange)="handleValueChange($event)"
-      aria-label="Language selection">
+      [attr.aria-label]="'common.a11y.languageSelection' | transloco">
       @for (lang of availableLangs; track lang; let last = $last) {
         <button
           type="button"
           [cdkOption]="lang"
+          [attr.lang]="lang"
           [class]="getLangClasses(lang)"
           [attr.aria-label]="getLangLabel(lang)">
           {{ lang.toUpperCase() }}
