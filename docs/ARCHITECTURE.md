@@ -132,6 +132,8 @@ then fades out. With reduced motion it stays hidden, leaving the existing static
 Contact card surfaces lift by 4px and fade in a theme-colored shadow on keyboard focus or
 fine-pointer hover, while the enclosing links keep a stable click target. Reduced motion keeps
 the border and shadow feedback without movement or transitions.
+Section headings draw a short decorative underline in 400ms when scroll reveal activates.
+With reduced motion every underline is fully visible immediately, including offscreen sections.
 
 Keyboard focus bypasses entrance effects in either mode. Scroll reveal marks the focused
 element and its ancestors so animated content stays visible after focus leaves, while other

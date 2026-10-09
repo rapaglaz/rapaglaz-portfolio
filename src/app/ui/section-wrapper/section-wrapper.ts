@@ -5,6 +5,7 @@ import { createScrollRevealState, ScrollRevealDirective } from '../../utils/scro
 @Component({
   selector: 'app-section-wrapper',
   imports: [TranslocoModule, ScrollRevealDirective],
+  styleUrl: './section-wrapper.css',
   template: `
     <section
       [id]="sectionId()"
@@ -19,7 +20,7 @@ import { createScrollRevealState, ScrollRevealDirective } from '../../utils/scro
           <div class="lg:border-primary/50 pt-8 pb-3 sm:py-8 lg:rounded-l-lg lg:border-l-4 lg:pl-4">
             <h2
               [id]="sectionId() + '-heading'"
-              class="font-section-title text-ocean-outline animate-title mb-2 text-3xl uppercase"
+              class="font-section-title text-ocean-outline section-heading animate-title mb-2 text-3xl uppercase"
               [class.visible]="scrollReveal.isVisible()">
               {{ titleKey() | transloco }}
             </h2>

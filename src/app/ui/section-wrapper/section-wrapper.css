@@ -1,0 +1,29 @@
+.section-heading::after {
+  content: '';
+  display: block;
+  width: 3rem;
+  height: 2px;
+  margin-top: 1rem;
+  background-color: var(--color-primary);
+  transform-origin: left;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .section-heading::after {
+    transform: scaleX(0);
+  }
+
+  .section-heading.visible::after {
+    animation: section-heading-line 400ms ease-out 200ms both;
+  }
+}
+
+@keyframes section-heading-line {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}

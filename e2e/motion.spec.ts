@@ -28,6 +28,44 @@ async function readMotion(locator: Locator): Promise<{
 }
 
 test.describe('Motion preferences', () => {
+  test('draws heading accents with scroll reveal and shows them immediately with reduced motion', async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await visitPortfolio(page, '/de');
+    const heading = page.getByTestId('section-about').getByRole('heading', { level: 2 });
+    await heading.scrollIntoViewIfNeeded();
+    await expect(heading).toHaveClass(/visible/);
+    await expect
+      .poll(() => heading.evaluate(element => getComputedStyle(element, '::after').animationName))
+      .toContain('section-heading-line');
+    await expect
+      .poll(() =>
+        heading.evaluate(element =>
+          element.getAnimations({ subtree: true }).every(a => a.playState === 'finished'),
+        ),
+      )
+      .toBe(true);
+    expect(await heading.evaluate(element => getComputedStyle(element, '::after').transform)).toBe(
+      'matrix(1, 0, 0, 1, 0, 0)',
+    );
+    await expect(heading).toHaveAccessibleName('Über mich');
+
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    for (const sectionHeading of await page.locator('.section-heading').all()) {
+      expect(
+        await sectionHeading.evaluate(element => {
+          const style = getComputedStyle(element, '::after');
+          return {
+            animationName: style.animationName,
+            transform: style.transform,
+            width: style.width,
+          };
+        }),
+      ).toEqual({ animationName: 'none', transform: 'none', width: '48px' });
+    }
+  });
+
   test('lifts contact links on hover and keyboard focus and keeps them still with reduced motion', async ({
     page,
     browserName,
