@@ -127,6 +127,8 @@ DaisyUI's generated default rules.
 The hero's decorative ocean contours fade into view once and stay static with reduced motion.
 They are hidden from assistive technology, ignore pointer events, and fade away behind the
 central content to preserve readability.
+The avatar's decorative halo makes one 1.8-second rotation after the portrait's entrance and
+then fades out. With reduced motion it stays hidden, leaving the existing static ring.
 
 Keyboard focus bypasses entrance effects in either mode. Scroll reveal marks the focused
 element and its ancestors so animated content stays visible after focus leaves, while other

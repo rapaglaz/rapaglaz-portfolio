@@ -26,6 +26,49 @@ async function readMotion(locator: Locator): Promise<{
 }
 
 test.describe('Motion preferences', () => {
+  test('runs the avatar halo once and removes it when reduced motion is requested', async ({
+    page,
+  }) => {
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await visitPortfolio(page, '/en');
+    const avatar = page.locator('.hero-avatar');
+    await avatar.evaluate(element => {
+      const halo = element
+        .getAnimations({ subtree: true })
+        .find(animation => (animation as CSSAnimation).animationName.includes('hero-avatar-halo'));
+      if (!halo) throw new Error('The avatar halo animation is missing');
+      halo.pause();
+      halo.currentTime = 2600;
+    });
+    expect(await avatar.evaluate(element => getComputedStyle(element, '::after').opacity)).toBe(
+      '1',
+    );
+
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    expect(
+      await avatar.evaluate(element => {
+        const style = getComputedStyle(element, '::after');
+        return {
+          opacity: style.opacity,
+          animationName: style.animationName,
+          transform: style.transform,
+        };
+      }),
+    ).toEqual({ opacity: '0', animationName: 'none', transform: 'none' });
+
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await expect
+      .poll(() =>
+        avatar.evaluate(element =>
+          element.getAnimations({ subtree: true }).every(a => a.playState === 'finished'),
+        ),
+      )
+      .toBe(true);
+    expect(await avatar.evaluate(element => getComputedStyle(element, '::after').opacity)).toBe(
+      '0',
+    );
+  });
+
   test('reveals the decorative hero contours once and keeps them static with reduced motion', async ({
     page,
   }) => {
