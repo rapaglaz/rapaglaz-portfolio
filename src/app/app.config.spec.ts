@@ -1,5 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import { TestBed } from '@angular/core/testing';
+import { bootstrapApplication } from '@angular/platform-browser';
 import {
   Translation,
   TRANSLOCO_LOADER,
@@ -9,8 +10,13 @@ import {
 } from '@jsverse/transloco';
 import { firstValueFrom, Observable, of, throwError, toArray } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { initTranslocoDefaultLang, provideTranslocoWithDynamicLang } from './app.config';
+import { bootstrap, initTranslocoDefaultLang, provideTranslocoWithDynamicLang } from './app.config';
 import { AVAILABLE_LANGS, DEFAULT_LANG, StrictTranslocoMissingHandler } from './utils/i18n';
+
+vi.mock('@angular/platform-browser', async importOriginal => ({
+  ...(await importOriginal<typeof import('@angular/platform-browser')>()),
+  bootstrapApplication: vi.fn(),
+}));
 
 class InlineLoader implements TranslocoLoader {
   readonly calls: string[] = [];
@@ -128,5 +134,41 @@ describe('app i18n config', () => {
     expect(load).toHaveBeenCalledExactlyOnceWith('en');
     expect(transloco.getActiveLang()).toBe('en');
     expect(TestBed.inject(DOCUMENT).documentElement.lang).toBe('en');
+  });
+});
+
+describe('bootstrap error localization', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it.each([
+    ['/', 'en', 'Failed to load the application. Please refresh the page.'],
+    ['/en', 'en', 'Failed to load the application. Please refresh the page.'],
+    ['/de', 'de', 'Die Anwendung konnte nicht geladen werden. Bitte laden Sie die Seite neu.'],
+    [
+      '/de/profile',
+      'de',
+      'Die Anwendung konnte nicht geladen werden. Bitte laden Sie die Seite neu.',
+    ],
+    ['/fr', 'en', 'Failed to load the application. Please refresh the page.'],
+  ])('shows the %s failure in %s without Angular or Transloco', async (pathname, lang, message) => {
+    const error = new Error('Internal bootstrap failure');
+    const mockDocument = {
+      location: { pathname },
+      documentElement: document.createElement('html'),
+      body: document.createElement('body'),
+      createElement: document.createElement.bind(document),
+    };
+    vi.stubGlobal('document', mockDocument);
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    vi.mocked(bootstrapApplication).mockRejectedValueOnce(error);
+
+    await expect(bootstrap()).rejects.toBe(error);
+
+    expect(mockDocument.documentElement.lang).toBe(lang);
+    expect(mockDocument.body.textContent).toBe(message);
+    expect(mockDocument.body.querySelector('[role="alert"]')?.textContent).toBe(message);
   });
 });

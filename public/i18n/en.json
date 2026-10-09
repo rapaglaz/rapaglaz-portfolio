@@ -2,14 +2,17 @@
   "common": {
     "firstName": "Radoslaw",
     "lastName": "Glaz",
+    "bootstrapError": "Failed to load the application. Please refresh the page.",
     "navbar": {
       "openToWork": "Open to Work",
       "downloadCV": "CV",
+      "downloadCVLabel": "Download CV",
       "downloadingCV": "Downloading CV",
       "contactMe": "Contact Me"
     },
     "a11y": {
       "skipToContent": "Skip to main content",
+      "languageSelection": "Language selection",
       "opensInNewTab": "opens in new tab",
       "closeNotification": "Close notification"
     }

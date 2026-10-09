@@ -47,7 +47,7 @@ describe('About', () => {
     fixture.detectChanges();
 
     const element = fixture.nativeElement as HTMLElement;
-    expect(element.querySelector('h2')?.textContent?.trim()).toBe('Über Mich');
+    expect(element.querySelector('h2')?.textContent?.trim()).toBe('Über mich');
     expect(element.querySelector('p')?.textContent?.trim()).toBe(
       transloco.translate('portfolio.about.description'),
     );
