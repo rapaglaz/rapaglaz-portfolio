@@ -52,7 +52,7 @@
   --color-warning: #f6c947;
   --color-warning-content: #0a0f1e;
   --color-error: #ef5350;
-  --color-error-content: #ffffff;
+  --color-error-content: #0a0f1e;
   /* WCAG AA compliant muted text colors (4.5:1+ contrast on base-100) */
   --color-text-muted: #4a6366;
   --color-text-subtle: #5a7275;
@@ -65,11 +65,11 @@
     --color-primary: #86e3eb;
     --color-primary-content: #0a0f1e;
     --color-secondary: #8ebcc0;
-    --color-secondary-content: #ffffff;
+    --color-secondary-content: #0a0f1e;
     --color-accent: #4e696b;
     --color-accent-content: #ffffff;
     --color-neutral: #869496;
-    --color-neutral-content: #ffffff;
+    --color-neutral-content: #0a0f1e;
     --color-base-100: #0a0f1e;
     --color-base-200: #121829;
     --color-base-300: #1a2337;
@@ -81,7 +81,7 @@
     --color-warning: #f6c947;
     --color-warning-content: #0a0f1e;
     --color-error: #ef5350;
-    --color-error-content: #ffffff;
+    --color-error-content: #0a0f1e;
     /* WCAG AA compliant muted text colors (4.5:1+ contrast on base-100) */
     --color-text-muted: #a8b5b7;
     --color-text-subtle: #8a9a9c;
