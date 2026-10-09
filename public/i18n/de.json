@@ -10,7 +10,8 @@
     },
     "a11y": {
       "skipToContent": "Zum Hauptinhalt springen",
-      "opensInNewTab": "öffnet in neuem Tab"
+      "opensInNewTab": "öffnet in neuem Tab",
+      "closeNotification": "Benachrichtigung schließen"
     }
   },
   "portfolio": {
