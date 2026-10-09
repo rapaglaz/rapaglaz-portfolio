@@ -1,4 +1,5 @@
 import { Component, input, output } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 export type ToastType = 'success' | 'error' | 'info';
 
@@ -10,24 +11,30 @@ export type ToastData = {
 @Component({
   selector: 'app-toast-container',
   styleUrl: './toast-container.css',
+  imports: [TranslocoPipe],
 
   template: `
     <div
       class="toast-enter pointer-events-auto px-2.5"
-      role="alert"
-      aria-atomic="true"
-      [attr.aria-live]="data().type === 'error' ? 'assertive' : 'polite'">
+      data-testid="toast">
       <div
         [class]="
           'relative flex items-center gap-4 rounded-lg border p-4 backdrop-blur-md transition-all duration-300 ' +
           getAlertClasses()
         ">
-        <p class="flex-1 text-center font-medium md:text-left">{{ data().message }}</p>
+        <p
+          class="min-w-0 flex-1 text-center font-medium wrap-break-word md:text-left"
+          [attr.role]="data().type === 'error' ? 'alert' : 'status'"
+          aria-atomic="true"
+          [attr.aria-live]="data().type === 'error' ? 'assertive' : 'polite'">
+          {{ data().message }}
+        </p>
         <button
           type="button"
-          class="shrink-0 cursor-pointer opacity-60 transition-opacity hover:opacity-100"
-          aria-label="Close notification"
-          (click)="dismiss()">
+          class="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-current"
+          [attr.aria-label]="'common.a11y.closeNotification' | transloco"
+          (click)="dismiss($event)"
+          (keydown.escape)="dismiss($event)">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -71,7 +78,9 @@ export class ToastContainer {
     }
   }
 
-  protected dismiss(): void {
+  protected dismiss(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
     this.dismissed.emit();
   }
 }

@@ -61,10 +61,12 @@ Most sections have no real business logic. The interesting parts are in services
 
 - CV download: get config → get Turnstile token → call backend endpoint → trigger browser download
 - Turnstile: load the script once and render the widget in the active `en` or `de` locale. Interactive verification uses CDK Dialog with a labelled modal, a backdrop, focus trapping, and focus restoration to the CV button. Explicit focus-region boundaries surround the iframe for WebKit keyboard navigation. Closing, cancelling, Escape, or backdrop activation completes verification without a token or download; errors retain the existing error toast.
-- Toasts: CDK overlay, explicit cleanup
+- Toasts: a single CDK overlay updated in place. Errors use `role="alert"`; success and info messages use `role="status"`. The translated close action stays outside the live region. Notifications remain until dismissal by default, and opening them preserves focus. Enter, Escape, or clicking close dismisses the notification; focus returns to the preceding control only when it was inside the toast.
 - Feature flag: read `openToWork` from a Cloudflare Worker + KV, exposed as `httpResource`
 - Config: fetched once per app life, `retry({ count: 3 })` + `shareReplay`, no manual retry counter
 - Logger: centralised logging service, does not expose internal details to users
+
+An explicit positive toast duration is reserved for messages whose information remains available elsewhere. Focus and hover suspend that timer; leaving both restarts the full duration. The overlay releases its timer and event subscriptions when dismissed or when its injector is destroyed.
 
 HTTP interceptors handle cross-cutting concerns:
 
