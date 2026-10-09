@@ -8,6 +8,7 @@ import { buildDelayGetter } from '../../utils/animation';
   selector: 'app-contact',
   imports: [TranslocoModule, SectionWrapper],
   templateUrl: './contact.html',
+  styleUrl: './contact.css',
 })
 export class Contact {
   protected readonly sectionWrapper = viewChild.required(SectionWrapper);

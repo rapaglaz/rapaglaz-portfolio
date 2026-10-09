@@ -9,6 +9,7 @@ async function readMotion(locator: Locator): Promise<{
   animationDuration: string;
   transitionDuration: string;
   transform: string;
+  translate: string;
   scale: string;
 }> {
   return locator.evaluate(element => {
@@ -20,12 +21,72 @@ async function readMotion(locator: Locator): Promise<{
       animationDuration: style.animationDuration,
       transitionDuration: style.transitionDuration,
       transform: style.transform,
+      translate: style.translate,
       scale: style.scale,
     };
   });
 }
 
 test.describe('Motion preferences', () => {
+  test('lifts contact links on hover and keyboard focus and keeps them still with reduced motion', async ({
+    page,
+    browserName,
+  }) => {
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await visitPortfolio(page, '/de');
+    const links = page.getByTestId('contact-link');
+    const first = links.first();
+    const surface = first.locator('.contact-card-surface');
+    const readBounds = () =>
+      first.evaluate(element => {
+        const { x, y, width, height } = element.getBoundingClientRect();
+        return { x: x + scrollX, y: y + scrollY, width, height };
+      });
+    await first.scrollIntoViewIfNeeded();
+    await expect(first).toHaveClass(/visible/);
+    await first.evaluate(element =>
+      Promise.all(element.getAnimations().map(animation => animation.finished)),
+    );
+    const stableBounds = await readBounds();
+    await first.hover();
+    if (await page.evaluate(() => matchMedia('(hover: hover) and (pointer: fine)').matches)) {
+      await expect.poll(async () => (await readMotion(surface)).translate).toBe('0px -4px');
+      const bounds = await first.boundingBox();
+      if (!bounds) throw new Error('The contact link has no clickable bounds');
+      await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height - 1);
+      await expect.poll(() => first.evaluate(element => element.matches(':hover'))).toBe(true);
+      await expect.poll(async () => (await readMotion(surface)).translate).toBe('0px -4px');
+      expect(await readBounds()).toEqual(stableBounds);
+    } else {
+      expect((await readMotion(surface)).translate).toBe('none');
+    }
+    await page.mouse.move(0, 0);
+    await page.locator('#main-content').focus();
+    await page.keyboard.press(browserName === 'webkit' ? 'Alt+Tab' : 'Tab');
+    await expect(first).toBeFocused();
+    await expect.poll(async () => (await readMotion(surface)).translate).toBe('0px -4px');
+    await expect
+      .poll(() => surface.evaluate(element => getComputedStyle(element, '::after').opacity))
+      .toBe('1');
+    expect(
+      await first.evaluate(element => Number.parseFloat(getComputedStyle(element).outlineWidth)),
+    ).toBeGreaterThan(0);
+    await page.keyboard.press(browserName === 'webkit' ? 'Alt+Tab' : 'Tab');
+    await expect(links.nth(1)).toBeFocused();
+    await expect.poll(async () => (await readMotion(surface)).translate).toBe('none');
+    const nextSurface = links.nth(1).locator('.contact-card-surface');
+    await expect.poll(async () => (await readMotion(nextSurface)).translate).toBe('0px -4px');
+
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    expect(await readMotion(nextSurface)).toMatchObject({
+      translate: 'none',
+      transitionDuration: '0s',
+      opacity: '1',
+    });
+    await first.hover();
+    expect((await readMotion(surface)).translate).toBe('none');
+  });
+
   test('runs the avatar halo once and removes it when reduced motion is requested', async ({
     page,
   }) => {
