@@ -12,14 +12,17 @@
           [attr.target]="getContactTarget(contact)"
           [attr.rel]="getContactRel(contact)"
           [attr.aria-label]="getContactAriaLabel(contact)"
-          class="card-ocean hover animate-item flex cursor-pointer flex-col items-start justify-center gap-3 px-6 py-4"
+          class="contact-card animate-item block cursor-pointer rounded-lg"
           [class.visible]="wrapper.scrollReveal.isVisible()"
           [style.animation-delay]="getContactDelay(i)">
-          <div class="text-left">
-            <h3 class="text-base-content mb-1 text-lg font-bold">
-              {{ 'portfolio.contact.labels.' + contact.id | transloco }}
-            </h3>
-            <p class="text-sm break-all text-(--color-text-subtle)">{{ contact.value }}</p>
+          <div
+            class="card-ocean contact-card-surface flex flex-col items-start justify-center gap-3 px-6 py-4">
+            <div class="text-left">
+              <h3 class="text-base-content mb-1 text-lg font-bold">
+                {{ 'portfolio.contact.labels.' + contact.id | transloco }}
+              </h3>
+              <p class="text-sm break-all text-(--color-text-subtle)">{{ contact.value }}</p>
+            </div>
           </div>
         </a>
       }
