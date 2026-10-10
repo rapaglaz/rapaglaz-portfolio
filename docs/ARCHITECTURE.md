@@ -126,10 +126,12 @@ DaisyUI's generated default rules.
 Contact card surfaces lift by 4px and fade in a theme-colored shadow on keyboard focus or
 fine-pointer hover, while the enclosing links keep a stable click target. Reduced motion keeps
 the border and shadow feedback without movement or transitions.
-The hero name is drawn as an outline (2px in the light theme, 1.5px in the dark theme) with a light translucent fill (12% in the light theme, a neutral 10% in the dark theme, painted with
-`background-clip: text` so axe does not read it as the text color), a soft glow, and wider letter
-spacing; the stroke colors keep at least 5.9:1 contrast against the page background in both
-themes.
+The hero name is drawn as an outline (2px visible stroke in the light theme, 1.5px in the dark theme)
+over a light fill that mixes the stroke color into the page background (12% in the light theme, a
+neutral 10% in the dark theme). The stroke is painted below the fill (`paint-order: stroke fill`),
+which hides the overlapping glyph contours inside letters. A soft glow follows the outline, weaker in
+the dark theme to avoid a neon look, and letter spacing is wider. The stroke colors keep at least
+5.9:1 contrast against the page background in both themes.
 
 Keyboard focus bypasses entrance effects in either mode. Scroll reveal marks the focused
 element and its ancestors so animated content stays visible after focus leaves, while other
