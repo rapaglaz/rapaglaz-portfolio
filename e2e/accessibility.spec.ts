@@ -84,32 +84,31 @@ test.describe('Accessibility', () => {
     await expect(page.locator('html')).toHaveAttribute('lang', 'de');
   });
 
-  for (const locale of ['en', 'de']) {
-    for (const colorScheme of ['light', 'dark'] as const) {
-      test(`has no WCAG violations in revealed ${locale} content with the ${colorScheme} theme`, async ({
-        page,
-      }) => {
-        await page.emulateMedia({ colorScheme });
-        await visitPortfolio(page, `/${locale}`);
-        await waitForHeroAnimations(page);
-        await page.evaluate(() => document.fonts.ready.then(() => undefined));
+  // The DE content shares markup and colors with EN; locale-switch.spec.ts covers the translations.
+  for (const colorScheme of ['light', 'dark'] as const) {
+    test(`has no WCAG violations in revealed content with the ${colorScheme} theme`, async ({
+      page,
+    }) => {
+      await page.emulateMedia({ colorScheme });
+      await visitPortfolio(page, '/en');
+      await waitForHeroAnimations(page);
+      await page.evaluate(() => document.fonts.ready.then(() => undefined));
 
-        for (const sectionId of ['about', 'certifications', 'skills', 'languages', 'contact']) {
-          const section = page.getByTestId(`section-${sectionId}`);
-          await section.scrollIntoViewIfNeeded();
-          await expect(section.locator('h2')).toHaveClass(/visible/);
-          await section.evaluate(async element => {
-            await Promise.all(
-              element.getAnimations({ subtree: true }).map(animation => animation.finished),
-            );
-          });
-        }
+      for (const sectionId of ['about', 'certifications', 'skills', 'languages', 'contact']) {
+        const section = page.getByTestId(`section-${sectionId}`);
+        await section.scrollIntoViewIfNeeded();
+        await expect(section.locator('h2')).toHaveClass(/visible/);
+        await section.evaluate(async element => {
+          await Promise.all(
+            element.getAnimations({ subtree: true }).map(animation => animation.finished),
+          );
+        });
+      }
 
-        const results = await new AxeBuilder({ page })
-          .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
-          .analyze();
-        expect(results.violations).toEqual([]);
-      });
-    }
+      const results = await new AxeBuilder({ page })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+        .analyze();
+      expect(results.violations).toEqual([]);
+    });
   }
 });

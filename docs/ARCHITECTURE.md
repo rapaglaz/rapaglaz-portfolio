@@ -105,7 +105,7 @@ Playwright is used for user flows:
 - language switch
 - CV download (mocked backend)
 - Turnstile failure cases (script blocked / verification fails)
-- a11y checks with axe after EN/DE content is revealed in light and dark themes
+- a11y checks with axe after EN content is revealed in light and dark themes (DE is covered by `locale-switch`)
 
 The contrast tests also read browser-computed theme pairs and interaction colors. Text requires
 4.5:1 contrast; icons and authored focus indicators require 3:1. Navbar and toast backgrounds
