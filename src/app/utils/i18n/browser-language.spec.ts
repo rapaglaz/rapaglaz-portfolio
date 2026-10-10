@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { LoggerService } from '../../services/logger/logger.service';
+import { LoggerService } from '../../services';
 import { getBrowserLanguage } from './browser-language';
 
 describe('getBrowserLanguage', () => {
@@ -57,10 +57,11 @@ describe('getBrowserLanguage', () => {
   it('skips logging in production', () => {
     vi.stubGlobal('ngDevMode', false);
     const warnSpy = vi.spyOn(loggerService, 'warn');
-    vi.stubGlobal('navigator', { language: null });
+    vi.stubGlobal('navigator', { language: 123 });
 
-    getBrowserLanguage(loggerService);
+    const result = getBrowserLanguage(loggerService);
 
+    expect(result).toBe('en');
     expect(warnSpy).not.toHaveBeenCalled();
 
     vi.unstubAllGlobals();

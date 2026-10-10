@@ -24,6 +24,10 @@ src/app/
 I try to keep features isolated (no feature → feature imports). One exception:
 navbar uses the language switcher. It is fine, but it is a conscious choice.
 
+Dependency-cruiser enforces the runtime layer boundaries and rejects circular imports.
+See [Dependency boundaries](./DEPENDENCY_BOUNDARIES.md) for the allowed dependencies,
+documented exceptions, commands, and the initial report-only rollout.
+
 ## Angular style
 
 ### Standalone + OnPush + signals + zoneless

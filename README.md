@@ -20,6 +20,7 @@ Built with Angular 22, standalone components, signals, no Zone.js. Static build 
 ## Docs
 
 - [Architecture](./docs/ARCHITECTURE.md)
+- [Dependency boundaries](./docs/DEPENDENCY_BOUNDARIES.md)
 - [CI/CD strategy](./docs/CI_STRATEGY.md)
 - [Security notes](./docs/SECURITY.md)
 - [Local setup](./docs/SETUP.md)
