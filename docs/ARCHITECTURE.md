@@ -126,6 +126,9 @@ DaisyUI's generated default rules.
 Contact card surfaces lift by 4px and fade in a theme-colored shadow on keyboard focus or
 fine-pointer hover, while the enclosing links keep a stable click target. Reduced motion keeps
 the border and shadow feedback without movement or transitions.
+The hero name is drawn as an outline (2px in the light theme, 1.5px in the dark theme) with a transparent fill, a soft glow, and wider letter
+spacing; the stroke colors keep at least 5.9:1 contrast against the page background in both
+themes.
 
 Keyboard focus bypasses entrance effects in either mode. Scroll reveal marks the focused
 element and its ancestors so animated content stays visible after focus leaves, while other
