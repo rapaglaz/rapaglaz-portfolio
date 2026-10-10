@@ -16,5 +16,5 @@ else
 fi
 
 echo "node $(node -v), pnpm $(pnpm -v)"
-pnpm install --frozen-lockfile
+CI=true pnpm install --frozen-lockfile
 exit 0
