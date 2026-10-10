@@ -2,15 +2,19 @@
   "common": {
     "firstName": "Radoslaw",
     "lastName": "Glaz",
+    "bootstrapError": "Die Anwendung konnte nicht geladen werden. Bitte laden Sie die Seite neu.",
     "navbar": {
-      "openToWork": "Offen für Arbeit",
+      "openToWork": "Offen für Jobangebote",
       "downloadCV": "CV",
+      "downloadCVLabel": "Lebenslauf herunterladen (CV)",
       "downloadingCV": "Lebenslauf wird heruntergeladen",
-      "contactMe": "Kontaktiere mich"
+      "contactMe": "Kontakt aufnehmen"
     },
     "a11y": {
       "skipToContent": "Zum Hauptinhalt springen",
-      "opensInNewTab": "öffnet in neuem Tab"
+      "languageSelection": "Sprachauswahl",
+      "opensInNewTab": "öffnet in neuem Tab",
+      "closeNotification": "Benachrichtigung schließen"
     }
   },
   "portfolio": {
@@ -18,8 +22,8 @@
       "description": "Senior Frontend Engineer mit über 7 Jahren Erfahrung in Angular, TypeScript und Nx. Fokus auf skalierbare Architekturen, Modernisierung gewachsener Anwendungen und Testautomatisierung."
     },
     "about": {
-      "title": "Über Mich",
-      "description": "Senior Frontend Engineer mit über 7 Jahren Erfahrung in Angular, TypeScript, RxJS und Nx. Schwerpunkt auf skalierbarer Frontend-Architektur, Modernisierung gewachsener Anwendungen, Testautomatisierung und technischer Verantwortung für Architekturentscheidungen in cross-funktionalen Teams. Erfahrung im Mentoring von Entwicklern sowie in der Einführung gemeinsamer Engineering-Standards."
+      "title": "Über mich",
+      "description": "Senior Frontend Engineer mit über 7 Jahren Erfahrung in Angular, TypeScript, RxJS und Nx. Schwerpunkt auf skalierbarer Frontend-Architektur, Modernisierung gewachsener Anwendungen, Testautomatisierung und technischer Verantwortung für Architekturentscheidungen in funktionsübergreifenden Teams. Erfahrung im Mentoring von Entwicklern sowie in der Einführung gemeinsamer Engineering-Standards."
     },
     "certifications": {
       "title": "Zertifikate",
@@ -39,18 +43,18 @@
       },
       "duration": {
         "days": "{{count}} Tage",
-        "remote": "(remote)",
+        "remote": "(online)",
         "onsite": "(vor Ort)"
       }
     },
     "skills": {
       "title": "Fähigkeiten",
       "categoryTitles": {
-        "frontend": "Frontend Frameworks",
-        "testing": "Testing & Qualität",
+        "frontend": "Frontend-Frameworks",
+        "testing": "Tests & Qualität",
         "devops": "DevOps & Tools",
         "architecture": "Architektur & Design",
-        "backend": "Backend (Sekundär)",
+        "backend": "Backend (ergänzend)",
         "soft-skills": "Soft Skills"
       },
       "items": {
@@ -74,7 +78,7 @@
         "microfrontends": "Microfrontends",
         "performance": "Performance-Optimierung",
         "scalable": "Skalierbare Architektur",
-        "rest-api": "REST APIs",
+        "rest-api": "REST-APIs",
         "agile": "Agile/Scrum",
         "mentoring": "Mentoring"
       }
@@ -112,7 +116,9 @@
         "title": "Sicherheitsüberprüfung",
         "description": "Bitte schließen Sie die Sicherheitsprüfung ab, um den Lebenslauf herunterzuladen.",
         "footer": "Geschützt durch Cloudflare Turnstile",
-        "loading": "Sicherheitsprüfung wird geladen..."
+        "loading": "Sicherheitsprüfung wird geladen...",
+        "cancel": "Abbrechen",
+        "close": "Schließen"
       }
     }
   }

@@ -44,13 +44,13 @@ export class CvDownloadService {
     return `Radoslaw_Pawel_Glaz_CV-${lang.toUpperCase()}.pdf`;
   });
 
-  downloadCV(): Observable<void> {
+  downloadCV(restoreFocus?: HTMLElement): Observable<void> {
     if (!isPlatformBrowser(this.platformId)) {
       return throwError(() => new Error('CV download is only available in the browser'));
     }
 
     return this.configService.getConfig().pipe(
-      switchMap(config => this.turnstileService.getToken$(config.turnstileSiteKey)),
+      switchMap(config => this.turnstileService.getToken$(config.turnstileSiteKey, restoreFocus)),
       switchMap(token => this.downloadFile(token)),
     );
   }

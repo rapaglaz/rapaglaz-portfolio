@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
+import { firstValueFrom } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { provideTranslocoTesting } from '../../testing';
 import { Footer } from './footer';
@@ -32,6 +34,24 @@ describe('Footer', () => {
       expect(link.getAttribute('rel')).toContain('noopener');
       expect(link.getAttribute('href')?.trim()).toBeTruthy();
     });
+  });
+
+  it.each([
+    ['en', 'Email', 'opens in new tab'],
+    ['de', 'E-Mail', 'öffnet in neuem Tab'],
+  ])('provides translated action labels and new-tab cues in %s', async (lang, email, newTab) => {
+    const transloco = TestBed.inject(TranslocoService);
+    await firstValueFrom(transloco.load(lang));
+    transloco.setActiveLang(lang);
+    await fixture.whenStable();
+
+    expect(element.querySelector('button')?.getAttribute('aria-label')).toBe(email);
+    expect(element.querySelector('a[href*="linkedin"]')?.getAttribute('aria-label')).toBe(
+      `LinkedIn (${newTab})`,
+    );
+    expect(element.querySelector('a[href*="github"]')?.getAttribute('aria-label')).toBe(
+      `GitHub (${newTab})`,
+    );
   });
 
   it('delegates contactEmail to window.location', () => {

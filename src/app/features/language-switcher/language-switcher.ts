@@ -1,23 +1,25 @@
 import { CdkListboxModule, type ListboxValueChangeEvent } from '@angular/cdk/listbox';
 import { Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { AVAILABLE_LANGS, injectActiveLang, isAvailableLang, LANG_LABELS } from '../../utils/i18n';
 
 @Component({
   selector: 'app-language-switcher',
-  imports: [CdkListboxModule],
+  imports: [CdkListboxModule, TranslocoPipe],
   template: `
     <div
       class="group flex items-center gap-x-1.5 md:gap-x-0.5"
       cdkListbox
+      cdkListboxOrientation="horizontal"
       [cdkListboxValue]="selectedLang()"
       (cdkListboxValueChange)="handleValueChange($event)"
-      aria-label="Language selection">
+      [attr.aria-label]="'common.a11y.languageSelection' | transloco">
       @for (lang of availableLangs; track lang; let last = $last) {
         <button
           type="button"
           [cdkOption]="lang"
+          [attr.lang]="lang"
           [class]="getLangClasses(lang)"
           [attr.aria-label]="getLangLabel(lang)">
           {{ lang.toUpperCase() }}
@@ -34,7 +36,6 @@ import { AVAILABLE_LANGS, injectActiveLang, isAvailableLang, LANG_LABELS } from 
   `,
 })
 export class LanguageSwitcher {
-  private readonly translocoService = inject(TranslocoService);
   private readonly router = inject(Router);
 
   protected readonly availableLangs = AVAILABLE_LANGS;
@@ -45,6 +46,7 @@ export class LanguageSwitcher {
 
   protected handleValueChange(event: ListboxValueChangeEvent<string>): void {
     const next = event.value[0];
+    event.listbox.value = this.selectedLang();
     if (next) {
       this.changeLang(next);
     }
@@ -56,8 +58,10 @@ export class LanguageSwitcher {
     }
 
     const { fragment } = this.router.parseUrl(this.router.url);
-    this.translocoService.setActiveLang(lang);
-    void this.router.navigate(['/', lang], { fragment: fragment ?? undefined });
+    void this.router.navigate(['/', lang], {
+      fragment: fragment ?? undefined,
+      queryParamsHandling: 'preserve',
+    });
   }
 
   protected getLangLabel(lang: string): string {

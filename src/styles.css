@@ -52,7 +52,7 @@
   --color-warning: #f6c947;
   --color-warning-content: #0a0f1e;
   --color-error: #ef5350;
-  --color-error-content: #ffffff;
+  --color-error-content: #0a0f1e;
   /* WCAG AA compliant muted text colors (4.5:1+ contrast on base-100) */
   --color-text-muted: #4a6366;
   --color-text-subtle: #5a7275;
@@ -65,11 +65,11 @@
     --color-primary: #86e3eb;
     --color-primary-content: #0a0f1e;
     --color-secondary: #8ebcc0;
-    --color-secondary-content: #ffffff;
+    --color-secondary-content: #0a0f1e;
     --color-accent: #4e696b;
     --color-accent-content: #ffffff;
     --color-neutral: #869496;
-    --color-neutral-content: #ffffff;
+    --color-neutral-content: #0a0f1e;
     --color-base-100: #0a0f1e;
     --color-base-200: #121829;
     --color-base-300: #1a2337;
@@ -81,7 +81,7 @@
     --color-warning: #f6c947;
     --color-warning-content: #0a0f1e;
     --color-error: #ef5350;
-    --color-error-content: #ffffff;
+    --color-error-content: #0a0f1e;
     /* WCAG AA compliant muted text colors (4.5:1+ contrast on base-100) */
     --color-text-muted: #a8b5b7;
     --color-text-subtle: #8a9a9c;
@@ -232,14 +232,42 @@ html {
   }
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  /* Preserve DaisyUI's standard masks when generated media rules are reordered. */
+  app-navbar .loading-dots {
+    mask-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='4' cy='12' r='3'%3E%3Canimate attributeName='cy' values='12;6;12;12' keyTimes='0;0.286;0.571;1' dur='1.05s' repeatCount='indefinite' keySplines='.33,0,.66,.33;.33,.66,.66,1'/%3E%3C/circle%3E%3Ccircle cx='12' cy='12' r='3'%3E%3Canimate attributeName='cy' values='12;6;12;12' keyTimes='0;0.286;0.571;1' dur='1.05s' repeatCount='indefinite' keySplines='.33,0,.66,.33;.33,.66,.66,1' begin='0.1s'/%3E%3C/circle%3E%3Ccircle cx='20' cy='12' r='3'%3E%3Canimate attributeName='cy' values='12;6;12;12' keyTimes='0;0.286;0.571;1' dur='1.05s' repeatCount='indefinite' keySplines='.33,0,.66,.33;.33,.66,.66,1' begin='0.2s'/%3E%3C/circle%3E%3C/svg%3E");
+  }
+
+  app-turnstile-modal .loading-spinner {
+    mask-image: url("data:image/svg+xml,%3Csvg width='24' height='24' stroke='black' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cg transform-origin='center'%3E%3Ccircle cx='12' cy='12' r='9.5' fill='none' stroke-width='3' stroke-linecap='round'%3E%3CanimateTransform attributeName='transform' type='rotate' from='0 12 12' to='360 12 12' dur='2s' repeatCount='indefinite'/%3E%3Canimate attributeName='stroke-dasharray' values='0,150;42,150;42,150' keyTimes='0;0.475;1' dur='1.5s' repeatCount='indefinite'/%3E%3Canimate attributeName='stroke-dashoffset' values='0;-16;-59' keyTimes='0;0.475;1' dur='1.5s' repeatCount='indefinite'/%3E%3C/circle%3E%3C/g%3E%3C/svg%3E");
+  }
+}
+
 /* respect user's motion preferences, accessibility first */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    animation: none !important;
+    animation-delay: 0s !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+
+  :is(
+    .animate-title,
+    .animate-content,
+    .animate-container,
+    .animate-item,
+    .animate-pill,
+    .animate-cert
+  ) {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  [class*='hover:scale-'] {
+    scale: none !important;
   }
 }
 
@@ -356,4 +384,26 @@ html {
 
 .animate-cert.visible {
   animation: fadeInLeft 0.5s ease-out forwards;
+}
+
+/* Keep focused content visible after focus leaves its entrance animation. */
+.reveal-on-focus:is(
+  .animate-title,
+  .animate-content,
+  .animate-container,
+  .animate-item,
+  .animate-pill,
+  .animate-cert
+) {
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+.navbar:focus-within,
+.toast-enter:focus-within {
+  animation-duration: 0.01ms !important;
+  animation-delay: 0s !important;
+  opacity: 1 !important;
+  transform: none !important;
 }

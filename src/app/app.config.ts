@@ -24,6 +24,8 @@ import {
   TranslocoService,
 } from '@jsverse/transloco';
 import { catchError, EMPTY, Observable } from 'rxjs';
+import { common as deCommon } from '../../public/i18n/de.json';
+import { common as enCommon } from '../../public/i18n/en.json';
 import { App } from './app';
 import { routes } from './app.routes';
 import { turnstileInterceptor } from './interceptors';
@@ -38,23 +40,25 @@ import {
 
 const DEFAULT_LANG_TOKEN = new InjectionToken<string>('DEFAULT_LANG');
 
+function getDocumentLanguage(document: Document): AvailableLang {
+  let pathname = document.location?.pathname ?? '';
+  if (!pathname) {
+    try {
+      pathname = new URL(document.baseURI).pathname;
+    } catch {
+      pathname = '';
+    }
+  }
+  const segment = pathname.split('/').filter(Boolean)[0] ?? '';
+  return isAvailableLang(segment) ? segment : DEFAULT_LANG;
+}
+
 export function provideTranslocoWithDynamicLang(): EnvironmentProviders {
   return makeEnvironmentProviders([
     {
       provide: DEFAULT_LANG_TOKEN,
       deps: [DOCUMENT],
-      useFactory: (document: Document): AvailableLang => {
-        let pathname = document.location?.pathname ?? '';
-        if (!pathname) {
-          try {
-            pathname = new URL(document.baseURI).pathname;
-          } catch {
-            pathname = '';
-          }
-        }
-        const segment = pathname.split('/').filter(Boolean)[0] ?? '';
-        return isAvailableLang(segment) ? segment : DEFAULT_LANG;
-      },
+      useFactory: getDocumentLanguage,
     },
     provideTransloco({
       config: translocoConfig({
@@ -107,10 +111,13 @@ export const appConfig: ApplicationConfig = {
 export function bootstrap(): Promise<ApplicationRef> {
   return bootstrapApplication(App, appConfig).catch(err => {
     console.error('[ERROR] Bootstrap failed:', err);
+    const lang = getDocumentLanguage(document);
+    document.documentElement.lang = lang;
     const errorEl = document.createElement('div');
+    errorEl.setAttribute('role', 'alert');
     errorEl.style.cssText =
       'display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;text-align:center;padding:1rem';
-    errorEl.textContent = 'Failed to load the application. Please refresh the page.';
+    errorEl.textContent = { en: enCommon.bootstrapError, de: deCommon.bootstrapError }[lang];
     document.body.replaceChildren(errorEl);
     throw err;
   });

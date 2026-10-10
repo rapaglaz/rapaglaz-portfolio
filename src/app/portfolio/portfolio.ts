@@ -1,7 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import { Component, DestroyRef, inject } from '@angular/core';
 import { Meta } from '@angular/platform-browser';
-import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { TranslocoService } from '@jsverse/transloco';
 import { About, Certifications, Contact, Hero, Languages, Skills } from '../features';
 import { AVAILABLE_LANGS, type AvailableLang, DEFAULT_LANG } from '../utils/i18n';
 
@@ -13,17 +13,12 @@ const SEO_IMAGE = `${SITE_ORIGIN}/images/IMG_2290-384.webp`;
 
 @Component({
   selector: 'app-portfolio',
-  imports: [TranslocoPipe, Hero, About, Skills, Languages, Certifications, Contact],
+  imports: [Hero, About, Skills, Languages, Certifications, Contact],
 
   template: `
-    <a
-      href="#main-content"
-      class="focus:bg-primary focus:text-primary-content sr-only fixed top-4 left-4 z-100 rounded px-4 py-2 font-medium focus:not-sr-only focus:outline-none">
-      {{ 'common.a11y.skipToContent' | transloco }}
-    </a>
     <main
       id="main-content"
-      class="min-h-screen"
+      class="focus-visible:outline-primary min-h-screen focus-visible:outline-2 focus-visible:-outline-offset-2"
       tabindex="-1">
       <app-hero />
       <app-about />

@@ -1,7 +1,11 @@
+import { DOCUMENT } from '@angular/common';
+import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
 import { firstValueFrom } from 'rxjs';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { provideTranslocoTesting } from '../../testing';
+import { LoggerService } from '../logger/logger.service';
 import { TurnstileService } from './turnstile.service';
 
 describe('TurnstileService (integration)', () => {
@@ -37,6 +41,93 @@ describe('TurnstileService (integration)', () => {
     );
   });
 
+  it.each(['en', 'de'])('uses the active %s locale for the widget', async locale => {
+    TestBed.inject(TranslocoService).setActiveLang(locale);
+    const render = vi.fn((_container: HTMLElement, options: Record<string, any>) => {
+      options['callback']('localized-token');
+      return 'localized-widget';
+    });
+    (window as any).turnstile = { render, remove: vi.fn() };
+
+    await firstValueFrom(service.getToken$('site-key'));
+
+    expect(render).toHaveBeenCalledWith(
+      expect.any(HTMLElement),
+      expect.objectContaining({ language: locale }),
+    );
+  });
+
+  it('cancels interactive verification without a token or error and releases the background', () => {
+    vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
+    const background = document.createElement('main');
+    const trigger = document.createElement('button');
+    background.appendChild(trigger);
+    document.body.appendChild(background);
+    trigger.focus();
+    const render = vi.fn(
+      (_container: HTMLElement, _options: Record<string, any>) => 'cancel-widget',
+    );
+    const remove = vi.fn();
+    (window as any).turnstile = { render, remove };
+    const next = vi.fn();
+    const error = vi.fn();
+    const complete = vi.fn();
+    const subscription = service.getToken$('site-key').subscribe({ next, error, complete });
+
+    try {
+      render.mock.calls[0][1]['before-interactive-callback']();
+      TestBed.tick();
+      const dialog = document.querySelector('[role="dialog"]');
+      expect(dialog?.getAttribute('aria-modal')).toBe('true');
+      expect(background.getAttribute('aria-hidden')).toBe('true');
+      dialog?.querySelector<HTMLButtonElement>('button')?.click();
+      TestBed.tick();
+
+      expect(subscription.closed).toBe(true);
+      expect(next).not.toHaveBeenCalled();
+      expect(error).not.toHaveBeenCalled();
+      expect(complete).toHaveBeenCalledOnce();
+      expect(remove).toHaveBeenCalledExactlyOnceWith('cancel-widget');
+      expect(document.querySelector('[role="dialog"]')).toBeNull();
+      expect(background.hasAttribute('aria-hidden')).toBe(false);
+      expect(document.activeElement).toBe(trigger);
+      render.mock.calls[0][1]['before-interactive-callback']();
+      render.mock.calls[0][1]['callback']('late-token');
+      expect(next).not.toHaveBeenCalled();
+      expect(document.querySelector('[role="dialog"]')).toBeNull();
+    } finally {
+      subscription.unsubscribe();
+      background.remove();
+    }
+  });
+
+  it('restores the supplied trigger when focus moves before interactive verification opens', () => {
+    vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
+    const trigger = document.createElement('button');
+    const otherAction = document.createElement('button');
+    document.body.append(trigger, otherAction);
+    trigger.focus();
+    const render = vi.fn(
+      (_container: HTMLElement, _options: Record<string, any>) => 'delayed-widget',
+    );
+    (window as any).turnstile = { render, remove: vi.fn() };
+    const subscription = service.getToken$('site-key', trigger).subscribe();
+
+    try {
+      otherAction.focus();
+      render.mock.calls[0][1]['before-interactive-callback']();
+      TestBed.tick();
+      document.querySelector<HTMLButtonElement>('[data-turnstile-cancel]')?.click();
+      TestBed.tick();
+      expect(subscription.closed).toBe(true);
+      expect(document.activeElement).toBe(trigger);
+    } finally {
+      subscription.unsubscribe();
+      trigger.remove();
+      otherAction.remove();
+    }
+  });
+
   it('fails and retries when Turnstile script cannot be loaded', async () => {
     const appendSpy = vi.spyOn(document.head!, 'appendChild').mockImplementation(el => {
       // Fire onerror as a microtask so it processes during `await` in Zone.js.
@@ -67,5 +158,170 @@ describe('TurnstileService (integration)', () => {
 
     expect(renderSpy).toHaveBeenCalled();
     expect(removeSpy).toHaveBeenCalledWith('widget-err');
+  });
+
+  it('loads the script once and reuses the API for subsequent tokens', async () => {
+    const firstToken = firstValueFrom(service.getToken$('first-site-key'));
+    const script = document.querySelector<HTMLScriptElement>('script[src*="turnstile"]')!;
+    expect(script.src).toBe('https://challenges.cloudflare.com/turnstile/v0/api.js');
+    expect(script.async).toBe(true);
+    expect(script.defer).toBe(true);
+    const render = vi.fn((_container: HTMLElement, options: Record<string, any>) => {
+      options['callback'](`token-for-${options['sitekey']}`);
+      return 'loaded-widget';
+    });
+    (window as any).turnstile = { render, remove: vi.fn() };
+
+    script.dispatchEvent(new Event('load'));
+
+    await expect(firstToken).resolves.toBe('token-for-first-site-key');
+    await expect(firstValueFrom(service.getToken$('second-site-key'))).resolves.toBe(
+      'token-for-second-site-key',
+    );
+    expect(document.querySelectorAll('script[src*="turnstile"]')).toHaveLength(1);
+    expect(document.querySelector('script[src*="turnstile"]')).toBe(script);
+  });
+
+  it('reports a missing API after retries and can load successfully on a later call', async () => {
+    const failedToken = firstValueFrom(service.getToken$('site-key'));
+    const rejection = expect(failedToken).rejects.toThrow('Turnstile API not available');
+    const scripts: HTMLScriptElement[] = [];
+
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const script = document.querySelector<HTMLScriptElement>('script[src*="turnstile"]')!;
+      scripts.push(script);
+      script.dispatchEvent(new Event('load'));
+    }
+
+    await rejection;
+    expect(new Set(scripts).size).toBe(3);
+    expect(scripts[0].isConnected).toBe(false);
+    expect(scripts[1].isConnected).toBe(false);
+
+    const recoveredToken = firstValueFrom(service.getToken$('site-key'));
+    const recoveredScript = document.querySelector<HTMLScriptElement>('script[src*="turnstile"]')!;
+    (window as any).turnstile = {
+      render: (_container: HTMLElement, options: Record<string, any>): string => {
+        options['callback']('recovered-token');
+        return 'recovered-widget';
+      },
+      remove: vi.fn(),
+    };
+    recoveredScript.dispatchEvent(new Event('load'));
+
+    await expect(recoveredToken).resolves.toBe('recovered-token');
+    expect(scripts[2].isConnected).toBe(false);
+  });
+
+  it('moves an interactive widget into one modal and restores focus on completion', () => {
+    vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
+    const trigger = document.createElement('button');
+    document.body.appendChild(trigger);
+    trigger.focus();
+    const render = vi.fn(
+      (_container: HTMLElement, _options: Record<string, any>) => 'interactive-widget',
+    );
+    const remove = vi.fn();
+    (window as any).turnstile = { render, remove };
+    const tokens: string[] = [];
+    const subscription = service.getToken$('site-key').subscribe(token => tokens.push(token));
+    const [widget, options] = render.mock.calls[0];
+
+    try {
+      expect(widget.parentElement).toBe(document.body);
+      expect(widget.style.visibility).toBe('hidden');
+
+      options['before-interactive-callback']();
+      options['before-interactive-callback']();
+      TestBed.tick();
+
+      const dialog = document.querySelector('[role="dialog"]');
+      expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(1);
+      expect(dialog?.querySelector('#turnstile-widget-container')?.contains(widget)).toBe(true);
+      expect(widget.style.visibility).toBe('');
+      expect(widget.style.left).toBe('');
+      expect(widget.style.position).toBe('');
+      expect(dialog?.querySelector('[role="status"]')).toBeNull();
+      expect(document.activeElement).toBe(dialog?.querySelector('[data-turnstile-close]'));
+
+      options['callback']('interactive-token');
+
+      expect(tokens).toEqual(['interactive-token']);
+      expect(subscription.closed).toBe(true);
+      expect(remove).toHaveBeenCalledExactlyOnceWith('interactive-widget');
+      expect(widget.isConnected).toBe(false);
+      expect(document.querySelector('[role="dialog"]')).toBeNull();
+      expect(document.activeElement).toBe(trigger);
+    } finally {
+      subscription.unsubscribe();
+      trigger.remove();
+    }
+  });
+
+  it('cleans up on cancellation even when the API fails to remove the widget', () => {
+    const cleanupError = new Error('Removal failed');
+    const warn = vi
+      .spyOn(TestBed.inject(LoggerService), 'warn')
+      .mockImplementation(() => undefined);
+    const render = vi.fn((_container: HTMLElement) => 'cancelled-widget');
+    const remove = vi.fn(() => {
+      throw cleanupError;
+    });
+    (window as any).turnstile = { render, remove };
+    const token = vi.fn();
+    const subscription = service.getToken$('site-key').subscribe(token);
+    const widget = render.mock.calls[0][0];
+
+    subscription.unsubscribe();
+
+    expect(token).not.toHaveBeenCalled();
+    expect(widget.isConnected).toBe(false);
+    expect(remove).toHaveBeenCalledExactlyOnceWith('cancelled-widget');
+    expect(warn).toHaveBeenCalledExactlyOnceWith('Failed to remove Turnstile widget', cleanupError);
+  });
+
+  it('reports render failures and removes the hidden container', async () => {
+    let widget: HTMLElement | undefined;
+    (window as any).turnstile = {
+      render: (container: HTMLElement): never => {
+        widget = container;
+        throw new Error('Invalid site key');
+      },
+      remove: vi.fn(),
+    };
+
+    await expect(firstValueFrom(service.getToken$('invalid-key'))).rejects.toThrow(
+      'Failed to render widget: Error: Invalid site key',
+    );
+
+    expect(widget).toBeInstanceOf(HTMLElement);
+    expect(widget?.isConnected).toBe(false);
+  });
+});
+
+describe('TurnstileService platform guards', () => {
+  it('rejects verification during server rendering', async () => {
+    TestBed.configureTestingModule({
+      providers: [provideTranslocoTesting(), { provide: PLATFORM_ID, useValue: 'server' }],
+    });
+
+    await expect(
+      firstValueFrom(TestBed.inject(TurnstileService).getToken$('site-key')),
+    ).rejects.toThrow('Turnstile is only available in the browser');
+
+    expect(document.querySelector('script[src*="turnstile"]')).toBeNull();
+  });
+
+  it('rejects verification when the document has no window', async () => {
+    const serverDocument = document.implementation.createHTMLDocument();
+    TestBed.configureTestingModule({
+      providers: [provideTranslocoTesting(), { provide: DOCUMENT, useValue: serverDocument }],
+    });
+
+    await expect(
+      firstValueFrom(TestBed.inject(TurnstileService).getToken$('site-key')),
+    ).rejects.toThrow('Window not available');
+
+    expect(serverDocument.querySelector('script')).toBeNull();
   });
 });
