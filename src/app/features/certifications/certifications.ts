@@ -39,9 +39,9 @@ export class Certifications {
 
   private formatDate(isoDate: string, formatter: Intl.DateTimeFormat): string {
     const parts = isoDate.split('-');
-    const year = parseInt(parts[0] ?? '', 10);
-    const month = parseInt(parts[1] ?? '', 10);
-    if (isNaN(year) || isNaN(month) || month < 1 || month > 12) {
+    const year = Number.parseInt(parts[0] ?? '', 10);
+    const month = Number.parseInt(parts[1] ?? '', 10);
+    if (Number.isNaN(year) || Number.isNaN(month) || month < 1 || month > 12) {
       return isoDate;
     }
     return formatter.format(new Date(year, month - 1, 1));

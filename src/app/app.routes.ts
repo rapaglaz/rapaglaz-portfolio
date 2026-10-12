@@ -5,7 +5,7 @@ import { TranslocoService } from '@jsverse/transloco';
 import { catchError, EMPTY, map, of, tap } from 'rxjs';
 import { Portfolio } from './portfolio/portfolio';
 import { LoggerService } from './services/logger/logger.service';
-import { AVAILABLE_LANGS, type AvailableLang, DEFAULT_LANG, isAvailableLang } from './utils/i18n';
+import { AVAILABLE_LANGS, DEFAULT_LANG, isAvailableLang, type AvailableLang } from './utils/i18n';
 
 const resolvePortfolioLocale: ResolveFn<AvailableLang> = route => {
   const transloco = inject(TranslocoService);
