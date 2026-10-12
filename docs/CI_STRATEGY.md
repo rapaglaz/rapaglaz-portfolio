@@ -59,6 +59,8 @@ Credentials (`SERVER`, `USER`, `PASS`) live in GitHub Secrets.
 
 E2E runs against the static build served on port 4233.
 Playwright runs inside the official `mcr.microsoft.com/playwright` container.
+The image tag must match `@playwright/test` in package.json; Renovate bumps both in one
+`playwright` PR.
 Locally `pnpm run e2e` uses the dev server on 4200.
 
 ## Lighthouse
