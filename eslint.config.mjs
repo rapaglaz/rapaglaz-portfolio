@@ -1,9 +1,9 @@
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import eslint from '@eslint/js';
 import angular from 'angular-eslint';
 import eslintConfigPrettier from 'eslint-config-prettier';
 import { defineConfig } from 'eslint/config';
-import { dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import tseslint from 'typescript-eslint';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));

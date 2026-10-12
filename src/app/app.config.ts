@@ -31,11 +31,11 @@ import { routes } from './app.routes';
 import { turnstileInterceptor } from './interceptors';
 import {
   AVAILABLE_LANGS,
-  type AvailableLang,
   DEFAULT_LANG,
   isAvailableLang,
   StrictTranslocoMissingHandler,
   TranslocoHttpLoader,
+  type AvailableLang,
 } from './utils/i18n';
 
 const DEFAULT_LANG_TOKEN = new InjectionToken<string>('DEFAULT_LANG');

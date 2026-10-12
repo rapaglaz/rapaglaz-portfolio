@@ -1,4 +1,5 @@
 import { TranslocoGlobalConfig } from '@jsverse/transloco-utils';
+
 const AVAILABLE_LANGS = ['en', 'de'] as const;
 
 const config: TranslocoGlobalConfig = {
