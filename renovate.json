@@ -78,10 +78,11 @@
       "automerge": false
     },
     {
-      "description": "Playwright npm package and Docker image must stay in sync: one PR, no automerge",
+      "description": "Playwright npm package and Docker image must stay in sync: one PR, no automerge, no release age wait (the image has no release timestamp and would be filtered out alone)",
       "matchPackageNames": ["@playwright/test", "mcr.microsoft.com/playwright"],
       "groupName": "playwright",
-      "automerge": false
+      "automerge": false,
+      "minimumReleaseAge": null
     }
   ]
 }
