@@ -1,3 +1,6 @@
+[env]
+_.path = ["{{config_root}}/node_modules/.bin"]
+
 [tools]
 actionlint = "1.7.12"
 zizmor = "1.30.1"
