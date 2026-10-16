@@ -14,6 +14,7 @@
 
 .hero-about {
   @apply animate-[fadeInUp_1.1s_cubic-bezier(0.4,0,0.2,1)_0.9s_both];
+  text-wrap: balance;
 }
 
 .hero-name {
@@ -22,20 +23,19 @@
 }
 
 .hero-name .text-ocean-outline {
-  color: color-mix(in srgb, #4e696b 12%, var(--color-base-100));
+  color: color-mix(in srgb, var(--color-base-content) 170%, var(--color-base-100));
   paint-order: stroke fill;
-  -webkit-text-stroke: 4px #4e696b;
+  -webkit-text-stroke: 3px #4e696b;
   text-shadow: none;
-  filter: drop-shadow(0 0 4px color-mix(in srgb, #59a2ad 45%, transparent))
-    drop-shadow(0 3px 10px color-mix(in srgb, #59a2ad 25%, transparent));
-  letter-spacing: 0.045em;
+  filter: drop-shadow(0 0 5px color-mix(in srgb, #59a2ad 55%, transparent))
+    drop-shadow(0 4px 14px color-mix(in srgb, #59a2ad 35%, transparent));
 }
 
 @media (prefers-color-scheme: dark) {
   .hero-name .text-ocean-outline {
-    color: color-mix(in srgb, #869496 10%, var(--color-base-100));
+    color: color-mix(in srgb, var(--color-base-content) 90%, var(--color-base-100));
     -webkit-text-stroke: 3px #59a2ad;
-    filter: drop-shadow(0 0 3px color-mix(in srgb, #59a2ad 14%, transparent))
-      drop-shadow(0 2px 8px color-mix(in srgb, #59a2ad 8%, transparent));
+    filter: drop-shadow(0 0 4px color-mix(in srgb, #59a2ad 28%, transparent))
+      drop-shadow(0 3px 12px color-mix(in srgb, #59a2ad 18%, transparent));
   }
 }
