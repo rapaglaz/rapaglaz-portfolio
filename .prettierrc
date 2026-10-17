@@ -14,14 +14,7 @@
     }
   ],
   "plugins": ["prettier-plugin-tailwindcss", "@ianvs/prettier-plugin-sort-imports"],
-  "importOrder": [
-    "<BUILTIN_MODULES>",
-    "<THIRD_PARTY_MODULES>",
-    "^@ng-commerce/",
-    "^@react-commerce/",
-    "^@commerce-api/",
-    "^[./]"
-  ],
+  "importOrder": ["<BUILTIN_MODULES>", "<THIRD_PARTY_MODULES>", "^[./]"],
   "importOrderParserPlugins": ["typescript", "jsx", "decorators-legacy"],
   "importOrderTypeScriptVersion": "6.0.0"
 }
