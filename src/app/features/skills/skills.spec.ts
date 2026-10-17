@@ -15,7 +15,7 @@ describe('Skills', () => {
       '[data-testid="skill-badge"]',
     );
 
-    expect(badges).toHaveLength(23);
+    expect(badges).toHaveLength(28);
     expect(Array.from(badges, badge => badge.textContent?.trim()).slice(0, 3)).toEqual([
       'Angular',
       'TypeScript',
