@@ -81,6 +81,9 @@ The Cloudflare Workers in `workers/` have their own Vitest run in a Node environ
 pnpm run test:workers
 ```
 
+`pnpm run workers:check` bundles each Worker with `wrangler deploy --dry-run` and needs no Cloudflare
+login. Deploying is described in [Cloudflare Workers](../workers/README.md).
+
 ## E2E tests (Playwright)
 
 Normal mode uses the dev server:

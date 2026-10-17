@@ -62,6 +62,11 @@ runs:
       shell: bash
       run: pnpm run test:workers
 
+    - name: Validate Worker configuration
+      if: ${{ inputs.mode == 'test' || inputs.mode == 'all' }}
+      shell: bash
+      run: pnpm run workers:check
+
     - name: Upload coverage reports
       if: ${{ (inputs.mode == 'test' || inputs.mode == 'all') && always() }}
       uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

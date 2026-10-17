@@ -1,0 +1,8 @@
+// Source of truth for this Worker. Routes stay in the Cloudflare dashboard: with no route keys
+// and workers_dev set to false, wrangler deploy leaves them unchanged.
+{
+  "name": "portfolio-settings",
+  "main": "index.js",
+  "compatibility_date": "2026-10-17",
+  "workers_dev": false,
+}
