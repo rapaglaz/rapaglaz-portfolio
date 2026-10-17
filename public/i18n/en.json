@@ -55,7 +55,8 @@
         "devops": "DevOps & Tools",
         "architecture": "Architecture & Design",
         "backend": "Backend (Secondary)",
-        "soft-skills": "Soft Skills"
+        "soft-skills": "Soft Skills",
+        "familiar": "Also familiar with"
       },
       "items": {
         "angular": "Angular",
@@ -85,7 +86,9 @@
         "nodejs": "Node.js",
         "rest-api": "REST APIs",
         "agile": "Agile/Scrum",
-        "mentoring": "Mentoring"
+        "mentoring": "Mentoring",
+        "react": "React",
+        "vue": "Vue"
       }
     },
     "languages": {
