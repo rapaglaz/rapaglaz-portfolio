@@ -1,30 +1,17 @@
 # Build outputs
-/build/
 /coverage/
 /dist/
-/out/
-/storybook-static/
 
 # Framework outputs
 .angular/cache/
-.next/
-.nuxt/
-.nx/
-.svelte-kit/
-.turbo/
-.vercel/
 
 # Dependencies
 **/node_modules/
-.deno/
 
 # Locally installed agent skills (gitignored)
 .agents/
 
 # Lockfiles
-*.lock
-bun.lockb
-package-lock.json
 pnpm-lock.yaml
 
 # Cache & temp
@@ -44,4 +31,3 @@ pnpm-lock.yaml
 # Always format these
 !package.json
 !tsconfig*.json
-!nx.json
