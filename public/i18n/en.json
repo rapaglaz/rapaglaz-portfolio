@@ -19,11 +19,11 @@
   },
   "portfolio": {
     "hero": {
-      "description": "Senior Frontend Engineer with 7+ years of experience in Angular, TypeScript and Nx - focus on scalable architectures, modernizing legacy applications and test automation."
+      "description": "Senior Frontend Engineer with 6+ years of experience in Angular, TypeScript and Nx - focus on scalable architectures, modernizing legacy applications and test automation."
     },
     "about": {
       "title": "About Me",
-      "description": "Senior Frontend Engineer with 7+ years of experience in Angular, TypeScript, RxJS and Nx. Focus on scalable frontend architecture, modernizing legacy applications, test automation and technical ownership of architecture decisions in cross-functional teams. Experience mentoring developers and introducing shared engineering standards."
+      "description": "Senior Frontend Engineer with 6+ years of professional experience in Angular, TypeScript, RxJS and Nx. Focus on scalable frontend architecture, modernizing legacy applications and test automation. Experience building test infrastructure in untested codebases, optimizing CI/CD pipelines and onboarding new developers."
     },
     "certifications": {
       "title": "Certifications",
