@@ -97,3 +97,17 @@ PRs; numbers are the ones recorded there. Oldest first.
   (a cross-feature import and a cycle) confirmed exit code 1.
   [#756](https://github.com/rapaglaz/rapaglaz-portfolio/pull/756), details in
   [Dependency boundaries](./DEPENDENCY_BOUNDARIES.md)
+
+## Initial bundle over the warning budget again (2026-10-17)
+
+- **Problem:** the production build reported 579.50 kB initial on `main`, over the 560 kB warning
+  budget set in #512.
+- **Cause:** Tailwind scanned Markdown and E2E files and generated DaisyUI components that no
+  template uses (`table`, `toggle`, `steps`). The CDK overlay, portal and dialog sat in the initial
+  chunk, although only a toast or the CV verification needs them.
+- **Fix:** limit Tailwind to `src/` with `source('.')`, which takes the stylesheet from 98.50 kB to
+  86.28 kB ([#773](https://github.com/rapaglaz/rapaglaz-portfolio/pull/773)). Then load the CDK
+  packages on demand through local re-export modules: initial 503.94 kB, all scripts 487.98 kB
+  ([#776](https://github.com/rapaglaz/rapaglaz-portfolio/pull/776)). A first attempt with
+  `import('@angular/cdk/overlay')` kept the whole CDK namespaces and pushed all scripts to
+  540.43 kB, over the 500 kB error budget.

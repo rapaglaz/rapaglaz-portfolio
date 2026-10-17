@@ -60,8 +60,8 @@ There is one component entry point; the URL segment only determines the active l
 Most sections have no real business logic. The interesting parts are in services:
 
 - CV download: get config → get Turnstile token → call backend endpoint → trigger browser download
-- Turnstile: load the script once and render the widget in the active `en` or `de` locale. An interactive challenge opens in a CDK Dialog with a focus trap and focus restored to the CV button. WebKit needs explicit focus-region boundaries around the iframe for keyboard navigation. Any way of closing the dialog ends verification without a token or download.
-- Toasts: a single CDK overlay updated in place. Errors use `role="alert"`, success and info `role="status"`; the close action stays outside the live region. Toasts stay until dismissed and do not move focus when they open.
+- Turnstile: load the script once and render the widget in the active `en` or `de` locale. An interactive challenge opens in a CDK Dialog with a focus trap and focus restored to the CV button. WebKit needs explicit focus-region boundaries around the iframe for keyboard navigation. Any way of closing the dialog ends verification without a token or download. The CDK Dialog chunk loads next to the Turnstile script after the CV click, and the widget renders once both are ready.
+- Toasts: a single CDK overlay updated in place. Errors use `role="alert"`, success and info `role="status"`; the close action stays outside the live region. Toasts stay until dismissed and do not move focus when they open. The CDK overlay and portal load with the first toast, so `show()` returns a promise that resolves once the toast is rendered.
 - Feature flag: read `openToWork` from a Cloudflare Worker + KV, exposed as `httpResource`
 - Config: fetched once per app life, `retry({ count: 3 })` + `shareReplay`, no manual retry counter. If all retries fail, the cached observable is dropped so the next call fetches again
 - Logger: centralised logging service, does not expose internal details to users
