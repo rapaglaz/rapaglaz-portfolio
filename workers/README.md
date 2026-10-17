@@ -31,13 +31,16 @@ Cloudflare Workers) and `CLOUDFLARE_ACCOUNT_ID`.
 
 ### First deploy from this repo
 
-The configs start without bindings, so set `DEPLOY_WORKERS` only after one local deploy per Worker.
-Wrangler shows how the local config differs from the dashboard and offers to update the file:
+`wrangler deploy` replaces the bindings and vars of a Worker with the ones in its `wrangler.jsonc`;
+it does not merge them with the dashboard. On 2026-10-17 a deploy of `feature-flag` from a config
+without bindings dropped its KV binding, and the endpoint returned 500 until a rollback.
 
-```bash
-npx wrangler@4.151.1 login
-cd workers/feature-flag && npx wrangler@4.151.1 deploy
-```
+Before deploying a Worker from this repo:
 
-Repeat for `portfolio-settings` and `cv-download`, keep the dashboard's `compatibility_date` if
-Wrangler shows a different one, and commit the updated `wrangler.jsonc` files.
+1. Add every binding and var it uses to its `wrangler.jsonc`, with the names and IDs shown under
+   **Settings → Bindings** in the dashboard.
+2. Run `pnpm run workers:check` and compare the bindings it lists with the dashboard.
+3. Deploy from the Worker folder with `npx wrangler@4.151.1 deploy`. If something breaks,
+   `npx wrangler@4.151.1 rollback` returns to the previous version.
+
+Set `DEPLOY_WORKERS` to `true` only after all three Workers went through these steps.
