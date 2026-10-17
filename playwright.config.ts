@@ -1,9 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
 
-/** Read environment variables from file. https://github.com/motdotla/dotenv */
-// require('dotenv').config();
-
-/** See https://playwright.dev/docs/test-configuration. */
 const isCI = !!process.env['CI'];
 const isSSG = process.env['E2E_MODE'] === 'ssg';
 const defaultBaseURL = isCI || isSSG ? 'http://localhost:4233' : 'http://localhost:4200';
@@ -35,7 +31,7 @@ export default defineConfig({
     video: 'retain-on-failure',
   },
 
-  /* Run your local dev server before starting the tests */
+  // CI and e2e:ssg serve the static build; local runs reuse a running dev server
   webServer: {
     command: webServerCommand,
     url: webServerUrl,
