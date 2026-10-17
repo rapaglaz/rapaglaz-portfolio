@@ -3,11 +3,11 @@
 Sources of the three Workers behind `rapaglaz.de`. Each folder name matches the Worker name in
 Cloudflare, and its `wrangler.jsonc` is the source of truth for that Worker.
 
-| Worker                                        | Endpoint                       | Bindings and settings                                                                                                         |
-| --------------------------------------------- | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
-| [`cv-download`](./cv-download/)               | `GET /download?file=cv/<name>` | R2 `PORTFOLIO_FILES`, secret `TURNSTILE_SECRET`, optional KV `RATE_LIMIT_STORE`, optional `ALLOWED_ORIGINS` (comma-separated) |
-| [`feature-flag`](./feature-flag/)             | `GET /feature-flag/<name>`     | KV `KV`, values `true` or `false`                                                                                             |
-| [`portfolio-settings`](./portfolio-settings/) | `GET` or `HEAD /config`        | none; the Turnstile site key is public by design                                                                              |
+| Worker                                        | Endpoint                       | Bindings and settings                                                                                                                          |
+| --------------------------------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`cv-download`](./cv-download/)               | `GET /download?file=cv/<name>` | R2 `PORTFOLIO_FILES` (`portfolio-files`), secret `TURNSTILE_SECRET`; optional and not configured: KV `RATE_LIMIT_STORE`, var `ALLOWED_ORIGINS` |
+| [`feature-flag`](./feature-flag/)             | `GET /feature-flag/<name>`     | KV `KV` (namespace `PORTFOLIO_FLAGS`), values `true` or `false`                                                                                |
+| [`portfolio-settings`](./portfolio-settings/) | `GET` or `HEAD /config`        | none; the Turnstile site key is public by design                                                                                               |
 
 The frontend validates `/config` and `/feature-flag` responses with Valibot and reads `/download`
 as a blob. See [Security notes](../docs/SECURITY.md) for the download flow.
@@ -37,10 +37,13 @@ without bindings dropped its KV binding, and the endpoint returned 500 until a r
 
 Before deploying a Worker from this repo:
 
-1. Add every binding and var it uses to its `wrangler.jsonc`, with the names and IDs shown under
-   **Settings → Bindings** in the dashboard.
-2. Run `pnpm run workers:check` and compare the bindings it lists with the dashboard.
-3. Deploy from the Worker folder with `npx wrangler@4.151.1 deploy`. If something breaks,
-   `npx wrangler@4.151.1 rollback` returns to the previous version.
+1. Add every binding and var it uses to its `wrangler.jsonc`. `wrangler versions view <ID> --name
+<worker>` shows them for the active version (`wrangler deployments status` gives the ID).
+2. Run `pnpm run test:workers`: it fails when a config lacks a binding the code needs, when the
+   code reads an `env` name the test does not know, or when `vars` sets `ALLOW_TEST_TOKEN`.
+3. Run `pnpm run workers:check` and compare the bindings it lists with the active version.
+4. Deploy from the Worker folder with `npx wrangler@4.151.1 deploy` and check that the deploy output
+   lists the same bindings. If something breaks, `npx wrangler@4.151.1 rollback` returns to the
+   previous version.
 
 Set `DEPLOY_WORKERS` to `true` only after all three Workers went through these steps.
