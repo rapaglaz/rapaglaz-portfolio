@@ -1,10 +1,11 @@
-import { Dialog, DialogRef } from '@angular/cdk/dialog';
+import type { Dialog, DialogRef } from '@angular/cdk/dialog';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
-import { inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { inject, Injectable, Injector, PLATFORM_ID } from '@angular/core';
 import {
   catchError,
   defer,
   finalize,
+  forkJoin,
   Observable,
   of,
   retry,
@@ -45,7 +46,7 @@ type WidgetContext = {
 
 @Injectable({ providedIn: 'root' })
 export class TurnstileService {
-  private readonly dialog = inject(Dialog);
+  private readonly injector = inject(Injector);
   private readonly activeLang = injectActiveLang();
   private readonly document = inject(DOCUMENT);
   private readonly platformId = inject(PLATFORM_ID);
@@ -54,13 +55,32 @@ export class TurnstileService {
   private static readonly SCRIPT_SRC = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
 
   private scriptLoad$: Observable<void> | null = null;
+  // CDK Dialog stays out of the initial bundle; it loads next to the Turnstile script
+  private dialog: Dialog | null = null;
+  private dialogLoad: Promise<void> | null = null;
 
   getToken$(siteKey: string, restoreFocus?: HTMLElement): Observable<string> {
     if (!isPlatformBrowser(this.platformId)) {
       return throwError(() => new Error('Turnstile is only available in the browser'));
     }
 
-    return this.loadScript().pipe(switchMap(() => this.renderWidget(siteKey, restoreFocus)));
+    // the widget renders only once both are ready, so an interactive challenge opens at once
+    return forkJoin([this.loadScript(), defer(() => this.loadDialog())]).pipe(
+      switchMap(() => this.renderWidget(siteKey, restoreFocus)),
+    );
+  }
+
+  private loadDialog(): Promise<void> {
+    this.dialogLoad ??= import('./turnstile-dialog').then(
+      ({ Dialog }) => {
+        this.dialog = this.injector.get(Dialog);
+      },
+      (error: unknown) => {
+        this.dialogLoad = null;
+        throw error;
+      },
+    );
+    return this.dialogLoad;
   }
 
   private loadScript(): Observable<void> {
@@ -181,7 +201,7 @@ export class TurnstileService {
     onCancel: () => void,
     restoreFocus?: HTMLElement,
   ): void {
-    if (context.dialogRef || !context.container) return;
+    if (context.dialogRef || !context.container || !this.dialog) return;
 
     const dialogRef = this.dialog.open<undefined, unknown, TurnstileModal>(TurnstileModal, {
       ariaModal: true,

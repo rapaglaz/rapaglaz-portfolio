@@ -57,7 +57,7 @@ describe('TurnstileService (integration)', () => {
     );
   });
 
-  it('cancels interactive verification without a token or error and releases the background', () => {
+  it('cancels interactive verification without a token or error and releases the background', async () => {
     vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
     const background = document.createElement('main');
     const trigger = document.createElement('button');
@@ -73,6 +73,8 @@ describe('TurnstileService (integration)', () => {
     const error = vi.fn();
     const complete = vi.fn();
     const subscription = service.getToken$('site-key').subscribe({ next, error, complete });
+    // the widget renders once the lazily loaded CDK dialog is ready
+    await vi.waitFor(() => expect(render).toHaveBeenCalled());
 
     try {
       render.mock.calls[0][1]['before-interactive-callback']();
@@ -101,7 +103,7 @@ describe('TurnstileService (integration)', () => {
     }
   });
 
-  it('restores the supplied trigger when focus moves before interactive verification opens', () => {
+  it('restores the supplied trigger when focus moves before interactive verification opens', async () => {
     vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
     const trigger = document.createElement('button');
     const otherAction = document.createElement('button');
@@ -112,6 +114,8 @@ describe('TurnstileService (integration)', () => {
     );
     (window as any).turnstile = { render, remove: vi.fn() };
     const subscription = service.getToken$('site-key', trigger).subscribe();
+    // the widget renders once the lazily loaded CDK dialog is ready
+    await vi.waitFor(() => expect(render).toHaveBeenCalled());
 
     try {
       otherAction.focus();
@@ -213,7 +217,7 @@ describe('TurnstileService (integration)', () => {
     expect(scripts[2].isConnected).toBe(false);
   });
 
-  it('moves an interactive widget into one modal and restores focus on completion', () => {
+  it('moves an interactive widget into one modal and restores focus on completion', async () => {
     vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
     const trigger = document.createElement('button');
     document.body.appendChild(trigger);
@@ -225,6 +229,8 @@ describe('TurnstileService (integration)', () => {
     (window as any).turnstile = { render, remove };
     const tokens: string[] = [];
     const subscription = service.getToken$('site-key').subscribe(token => tokens.push(token));
+    // the widget renders once the lazily loaded CDK dialog is ready
+    await vi.waitFor(() => expect(render).toHaveBeenCalled());
     const [widget, options] = render.mock.calls[0];
 
     try {
@@ -258,7 +264,7 @@ describe('TurnstileService (integration)', () => {
     }
   });
 
-  it('cleans up on cancellation even when the API fails to remove the widget', () => {
+  it('cleans up on cancellation even when the API fails to remove the widget', async () => {
     const cleanupError = new Error('Removal failed');
     const warn = vi
       .spyOn(TestBed.inject(LoggerService), 'warn')
@@ -270,6 +276,8 @@ describe('TurnstileService (integration)', () => {
     (window as any).turnstile = { render, remove };
     const token = vi.fn();
     const subscription = service.getToken$('site-key').subscribe(token);
+    // the widget renders once the lazily loaded CDK dialog is ready
+    await vi.waitFor(() => expect(render).toHaveBeenCalled());
     const widget = render.mock.calls[0][0];
 
     subscription.unsubscribe();
