@@ -25,17 +25,8 @@ Configuration lives in `lefthook.yml`.
 
 If hooks do not run, try `pnpm run prepare` or `pnpm exec lefthook install`.
 
-### Commit message format (Conventional Commits)
-
-Follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:
-
-```text
-<type>(<scope>): <subject>
-
-[optional body]
-
-[optional footer]
-```
+Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/)
+(`<type>(<scope>): <subject>`); commitlint rejects anything else.
 
 ## Dev server
 
