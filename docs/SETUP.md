@@ -42,6 +42,10 @@ You can use `/en` or `/de` directly, and `/` defaults to English.
 Note: the feature flag endpoint is on `https://rapaglaz.de`.
 If you see CORS errors locally, the Worker must allow `http://localhost:4200`.
 
+The CV download also calls the production Worker. It rejects the token from Cloudflare's test site
+key that local dev uses, so locally the download ends in the error toast. E2E mocks Turnstile and
+`/download` instead.
+
 ## Checks (format/lint/dependencies/i18n)
 
 ```bash
@@ -70,6 +74,12 @@ pnpm run test:coverage
 ```
 
 Coverage output goes to `coverage/`.
+
+The Cloudflare Workers in `workers/` have their own Vitest run in a Node environment:
+
+```bash
+pnpm run test:workers
+```
 
 ## E2E tests (Playwright)
 
