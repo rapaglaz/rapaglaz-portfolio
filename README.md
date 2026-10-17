@@ -32,18 +32,18 @@ Details: [engineering notes](./docs/ENGINEERING_NOTES.md) from the PR history.
 
 ## Quality gates
 
-| Check                                                                        | Runs on  | Blocks                                          |
-| ---------------------------------------------------------------------------- | -------- | ----------------------------------------------- |
-| `format:check`, `lint`, `deps:check` (dependency-cruiser)                    | PR, main | yes                                             |
-| `i18n:check`, `test:coverage` (80% statements/functions/lines, 70% branches) | PR, main | yes                                             |
-| SSG build with bundle budgets from `angular.json`                            | PR, main | yes                                             |
-| Playwright E2E in the official Playwright container, against the build       | PR, main | yes                                             |
-| SonarCloud analysis (in the test job)                                        | PR, main | no, quality gate not awaited                    |
-| actionlint, zizmor (workflow linting and security)                           | PR       | separate jobs, outside the `quality-check` gate |
-| Lighthouse, 3 desktop runs, median posted as a PR comment                    | PR       | no                                              |
+| Check                                                                        | Runs on  | Blocks                       |
+| ---------------------------------------------------------------------------- | -------- | ---------------------------- |
+| `format:check`, `lint`, `deps:check` (dependency-cruiser)                    | PR, main | yes                          |
+| `i18n:check`, `test:coverage` (80% statements/functions/lines, 70% branches) | PR, main | yes                          |
+| SSG build with bundle budgets from `angular.json`                            | PR, main | yes                          |
+| Playwright E2E in the official Playwright container, against the build       | PR, main | yes                          |
+| SonarCloud analysis (in the test job)                                        | PR, main | no, quality gate not awaited |
+| actionlint, zizmor (workflow linting and security)                           | PR       | yes                          |
+| Lighthouse, 3 desktop runs, median posted as a PR comment                    | PR       | no                           |
 
-On PRs, the `quality-check` gate needs lint, test, build and E2E to succeed. On main, deploy needs
-the same four jobs. Locally, Lefthook runs lint-staged before a commit (plus actionlint and zizmor
+On PRs, the `quality-check` gate needs all of these except SonarCloud and Lighthouse. On main,
+deploy needs lint, test, build and E2E; workflow linting runs only on PRs. Locally, Lefthook runs lint-staged before a commit (plus actionlint and zizmor
 when workflows change) and commitlint on the message. Details: [CI/CD strategy](./docs/CI_STRATEGY.md).
 
 ## How I work with AI
