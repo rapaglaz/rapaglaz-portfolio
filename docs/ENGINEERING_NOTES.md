@@ -11,8 +11,6 @@ PRs; numbers are the ones recorded there. Oldest first.
 - **Fix:** reset the cached observable on error so the next call fetches again, with a spec for
   it. [#500](https://github.com/rapaglaz/rapaglaz-portfolio/pull/500)
 
-<!-- TODO(Paul): What did you take away from this? -->
-
 ## E2E test passed through the wrong path (2026-07-05)
 
 - **Problem:** "handles Turnstile verification error" ran the script-load-failure path, so it was
@@ -21,8 +19,6 @@ PRs; numbers are the ones recorded there. Oldest first.
   so the mock never ran.
 - **Fix:** install the mock before navigation through a shared `mockTurnstileAPI(page, 'error')`
   outcome instead of an inline copy. [#503](https://github.com/rapaglaz/rapaglaz-portfolio/pull/503)
-
-<!-- TODO(Paul): What did you take away from this? -->
 
 ## Deploy shipped a rebuild, not the tested build (2026-07-05 to 2026-09-06)
 
@@ -37,8 +33,6 @@ PRs; numbers are the ones recorded there. Oldest first.
   `main-branch-ci-cd.yaml` as a job that needs lint, test, build and e2e and reuses the artifact
   directly ([#663](https://github.com/rapaglaz/rapaglaz-portfolio/pull/663)).
 
-<!-- TODO(Paul): What did you take away from this? -->
-
 ## Bundle budget warned on every build (2026-07-05)
 
 - **Problem:** every production build warned: initial was 539.5 kB raw against a 500 kB warning
@@ -47,8 +41,6 @@ PRs; numbers are the ones recorded there. Oldest first.
   39 kB of it overlay + portal), 35 kB common. No low-complexity cut got back under 500 kB.
 - **Fix:** raise the warning budget to 560 kB and keep the 700 kB error.
   [#512](https://github.com/rapaglaz/rapaglaz-portfolio/pull/512)
-
-<!-- TODO(Paul): What did you take away from this? -->
 
 ## jsdom minor release broke unit tests (2026-09-23 to 2026-10-12)
 
@@ -64,8 +56,6 @@ PRs; numbers are the ones recorded there. Oldest first.
   Renovate hold was removed in [#730](https://github.com/rapaglaz/rapaglaz-portfolio/pull/730);
   the jsdom pin itself moved to 30.1.2 in
   [#766](https://github.com/rapaglaz/rapaglaz-portfolio/pull/766).
-
-<!-- TODO(Paul): What did you take away from this? -->
 
 ## Playwright image and package drifted apart, three times (2026-07-05 to 2026-10-12)
 
@@ -86,8 +76,6 @@ PRs; numbers are the ones recorded there. Oldest first.
   ([#730](https://github.com/rapaglaz/rapaglaz-portfolio/pull/730)), and keep the image in the
   same Renovate PR as the package (#768).
 
-<!-- TODO(Paul): What did you take away from this? -->
-
 ## Workflow findings from zizmor (2026-10-08)
 
 - **Problem:** zizmor reported findings in the workflows, so its CI job and pre-commit hook ran
@@ -97,8 +85,6 @@ PRs; numbers are the ones recorded there. Oldest first.
 - **Fix:** pass the input through `env`, set `persist-credentials: false` on all checkouts, add
   `.github/zizmor.yml` with one disabled rule and one ignored line, each with a reason, and drop
   both report-only switches. [#754](https://github.com/rapaglaz/rapaglaz-portfolio/pull/754)
-
-<!-- TODO(Paul): What did you take away from this? -->
 
 ## Layer rules were not enforced (2026-10-10)
 
@@ -111,8 +97,6 @@ PRs; numbers are the ones recorded there. Oldest first.
   (a cross-feature import and a cycle) confirmed exit code 1.
   [#756](https://github.com/rapaglaz/rapaglaz-portfolio/pull/756), details in
   [Dependency boundaries](./DEPENDENCY_BOUNDARIES.md)
-
-<!-- TODO(Paul): What did you take away from this? -->
 
 ## Initial bundle over the warning budget again (2026-10-17)
 

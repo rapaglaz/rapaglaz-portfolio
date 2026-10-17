@@ -66,7 +66,8 @@ Coverage thresholds: statements 80%, branches 70%, functions 80%, lines 80%.
 ## Tests
 
 ```bash
-pnpm test                # unit (Vitest, watch)
+pnpm test                # unit (Vitest, single run)
+pnpm run test:watch      # unit in watch mode
 pnpm run test:coverage   # unit with coverage report
 pnpm run e2e             # Playwright against dev server (port 4200)
 pnpm run e2e:ssg         # Playwright against static build (port 4233)

@@ -28,8 +28,7 @@ app, prerendered to static HTML and hydrated in the browser.
   and an iPhone 12 WebKit profile. CI runs E2E against the static build, and main deploys exactly
   that artifact, without a rebuild.
 
-Details: [decision records](./docs/adr/) and [engineering notes](./docs/ENGINEERING_NOTES.md)
-from the PR history.
+Details: [engineering notes](./docs/ENGINEERING_NOTES.md) from the PR history.
 
 ## Quality gates
 
@@ -66,7 +65,6 @@ human or AI-assisted, has to pass lint, dependency-cruiser, unit and E2E tests b
 ## Docs
 
 - [Architecture](./docs/ARCHITECTURE.md)
-- [Decision records](./docs/adr/)
 - [Engineering notes](./docs/ENGINEERING_NOTES.md)
 - [Dependency boundaries](./docs/DEPENDENCY_BOUNDARIES.md)
 - [CI/CD strategy](./docs/CI_STRATEGY.md)
