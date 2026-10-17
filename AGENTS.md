@@ -59,6 +59,7 @@ pnpm run deps:check
 pnpm run format:check
 pnpm test
 pnpm run test:workers
+pnpm run workers:check
 pnpm run i18n:check
 ```
 

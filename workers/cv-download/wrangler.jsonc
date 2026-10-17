@@ -1,0 +1,13 @@
+// Source of truth for this Worker. Routes stay in the Cloudflare dashboard: with no route keys
+// and workers_dev set to false, wrangler deploy leaves them unchanged. Bindings, compatibility date
+// and observability match the active version on 2026-10-17 (wrangler versions view).
+{
+  "name": "cv-download",
+  "main": "index.js",
+  "compatibility_date": "2025-10-31",
+  "workers_dev": false,
+  "preview_urls": false,
+  "r2_buckets": [{ "binding": "PORTFOLIO_FILES", "bucket_name": "portfolio-files" }],
+  "secrets": { "required": ["TURNSTILE_SECRET"] },
+  "observability": { "logs": { "enabled": true }, "traces": { "enabled": true } },
+}
