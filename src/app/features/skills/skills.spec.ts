@@ -26,4 +26,15 @@ describe('Skills', () => {
     expect(badges[2].style.animationDelay).toBe('0.18s');
     expect(badges[0].classList.contains('visible')).toBe(true);
   });
+
+  it('renders familiar-with skills in a separate labelled group', () => {
+    const fixture = TestBed.createComponent(Skills);
+    fixture.detectChanges();
+    const host = fixture.nativeElement as HTMLElement;
+    const secondary = host.querySelectorAll<HTMLElement>('[data-testid="skill-badge-secondary"]');
+
+    expect(host.querySelector('[data-testid="skills-secondary-title"]')).not.toBeNull();
+    expect(Array.from(secondary, badge => badge.textContent?.trim())).toEqual(['React', 'Vue']);
+    expect(secondary[0].style.animationDelay).toBe('0.57s');
+  });
 });

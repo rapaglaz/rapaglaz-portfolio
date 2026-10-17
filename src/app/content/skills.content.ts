@@ -1,5 +1,5 @@
 export type SkillCategoryId =
-  'frontend' | 'testing' | 'devops' | 'architecture' | 'backend' | 'soft-skills';
+  'frontend' | 'testing' | 'devops' | 'architecture' | 'backend' | 'soft-skills' | 'familiar';
 
 export type Skill = {
   readonly id: string;
@@ -58,5 +58,10 @@ export const SKILL_CATEGORIES: readonly SkillCategory[] = [
   {
     id: 'soft-skills',
     skills: [{ id: 'agile' }, { id: 'mentoring' }],
+  },
+  {
+    // Rendered separately with its own label: no production experience, so not mixed into core skills.
+    id: 'familiar',
+    skills: [{ id: 'react' }, { id: 'vue' }],
   },
 ] as const;
