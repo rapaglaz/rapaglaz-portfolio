@@ -4,11 +4,14 @@ Reference for AI agents working in this repo. For broader context see [docs/](./
 
 ## Stack
 
-- **Angular** v22 — zoneless, standalone, OnPush, SSG + hydration
-- **TypeScript** v6.0, **Node.js** v24, **pnpm** v11.1.2
-- **Tailwind CSS** v4.3 + **DaisyUI** v5.5 (CSS-first config in `src/styles.css`)
-- **Transloco** v8.3 (i18n), **Valibot** v1.4 (schema validation), **RxJS** v7.8
-- **Vitest** v4.1 (unit), **Playwright** v1.60 (E2E)
+Exact versions live in `package.json` (dependencies, `packageManager` for pnpm), `.nvmrc`
+(Node.js) and `mise.toml` (actionlint, zizmor). Majors are listed only where they shape the code.
+
+- **Angular 22** — zoneless, standalone, OnPush, SSG + hydration
+- **TypeScript**, **Node.js 24**, **pnpm**
+- **Tailwind CSS 4** + **DaisyUI 5** (CSS-first config in `src/styles.css`)
+- **Transloco** (i18n), **Valibot 1** (schema validation, `v.pipe` API), **RxJS**
+- **Vitest** (unit), **Playwright** (E2E)
 
 ## Folder structure
 

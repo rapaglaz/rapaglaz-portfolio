@@ -26,7 +26,7 @@ outside these layer checks. Dynamic imports and runtime re-exports are included.
 `tsPreCompilationDeps: false` excludes type-only and other imports erased during compilation.
 They cannot create runtime initialization cycles. This setting applies to every rule, so it
 also excludes type-only layer violations. See the
-[dependency-cruiser option reference](https://github.com/sverweij/dependency-cruiser/blob/v18.5.0/doc/options-reference.md#tsprecompilationdeps).
+[dependency-cruiser option reference](https://github.com/sverweij/dependency-cruiser/blob/main/doc/options-reference.md#tsprecompilationdeps).
 
 `no-orphans` means modules without incoming or outgoing dependencies in the scoped graph;
 it is not a complete unused-code analysis. Entry points (`main.ts`, `main.server.ts`), app
