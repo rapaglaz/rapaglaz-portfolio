@@ -70,6 +70,32 @@ describe('CV download worker', () => {
     expect(siteverify).not.toHaveBeenCalled();
   });
 
+  for (const origin of [
+    'https://localhost.attacker.example',
+    'http://127.0.0.1.attacker.example',
+  ]) {
+    it(`rejects ${origin}, which only contains a local hostname`, async () => {
+      mockSiteverify(true);
+
+      const response = await worker.fetch(
+        downloadRequest({ headers: { Origin: origin } }),
+        createEnv(),
+      );
+
+      expect(response.status).toBe(403);
+      expect(response.headers.get('Access-Control-Allow-Origin')).toBeNull();
+    });
+  }
+
+  it('allows local development origins', async () => {
+    const response = await worker.fetch(
+      downloadRequest({ method: 'OPTIONS', headers: { Origin: 'http://localhost:4200' } }),
+      createEnv(),
+    );
+
+    expect(response.headers.get('Access-Control-Allow-Origin')).toBe('http://localhost:4200');
+  });
+
   it('rejects file paths outside the cv/ prefix', async () => {
     for (const file of ['private/notes.pdf', 'cv/../private/notes.pdf', 'cv//notes.pdf']) {
       const response = await worker.fetch(downloadRequest({ file }), createEnv());
