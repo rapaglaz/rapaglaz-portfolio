@@ -122,5 +122,4 @@ PRs; numbers are the ones recorded there. Oldest first.
 - **Fix:** only `ALLOW_TEST_TOKEN` on a development Worker skips `siteverify`, the breaker counts
   only `siteverify` outages, and local origins are compared by hostname. Found while adding the
   Worker sources to this repo; `workers/cv-download/index.spec.js` reproduces each case.
-
-<!-- TODO(Paul): What did you take away from this? -->
+  [#777](https://github.com/rapaglaz/rapaglaz-portfolio/pull/777)
