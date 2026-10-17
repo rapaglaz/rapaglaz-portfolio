@@ -1,5 +1,5 @@
 name: Quality Check
-description: 'Runs format, lint, dependency boundaries, i18n, tests, and SonarCloud scan.'
+description: 'Runs format, lint, dependency boundaries, i18n, app and Worker tests, and SonarCloud scan.'
 
 inputs:
   mode:
@@ -56,6 +56,11 @@ runs:
       if: ${{ inputs.mode == 'test' || inputs.mode == 'all' }}
       shell: bash
       run: pnpm run test:coverage
+
+    - name: Run Worker tests
+      if: ${{ inputs.mode == 'test' || inputs.mode == 'all' }}
+      shell: bash
+      run: pnpm run test:workers
 
     - name: Upload coverage reports
       if: ${{ (inputs.mode == 'test' || inputs.mode == 'all') && always() }}

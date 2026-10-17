@@ -71,6 +71,12 @@ pnpm run test:coverage
 
 Coverage output goes to `coverage/`.
 
+The Cloudflare Workers in `workers/` have their own Vitest run in a Node environment:
+
+```bash
+pnpm run test:workers
+```
+
 ## E2E tests (Playwright)
 
 Normal mode uses the dev server:
