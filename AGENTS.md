@@ -58,6 +58,7 @@ pnpm run lint
 pnpm run deps:check
 pnpm run format:check
 pnpm test
+pnpm run test:workers
 pnpm run i18n:check
 ```
 
