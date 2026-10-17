@@ -19,8 +19,8 @@ app, prerendered to static HTML and hydrated in the browser.
   goes through Valibot schemas. Invalid shapes are rejected instead of passed into the app; an
   unexpected flag value becomes `false`.
 - **CV behind Turnstile and a Worker.** I don't want the CV to be a public URL that bots can scrape
-  forever. The token travels in a `cf-turnstile-response` header set by an interceptor; the Worker
-  (not in this repo) validates it with Cloudflare and streams the PDF from R2 with
+  forever. The token travels in a `cf-turnstile-response` header set by an interceptor; the
+  [Worker](./workers/cv-download/) validates it with Cloudflare and streams the PDF from R2 with
   `Cache-Control: private, no-store`.
 - **Tests aimed at the shipped artifact.** Vitest covers behaviour and error paths in services and
   interceptors, presentational sections get smoke checks. Playwright covers user flows, Turnstile
@@ -71,6 +71,7 @@ human or AI-assisted, has to pass lint, dependency-cruiser, unit and E2E tests b
 - [Dependency boundaries](./docs/DEPENDENCY_BOUNDARIES.md)
 - [CI/CD strategy](./docs/CI_STRATEGY.md)
 - [Security notes](./docs/SECURITY.md)
+- [Cloudflare Workers](./workers/README.md)
 - [Local setup](./docs/SETUP.md)
 
 ## Licence

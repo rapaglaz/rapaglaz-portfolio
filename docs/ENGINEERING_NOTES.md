@@ -113,3 +113,16 @@ PRs; numbers are the ones recorded there. Oldest first.
   [Dependency boundaries](./DEPENDENCY_BOUNDARIES.md)
 
 <!-- TODO(Paul): What did you take away from this? -->
+
+## Worker accepted the test token from any client (2026-10-17)
+
+- **Problem:** the CV download Worker skipped `siteverify` for Cloudflare's public test token when
+  Origin or Referer contained `localhost`, and three made-up tokens paused verification of real
+  tokens for five minutes on that isolate.
+- **Cause:** local dev calls the production Worker with the test site key, so the bypass was keyed
+  on headers the client controls. The circuit breaker counted rejected tokens as outages.
+- **Fix:** only `ALLOW_TEST_TOKEN` on a development Worker skips `siteverify`, the breaker counts
+  only `siteverify` outages, and local origins are compared by hostname. Found while adding the
+  Worker sources to this repo; `workers/cv-download/index.spec.js` reproduces each case.
+
+<!-- TODO(Paul): What did you take away from this? -->
