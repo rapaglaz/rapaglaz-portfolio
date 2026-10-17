@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from '@playwright/test';
+import { devices, expect, test } from '@playwright/test';
 import {
   mockCVDownload,
   mockInteractiveTurnstile,
@@ -169,6 +169,66 @@ test.describe('Interactive CV verification', () => {
     await expect(page.getByRole('alert')).toContainText('Download failed');
     await expect(cvButton).toBeFocused();
     await expect(cvButton).toHaveAttribute('aria-busy', 'false');
+  });
+});
+
+test.describe('CV Download - Android phone', () => {
+  // the Mobile Safari project already runs this file on an iPhone 12 profile
+  test.skip(({ browserName }) => browserName !== 'chromium', 'Pixel 7 emulates Chrome on Android');
+
+  // only context options: defaultBrowserType cannot be set inside a describe group
+  const { viewport, userAgent, deviceScaleFactor, isMobile, hasTouch } = devices['Pixel 7'];
+  test.use({ viewport, userAgent, deviceScaleFactor, isMobile, hasTouch });
+
+  test('downloads the CV with a tap', async ({ page }) => {
+    await mockCVDownload(page);
+    await visitPortfolio(page);
+
+    const cvButton = page.getByTestId('cv-download-btn');
+    await expect(cvButton).toBeInViewport();
+
+    const downloadPromise = page.waitForEvent('download');
+    await cvButton.tap();
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toBe('Radoslaw_Pawel_Glaz_CV-EN.pdf');
+  });
+
+  test('keeps the verification dialog on screen and downloads after verifying', async ({
+    page,
+  }) => {
+    const downloads: string[] = [];
+    page.on('request', request => {
+      if (request.url().includes('/download?file=')) downloads.push(request.url());
+    });
+    await mockInteractiveTurnstile(page);
+    await visitPortfolio(page, '/de');
+
+    const cvButton = page.getByTestId('cv-download-btn');
+    await cvButton.tap();
+    const dialog = page.getByRole('dialog');
+    const card = dialog.locator('app-turnstile-modal > div');
+    const close = dialog.getByRole('button', { name: 'Schließen' });
+    await expect(close).toBeVisible();
+    await expect(card).toBeInViewport({ ratio: 1 });
+    await expect(close).toBeInViewport({ ratio: 1 });
+    expect(await card.evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,
+      ),
+    ).toBe(true);
+
+    await close.tap();
+    await expect(dialog).toHaveCount(0);
+    expect(downloads).toEqual([]);
+
+    await cvButton.tap();
+    const downloadPromise = page.waitForEvent('download');
+    await dialog.frameLocator('iframe').getByRole('button', { name: 'Verify', exact: true }).tap();
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toBe('Radoslaw_Pawel_Glaz_CV-DE.pdf');
+    expect(downloads).toHaveLength(1);
+    await expect(dialog).toHaveCount(0);
   });
 });
 
