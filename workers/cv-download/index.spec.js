@@ -221,6 +221,23 @@ describe('CV download worker', () => {
     expect(siteverify.mock.calls[0][1].signal).toBeInstanceOf(AbortSignal);
   });
 
+  it('aborts siteverify after 5 seconds and treats it as an outage', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    const siteverify = vi.spyOn(globalThis, 'fetch').mockImplementation(
+      (_url, init) =>
+        new Promise((_resolve, reject) => {
+          init.signal.addEventListener('abort', () => reject(init.signal.reason));
+        }),
+    );
+
+    const pending = worker.fetch(downloadRequest(), createEnv());
+    await vi.advanceTimersByTimeAsync(5000);
+    const response = await pending;
+
+    expect(response.status).toBe(403);
+    expect(siteverify.mock.calls[0][1].signal.aborted).toBe(true);
+  });
+
   it('limits each client IP to 10 requests per minute', async () => {
     mockSiteverify(true);
     const env = createEnv({ RATE_LIMIT_STORE: createKv() });
