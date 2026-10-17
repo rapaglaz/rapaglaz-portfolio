@@ -55,3 +55,9 @@ Thumbs.db
 
 # Lighthouse CI
 /.lighthouseci/
+
+# Cloudflare Workers: local Wrangler state and local secrets
+.wrangler/
+.dev.vars*
+.env*
+!.env.example

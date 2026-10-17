@@ -120,3 +120,51 @@ jobs:
           protocol: ftps
           server-dir: /
           local-dir: ./dist/rapaglaz-portfolio/browser/
+
+  deploy-workers:
+    needs: [lint, test]
+    # Opt-in: set the repository variable DEPLOY_WORKERS to true once every wrangler.jsonc
+    # carries the bindings from the dashboard, otherwise a deploy would drop them.
+    if: >-
+      !cancelled() &&
+      vars.DEPLOY_WORKERS == 'true' &&
+      needs.lint.result == 'success' &&
+      needs.test.result == 'success' &&
+      github.actor != 'renovate[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        worker: [feature-flag, portfolio-settings, cv-download]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Check for changes in this Worker
+        id: changes
+        env:
+          BEFORE: ${{ github.event.before }}
+          WORKER: ${{ matrix.worker }}
+        run: |
+          # manual runs and pushes without a known base deploy every Worker
+          if [ -z "$BEFORE" ] || ! git cat-file -e "$BEFORE^{commit}" 2>/dev/null ||
+            ! git diff --quiet "$BEFORE" HEAD -- "workers/$WORKER" workers/package.json; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Deploy Worker
+        if: steps.changes.outputs.changed == 'true'
+        uses: cloudflare/wrangler-action@953926a2e2182532811c01a25e53647d93bf07c0 # v4.1.3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: '4.151.1'
+          workingDirectory: workers/${{ matrix.worker }}
+          command: deploy
