@@ -8,7 +8,7 @@ import { AVAILABLE_LANGS, DEFAULT_LANG, type AvailableLang } from '../utils/i18n
 const SITE_ORIGIN = 'https://rapaglaz.de';
 const OG_LOCALE: Record<AvailableLang, string> = { de: 'de_DE', en: 'en_US' };
 const SEO_LINK_ATTR = 'data-seo-id';
-const SEO_ROLE = 'Frontend Engineer';
+const SEO_ROLE = 'Senior Frontend Engineer (Angular)';
 const SEO_IMAGE = `${SITE_ORIGIN}/images/IMG_2290-384.webp`;
 
 @Component({
