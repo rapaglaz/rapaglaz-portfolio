@@ -15,11 +15,11 @@ Reference for AI agents working in this repo. For broader context see [docs/](./
 ```
 src/app/
 ├── portfolio/      # top-level shell (lazy-loaded by router)
-├── features/       # hero, navbar, about, skills, certifications, contact, footer
+├── features/       # hero, navbar, language-switcher, about, skills, languages, certifications, contact, footer
 ├── ui/             # reusable presentational pieces
 ├── services/       # cv-download, feature-flag, turnstile, toast, config, logger
 ├── interceptors/   # turnstile token injection
-├── utils/          # i18n, rxjs, scroll, animation, layout, tokens
+├── utils/          # i18n, rxjs, scroll, animation, layout, tokens, contact
 ├── content/        # typed static content (const objects)
 └── testing/        # shared test helpers
 ```
@@ -79,7 +79,7 @@ pnpm run build    # SSG → dist/rapaglaz-portfolio/browser
 pnpm run preview  # serve the static build on port 4233
 ```
 
-Bundle budgets: initial 700KB error, main bundle 230KB error, component styles 20KB error.
+Bundle budgets (`angular.json`): initial 700KB error, all scripts 500KB error, any component style 20KB error.
 
 ## i18n
 

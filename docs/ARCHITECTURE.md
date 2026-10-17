@@ -12,11 +12,11 @@ Shared bits go to a shared place.
 src/app/
 ├── app.ts / app.config.ts / app.routes.ts   # bootstrap, routing, providers
 ├── portfolio/     # top-level portfolio shell component
-├── features/      # hero, navbar, about, skills, certifications, contact, footer
+├── features/      # hero, navbar, language-switcher, about, skills, languages, certifications, contact, footer
 ├── ui/            # small reusable presentational pieces (badge, section-wrapper, toast-container, turnstile-modal)
 ├── services/      # shared logic (cv-download, feature-flag, turnstile, toast, config, logger)
 ├── interceptors/  # HTTP interceptors (turnstile token injection)
-├── utils/         # helpers (i18n, rxjs, scroll, animation, layout, tokens)
+├── utils/         # helpers (i18n, rxjs, scroll, animation, layout, tokens, contact)
 ├── content/       # typed static content (skills, certifications, contact)
 └── testing/       # shared test helpers (transloco loader, window mocks)
 ```
@@ -63,14 +63,14 @@ Most sections have no real business logic. The interesting parts are in services
 - Turnstile: load the script once and render the widget in the active `en` or `de` locale. Interactive verification uses CDK Dialog with a labelled modal, a backdrop, focus trapping, and focus restoration to the CV button. Explicit focus-region boundaries surround the iframe for WebKit keyboard navigation. Closing, cancelling, Escape, or backdrop activation completes verification without a token or download; errors retain the existing error toast.
 - Toasts: a single CDK overlay updated in place. Errors use `role="alert"`; success and info messages use `role="status"`. The translated close action stays outside the live region. Notifications remain until dismissal by default, and opening them preserves focus. Enter, Escape, or clicking close dismisses the notification; focus returns to the preceding control only when it was inside the toast.
 - Feature flag: read `openToWork` from a Cloudflare Worker + KV, exposed as `httpResource`
-- Config: fetched once per app life, `retry({ count: 3 })` + `shareReplay`, no manual retry counter
+- Config: fetched once per app life, `retry({ count: 3 })` + `shareReplay`, no manual retry counter. If all retries fail, the cached observable is dropped so the next call fetches again
 - Logger: centralised logging service, does not expose internal details to users
 
 An explicit positive toast duration is reserved for messages whose information remains available elsewhere. Focus and hover suspend that timer; leaving both restarts the full duration. The overlay releases its timer and event subscriptions when dismissed or when its injector is destroyed.
 
 HTTP interceptors handle cross-cutting concerns:
 
-- `turnstile.interceptor`: injects `X-Turnstile-Token` header via `HttpContext`
+- `turnstile.interceptor`: injects the `cf-turnstile-response` header via `HttpContext`
 
 ## Feature flag (Open to Work)
 

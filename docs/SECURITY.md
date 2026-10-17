@@ -29,7 +29,8 @@ Short version:
 
 The production build has `subresourceIntegrity: true` in `angular.json`.
 Angular injects `integrity` and `crossorigin` attributes on all script and style tags.
-This prevents tampered assets from executing even if the CDN or server is compromised.
+The browser refuses a script or stylesheet that does not match the hash in the HTML.
+It does not help if the HTML itself is replaced, because the hashes live there.
 
 ## CV download protection
 
@@ -48,7 +49,8 @@ The signed link is short lived (5 minutes).
 
 ## Input validation
 
-All HTTP responses from Cloudflare Workers (`/config`, `/download`, `/feature-flag`) are validated with Valibot before use.
+JSON responses from Cloudflare Workers (`/config`, `/feature-flag`) are validated with Valibot before use.
+`/download` returns the PDF as a blob, which is handed straight to the browser download.
 Invalid or unexpected shapes are rejected rather than passed into the app.
 
 ## Error handling and logging
