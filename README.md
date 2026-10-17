@@ -20,7 +20,8 @@ app, prerendered to static HTML and hydrated in the browser.
   unexpected flag value becomes `false`.
 - **CV behind Turnstile and a Worker.** I don't want the CV to be a public URL that bots can scrape
   forever. The token travels in a `cf-turnstile-response` header set by an interceptor; the Worker
-  (not in this repo) validates it and returns a signed R2 URL that expires after 5 minutes.
+  (not in this repo) validates it with Cloudflare and streams the PDF from R2 with
+  `Cache-Control: private, no-store`.
 - **Tests aimed at the shipped artifact.** Vitest covers behaviour and error paths in services and
   interceptors, presentational sections get smoke checks. Playwright covers user flows, Turnstile
   failures, axe and contrast checks in EN/DE and light/dark, and reduced motion, on Desktop Chrome

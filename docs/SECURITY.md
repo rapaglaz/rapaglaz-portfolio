@@ -42,10 +42,10 @@ Flow:
 1. User clicks "CV"
 2. Turnstile runs (sometimes invisible, sometimes it asks)
 3. Frontend sends the token to the Worker (via `cf-turnstile-response` header, injected by `turnstile.interceptor`)
-4. Worker validates the token against Cloudflare
-5. If ok, Worker returns a signed R2 URL
-
-The signed link is short lived (5 minutes).
+4. Worker checks the origin allow-list and a per-IP rate limit (10 requests per minute, stored in KV)
+5. Worker validates the token against Cloudflare (`siteverify`)
+6. If ok, Worker streams the PDF from R2 with `Cache-Control: private, no-store` and
+   `X-Robots-Tag: noindex, noarchive, nofollow`
 
 ## Input validation
 
@@ -75,7 +75,7 @@ OSV vulnerability alerts are enabled with automatic patch automerge.
 | Clickjacking    | `X-Frame-Options: DENY`    | None |
 | MITM            | HSTS + Cloudflare SSL      | None |
 | Tampered assets | SRI on all scripts/styles  | None |
-| CV scraping     | Turnstile + signed URLs    | Low  |
+| CV scraping     | Turnstile + rate limit     | Low  |
 | Bad API data    | Valibot schema validation  | Low  |
 | DDoS            | Cloudflare edge protection | Low  |
 | Leaked secrets  | none in repo               | None |

@@ -1,4 +1,4 @@
-# ADR 0003: CV download via Turnstile, a Worker and a signed R2 URL
+# ADR 0003: CV download via Turnstile and a Worker in front of R2
 
 **Status:** Accepted · **Date:** 2025-11-17 (initial commit `67a81f4`)
 
@@ -11,7 +11,7 @@ The CV should not be a public URL that bots can scrape forever. The site is stat
 
 1. `ConfigService` fetches the Turnstile site key from `/config` and validates it with Valibot.
 2. `turnstile.interceptor` sends the Turnstile token to `/download` as `cf-turnstile-response`.
-3. The Worker validates the token with Cloudflare and returns a signed R2 URL valid for 5 minutes.
+3. The Worker validates the token with Cloudflare and streams the PDF from R2 (`no-store`).
 4. The browser receives the PDF as a blob and saves it with a locale-specific filename.
 
 ## Alternatives considered
