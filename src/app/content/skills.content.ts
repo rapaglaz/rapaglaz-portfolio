@@ -18,7 +18,6 @@ export const SKILL_CATEGORIES: readonly SkillCategory[] = [
       { id: 'typescript' },
       { id: 'rxjs' },
       { id: 'nx' },
-      { id: 'ngrx' },
       { id: 'javascript' },
       { id: 'tailwind' },
       { id: 'html-css' },
@@ -34,19 +33,27 @@ export const SKILL_CATEGORIES: readonly SkillCategory[] = [
       { id: 'vitest' },
       { id: 'jest' },
       { id: 'cypress' },
+      { id: 'storybook' },
     ],
   },
   {
     id: 'devops',
-    skills: [{ id: 'github-actions' }, { id: 'git' }],
+    skills: [{ id: 'github-actions' }, { id: 'git' }, { id: 'docker' }],
   },
   {
     id: 'architecture',
-    skills: [{ id: 'microfrontends' }, { id: 'performance' }, { id: 'scalable' }],
+    skills: [
+      { id: 'microfrontends' },
+      { id: 'module-federation' },
+      { id: 'state-management' },
+      { id: 'design-systems' },
+      { id: 'performance' },
+      { id: 'scalable' },
+    ],
   },
   {
     id: 'backend',
-    skills: [{ id: 'rest-api' }],
+    skills: [{ id: 'nodejs' }, { id: 'rest-api' }],
   },
   {
     id: 'soft-skills',
