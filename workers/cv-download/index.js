@@ -181,11 +181,21 @@ function isOriginAllowed(sourceOrigin, allowedOrigins) {
   const cleanOrigin = sourceOrigin.trim().replace(/\/$/, '');
 
   // Localhost always allowed for development
-  if (cleanOrigin.includes('localhost') || cleanOrigin.includes('127.0.0.1')) {
+  if (isLocalOrigin(cleanOrigin)) {
     return true;
   }
 
   return allowedOrigins.some(allowed => allowed === cleanOrigin);
+}
+
+// Compare the hostname, so https://localhost.attacker.example is not treated as local
+function isLocalOrigin(origin) {
+  try {
+    const { hostname } = new URL(origin);
+    return hostname === 'localhost' || hostname === '127.0.0.1';
+  } catch {
+    return false;
+  }
 }
 
 async function checkRateLimit(kvStore, clientIp, maxRequests) {
