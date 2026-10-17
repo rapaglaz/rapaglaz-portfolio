@@ -113,3 +113,17 @@ PRs; numbers are the ones recorded there. Oldest first.
   [Dependency boundaries](./DEPENDENCY_BOUNDARIES.md)
 
 <!-- TODO(Paul): What did you take away from this? -->
+
+## Initial bundle over the warning budget again (2026-10-17)
+
+- **Problem:** the production build reported 579.50 kB initial on `main`, over the 560 kB warning
+  budget set in #512.
+- **Cause:** Tailwind scanned Markdown and E2E files and generated DaisyUI components that no
+  template uses (`table`, `toggle`, `steps`). The CDK overlay, portal and dialog sat in the initial
+  chunk, although only a toast or the CV verification needs them.
+- **Fix:** limit Tailwind to `src/` with `source('.')`, which takes the stylesheet from 98.50 kB to
+  86.28 kB. Then load the CDK packages on demand through local re-export modules: initial
+  503.94 kB, all scripts 487.98 kB. A first attempt with `import('@angular/cdk/overlay')` kept the
+  whole CDK namespaces and pushed all scripts to 540.43 kB, over the 500 kB error budget.
+
+<!-- TODO(Paul): What did you take away from this? -->
