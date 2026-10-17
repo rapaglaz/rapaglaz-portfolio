@@ -29,7 +29,8 @@ Short version:
 
 The production build has `subresourceIntegrity: true` in `angular.json`.
 Angular injects `integrity` and `crossorigin` attributes on all script and style tags.
-This prevents tampered assets from executing even if the CDN or server is compromised.
+The browser refuses a script or stylesheet that does not match the hash in the HTML.
+It does not help if the HTML itself is replaced, because the hashes live there.
 
 ## CV download protection
 
@@ -41,14 +42,16 @@ Flow:
 1. User clicks "CV"
 2. Turnstile runs (sometimes invisible, sometimes it asks)
 3. Frontend sends the token to the Worker (via `cf-turnstile-response` header, injected by `turnstile.interceptor`)
-4. Worker validates the token against Cloudflare
-5. If ok, Worker returns a signed R2 URL
-
-The signed link is short lived (5 minutes).
+4. Worker checks the origin allow-list. Its per-IP rate limit (10 requests per minute in KV) only runs
+   with a `RATE_LIMIT_STORE` binding, and production has none
+5. Worker validates the token against Cloudflare (`siteverify`)
+6. If ok, Worker streams the PDF from R2 with `Cache-Control: private, no-store` and
+   `X-Robots-Tag: noindex, noarchive, nofollow`
 
 ## Input validation
 
-All HTTP responses from Cloudflare Workers (`/config`, `/download`, `/feature-flag`) are validated with Valibot before use.
+JSON responses from Cloudflare Workers (`/config`, `/feature-flag`) are validated with Valibot before use.
+`/download` returns the PDF as a blob, which is handed straight to the browser download.
 Invalid or unexpected shapes are rejected rather than passed into the app.
 
 ## Error handling and logging
@@ -73,7 +76,7 @@ OSV vulnerability alerts are enabled with automatic patch automerge.
 | Clickjacking    | `X-Frame-Options: DENY`    | None |
 | MITM            | HSTS + Cloudflare SSL      | None |
 | Tampered assets | SRI on all scripts/styles  | None |
-| CV scraping     | Turnstile + signed URLs    | Low  |
+| CV scraping     | Turnstile                  | Low  |
 | Bad API data    | Valibot schema validation  | Low  |
 | DDoS            | Cloudflare edge protection | Low  |
 | Leaked secrets  | none in repo               | None |

@@ -4,8 +4,10 @@ How to run this locally.
 
 ## Requirements
 
-- Node.js 24 (see `.nvmrc`)
-- pnpm 11+
+- Node.js 24 (exact version in `.nvmrc`)
+- pnpm (exact version in `packageManager` in `package.json`)
+- [mise](https://mise.jdx.dev/), only when committing workflow changes: the pre-commit hook runs
+  actionlint and zizmor at the versions pinned in `mise.toml`
 
 Playwright needs browsers installed once.
 
@@ -25,17 +27,8 @@ Configuration lives in `lefthook.yml`.
 
 If hooks do not run, try `pnpm run prepare` or `pnpm exec lefthook install`.
 
-### Commit message format (Conventional Commits)
-
-Follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:
-
-```text
-<type>(<scope>): <subject>
-
-[optional body]
-
-[optional footer]
-```
+Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/)
+(`<type>(<scope>): <subject>`); commitlint rejects anything else.
 
 ## Dev server
 

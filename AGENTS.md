@@ -4,22 +4,25 @@ Reference for AI agents working in this repo. For broader context see [docs/](./
 
 ## Stack
 
-- **Angular** v22 — zoneless, standalone, OnPush, SSG + hydration
-- **TypeScript** v6.0, **Node.js** v24, **pnpm** v11.1.2
-- **Tailwind CSS** v4.3 + **DaisyUI** v5.5 (CSS-first config in `src/styles.css`)
-- **Transloco** v8.3 (i18n), **Valibot** v1.4 (schema validation), **RxJS** v7.8
-- **Vitest** v4.1 (unit), **Playwright** v1.60 (E2E)
+Exact versions live in `package.json` (dependencies, `packageManager` for pnpm), `.nvmrc`
+(Node.js) and `mise.toml` (actionlint, zizmor). Majors are listed only where they shape the code.
+
+- **Angular 22** — zoneless, standalone, OnPush, SSG + hydration
+- **TypeScript**, **Node.js 24**, **pnpm**
+- **Tailwind CSS 4** + **DaisyUI 5** (CSS-first config in `src/styles.css`)
+- **Transloco** (i18n), **Valibot 1** (schema validation, `v.pipe` API), **RxJS**
+- **Vitest** (unit), **Playwright** (E2E)
 
 ## Folder structure
 
 ```
 src/app/
 ├── portfolio/      # top-level shell (lazy-loaded by router)
-├── features/       # hero, navbar, about, skills, certifications, contact, footer
+├── features/       # hero, navbar, language-switcher, about, skills, languages, certifications, contact, footer
 ├── ui/             # reusable presentational pieces
 ├── services/       # cv-download, feature-flag, turnstile, toast, config, logger
 ├── interceptors/   # turnstile token injection
-├── utils/          # i18n, rxjs, scroll, animation, layout, tokens
+├── utils/          # i18n, rxjs, scroll, animation, layout, tokens, contact
 ├── content/        # typed static content (const objects)
 └── testing/        # shared test helpers
 ```
@@ -63,7 +66,8 @@ Coverage thresholds: statements 80%, branches 70%, functions 80%, lines 80%.
 ## Tests
 
 ```bash
-pnpm test                # unit (Vitest, watch)
+pnpm test                # unit (Vitest, single run)
+pnpm run test:watch      # unit in watch mode
 pnpm run test:coverage   # unit with coverage report
 pnpm run e2e             # Playwright against dev server (port 4200)
 pnpm run e2e:ssg         # Playwright against static build (port 4233)
@@ -79,7 +83,7 @@ pnpm run build    # SSG → dist/rapaglaz-portfolio/browser
 pnpm run preview  # serve the static build on port 4233
 ```
 
-Bundle budgets: initial 700KB error, main bundle 230KB error, component styles 20KB error.
+Bundle budgets (`angular.json`): initial 700KB error, all scripts 500KB error, any component style 20KB error.
 
 ## i18n
 

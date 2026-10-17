@@ -12,11 +12,11 @@ Shared bits go to a shared place.
 src/app/
 ├── app.ts / app.config.ts / app.routes.ts   # bootstrap, routing, providers
 ├── portfolio/     # top-level portfolio shell component
-├── features/      # hero, navbar, about, skills, certifications, contact, footer
+├── features/      # hero, navbar, language-switcher, about, skills, languages, certifications, contact, footer
 ├── ui/            # small reusable presentational pieces (badge, section-wrapper, toast-container, turnstile-modal)
 ├── services/      # shared logic (cv-download, feature-flag, turnstile, toast, config, logger)
 ├── interceptors/  # HTTP interceptors (turnstile token injection)
-├── utils/         # helpers (i18n, rxjs, scroll, animation, layout, tokens)
+├── utils/         # helpers (i18n, rxjs, scroll, animation, layout, tokens, contact)
 ├── content/       # typed static content (skills, certifications, contact)
 └── testing/       # shared test helpers (transloco loader, window mocks)
 ```
@@ -60,17 +60,17 @@ There is one component entry point; the URL segment only determines the active l
 Most sections have no real business logic. The interesting parts are in services:
 
 - CV download: get config → get Turnstile token → call backend endpoint → trigger browser download
-- Turnstile: load the script once and render the widget in the active `en` or `de` locale. Interactive verification uses CDK Dialog with a labelled modal, a backdrop, focus trapping, and focus restoration to the CV button. Explicit focus-region boundaries surround the iframe for WebKit keyboard navigation. Closing, cancelling, Escape, or backdrop activation completes verification without a token or download; errors retain the existing error toast.
-- Toasts: a single CDK overlay updated in place. Errors use `role="alert"`; success and info messages use `role="status"`. The translated close action stays outside the live region. Notifications remain until dismissal by default, and opening them preserves focus. Enter, Escape, or clicking close dismisses the notification; focus returns to the preceding control only when it was inside the toast.
+- Turnstile: load the script once and render the widget in the active `en` or `de` locale. An interactive challenge opens in a CDK Dialog with a focus trap and focus restored to the CV button. WebKit needs explicit focus-region boundaries around the iframe for keyboard navigation. Any way of closing the dialog ends verification without a token or download.
+- Toasts: a single CDK overlay updated in place. Errors use `role="alert"`, success and info `role="status"`; the close action stays outside the live region. Toasts stay until dismissed and do not move focus when they open.
 - Feature flag: read `openToWork` from a Cloudflare Worker + KV, exposed as `httpResource`
-- Config: fetched once per app life, `retry({ count: 3 })` + `shareReplay`, no manual retry counter
+- Config: fetched once per app life, `retry({ count: 3 })` + `shareReplay`, no manual retry counter. If all retries fail, the cached observable is dropped so the next call fetches again
 - Logger: centralised logging service, does not expose internal details to users
 
-An explicit positive toast duration is reserved for messages whose information remains available elsewhere. Focus and hover suspend that timer; leaving both restarts the full duration. The overlay releases its timer and event subscriptions when dismissed or when its injector is destroyed.
+A timeout is only for messages whose information is available elsewhere. Focus and hover pause it.
 
 HTTP interceptors handle cross-cutting concerns:
 
-- `turnstile.interceptor`: injects `X-Turnstile-Token` header via `HttpContext`
+- `turnstile.interceptor`: injects the `cf-turnstile-response` header via `HttpContext`
 
 ## Feature flag (Open to Work)
 
@@ -116,22 +116,12 @@ Entrance animations, deliberate delays, and hover decoration remain enabled with
 `prefers-reduced-motion: no-preference`. With `reduce`, CSS disables entrance animations, delays,
 transitions, smooth scrolling, and hover scaling; scroll-reveal content is visible even before
 an intersection occurs. Motion E2E checks cover both preferences and changes after page load.
-The CV loading dots retain DaisyUI's standard SVG animation: a 1.05-second cycle with no
-motion preference and a 3-second cycle with reduce. The busy state and loading label remain
-available. The verification spinner also uses DaisyUI's standard SVG mask: rotation takes
-2 seconds and the stroke cycle takes 1.5 seconds with no motion preference, or 8 and 6 seconds
-respectively with reduce.
-The standard no-preference SVG masks are applied explicitly to preserve their precedence over
-DaisyUI's generated default rules.
-Contact card surfaces lift by 4px and fade in a theme-colored shadow on keyboard focus or
-fine-pointer hover, while the enclosing links keep a stable click target. Reduced motion keeps
-the border and shadow feedback without movement or transitions.
-The hero name is drawn as an outline (2px visible stroke in the light theme, 1.5px in the dark theme)
-over a light fill that mixes the stroke color into the page background (12% in the light theme, a
-neutral 10% in the dark theme). The stroke is painted below the fill (`paint-order: stroke fill`),
-which hides the overlapping glyph contours inside letters. A soft glow follows the outline, weaker in
-the dark theme to avoid a neon look, and letter spacing is wider. The stroke colors keep at least
-5.9:1 contrast against the page background in both themes.
+The CV loading dots and the verification spinner keep DaisyUI's standard animations; with reduce
+they run slower instead of stopping, and the busy state and loading label stay available.
+Contact cards lift on keyboard focus or fine-pointer hover; with reduce they keep the border and
+shadow feedback without movement.
+The hero name is an outline over a light fill. `paint-order: stroke fill` hides the overlapping
+glyph contours inside letters, and the stroke keeps at least 5.9:1 contrast in both themes.
 
 Keyboard focus bypasses entrance effects in either mode. Scroll reveal marks the focused
 element and its ancestors so animated content stays visible after focus leaves, while other
@@ -143,7 +133,7 @@ Locally `pnpm run e2e` uses the dev server on 4200.
 ### Lighthouse CI
 
 Lighthouse is feedback only. It does not block merges.
-Runs directly via the `lighthouse` CLI (see `.github/actions/lighthouse/report`) against `pnpm run preview` (port 4233), 3 runs with the median performance score picked.
+See [CI/CD strategy](./CI_STRATEGY.md#lighthouse) for how it runs and why it uses the CLI directly.
 
 ## i18n
 
@@ -156,19 +146,15 @@ The app initializer loads the initial translations for SSR and hydration. A rout
 then loads and activates the URL's language and updates `<html lang>` before creating the
 portfolio, including on Back/Forward navigation. The language switcher only navigates and
 preserves query parameters and the fragment; its selection follows the resolved language.
-The listbox is horizontal, uses a translated group label, and marks its autonyms with
-`lang="en"` or `lang="de"`. Arrow keys move focus; Enter or Space commits the language.
 If German translations fail to load, the resolver redirects to `/en` with the same URL extras
 and replaces the failed history entry. If English cannot be loaded, navigation is cancelled
 and the current route and language remain active.
 
-Bootstrap failures use the same URL locale detection and messages from the JSON dictionaries.
-Those messages are bundled so they remain available when Angular, Transloco, or translation
-requests fail. Footer action labels and new-tab cues also follow the active locale.
+Bootstrap failure messages are bundled from the JSON dictionaries, so they still appear in the
+URL's language when Angular, Transloco, or translation requests fail.
 The server translation loader is imported directly by the server configuration, keeping
 full translation dictionaries out of the browser JavaScript bundle.
-Certification dates use `Intl.DateTimeFormat` with the active language; years and the current
-two- or three-day durations do not require different numeric separators in English and German.
+Certification dates use `Intl.DateTimeFormat` with the active language.
 
 I validate translations with:
 
