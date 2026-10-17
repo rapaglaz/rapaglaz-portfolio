@@ -97,3 +97,7 @@ Never hardcode user-facing strings — use Transloco keys.
 - Get approval before mass refactors or folder restructuring
 - When behaviour changes, update unit + E2E tests and verify coverage
 - Never commit lockfile conflicts
+- Work on a branch, never commit to `main`
+- Never push, force-push or open a PR without the maintainer's approval
+- A task is finished only when the quality gates above pass; report a failing gate instead of
+  skipping or disabling it
