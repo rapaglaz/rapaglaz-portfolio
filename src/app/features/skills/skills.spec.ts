@@ -15,7 +15,7 @@ describe('Skills', () => {
       '[data-testid="skill-badge"]',
     );
 
-    expect(badges).toHaveLength(28);
+    expect(badges).toHaveLength(25);
     expect(Array.from(badges, badge => badge.textContent?.trim()).slice(0, 3)).toEqual([
       'Angular',
       'TypeScript',
@@ -35,6 +35,6 @@ describe('Skills', () => {
 
     expect(host.querySelector('[data-testid="skills-secondary-title"]')).not.toBeNull();
     expect(Array.from(secondary, badge => badge.textContent?.trim())).toEqual(['React', 'Vue']);
-    expect(secondary[0].style.animationDelay).toBe('0.57s');
+    expect(secondary[0].style.animationDelay).toBe('0.53s');
   });
 });

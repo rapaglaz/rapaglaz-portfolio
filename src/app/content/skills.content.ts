@@ -27,8 +27,6 @@ export const SKILL_CATEGORIES: readonly SkillCategory[] = [
   {
     id: 'testing',
     skills: [
-      { id: 'e2e' },
-      { id: 'unit' },
       { id: 'playwright' },
       { id: 'vitest' },
       { id: 'jest' },
@@ -48,7 +46,6 @@ export const SKILL_CATEGORIES: readonly SkillCategory[] = [
       { id: 'state-management' },
       { id: 'design-systems' },
       { id: 'performance' },
-      { id: 'scalable' },
     ],
   },
   {
