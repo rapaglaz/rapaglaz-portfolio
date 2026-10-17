@@ -48,6 +48,10 @@ Flow:
 6. If ok, Worker streams the PDF from R2 with `Cache-Control: private, no-store` and
    `X-Robots-Tag: noindex, noarchive, nofollow`
 
+The code is in [`workers/cv-download`](../workers/cv-download/). Cloudflare's test token skips
+`siteverify` only on a Worker with `ALLOW_TEST_TOKEN=true`, which is meant for development.
+Origin and Referer never decide that, because the client sets them.
+
 ## Input validation
 
 JSON responses from Cloudflare Workers (`/config`, `/feature-flag`) are validated with Valibot before use.
