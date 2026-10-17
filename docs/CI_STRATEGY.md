@@ -26,9 +26,9 @@ See [Dependency boundaries](./DEPENDENCY_BOUNDARIES.md) for the architecture pol
 
 Jobs: `lint`, `test`, `actionlint`, `zizmor`, `build`, `e2e-tests`, `lighthouse`, `quality-check`.
 
-- `lint`, `test`, `actionlint`, `zizmor`, `build` run in parallel. `actionlint` and `zizmor` are not part of the `quality-check` gate.
+- `lint`, `test`, `actionlint`, `zizmor`, `build` run in parallel.
 - `e2e-tests` and `lighthouse` depend on `build` (reuse the build artifact).
-- `quality-check` is a gate job — requires `lint`, `test`, `build`, and `e2e-tests` to succeed. Failed, cancelled, or skipped jobs fail the gate. Branch protection requires it to pass.
+- `quality-check` is a gate job — requires `lint`, `test`, `actionlint`, `zizmor`, `build`, and `e2e-tests` to succeed. Failed, cancelled, or skipped jobs fail the gate. Branch protection requires it to pass.
 
 Renovate PRs run the same checks as other PRs, including `actionlint`. Dependency updates can introduce runtime regressions even when lint and build pass (see [Engineering notes](./ENGINEERING_NOTES.md)).
 
