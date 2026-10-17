@@ -2,6 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const ORIGIN = 'https://rapaglaz.de';
 const FILE = 'cv/Radoslaw_Pawel_Glaz_CV-EN.pdf';
+// the token Cloudflare's always-passing test site key produces
+const TEST_TOKEN = 'XXXX.DUMMY.TOKEN.XXXX';
 
 let worker;
 
@@ -90,6 +92,35 @@ describe('CV download worker', () => {
     const response = await worker.fetch(downloadRequest(), createEnv());
 
     expect(response.status).toBe(403);
+  });
+
+  for (const local of [
+    { Origin: 'http://localhost:4200' },
+    { Origin: '', Referer: 'http://127.0.0.1:4233/en' },
+  ]) {
+    it(`sends the test token to siteverify from ${local.Origin || local.Referer}`, async () => {
+      const siteverify = mockSiteverify(false);
+
+      const response = await worker.fetch(
+        downloadRequest({ headers: { ...local, 'cf-turnstile-response': TEST_TOKEN } }),
+        createEnv(),
+      );
+
+      expect(response.status).toBe(403);
+      expect(siteverify).toHaveBeenCalledOnce();
+    });
+  }
+
+  it('skips siteverify for the test token only when ALLOW_TEST_TOKEN is set', async () => {
+    const siteverify = mockSiteverify(false);
+
+    const response = await worker.fetch(
+      downloadRequest({ headers: { 'cf-turnstile-response': TEST_TOKEN } }),
+      createEnv({ ALLOW_TEST_TOKEN: 'true' }),
+    );
+
+    expect(response.status).toBe(200);
+    expect(siteverify).not.toHaveBeenCalled();
   });
 
   it('streams the PDF without caching after a successful verification', async () => {

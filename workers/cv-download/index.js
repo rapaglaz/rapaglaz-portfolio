@@ -111,12 +111,7 @@ export default {
       }
 
       // --- Verify Turnstile ---
-      const turnstileValid = await verifyTurnstileWithCircuitBreaker(
-        token,
-        env.TURNSTILE_SECRET,
-        origin,
-        referer,
-      );
+      const turnstileValid = await verifyTurnstileWithCircuitBreaker(token, env);
       if (!turnstileValid) {
         return buildResponse('Forbidden: Turnstile verification failed', 403);
       }
@@ -212,7 +207,7 @@ async function checkRateLimit(kvStore, clientIp, maxRequests) {
   }
 }
 
-async function verifyTurnstileWithCircuitBreaker(token, secret, origin, referer) {
+async function verifyTurnstileWithCircuitBreaker(token, env) {
   const now = Date.now();
 
   // Check circuit breaker state
@@ -220,13 +215,13 @@ async function verifyTurnstileWithCircuitBreaker(token, secret, origin, referer)
     turnstileFailures >= CONFIG.TURNSTILE_MAX_FAILURES &&
     now - turnstileLastFailureTime < CONFIG.TURNSTILE_FAILURE_WINDOW_MS
   ) {
-    return isTestToken(token, origin, referer);
+    return isTestToken(token, env);
   }
 
-  const result = await verifyTurnstile(token, secret, origin, referer);
+  const result = await verifyTurnstile(token, env);
 
   // Update circuit breaker state
-  if (!result && !isTestToken(token, origin, referer)) {
+  if (!result && !isTestToken(token, env)) {
     turnstileFailures++;
     turnstileLastFailureTime = now;
   } else if (result) {
@@ -236,24 +231,20 @@ async function verifyTurnstileWithCircuitBreaker(token, secret, origin, referer)
   return result;
 }
 
-function isTestToken(token, origin, referer) {
-  const isLocal =
-    origin.includes('localhost') ||
-    origin.includes('127.0.0.1') ||
-    referer.includes('localhost') ||
-    referer.includes('127.0.0.1');
-  return token === CONFIG.TEST_TOKEN && isLocal;
+// Origin and Referer are set by the client, so only Worker configuration may skip siteverify.
+// ALLOW_TEST_TOKEN belongs on a development Worker, never on production.
+function isTestToken(token, env) {
+  return env.ALLOW_TEST_TOKEN === 'true' && token === CONFIG.TEST_TOKEN;
 }
 
-async function verifyTurnstile(token, secret, origin, referer) {
-  // Test token bypass for localhost
-  if (isTestToken(token, origin, referer)) return true;
+async function verifyTurnstile(token, env) {
+  if (isTestToken(token, env)) return true;
 
   try {
     const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ secret, response: token }),
+      body: JSON.stringify({ secret: env.TURNSTILE_SECRET, response: token }),
     });
     const result = await res.json();
     return result.success === true;
