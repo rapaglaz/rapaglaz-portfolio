@@ -218,17 +218,17 @@ async function verifyTurnstileWithCircuitBreaker(token, env) {
     return isTestToken(token, env);
   }
 
-  const result = await verifyTurnstile(token, env);
+  const { valid, outage } = await verifyTurnstile(token, env);
 
-  // Update circuit breaker state
-  if (!result && !isTestToken(token, env)) {
+  // Only siteverify outages open the breaker; a rejected token is a normal answer
+  if (outage) {
     turnstileFailures++;
     turnstileLastFailureTime = now;
-  } else if (result) {
+  } else {
     turnstileFailures = 0;
   }
 
-  return result;
+  return valid;
 }
 
 // Origin and Referer are set by the client, so only Worker configuration may skip siteverify.
@@ -238,17 +238,21 @@ function isTestToken(token, env) {
 }
 
 async function verifyTurnstile(token, env) {
-  if (isTestToken(token, env)) return true;
+  if (isTestToken(token, env)) return { valid: true, outage: false };
 
   try {
     const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ secret: env.TURNSTILE_SECRET, response: token }),
+      signal: AbortSignal.timeout(CONFIG.TURNSTILE_API_TIMEOUT_MS),
     });
     const result = await res.json();
-    return result.success === true;
+    // any parsed answer means siteverify is up; only internal-error counts as an outage
+    const outage = result['error-codes']?.includes('internal-error') === true;
+    return { valid: result.success === true, outage };
   } catch {
-    return false;
+    // network error, timeout or a body that is not JSON
+    return { valid: false, outage: true };
   }
 }

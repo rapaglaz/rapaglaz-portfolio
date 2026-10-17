@@ -46,6 +46,7 @@ describe('CV download worker', () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.restoreAllMocks();
   });
 
@@ -140,6 +141,58 @@ describe('CV download worker', () => {
     const [url, init] = siteverify.mock.calls[0];
     expect(url).toBe('https://challenges.cloudflare.com/turnstile/v0/siteverify');
     expect(JSON.parse(init.body)).toEqual({ secret: 'turnstile-secret', response: 'valid-token' });
+  });
+
+  it('keeps verifying real tokens after repeated rejected tokens', async () => {
+    const siteverify = vi
+      .spyOn(globalThis, 'fetch')
+      .mockImplementation(async () =>
+        Response.json({ success: false, 'error-codes': ['invalid-input-response'] }),
+      );
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const response = await worker.fetch(downloadRequest(), createEnv());
+      expect(response.status).toBe(403);
+    }
+
+    siteverify.mockImplementation(async () => Response.json({ success: true }));
+    const response = await worker.fetch(downloadRequest(), createEnv());
+
+    expect(response.status).toBe(200);
+    expect(siteverify).toHaveBeenCalledTimes(4);
+  });
+
+  for (const [outage, mock] of [
+    ['a network error', async () => Promise.reject(new TypeError('fetch failed'))],
+    [
+      'internal-error',
+      async () => Response.json({ success: false, 'error-codes': ['internal-error'] }),
+    ],
+  ]) {
+    it(`pauses siteverify for five minutes after three outages (${outage})`, async () => {
+      vi.useFakeTimers({ toFake: ['Date'] });
+      vi.setSystemTime(new Date('2026-10-17T10:00:00Z'));
+      const siteverify = vi.spyOn(globalThis, 'fetch').mockImplementation(mock);
+      for (let attempt = 0; attempt < 4; attempt++) {
+        const response = await worker.fetch(downloadRequest(), createEnv());
+        expect(response.status).toBe(403);
+      }
+      expect(siteverify).toHaveBeenCalledTimes(3);
+
+      vi.setSystemTime(new Date('2026-10-17T10:05:01Z'));
+      siteverify.mockImplementation(async () => Response.json({ success: true }));
+      const response = await worker.fetch(downloadRequest(), createEnv());
+
+      expect(response.status).toBe(200);
+      expect(siteverify).toHaveBeenCalledTimes(4);
+    });
+  }
+
+  it('gives siteverify a timeout', async () => {
+    const siteverify = mockSiteverify(true);
+
+    await worker.fetch(downloadRequest(), createEnv());
+
+    expect(siteverify.mock.calls[0][1].signal).toBeInstanceOf(AbortSignal);
   });
 
   it('limits each client IP to 10 requests per minute', async () => {
