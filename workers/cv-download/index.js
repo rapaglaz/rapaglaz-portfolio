@@ -250,12 +250,15 @@ function isTestToken(token, env) {
 async function verifyTurnstile(token, env) {
   if (isTestToken(token, env)) return { valid: true, outage: false };
 
+  // AbortController + setTimeout, as in Cloudflare's own Turnstile example
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), CONFIG.TURNSTILE_API_TIMEOUT_MS);
   try {
     const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ secret: env.TURNSTILE_SECRET, response: token }),
-      signal: AbortSignal.timeout(CONFIG.TURNSTILE_API_TIMEOUT_MS),
+      signal: controller.signal,
     });
     const result = await res.json();
     // any parsed answer means siteverify is up; only internal-error counts as an outage
@@ -264,5 +267,7 @@ async function verifyTurnstile(token, env) {
   } catch {
     // network error, timeout or a body that is not JSON
     return { valid: false, outage: true };
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
