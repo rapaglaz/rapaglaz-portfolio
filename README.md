@@ -1,4 +1,4 @@
-# Paul Glaz Portfolio
+# Radoslaw Glaz Portfolio
 
 Source of [rapaglaz.de](https://rapaglaz.de), my personal site: a small bilingual (EN/DE) Angular 22
 app, prerendered to static HTML and hydrated in the browser.
@@ -51,10 +51,6 @@ when workflows change) and commitlint on the message. Details: [CI/CD strategy](
 Architecture, boundaries and code reviews are mine. I use Claude Code and Codex for implementation
 speed and refactoring; `AGENTS.md` and `.claude/` are the guardrails I give them. Every change,
 human or AI-assisted, has to pass lint, dependency-cruiser, unit and E2E tests before it lands.
-
-## What I'd do differently
-
-<!-- TODO(Paul): 2–3 honest points -->
 
 ## Also inside
 
