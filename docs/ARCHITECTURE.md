@@ -63,7 +63,7 @@ Most sections have no real business logic. The interesting parts are in services
 - Turnstile: load the script once and render the widget in the active `en` or `de` locale. An interactive challenge opens in a CDK Dialog with a focus trap and focus restored to the CV button. WebKit needs explicit focus-region boundaries around the iframe for keyboard navigation. Any way of closing the dialog ends verification without a token or download. The CDK Dialog chunk loads next to the Turnstile script after the CV click, and the widget renders once both are ready.
 - Toasts: a single CDK overlay updated in place. Errors use `role="alert"`, success and info `role="status"`; the close action stays outside the live region. Toasts stay until dismissed and do not move focus when they open. The CDK overlay and portal load with the first toast, so `show()` returns a promise that resolves once the toast is rendered.
 - Feature flag: read `openToWork` from a Cloudflare Worker + KV, exposed as `httpResource`
-- Config: fetched once per app life, `retry({ count: 3 })` + `shareReplay`, no manual retry counter. If all retries fail, the cached observable is dropped so the next call fetches again
+- Config: fetched once per app life with `shareReplay`. Network errors and 5xx responses are retried up to 3 times (250 ms, 500 ms, 1 s apart); a 4xx or an invalid body fails at once. If the request fails, the cached observable is dropped so the next call fetches again
 - Logger: centralised logging service, does not expose internal details to users
 
 A timeout is only for messages whose information is available elsewhere. Focus and hover pause it.

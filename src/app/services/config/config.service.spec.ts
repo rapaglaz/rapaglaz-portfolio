@@ -12,6 +12,7 @@ describe('ConfigService', () => {
   let originalLocation: Location;
 
   beforeEach(() => {
+    vi.useFakeTimers();
     originalLocation = window.location;
 
     TestBed.configureTestingModule({
@@ -29,16 +30,28 @@ describe('ConfigService', () => {
   afterEach(() => {
     httpMock.verify();
     vi.stubGlobal('location', originalLocation);
+    vi.useRealTimers();
   });
 
-  // getConfig() retries 3 times after the initial attempt, so a failing
-  // subscription fires 4 requests before the error reaches the subscriber.
-  const flushAllAttempts = (
+  // Transient errors are retried 3 times after the initial attempt, 250, 500 and 1000 ms apart,
+  // so a failing subscription fires 4 requests before the error reaches the subscriber.
+  const flushAllAttempts = async (
     respond: (req: ReturnType<HttpTestingController['expectOne']>) => void,
-  ): void => {
-    for (let attempt = 0; attempt < 4; attempt++) {
+  ): Promise<void> => {
+    for (const delay of [250, 500, 1000, 0]) {
       respond(httpMock.expectOne('/config'));
+      await vi.advanceTimersByTimeAsync(delay);
     }
+  };
+
+  const serverError = { status: 500, statusText: 'Internal Server Error' };
+
+  // Retries run on fake timers, so a request can fail while the test is still advancing them;
+  // a no-op catch marks the rejection as handled until the test awaits it.
+  const requestConfig = (): Promise<{ turnstileSiteKey: string }> => {
+    const promise = firstValueFrom(service.getConfig());
+    promise.catch(() => undefined);
+    return promise;
   };
 
   it('uses test key on localhost', async () => {
@@ -72,7 +85,7 @@ describe('ConfigService', () => {
     });
 
     const mockConfig = { turnstileSiteKey: 'production-key-123' };
-    const configPromise = firstValueFrom(service.getConfig());
+    const configPromise = requestConfig();
 
     const req = httpMock.expectOne('/config');
     expect(req.request.method).toBe('GET');
@@ -89,7 +102,7 @@ describe('ConfigService', () => {
     });
 
     const mockConfig = { turnstileSiteKey: 'production-key-123' };
-    const configPromise = firstValueFrom(service.getConfig());
+    const configPromise = requestConfig();
 
     const req = httpMock.expectOne('/config');
     expect(req.request.method).toBe('GET');
@@ -106,9 +119,9 @@ describe('ConfigService', () => {
     });
 
     const invalidConfig = {};
-    const configPromise = firstValueFrom(service.getConfig());
+    const configPromise = requestConfig();
 
-    flushAllAttempts(req => req.flush(invalidConfig));
+    httpMock.expectOne('/config').flush(invalidConfig);
 
     await expect(configPromise).rejects.toThrow(/Invalid config response/);
   });
@@ -120,9 +133,9 @@ describe('ConfigService', () => {
     });
 
     const invalidConfig = { turnstileSiteKey: '' };
-    const configPromise = firstValueFrom(service.getConfig());
+    const configPromise = requestConfig();
 
-    flushAllAttempts(req => req.flush(invalidConfig));
+    httpMock.expectOne('/config').flush(invalidConfig);
 
     await expect(configPromise).rejects.toThrow(/Invalid config response/);
   });
@@ -134,9 +147,9 @@ describe('ConfigService', () => {
     });
 
     const invalidConfig = { turnstileSiteKey: 12345 };
-    const configPromise = firstValueFrom(service.getConfig());
+    const configPromise = requestConfig();
 
-    flushAllAttempts(req => req.flush(invalidConfig));
+    httpMock.expectOne('/config').flush(invalidConfig);
 
     await expect(configPromise).rejects.toThrow(/Invalid config response/);
   });
@@ -147,11 +160,9 @@ describe('ConfigService', () => {
       hostname: 'rapaglaz.de',
     });
 
-    const configPromise = firstValueFrom(service.getConfig());
+    const configPromise = requestConfig();
 
-    flushAllAttempts(req =>
-      req.error(new ProgressEvent('error'), { status: 500, statusText: 'Internal Server Error' }),
-    );
+    await flushAllAttempts(req => req.error(new ProgressEvent('error'), serverError));
 
     await expect(configPromise).rejects.toThrow(/Failed to fetch config/);
   });
@@ -163,11 +174,10 @@ describe('ConfigService', () => {
     });
 
     const mockConfig = { turnstileSiteKey: 'recovered-key-123' };
-    const configPromise = firstValueFrom(service.getConfig());
+    const configPromise = requestConfig();
 
-    httpMock
-      .expectOne('/config')
-      .error(new ProgressEvent('error'), { status: 500, statusText: 'Internal Server Error' });
+    httpMock.expectOne('/config').error(new ProgressEvent('error'), serverError);
+    await vi.advanceTimersByTimeAsync(250);
     httpMock.expectOne('/config').flush(mockConfig);
 
     await expect(configPromise).resolves.toEqual(mockConfig);
@@ -179,20 +189,54 @@ describe('ConfigService', () => {
       hostname: 'rapaglaz.de',
     });
 
-    const firstPromise = firstValueFrom(service.getConfig());
+    const firstPromise = requestConfig();
 
-    flushAllAttempts(req =>
-      req.error(new ProgressEvent('error'), { status: 500, statusText: 'Internal Server Error' }),
-    );
+    await flushAllAttempts(req => req.error(new ProgressEvent('error'), serverError));
 
     await expect(firstPromise).rejects.toThrow(/Failed to fetch config/);
 
     const mockConfig = { turnstileSiteKey: 'recovered-key-456' };
-    const secondPromise = firstValueFrom(service.getConfig());
+    const secondPromise = requestConfig();
 
     httpMock.expectOne('/config').flush(mockConfig);
 
     await expect(secondPromise).resolves.toEqual(mockConfig);
+  });
+
+  it('does not retry an invalid response', async () => {
+    vi.stubGlobal('location', { ...originalLocation, hostname: 'rapaglaz.de' });
+
+    const configPromise = requestConfig();
+    httpMock.expectOne('/config').flush({});
+    await vi.advanceTimersByTimeAsync(5000);
+
+    await expect(configPromise).rejects.toThrow(/Invalid config response/);
+    httpMock.expectNone('/config');
+  });
+
+  it('does not retry a client error', async () => {
+    vi.stubGlobal('location', { ...originalLocation, hostname: 'rapaglaz.de' });
+
+    const configPromise = requestConfig();
+    httpMock.expectOne('/config').flush('Forbidden host', { status: 403, statusText: 'Forbidden' });
+    await vi.advanceTimersByTimeAsync(5000);
+
+    await expect(configPromise).rejects.toThrow(/Failed to fetch config/);
+    httpMock.expectNone('/config');
+  });
+
+  it('retries a network error only after the backoff delay', async () => {
+    vi.stubGlobal('location', { ...originalLocation, hostname: 'rapaglaz.de' });
+
+    const configPromise = requestConfig();
+    httpMock.expectOne('/config').error(new ProgressEvent('error'), { status: 0 });
+    await vi.advanceTimersByTimeAsync(249);
+    httpMock.expectNone('/config');
+
+    await vi.advanceTimersByTimeAsync(1);
+    httpMock.expectOne('/config').flush({ turnstileSiteKey: 'key' });
+
+    await expect(configPromise).resolves.toEqual({ turnstileSiteKey: 'key' });
   });
 
   it('caches config response - multiple calls make only one HTTP request', async () => {
