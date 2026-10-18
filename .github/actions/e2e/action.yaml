@@ -22,7 +22,7 @@ runs:
       uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
       with:
         name: ${{ inputs.build-artifact-name }}
-        path: dist/rapaglaz-portfolio/browser
+        path: dist/apps/rapaglaz-portfolio/browser
 
     - name: Setup environment
       if: ${{ inputs.build-artifact-name != '' }}
@@ -34,14 +34,17 @@ runs:
 
     - name: Run Playwright tests
       shell: bash
-      run: pnpm exec playwright test
+      run: pnpm exec nx e2e rapaglaz-portfolio-e2e
 
     - name: Check Playwright report
       if: failure()
       id: check-report
       shell: bash
+      env:
+        # nxE2EPreset writes the HTML report under dist/.playwright/<project root>
+        REPORT_DIR: dist/.playwright/apps/rapaglaz-portfolio-e2e/playwright-report
       run: |
-        if [ -d "playwright-report" ] && [ -n "$(ls -A playwright-report 2>/dev/null)" ]; then
+        if [ -d "$REPORT_DIR" ] && [ -n "$(ls -A "$REPORT_DIR" 2>/dev/null)" ]; then
           echo "exists=true" >> "$GITHUB_OUTPUT"
         else
           echo "exists=false" >> "$GITHUB_OUTPUT"
@@ -52,5 +55,5 @@ runs:
       uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
       with:
         name: ${{ inputs.report-artifact-name }}
-        path: playwright-report/
+        path: dist/.playwright/apps/rapaglaz-portfolio-e2e/playwright-report/
         retention-days: ${{ inputs.report-retention-days }}
