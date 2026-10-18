@@ -50,6 +50,19 @@ The navbar component keeps only state and actions.
 Production build is static (`outputMode: static`). Angular pre-renders and outputs HTML.
 On the client side it hydrates, so it does not repaint the whole page.
 
+The build writes `index.html`, `en/index.html` and `de/index.html`. Which file a URL gets is
+decided by Cloudflare rules in the dashboard, not by this repository:
+
+- Redirect Rules: `/` answers 302 to `/de` when `Accept-Language` starts with `de`, otherwise 302
+  to `/en`.
+- URL Rewrite Rules: `/en` and `/de` are rewritten to `/en/index.html` and `/de/index.html`.
+- Response Header Transform Rule `security-headers`: see [Security notes](./SECURITY.md#headers).
+
+Until 2026-10-18 both rewrites pointed to `/index.html`, the English prerender of `/`, so `/de`
+served `lang="en"`, English text and a canonical link to `/en` until the client switched the
+language. A new locale or route needs its own rewrite rule; afterwards check its `lang`, canonical
+link and text with `curl -sS https://rapaglaz.de/<path>`.
+
 ### Routing + lazy loading
 
 All routes (`/`, `/en`, `/de`) use `loadComponent` to lazy-load the `Portfolio` shell.
