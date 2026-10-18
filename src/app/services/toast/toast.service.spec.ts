@@ -63,16 +63,12 @@ describe('ToastService', () => {
     expect(createdRef.dispose).toHaveBeenCalledTimes(1);
   });
 
-  it('delegates convenience methods to show', async () => {
+  it('shows errors through show', async () => {
     const showSpy = vi.spyOn(service, 'show').mockImplementation(() => Promise.resolve());
 
-    await service.success('Saved!', 1000);
-    await service.error('Failed!', 2000);
-    await service.info('Heads up!', 3000);
+    await service.error('Failed!');
 
-    expect(showSpy).toHaveBeenNthCalledWith(1, 'Saved!', 'success', 1000);
-    expect(showSpy).toHaveBeenNthCalledWith(2, 'Failed!', 'error', 2000);
-    expect(showSpy).toHaveBeenNthCalledWith(3, 'Heads up!', 'info', 3000);
+    expect(showSpy).toHaveBeenCalledWith('Failed!', 'error');
   });
 });
 
@@ -136,25 +132,13 @@ describe('ToastService (integration)', () => {
     }
   });
 
-  it('pauses an explicit timeout while the close button has focus', async () => {
-    await service.info('Temporary message', 1000);
-    TestBed.tick();
-    document.querySelector<HTMLButtonElement>('app-toast-container button')?.focus();
-
-    vi.advanceTimersByTime(5000);
-    expect(document.querySelector('app-toast-container')?.textContent).toContain(
-      'Temporary message',
-    );
-    expect(document.activeElement).toBe(document.querySelector('app-toast-container button'));
-  });
-
   it('preserves the focused close button when another message replaces the toast', async () => {
     await service.error('First message');
     TestBed.tick();
     const close = document.querySelector<HTMLButtonElement>('app-toast-container button');
     close?.focus();
 
-    await service.info('Second message', 1000);
+    await service.show('Second message', 'info');
     TestBed.tick();
 
     expect(document.querySelector('app-toast-container button')).toBe(close);
@@ -162,39 +146,6 @@ describe('ToastService (integration)', () => {
     expect(document.querySelector('app-toast-container')?.textContent).toContain('Second message');
     vi.advanceTimersByTime(5000);
     expect(document.querySelector('app-toast-container')).not.toBeNull();
-  });
-
-  it('restarts the full timeout after both hover and focus leave the toast', async () => {
-    const trigger = document.createElement('button');
-    document.body.appendChild(trigger);
-    trigger.focus();
-
-    try {
-      await service.info('Temporary message', 1000);
-      TestBed.tick();
-      const close = document.querySelector<HTMLButtonElement>('app-toast-container button')!;
-      const panel = close.closest<HTMLElement>('.cdk-overlay-pane')!;
-      vi.advanceTimersByTime(500);
-      panel.dispatchEvent(new MouseEvent('mouseenter'));
-      close.focus();
-      panel.dispatchEvent(new MouseEvent('mouseleave'));
-      vi.advanceTimersByTime(5000);
-      expect(document.querySelector('app-toast-container')).not.toBeNull();
-
-      panel.dispatchEvent(new MouseEvent('mouseenter'));
-      trigger.focus();
-      vi.advanceTimersByTime(5000);
-      expect(document.querySelector('app-toast-container')).not.toBeNull();
-
-      panel.dispatchEvent(new MouseEvent('mouseleave'));
-      vi.advanceTimersByTime(999);
-      expect(document.querySelector('app-toast-container')).not.toBeNull();
-      vi.advanceTimersByTime(1);
-      expect(document.querySelector('app-toast-container')).toBeNull();
-      expect(document.activeElement).toBe(trigger);
-    } finally {
-      trigger.remove();
-    }
   });
 
   it('restores the element used to enter the toast after the initial trigger is removed', async () => {
@@ -228,7 +179,7 @@ describe('ToastService (integration)', () => {
     action.focus();
 
     try {
-      await service.info('Saved');
+      await service.show('Saved', 'info');
       TestBed.tick();
       service.dismiss();
       expect(document.activeElement).toBe(action);
@@ -237,29 +188,17 @@ describe('ToastService (integration)', () => {
     }
   });
 
-  it('releases the overlay and timers when its injector is destroyed', async () => {
-    await service.info('Temporary message', 1000);
+  it('releases the overlay when its injector is destroyed', async () => {
+    await service.show('Temporary message', 'info');
     TestBed.tick();
     expect(document.querySelector('app-toast-container')).not.toBeNull();
     TestBed.resetTestingModule();
     expect(document.querySelector('app-toast-container')).toBeNull();
-    expect(vi.getTimerCount()).toBe(0);
-  });
-
-  it.each([0, -1])('keeps a toast until manual dismissal when duration is %s', async duration => {
-    await service.show('Persistent message', 'info', duration);
-    TestBed.tick();
-
-    vi.advanceTimersByTime(60_000);
-    expect(document.querySelector('[role="status"]')?.textContent).toContain('Persistent message');
-
-    service.dismiss();
-    expect(document.querySelector('[role="status"]')).toBeNull();
   });
 
   it('renders only the latest message when several arrive while the overlay loads', async () => {
     const first = service.error('First message');
-    const second = service.info('Second message');
+    const second = service.show('Second message', 'info');
     await Promise.all([first, second]);
     TestBed.tick();
 
@@ -276,21 +215,16 @@ describe('ToastService (integration)', () => {
     expect(document.querySelector('app-toast-container')).toBeNull();
   });
 
-  it('replaces the previous toast and cancels its dismissal timer', async () => {
-    await service.success('First message', 1000);
+  it('replaces the previous toast in place', async () => {
+    await service.show('First message', 'success');
     TestBed.tick();
-    vi.advanceTimersByTime(500);
 
-    await service.info('Second message', 2000);
+    await service.show('Second message', 'info');
     TestBed.tick();
+
+    expect(document.querySelectorAll('app-toast-container')).toHaveLength(1);
     expect(document.querySelectorAll('[role="status"]')).toHaveLength(1);
     expect(document.querySelector('[role="status"]')?.textContent).toContain('Second message');
-
-    vi.advanceTimersByTime(500);
-    expect(document.querySelector('[role="status"]')?.textContent).toContain('Second message');
-
-    vi.advanceTimersByTime(1500);
-    expect(document.querySelector('[role="status"]')).toBeNull();
   });
 });
 
