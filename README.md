@@ -49,8 +49,14 @@ when workflows change) and commitlint on the message. Details: [CI/CD strategy](
 ## How I work with AI
 
 Architecture, boundaries and code reviews are mine. I use Claude Code and Codex for implementation
-speed and refactoring; `AGENTS.md` and `.claude/` are the guardrails I give them. Every change,
-human or AI-assisted, has to pass lint, dependency-cruiser, unit and E2E tests before it lands.
+speed and refactoring; `AGENTS.md` holds the rules I give them, and `.claude/` installs the pinned
+toolchain in cloud sessions. Every change, human or AI-assisted, goes through a pull request whose
+required `quality-check` gate runs lint, dependency-cruiser, unit and E2E tests. The repository
+admin can bypass that gate; between July and October 2026 that happened for four PRs:
+[#712](https://github.com/rapaglaz/rapaglaz-portfolio/pull/712),
+[#713](https://github.com/rapaglaz/rapaglaz-portfolio/pull/713),
+[#730](https://github.com/rapaglaz/rapaglaz-portfolio/pull/730) and
+[#768](https://github.com/rapaglaz/rapaglaz-portfolio/pull/768).
 
 ## Also inside
 
