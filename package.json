@@ -12,7 +12,7 @@
     "test:ui": "ng test --ui",
     "test:coverage": "ng test --coverage --watch=false",
     "test:workers": "vitest run --config workers/vitest.config.js",
-    "workers:check": "for worker in workers/*/; do (cd \"$worker\" && npx --yes wrangler@4.151.1 deploy --dry-run) || exit 1; done",
+    "workers:check": "for config in workers/*/wrangler.jsonc; do (cd \"$(dirname \"$config\")\" && npx --yes wrangler@4.151.1 deploy --dry-run) || exit 1; done",
     "lint": "ng lint",
     "deps:check": "depcruise --config .dependency-cruiser.cjs --output-type err src/app",
     "deps:graph": "mkdir -p tmp/dependency-cruiser && depcruise --config .dependency-cruiser.cjs --output-type html --output-to tmp/dependency-cruiser/dependencies.html src/app",
