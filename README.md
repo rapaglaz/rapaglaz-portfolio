@@ -11,8 +11,8 @@ app, prerendered to static HTML and hydrated in the browser.
 - **Static prerendering + hydration.** `outputMode: static` prerenders `/`, `/en` and `/de` at
   build time. The client hydrates that HTML, so it does not repaint the whole page. Browser APIs
   are guarded with `isPlatformBrowser`, and the feature flag fires no request during prerender.
-- **Layer boundaries enforced, not just documented.** dependency-cruiser checks runtime imports
-  across seven layers, rejects feature-to-feature imports and cycles, and fails the CI lint job.
+- **Layer boundaries enforced by dependency-cruiser.** It checks runtime imports across seven
+  layers, rejects feature-to-feature imports and cycles, and fails the CI lint job.
   The first report-only run found 11 warnings, including one cycle. The five remaining exceptions
   are file-level, because removing them would have turned the change into a production refactor.
 - **External data is validated before use.** JSON from the `/config` and `/feature-flag` Workers
