@@ -20,7 +20,6 @@ const CONFIG = {
 };
 
 const HEADERS = {
-  CONTENT_TYPE_JSON: 'application/json',
   CONTENT_TYPE_PDF: 'application/pdf',
   WWW_AUTHENTICATE: 'Turnstile realm="cv-download"',
 };
@@ -30,22 +29,21 @@ let turnstileLastFailureTime = 0;
 
 export default {
   async fetch(request, env) {
-    const requestId = crypto.randomUUID();
-    const startTime = Date.now();
+    const sourceOrigin =
+      request.headers.get('Origin') || extractOriginFromReferer(request.headers.get('Referer'));
+    // replaced from the environment below; the catch block keeps the defaults if that fails
+    let allowedOrigins = CONFIG.DEFAULT_ALLOWED_ORIGINS;
 
     try {
       const url = new URL(request.url);
-      const origin = request.headers.get('Origin') || '';
-      const referer = request.headers.get('Referer') || '';
       const clientIp = request.headers.get('CF-Connecting-IP') || 'unknown';
 
       // Get allowed origins from environment or use defaults
-      const allowedOrigins = parseAllowedOrigins(env.ALLOWED_ORIGINS);
+      allowedOrigins = parseAllowedOrigins(env.ALLOWED_ORIGINS);
 
       // Helper function to build responses with CORS support
       const buildResponse = (body, status, extraHeaders = {}) => {
         const headers = new Headers(extraHeaders);
-        const sourceOrigin = origin || extractOriginFromReferer(referer);
 
         // Always add CORS headers if origin is allowed (even for errors)
         if (isOriginAllowed(sourceOrigin, allowedOrigins)) {
@@ -79,8 +77,8 @@ export default {
       }
 
       // --- Validate origin ---
-      if (!isOriginAllowed(origin || extractOriginFromReferer(referer), allowedOrigins)) {
-        console.warn('Blocked Origin:', origin || referer);
+      if (!isOriginAllowed(sourceOrigin, allowedOrigins)) {
+        console.warn('Blocked Origin:', sourceOrigin);
         return buildResponse('Forbidden: Origin not allowed', 403);
       }
 
@@ -135,11 +133,10 @@ export default {
       return buildResponse(object.body, 200, successHeaders);
     } catch (error) {
       console.error('Internal error:', error.message);
-      // Return error with CORS headers
+      // CORS headers only for allowed origins, as on every other response
       const headers = new Headers({ 'Content-Type': 'text/plain; charset=utf-8' });
-      const sourceOrigin = request.headers.get('Origin') || '';
-      if (sourceOrigin) {
-        headers.set('Access-Control-Allow-Origin', sourceOrigin);
+      if (isOriginAllowed(sourceOrigin, allowedOrigins)) {
+        headers.set('Access-Control-Allow-Origin', sourceOrigin.replace(/\/$/, ''));
         headers.set('Vary', 'Origin');
       }
       return new Response('Internal Server Error', { status: 500, headers });
