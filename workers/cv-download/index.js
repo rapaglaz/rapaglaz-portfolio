@@ -5,8 +5,6 @@
 // --- Configuration ---
 const CONFIG = {
   ALLOWED_FILE_PREFIX: 'cv/',
-  MAX_REQUESTS_PER_MINUTE: 10,
-  RATE_LIMIT_WINDOW_MS: 60000,
   TURNSTILE_API_TIMEOUT_MS: 5000,
   TURNSTILE_MAX_FAILURES: 3,
   TURNSTILE_FAILURE_WINDOW_MS: 300000,
@@ -84,15 +82,9 @@ export default {
       }
 
       // --- Rate limiting ---
-      if (env.RATE_LIMIT_STORE) {
-        const rateLimitResult = await checkRateLimit(
-          env.RATE_LIMIT_STORE,
-          clientIp,
-          CONFIG.MAX_REQUESTS_PER_MINUTE,
-        );
-        if (!rateLimitResult.allowed) {
-          return buildResponse('Too Many Requests', 429, { 'Retry-After': '60' });
-        }
+      if (env.DOWNLOAD_RATE_LIMITER) {
+        const { success } = await env.DOWNLOAD_RATE_LIMITER.limit({ key: clientIp });
+        if (!success) return buildResponse('Too Many Requests', 429, { 'Retry-After': '60' });
       }
 
       // --- Get parameters ---
@@ -193,25 +185,6 @@ function isLocalOrigin(origin) {
     return hostname === 'localhost' || hostname === '127.0.0.1';
   } catch {
     return false;
-  }
-}
-
-async function checkRateLimit(kvStore, clientIp, maxRequests) {
-  const key = `ratelimit:${clientIp}`;
-  const now = Date.now();
-  try {
-    const data = (await kvStore.get(key, 'json')) || { count: 0, windowStart: now };
-    if (now - data.windowStart > CONFIG.RATE_LIMIT_WINDOW_MS) {
-      data.count = 0;
-      data.windowStart = now;
-    }
-    if (data.count >= maxRequests) return { allowed: false };
-    data.count++;
-    await kvStore.put(key, JSON.stringify(data), { expirationTtl: 60 });
-    return { allowed: true };
-  } catch {
-    // Fail open - allow request if rate limiting fails
-    return { allowed: true };
   }
 }
 

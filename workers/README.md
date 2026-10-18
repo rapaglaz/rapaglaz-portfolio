@@ -3,11 +3,11 @@
 Sources of the three Workers behind `rapaglaz.de`. Each folder name matches the Worker name in
 Cloudflare, and its `wrangler.jsonc` is the source of truth for that Worker.
 
-| Worker                                        | Endpoint                       | Bindings and settings                                                                                                                          |
-| --------------------------------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`cv-download`](./cv-download/)               | `GET /download?file=cv/<name>` | R2 `PORTFOLIO_FILES` (`portfolio-files`), secret `TURNSTILE_SECRET`; optional and not configured: KV `RATE_LIMIT_STORE`, var `ALLOWED_ORIGINS` |
-| [`feature-flag`](./feature-flag/)             | `GET /feature-flag/<name>`     | KV `KV` (namespace `PORTFOLIO_FLAGS`), values `true` or `false`                                                                                |
-| [`portfolio-settings`](./portfolio-settings/) | `GET` or `HEAD /config`        | none; the Turnstile site key is public by design                                                                                               |
+| Worker                                        | Endpoint                       | Bindings and settings                                                                                                                                                              |
+| --------------------------------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`cv-download`](./cv-download/)               | `GET /download?file=cv/<name>` | R2 `PORTFOLIO_FILES` (`portfolio-files`), secret `TURNSTILE_SECRET`, rate limiter `DOWNLOAD_RATE_LIMITER` (10 per 60 s per IP); optional and not configured: var `ALLOWED_ORIGINS` |
+| [`feature-flag`](./feature-flag/)             | `GET /feature-flag/<name>`     | KV `KV` (namespace `PORTFOLIO_FLAGS`), values `true` or `false`                                                                                                                    |
+| [`portfolio-settings`](./portfolio-settings/) | `GET` or `HEAD /config`        | none; the Turnstile site key is public by design                                                                                                                                   |
 
 The frontend validates `/config` and `/feature-flag` responses with Valibot and reads `/download`
 as a blob. See [Security notes](../docs/SECURITY.md) for the download flow.

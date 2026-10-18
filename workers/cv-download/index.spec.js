@@ -22,13 +22,10 @@ function createEnv(overrides = {}) {
   };
 }
 
-// in-memory stand-in for the KV namespace used by the rate limiter
-function createKv() {
-  const store = new Map();
-  return {
-    get: vi.fn(async key => (store.has(key) ? JSON.parse(store.get(key)) : null)),
-    put: vi.fn(async (key, value) => store.set(key, value)),
-  };
+// stand-in for the Workers Rate Limiting binding: allows `limit` calls, then rejects
+function createRateLimiter(limit) {
+  let calls = 0;
+  return { limit: vi.fn(async () => ({ success: ++calls <= limit })) };
 }
 
 function mockSiteverify(success) {
@@ -284,9 +281,10 @@ describe('CV download worker', () => {
     expect(response.headers.get('Access-Control-Allow-Origin')).toBeNull();
   });
 
-  it('limits each client IP to 10 requests per minute', async () => {
+  it('rejects a client IP once the rate limiter denies it', async () => {
     mockSiteverify(true);
-    const env = createEnv({ RATE_LIMIT_STORE: createKv() });
+    const rateLimiter = createRateLimiter(10);
+    const env = createEnv({ DOWNLOAD_RATE_LIMITER: rateLimiter });
     const headers = { 'CF-Connecting-IP': '203.0.113.7' };
 
     for (let attempt = 0; attempt < 10; attempt++) {
@@ -297,5 +295,6 @@ describe('CV download worker', () => {
 
     expect(limited.status).toBe(429);
     expect(limited.headers.get('Retry-After')).toBe('60');
+    expect(rateLimiter.limit).toHaveBeenCalledWith({ key: '203.0.113.7' });
   });
 });
