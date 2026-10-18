@@ -5,11 +5,12 @@ It's mostly static content + a CV download endpoint.
 
 ## Headers
 
-I set basic security headers at the Cloudflare edge. They are configured there, not in this
-repository; the Workers in [`workers/`](../workers/) set only their own response headers.
+I set basic security headers at the Cloudflare edge, not in this repository. A Response Header
+Transform Rule (`security-headers`) sets the last four with "Set static" on all requests; the
+Workers in [`workers/`](../workers/) set only their own response headers.
 
 ```http
-Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+Strict-Transport-Security: max-age=15768000
 X-Content-Type-Options: nosniff
 X-Frame-Options: DENY
 Referrer-Policy: strict-origin-when-cross-origin
