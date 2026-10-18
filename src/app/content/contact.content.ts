@@ -10,8 +10,8 @@ export type ContactItem = {
 export const CONTACT_ITEMS: readonly ContactItem[] = [
   {
     id: 'email',
-    href: 'mailto:paul@rapaglaz.de',
-    value: 'paul@rapaglaz.de',
+    href: 'mailto:radek@rapaglaz.de',
+    value: 'radek@rapaglaz.de',
     isExternal: false,
   },
   {
