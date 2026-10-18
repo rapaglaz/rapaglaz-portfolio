@@ -4,8 +4,8 @@ import { describe, expect, it } from 'vitest';
 // Bindings each Worker needs in production. Other env names the code reads must be listed as optional.
 const WORKERS = {
   'cv-download': {
-    required: ['PORTFOLIO_FILES', 'TURNSTILE_SECRET'],
-    optional: ['ALLOWED_ORIGINS', 'RATE_LIMIT_STORE', 'ALLOW_TEST_TOKEN'],
+    required: ['PORTFOLIO_FILES', 'TURNSTILE_SECRET', 'DOWNLOAD_RATE_LIMITER'],
+    optional: ['ALLOWED_ORIGINS', 'ALLOW_TEST_TOKEN'],
   },
   'feature-flag': { required: ['KV'], optional: [] },
   'portfolio-settings': { required: [], optional: [] },
@@ -21,6 +21,7 @@ function declaredNames(config) {
   return new Set([
     ...(config.kv_namespaces ?? []).map(({ binding }) => binding),
     ...(config.r2_buckets ?? []).map(({ binding }) => binding),
+    ...(config.ratelimits ?? []).map(({ name }) => name),
     ...Object.keys(config.vars ?? {}),
     ...(config.secrets?.required ?? []),
   ]);

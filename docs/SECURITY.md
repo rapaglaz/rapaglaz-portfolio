@@ -45,8 +45,10 @@ Flow:
 1. User clicks "CV"
 2. Turnstile runs (sometimes invisible, sometimes it asks)
 3. Frontend sends the token to the Worker (via `cf-turnstile-response` header, injected by `turnstile.interceptor`)
-4. Worker checks the origin allow-list. Its per-IP rate limit (10 requests per minute in KV) only runs
-   with a `RATE_LIMIT_STORE` binding, and production has none
+4. Worker checks the origin allow-list, then applies a per-IP rate limit of 10 requests per minute
+   through the Workers Rate Limiting binding `DOWNLOAD_RATE_LIMITER`. Counters are kept per
+   Cloudflare location and are eventually consistent, so this limits abuse but is not an exact
+   count. Clients behind one NAT share the limit
 5. Worker validates the token against Cloudflare (`siteverify`)
 6. If ok, Worker streams the PDF from R2 with `Cache-Control: private, no-store` and
    `X-Robots-Tag: noindex, noarchive, nofollow`
