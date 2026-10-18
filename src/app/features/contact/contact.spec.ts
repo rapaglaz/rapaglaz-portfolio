@@ -21,10 +21,10 @@ describe('Contact', () => {
 
     expect(links).toHaveLength(3);
     expect(Array.from(links, link => link.tabIndex)).toEqual([0, 0, 0]);
-    expect(links[0].getAttribute('href')).toBe('mailto:paul@rapaglaz.de');
+    expect(links[0].getAttribute('href')).toBe('mailto:radek@rapaglaz.de');
     expect(links[0].getAttribute('target')).toBeNull();
     expect(links[0].getAttribute('rel')).toBeNull();
-    expect(links[0].getAttribute('aria-label')).toBe('Email: paul@rapaglaz.de');
+    expect(links[0].getAttribute('aria-label')).toBe('Email: radek@rapaglaz.de');
     expect(links[1].href).toBe('https://www.linkedin.com/in/paul-glaz/');
     expect(links[2].href).toBe('https://github.com/rapaglaz');
     for (const link of Array.from(links).slice(1)) {

@@ -21,7 +21,7 @@ describe('injectContactEmailOpener', () => {
 
     openEmail();
 
-    expect(assignMock).toHaveBeenCalledExactlyOnceWith('mailto:paul@rapaglaz.de');
+    expect(assignMock).toHaveBeenCalledExactlyOnceWith('mailto:radek@rapaglaz.de');
   });
 
   it('does not navigate during server rendering', () => {
