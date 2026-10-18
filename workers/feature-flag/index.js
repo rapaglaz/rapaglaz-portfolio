@@ -66,7 +66,13 @@ export default {
       return jsonResponse({ error: 'Forbidden' }, 403);
     }
 
-    const flagName = decodeURIComponent(parts[1] || '').trim();
+    // a malformed escape such as %E0%A4%A makes decodeURIComponent throw a URIError
+    let flagName;
+    try {
+      flagName = decodeURIComponent(parts[1]).trim();
+    } catch {
+      return jsonResponse({ error: 'Invalid flag name' }, 400, cors);
+    }
     if (flagName.length === 0) {
       return jsonResponse({ error: 'Invalid flag name' }, 400, cors);
     }
