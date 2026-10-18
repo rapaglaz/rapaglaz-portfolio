@@ -66,8 +66,6 @@ Most sections have no real business logic. The interesting parts are in services
 - Config: fetched once per app life, `retry({ count: 3 })` + `shareReplay`, no manual retry counter. If all retries fail, the cached observable is dropped so the next call fetches again
 - Logger: centralised logging service, does not expose internal details to users
 
-A timeout is only for messages whose information is available elsewhere. Focus and hover pause it.
-
 HTTP interceptors handle cross-cutting concerns:
 
 - `turnstile.interceptor`: injects the `cf-turnstile-response` header via `HttpContext`

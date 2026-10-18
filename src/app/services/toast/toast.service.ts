@@ -7,9 +7,8 @@ import { ToastContainer, ToastType } from '../../ui';
 import { LoggerService } from '../logger/logger.service';
 
 const NAVBAR_OFFSET = 'var(--navbar-height, 5rem)';
-const DEFAULT_DURATION_MS = 0;
 
-type PendingToast = { message: string; type: ToastType; duration: number };
+type PendingToast = { message: string; type: ToastType };
 
 @Injectable({ providedIn: 'root' })
 export class ToastService {
@@ -25,23 +24,16 @@ export class ToastService {
   private pending: PendingToast | null = null;
   private overlayRef: OverlayRef | null = null;
   private componentRef: ComponentRef<ToastContainer> | null = null;
-  private dismissTimer: ReturnType<typeof setTimeout> | null = null;
   private subscriptions = new Subscription();
   private previousActiveElement: HTMLElement | null = null;
-  private duration = DEFAULT_DURATION_MS;
-  private hasFocus = false;
-  private isHovered = false;
 
   constructor() {
     this.destroyRef.onDestroy(() => this.dismiss());
   }
 
   // Resolves once the toast is rendered. Only the first toast waits for the overlay chunk.
-  show(
-    message: string,
-    type: ToastType = 'info',
-    duration: number = DEFAULT_DURATION_MS,
-  ): Promise<void> {
+  // Toasts stay until dismissed.
+  show(message: string, type: ToastType = 'info'): Promise<void> {
     if (!isPlatformBrowser(this.platformId)) return Promise.resolve();
 
     if (!this.componentRef && !this.pending) {
@@ -49,7 +41,7 @@ export class ToastService {
       this.previousActiveElement = activeElement instanceof HTMLElement ? activeElement : null;
     }
     // the latest message wins if several arrive while the overlay is loading
-    this.pending = { message, type, duration };
+    this.pending = { message, type };
 
     if (this.overlay) {
       this.renderPending();
@@ -61,21 +53,12 @@ export class ToastService {
     );
   }
 
-  success(message: string, duration: number = DEFAULT_DURATION_MS): Promise<void> {
-    return this.show(message, 'success', duration);
-  }
-
-  error(message: string, duration: number = DEFAULT_DURATION_MS): Promise<void> {
-    return this.show(message, 'error', duration);
-  }
-
-  info(message: string, duration: number = DEFAULT_DURATION_MS): Promise<void> {
-    return this.show(message, 'info', duration);
+  error(message: string): Promise<void> {
+    return this.show(message, 'error');
   }
 
   dismiss(): void {
     this.pending = null;
-    this.clearDismissTimer();
     const restoreFocus = this.overlayRef?.overlayElement.contains(this.document.activeElement);
     const previousActiveElement = this.previousActiveElement;
 
@@ -84,8 +67,6 @@ export class ToastService {
     this.overlayRef = null;
     this.componentRef = null;
     this.previousActiveElement = null;
-    this.hasFocus = false;
-    this.isHovered = false;
 
     if (restoreFocus && previousActiveElement?.isConnected) {
       previousActiveElement.focus({ preventScroll: true });
@@ -123,56 +104,20 @@ export class ToastService {
       this.componentRef = overlayRef.attach(new this.portal(ToastContainer));
       this.subscriptions = new Subscription();
       this.subscriptions.add(this.componentRef.instance.dismissed.subscribe(() => this.dismiss()));
-      this.trackInteraction(overlayRef.overlayElement);
+      this.trackFocusOrigin(overlayRef.overlayElement);
     }
 
     this.componentRef.setInput('data', { message: pending.message, type: pending.type });
-    this.duration = pending.duration;
-    this.startDismissTimer();
   }
 
-  private trackInteraction(element: HTMLElement): void {
-    this.subscriptions.add(
-      fromEvent(element, 'mouseenter').subscribe(() => {
-        this.isHovered = true;
-        this.startDismissTimer();
-      }),
-    );
-    this.subscriptions.add(
-      fromEvent(element, 'mouseleave').subscribe(() => {
-        this.isHovered = false;
-        this.startDismissTimer();
-      }),
-    );
+  // Remembers where focus came from, so dismissing from inside the toast can return it there
+  private trackFocusOrigin(element: HTMLElement): void {
     this.subscriptions.add(
       fromEvent<FocusEvent>(element, 'focusin').subscribe(event => {
         if (event.relatedTarget instanceof HTMLElement && !element.contains(event.relatedTarget)) {
           this.previousActiveElement = event.relatedTarget;
         }
-        this.hasFocus = true;
-        this.startDismissTimer();
       }),
     );
-    this.subscriptions.add(
-      fromEvent<FocusEvent>(element, 'focusout').subscribe(event => {
-        if (event.relatedTarget instanceof Node && element.contains(event.relatedTarget)) return;
-        this.hasFocus = false;
-        this.startDismissTimer();
-      }),
-    );
-  }
-
-  private clearDismissTimer(): void {
-    if (this.dismissTimer !== null) {
-      clearTimeout(this.dismissTimer);
-      this.dismissTimer = null;
-    }
-  }
-
-  private startDismissTimer(): void {
-    this.clearDismissTimer();
-    if (this.duration <= 0 || this.hasFocus || this.isHovered) return;
-
-    this.dismissTimer = setTimeout(() => this.dismiss(), this.duration);
   }
 }

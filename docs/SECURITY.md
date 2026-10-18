@@ -1,17 +1,16 @@
 # Security
 
-This is a portfolio site, not a bank.
-Still, I don't want it to be sloppy.
-
 There is no login, no user data storage, no payments.
 It's mostly static content + a CV download endpoint.
 
 ## Headers
 
-I set basic security headers at the Cloudflare edge (Workers).
+I set basic security headers at the Cloudflare edge, not in this repository. A Response Header
+Transform Rule (`security-headers`) sets the last four with "Set static" on all requests; the
+Workers in [`workers/`](../workers/) set only their own response headers.
 
 ```http
-Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+Strict-Transport-Security: max-age=15768000
 X-Content-Type-Options: nosniff
 X-Frame-Options: DENY
 Referrer-Policy: strict-origin-when-cross-origin
@@ -25,10 +24,14 @@ Short version:
 - reduce referrer leakage
 - disable browser APIs I don't need
 
+There is no Content-Security-Policy header. Angular's `security.autoCsp` build option could generate
+a hash-based one, but it is still experimental.
+
 ## Subresource Integrity (SRI)
 
 The production build has `subresourceIntegrity: true` in `angular.json`.
-Angular injects `integrity` and `crossorigin` attributes on all script and style tags.
+Angular injects `integrity` and `crossorigin` attributes on all script and style tags, and lists
+the hashes of lazy-loaded chunks in an import map (`<script type="importmap">`) in the same HTML.
 The browser refuses a script or stylesheet that does not match the hash in the HTML.
 It does not help if the HTML itself is replaced, because the hashes live there.
 
@@ -79,15 +82,13 @@ OSV vulnerability alerts are enabled with automatic patch automerge.
 | Threat          | What I do                  | Risk |
 | --------------- | -------------------------- | ---- |
 | XSS             | Angular sanitisation       | Low  |
-| Clickjacking    | `X-Frame-Options: DENY`    | None |
-| MITM            | HSTS + Cloudflare SSL      | None |
-| Tampered assets | SRI on all scripts/styles  | None |
+| Clickjacking    | `X-Frame-Options: DENY`    | Low  |
+| MITM            | HSTS + Cloudflare SSL      | Low  |
+| Tampered assets | SRI on all scripts/styles  | Low  |
 | CV scraping     | Turnstile                  | Low  |
 | Bad API data    | Valibot schema validation  | Low  |
 | DDoS            | Cloudflare edge protection | Low  |
-| Leaked secrets  | none in repo               | None |
-
-Attack surface is small. That's good.
+| Leaked secrets  | none in repo               | Low  |
 
 ## If something breaks
 
