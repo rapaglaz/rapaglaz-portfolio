@@ -1,3 +1,5 @@
+import { workspaceRoot } from '@nx/devkit';
+import { nxE2EPreset } from '@nx/playwright/preset';
 import { defineConfig, devices } from '@playwright/test';
 
 const isCI = !!process.env['CI'];
@@ -7,19 +9,14 @@ const baseURL = process.env['PLAYWRIGHT_TEST_BASE_URL'] ?? defaultBaseURL;
 const webServerCommand =
   process.env['PLAYWRIGHT_WEB_SERVER_COMMAND'] ??
   (isCI || isSSG
-    ? 'node node_modules/serve/build/main.js dist/rapaglaz-portfolio/browser -l 4233'
-    : 'pnpm run start');
+    ? 'node node_modules/serve/build/main.js dist/apps/rapaglaz-portfolio/browser -l 4233'
+    : 'pnpm exec nx run rapaglaz-portfolio:serve');
 const webServerUrl = process.env['PLAYWRIGHT_WEB_SERVER_URL'] ?? defaultBaseURL;
 
 export default defineConfig({
-  testDir: './e2e',
-  fullyParallel: true,
-  // prevent test.only from being committed to CI
-  forbidOnly: isCI,
-  // retry flaky tests on CI, skip locally for faster feedback
-  retries: isCI ? 2 : 0,
+  ...nxE2EPreset(import.meta.dirname, { testDir: './src' }),
+  // the preset runs a single worker on CI
   workers: isCI ? 2 : undefined,
-  reporter: 'html',
   use: {
     baseURL,
 
@@ -37,6 +34,7 @@ export default defineConfig({
     url: webServerUrl,
     reuseExistingServer: !isCI && !isSSG,
     timeout: 120 * 1000,
+    cwd: workspaceRoot,
   },
 
   projects: [
