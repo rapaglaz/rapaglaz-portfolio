@@ -52,10 +52,6 @@ Architecture, boundaries and code reviews are mine. I use Claude Code and Codex 
 speed and refactoring; `AGENTS.md` and `.claude/` are the guardrails I give them. Every change,
 human or AI-assisted, has to pass lint, dependency-cruiser, unit and E2E tests before it lands.
 
-## What I'd do differently
-
-<!-- TODO(Paul): 2–3 honest points -->
-
 ## Also inside
 
 - Transloco i18n with a runtime switch; JSON in `public/i18n`, locale routes `/en` and `/de`
