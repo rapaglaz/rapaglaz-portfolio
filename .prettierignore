@@ -4,6 +4,8 @@
 
 # Framework outputs
 .angular/cache/
+.nx/cache
+.nx/workspace-data
 
 # Dependencies
 **/node_modules/
@@ -31,3 +33,5 @@ pnpm-lock.yaml
 # Always format these
 !package.json
 !tsconfig*.json
+
+.angular
