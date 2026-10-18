@@ -101,6 +101,9 @@ test.describe('Interactive CV verification', () => {
         await close.evaluate(button => Number.parseFloat(getComputedStyle(button).outlineWidth)),
       ).toBeGreaterThanOrEqual(2);
 
+      await dialog.evaluate(element =>
+        Promise.all(element.getAnimations({ subtree: true }).map(animation => animation.finished)),
+      );
       const results = await new AxeBuilder({ page })
         .include('[role="dialog"]')
         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
