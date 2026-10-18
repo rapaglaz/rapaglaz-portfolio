@@ -35,7 +35,7 @@ describe('Hero', () => {
     expect(element.querySelector('[data-testid="hero-badge-mobile"]')?.textContent?.trim()).toBe(
       'Open to Work',
     );
-    expect(element.querySelector('img')?.getAttribute('alt')).toBe('Radoslaw Glaz');
+    expect(element.querySelector('img')?.getAttribute('alt')).toBe('Radek Glaz');
 
     openToWork.set(false);
     fixture.detectChanges();
