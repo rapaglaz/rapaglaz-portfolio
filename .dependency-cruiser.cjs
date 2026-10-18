@@ -154,6 +154,14 @@ module.exports = {
       to: { path: '^src/app/portfolio/' },
     },
     {
+      name: 'features-barrel-in-portfolio-only',
+      comment:
+        'The features barrel re-exports every section; imported outside the lazy-loaded shell, it pulls all sections into the initial bundle.',
+      severity: 'error',
+      from: { path: '^src/app/', pathNot: ['^src/app/portfolio/', '\\.spec\\.ts$'] },
+      to: { path: '^src/app/features/index\\.ts$' },
+    },
+    {
       name: 'no-production-to-testing',
       comment: 'Only spec files and other testing helpers may import the testing layer.',
       severity: 'error',
