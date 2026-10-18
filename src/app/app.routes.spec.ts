@@ -9,7 +9,7 @@ import { firstValueFrom, throwError } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { routes } from './app.routes';
 import { Portfolio } from './portfolio/portfolio';
-import { provideTranslocoTesting } from './testing';
+import { provideTranslocoTesting, renderDeferBlocks } from './testing';
 
 describe('portfolio routes', () => {
   let originalDocumentLang: string;
@@ -41,6 +41,7 @@ describe('portfolio routes', () => {
     const harness = await RouterTestingHarness.create();
 
     await harness.navigateByUrl(path, Portfolio);
+    await renderDeferBlocks(harness.fixture);
 
     expect(TestBed.inject(Router).url).toBe(path);
     expect(harness.routeNativeElement?.querySelector('main')).toBeInstanceOf(HTMLElement);
@@ -59,6 +60,7 @@ describe('portfolio routes', () => {
     const harness = await RouterTestingHarness.create('/de');
 
     await harness.navigateByUrl('/', Portfolio);
+    await renderDeferBlocks(harness.fixture);
 
     expect(TestBed.inject(TranslocoService).getActiveLang()).toBe('en');
     expect(TestBed.inject(DOCUMENT).documentElement.lang).toBe('en');
@@ -76,6 +78,7 @@ describe('portfolio routes', () => {
     );
 
     await harness.navigateByUrl('/de?source=navbar#skills', Portfolio);
+    await renderDeferBlocks(harness.fixture);
 
     expect(TestBed.inject(Router).url).toBe('/en?source=navbar#skills');
     expect(transloco.getActiveLang()).toBe('en');

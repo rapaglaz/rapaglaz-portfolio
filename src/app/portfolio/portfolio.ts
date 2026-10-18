@@ -2,7 +2,13 @@ import { DOCUMENT } from '@angular/common';
 import { Component, DestroyRef, inject } from '@angular/core';
 import { Meta } from '@angular/platform-browser';
 import { TranslocoService } from '@jsverse/transloco';
-import { About, Certifications, Contact, Hero, Languages, Skills } from '../features';
+// Direct imports: the compiler can split a deferred component only if its import is not shared
+import { About } from '../features/about/about';
+import { Certifications } from '../features/certifications/certifications';
+import { Contact } from '../features/contact/contact';
+import { Hero } from '../features/hero/hero';
+import { Languages } from '../features/languages/languages';
+import { Skills } from '../features/skills/skills';
 import { AVAILABLE_LANGS, DEFAULT_LANG, type AvailableLang } from '../utils/i18n';
 
 const SITE_ORIGIN = 'https://rapaglaz.de';
@@ -21,11 +27,35 @@ const SEO_IMAGE = `${SITE_ORIGIN}/images/IMG_2290-384.webp`;
       class="focus-visible:outline-primary min-h-screen focus-visible:outline-2 focus-visible:-outline-offset-2"
       tabindex="-1">
       <app-hero />
-      <app-about />
-      <app-certifications />
-      <app-skills />
-      <app-languages />
-      <app-contact />
+      <!--
+        Sections below the hero are prerendered as usual, but their code loads and hydrates only
+        when they scroll into view. After a client-side language switch they render on idle.
+      -->
+      @defer (on idle; hydrate on viewport) {
+        <app-about />
+      } @placeholder {
+        <div class="min-h-screen"></div>
+      }
+      @defer (on idle; hydrate on viewport) {
+        <app-certifications />
+      } @placeholder {
+        <div class="min-h-screen"></div>
+      }
+      @defer (on idle; hydrate on viewport) {
+        <app-skills />
+      } @placeholder {
+        <div class="min-h-screen"></div>
+      }
+      @defer (on idle; hydrate on viewport) {
+        <app-languages />
+      } @placeholder {
+        <div class="min-h-screen"></div>
+      }
+      @defer (on idle; hydrate on viewport) {
+        <app-contact />
+      } @placeholder {
+        <div class="min-h-screen"></div>
+      }
     </main>
   `,
 })

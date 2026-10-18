@@ -5,7 +5,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslocoService } from '@jsverse/transloco';
 import { firstValueFrom } from 'rxjs';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { provideTranslocoTesting } from '../testing';
+import { provideTranslocoTesting, renderDeferBlocks } from '../testing';
 import { Portfolio } from './portfolio';
 
 describe('Portfolio', () => {
@@ -27,7 +27,9 @@ describe('Portfolio', () => {
     fixture.detectChanges();
   });
 
-  it('renders core content with accessible cues', () => {
+  it('renders core content with accessible cues', async () => {
+    await renderDeferBlocks(fixture);
+
     const main = element.querySelector('main');
     expect(main).toBeInstanceOf(HTMLElement);
 
