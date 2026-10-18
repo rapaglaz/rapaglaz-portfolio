@@ -36,6 +36,17 @@ describe('Footer', () => {
     });
   });
 
+  it('links to the LinkedIn and GitHub profiles', () => {
+    const hrefs = Array.from(element.querySelectorAll<HTMLAnchorElement>('footer a')).map(link =>
+      link.getAttribute('href'),
+    );
+
+    expect(hrefs).toEqual([
+      'https://www.linkedin.com/in/paul-glaz/',
+      'https://github.com/rapaglaz',
+    ]);
+  });
+
   it.each([
     ['en', 'Email', 'opens in new tab'],
     ['de', 'E-Mail', 'öffnet in neuem Tab'],
