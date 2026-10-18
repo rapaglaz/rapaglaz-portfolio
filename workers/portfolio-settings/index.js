@@ -1,12 +1,5 @@
 /**
- * Config Worker - Turnstile site key endpoint
- *
- * Features:
- * - Host pinning (production + preview environments)
- * - ETag-based caching with conditional requests
- * - CORS support for allowed origins (including localhost)
- * - Request tracking with unique IDs
- * - Structured logging
+ * Config Worker: serves the public Turnstile site key on GET or HEAD /config.
  */
 
 // --- Constants ---
@@ -45,30 +38,20 @@ export default {
       };
 
       // --- Host pinning ---
-      const isCloudflarePreview = hostname.endsWith('.workers.dev');
-      const isLocalPreview =
-        hostname.endsWith('.home.arpa') || hostname.includes('.preview.istari.home.arpa');
-      const isPreview = isCloudflarePreview || isLocalPreview;
-
-      const allowedProdHosts = new Set(CONFIG.ALLOWED_PROD_HOSTS);
-
-      if (!isPreview && !allowedProdHosts.has(hostname)) {
+      if (!CONFIG.ALLOWED_PROD_HOSTS.includes(hostname)) {
         logWarn('Forbidden host', logCtx);
         return new Response('Forbidden host', { status: 403 });
       }
 
       // --- Path validation ---
-      if (!url.pathname.startsWith('/config')) {
+      if (url.pathname !== '/config') {
         logInfo('Endpoint not found', logCtx);
         return new Response('Not Found', { status: 404 });
       }
 
       // --- CORS: allow localhost + whitelisted origins ---
       const isOriginAllowed =
-        origin &&
-        (origin.includes('localhost') ||
-          origin.includes('127.0.0.1') ||
-          ALLOWED_ORIGINS.includes(origin));
+        Boolean(origin) && (ALLOWED_ORIGINS.includes(origin) || isLocalOrigin(origin));
 
       // --- Preflight (OPTIONS) ---
       if (method === 'OPTIONS') {
@@ -101,17 +84,16 @@ export default {
       // --- Response payload ---
       const payload = {
         turnstileSiteKey: CONFIG.TURNSTILE_SITE_KEY,
-        env: isPreview ? 'preview' : 'production',
         version: CONFIG.VERSION,
       };
       const body = JSON.stringify(payload);
 
       // --- Deterministic ETag ---
       const etag = await sha256Etag(body);
-      const inm = request.headers.get('If-None-Match');
+      const inm = request.headers.get('If-None-Match') ?? '';
 
-      // Handle 304 Not Modified
-      if (inm && inm === etag) {
+      // Handle 304 Not Modified; If-None-Match may list several ETags
+      if (inm.split(',').some(tag => tag.trim() === etag)) {
         const headers = {
           ETag: etag,
           'Cache-Control': `public, max-age=${CONFIG.CACHE_MAX_AGE}`,
@@ -153,7 +135,6 @@ export default {
 
       logInfo('Config served', {
         ...logCtx,
-        env: payload.env,
         cached: false,
         durationMs: Date.now() - startTime,
       });
@@ -176,12 +157,23 @@ export default {
   },
 };
 
-// --- Helper: deterministic ETag ---
+// Compare the hostname, so https://evil-localhost.example is not treated as local.
+// Same check as in cv-download; each Worker is deployed on its own, so it is not shared.
+function isLocalOrigin(origin) {
+  try {
+    const { hostname } = new URL(origin);
+    return hostname === 'localhost' || hostname === '127.0.0.1';
+  } catch {
+    return false;
+  }
+}
+
+// --- Helper: deterministic weak ETag (W/ belongs outside the quotes) ---
 async function sha256Etag(text) {
   const enc = new TextEncoder().encode(text);
   const buf = await crypto.subtle.digest('SHA-256', enc);
   const hex = [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
-  return `"W/${hex.slice(0, 16)}"`;
+  return `W/"${hex.slice(0, 16)}"`;
 }
 
 // --- Structured Logging ---
