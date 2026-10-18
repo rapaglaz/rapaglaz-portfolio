@@ -1,7 +1,6 @@
 # Engineering notes
 
-Problems from this repo's history. Facts come from the commit messages and diffs of the linked
-PRs; numbers are the ones recorded there. Oldest first.
+Problems from this repo's history, oldest first, with the PRs that fixed them.
 
 ## Cached config error never cleared (2026-07-05)
 

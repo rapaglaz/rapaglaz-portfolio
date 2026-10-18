@@ -88,6 +88,19 @@ describe('FeatureFlagService', () => {
     expect(flag.value()).toBe(false);
   });
 
+  it('returns false when the flag is not a boolean', async () => {
+    const { service, httpMock: currentHttpMock, flagName, flagUrlWithName } = createHarness();
+    httpMock = currentHttpMock;
+
+    const flag = service.getFlag(flagName);
+    TestBed.tick();
+
+    httpMock.expectOne(flagUrlWithName).flush({ openToWork: 'true' });
+    await settle();
+
+    expect(flag.value()).toBe(false);
+  });
+
   it('returns false when the response is not an object', async () => {
     const { service, httpMock: currentHttpMock, flagName, flagUrlWithName } = createHarness();
     httpMock = currentHttpMock;

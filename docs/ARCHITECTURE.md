@@ -76,10 +76,8 @@ Most sections have no real business logic. The interesting parts are in services
 - Turnstile: load the script once and render the widget in the active `en` or `de` locale. An interactive challenge opens in a CDK Dialog with a focus trap and focus restored to the CV button. WebKit needs explicit focus-region boundaries around the iframe for keyboard navigation. Any way of closing the dialog ends verification without a token or download. The CDK Dialog chunk loads next to the Turnstile script after the CV click, and the widget renders once both are ready.
 - Toasts: a single CDK overlay updated in place. Errors use `role="alert"`, success and info `role="status"`; the close action stays outside the live region. Toasts stay until dismissed and do not move focus when they open. The CDK overlay and portal load with the first toast, so `show()` returns a promise that resolves once the toast is rendered.
 - Feature flag: read `openToWork` from a Cloudflare Worker + KV, exposed as `httpResource`
-- Config: fetched once per app life, `retry({ count: 3 })` + `shareReplay`, no manual retry counter. If all retries fail, the cached observable is dropped so the next call fetches again
+- Config: fetched once per app life with `shareReplay`. Network errors and 5xx responses are retried up to 3 times (250 ms, 500 ms, 1 s apart); a 4xx or an invalid body fails at once. If the request fails, the cached observable is dropped so the next call fetches again
 - Logger: centralised logging service, does not expose internal details to users
-
-A timeout is only for messages whose information is available elsewhere. Focus and hover pause it.
 
 HTTP interceptors handle cross-cutting concerns:
 
@@ -125,20 +123,9 @@ The contrast tests also read browser-computed theme pairs and interaction colors
 are opaque so the content beneath them cannot lower contrast. Decorative borders and shadows
 are not treated as essential controls. These checks run after finite animations finish.
 
-Entrance animations, deliberate delays, and hover decoration remain enabled with
-`prefers-reduced-motion: no-preference`. With `reduce`, CSS disables entrance animations, delays,
-transitions, smooth scrolling, and hover scaling; scroll-reveal content is visible even before
-an intersection occurs. Motion E2E checks cover both preferences and changes after page load.
-The CV loading dots and the verification spinner keep DaisyUI's standard animations; with reduce
-they run slower instead of stopping, and the busy state and loading label stay available.
-Contact cards lift on keyboard focus or fine-pointer hover; with reduce they keep the border and
-shadow feedback without movement.
-The hero name is an outline over a light fill. `paint-order: stroke fill` hides the overlapping
-glyph contours inside letters, and the stroke keeps at least 5.9:1 contrast in both themes.
-
-Keyboard focus bypasses entrance effects in either mode. Scroll reveal marks the focused
-element and its ancestors so animated content stays visible after focus leaves, while other
-items keep their entrance effects. Navbar and toast focus also bypass their entrance delay.
+With `prefers-reduced-motion: reduce`, CSS disables entrance animations, delays, transitions,
+smooth scrolling and hover scaling; `e2e/motion.spec.ts` covers both preferences and a change after
+page load. Keyboard focus bypasses entrance effects in either mode.
 
 In CI (and in `e2e:ssg`) tests run against the static build served on port 4233.
 Locally `pnpm run e2e` uses the dev server on 4200.

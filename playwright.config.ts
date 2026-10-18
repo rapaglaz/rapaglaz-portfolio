@@ -43,13 +43,11 @@ export default defineConfig({
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
-      testIgnore: '**/lighthouse.spec.ts',
     },
 
     {
       name: 'Mobile Safari',
       use: { ...devices['iPhone 12'] },
-      testIgnore: '**/lighthouse.spec.ts',
     },
   ],
 });

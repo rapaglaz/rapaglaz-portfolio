@@ -76,68 +76,11 @@ forbidden targets checked for the source files that need an exception.
 There is no cycle allow-list. Importing the central logger directly fixes the original cycle
 without changing the missing handler's behavior or moving files.
 
-## Initial report and decisions
+## Initial report and enforcement
 
-On 2026-10-08 the first check ran with every rule set to `warn`. It exited `0` and reported
-11 warnings across 81 modules and 135 runtime dependencies. This was a migration report,
-not an enforced passing architecture check.
-
-The complete report was:
-
-```text
-no-circular (C1)
-src/app/services/cv-download/cv-download.service.ts
-  -> src/app/utils/i18n/index.ts
-  -> src/app/utils/i18n/transloco-missing-handler.ts
-  -> src/app/services/index.ts
-  -> src/app/services/cv-download/cv-download.service.ts
-
-utils-layer
-U1: src/app/utils/i18n/transloco-missing-handler.ts -> src/app/services/index.ts
-U2: src/app/utils/i18n/transloco-missing-handler.spec.ts -> src/app/services/index.ts
-U3: src/app/utils/i18n/browser-language.spec.ts -> src/app/services/index.ts
-
-services-layer
-S1: src/app/services/turnstile/turnstile.service.ts -> src/app/ui/index.ts
-S2: src/app/services/toast/toast.service.ts -> src/app/ui/index.ts
-
-portfolio-layer
-P1: src/app/portfolio/portfolio.ts -> src/app/utils/i18n/index.ts
-
-no-portfolio-imports
-P2: src/app/app.routes.ts -> src/app/portfolio/portfolio.ts
-
-content-is-independent
-D1: src/app/content/index.ts -> src/app/content/certifications.content.ts
-D2: src/app/content/index.ts -> src/app/content/contact.content.ts
-D3: src/app/content/index.ts -> src/app/content/skills.content.ts
-```
-
-The reviewed decisions were:
-
-- C1: replace the missing handler's services barrel import with the direct logger import.
-- U1: allow only that handler's dependency on the central logger file.
-- U2–U3: exempt specs from layer rules; keep testing isolation and cycle detection active.
-- S1–S2: allow the two overlay services to instantiate UI through the existing UI barrel.
-- P1: allow only the shell component to use the i18n barrel for its SEO language constants.
-- P2: allow the router to load portfolio; keep other production dependents forbidden.
-- D1–D3: allow content-to-content dependencies, including its barrel re-exports.
-
-Alternative: restructuring logging, overlays, or SEO could remove these exceptions, but that
-would expand the change into a production refactor. Narrow file-level exceptions preserve
-the app's current responsibilities while making future violations fail.
-
-## Enforcement verification
-
-On 2026-10-08, two temporary probes verified that error severities fail the command:
-
-| Scenario                                                      | Command               | Exit code | Reported rule      |
-| ------------------------------------------------------------- | --------------------- | --------- | ------------------ |
-| Temporary hero file imports `features/about/about.ts`         | `pnpm run deps:check` | `1`       | `no-cross-feature` |
-| Two temporary files under `utils/animation` import each other | `pnpm run deps:check` | `1`       | `no-circular`      |
-| Normal application graph                                      | `pnpm run deps:check` | `0`       | No violations      |
-
-The probes used side-effect imports so TypeScript could not erase unused bindings. Both
-probe sets were removed after their checks; they are not part of the application or test
-suite. Their local command output is saved in the ignored
-`tmp/dependency-cruiser/enforcement-probes.txt` file.
+On 2026-10-08 the first check ran with every rule set to `warn` and reported 11 warnings across
+81 modules: one cycle (the missing handler importing the services barrel) and ten layer
+violations. The cycle was fixed with the direct logger import, specs were exempted from layer
+rules, and the remaining cases became the exceptions above. Two temporary probes, a cross-feature
+import and a cycle, then made `pnpm run deps:check` exit `1`. The full report and the probe results
+are in the [version of this file from #756](https://github.com/rapaglaz/rapaglaz-portfolio/blob/9a18c770e44f30c59ffd2c1734dc3a9bbbc1aa33/docs/DEPENDENCY_BOUNDARIES.md#initial-report-and-decisions).
