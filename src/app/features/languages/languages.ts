@@ -36,6 +36,16 @@ import { buildDelayGetter } from '../../utils/animation';
 export class Languages {
   protected readonly sectionWrapper = viewChild.required(SectionWrapper);
 
+  // translateObjectSignal reads the whole object; the keys are listed for i18n:check
+  /** t(
+    portfolio.languages.items.german.name,
+    portfolio.languages.items.german.level,
+    portfolio.languages.items.english.name,
+    portfolio.languages.items.english.level,
+    portfolio.languages.items.polish.name,
+    portfolio.languages.items.polish.level,
+    portfolio.languages.title
+  ) */
   protected readonly languagesData = translateObjectSignal('portfolio.languages.items');
 
   protected readonly languages = computed(() => {

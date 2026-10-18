@@ -117,6 +117,7 @@ export function bootstrap(): Promise<ApplicationRef> {
     errorEl.setAttribute('role', 'alert');
     errorEl.style.cssText =
       'display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;text-align:center;padding:1rem';
+    /** t(common.bootstrapError) */
     errorEl.textContent = { en: enCommon.bootstrapError, de: deCommon.bootstrapError }[lang];
     document.body.replaceChildren(errorEl);
     throw err;
