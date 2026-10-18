@@ -68,6 +68,8 @@ Tokens, API keys, and PII are never logged.
 
 No secrets in the repo.
 Sensitive values live in GitHub Secrets or Cloudflare config.
+`TURNSTILE_SECRET` is a Worker secret in Cloudflare. The Workers deploy from the main branch
+workflow with a Cloudflare API token limited to editing Workers; pull request workflows never get it.
 
 Renovate handles dependency updates.
 OSV vulnerability alerts are enabled with automatic patch automerge.

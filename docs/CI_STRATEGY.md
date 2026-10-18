@@ -18,7 +18,7 @@ There are two workflows:
 
 Both workflows use `.github/actions/quality-check/action.yaml`. Its `lint` mode runs
 format, lint, and `pnpm run deps:check`; its `test` mode runs i18n, coverage tests, the Worker
-tests, and SonarCloud analysis. The dependency check fails the lint job for forbidden runtime imports
+tests and config check, and SonarCloud analysis. The dependency check fails the lint job for forbidden runtime imports
 or cycles, so it also blocks the PR quality gate and main deployment.
 See [Dependency boundaries](./DEPENDENCY_BOUNDARIES.md) for the architecture policy.
 
@@ -36,7 +36,8 @@ SonarQube analysis runs inside the `test` job on both PR and main, using `sonar-
 
 ## Main branch CI/CD
 
-Jobs: `lint`, `test`, `build`, `e2e-tests`, `deploy` — all run on every push to main.
+Jobs: `lint`, `test`, `build`, `e2e-tests`, `deploy` — all run on every push to main — and the
+opt-in `deploy-workers` (see [Cloudflare Workers](#cloudflare-workers)).
 
 `lint`, `test`, `build` are parallel. `e2e-tests` depends on `build`. `deploy` depends on all four.
 
@@ -91,3 +92,11 @@ blocks the PR either way.
 
 All workflows use `cancel-in-progress: true` scoped to `workflow + ref`.
 Redundant runs are cancelled when a new commit is pushed to the same branch.
+
+## Cloudflare Workers
+
+`deploy-workers` in Main Branch CI/CD deploys the Workers whose folders changed, after `lint` and
+`test`. It is opt-in through the repository variable `DEPLOY_WORKERS` and runs
+`cloudflare/wrangler-action` with the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets.
+Pull requests never get these secrets; they only bundle the Workers with `wrangler deploy --dry-run`.
+See [Cloudflare Workers](../workers/README.md) for the configuration and the first deploy.
