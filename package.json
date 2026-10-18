@@ -1,32 +1,31 @@
 {
-  "name": "rapaglaz-portfolio",
+  "name": "@rapaglaz-portfolio/source",
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test --watch=false",
-    "test:watch": "ng test",
-    "test:ui": "ng test --ui",
-    "test:coverage": "ng test --coverage --watch=false",
+    "start": "nx serve rapaglaz-portfolio",
+    "build": "nx build rapaglaz-portfolio",
+    "watch": "nx build rapaglaz-portfolio --watch --configuration development",
+    "test": "nx test rapaglaz-portfolio",
+    "test:watch": "nx test rapaglaz-portfolio --watch",
+    "test:ui": "nx test rapaglaz-portfolio --ui",
+    "test:coverage": "nx test rapaglaz-portfolio --coverage",
     "test:workers": "vitest run --config workers/vitest.config.js",
     "workers:check": "for config in workers/*/wrangler.jsonc; do (cd \"$(dirname \"$config\")\" && npx --yes wrangler@4.151.1 deploy --dry-run) || exit 1; done",
-    "lint": "ng lint",
-    "deps:check": "depcruise --config .dependency-cruiser.cjs --output-type err src/app",
-    "deps:graph": "mkdir -p tmp/dependency-cruiser && depcruise --config .dependency-cruiser.cjs --output-type html --output-to tmp/dependency-cruiser/dependencies.html src/app",
+    "lint": "nx lint rapaglaz-portfolio",
+    "deps:check": "depcruise --config .dependency-cruiser.cjs --output-type err apps/rapaglaz-portfolio/src/app",
+    "deps:graph": "mkdir -p tmp/dependency-cruiser && depcruise --config .dependency-cruiser.cjs --output-type html --output-to tmp/dependency-cruiser/dependencies.html apps/rapaglaz-portfolio/src/app",
     "format:check": "prettier --check .",
     "format:write": "prettier --write .",
-    "i18n:validate": "transloco-validator public/i18n/*.json",
+    "i18n:validate": "transloco-validator apps/rapaglaz-portfolio/public/i18n/*.json",
     "i18n:find": "transloco-keys-manager find",
     "i18n:check": "pnpm run i18n:validate && pnpm run i18n:find",
-    "preview": "serve dist/rapaglaz-portfolio/browser -l 4233",
+    "preview": "serve dist/apps/rapaglaz-portfolio/browser -l 4233",
     "e2e": "ng e2e",
     "e2e:ui": "ng e2e --ui",
     "e2e:ssg": "pnpm run build && E2E_MODE=ssg pnpm exec playwright test",
     "e2e:ssg:ui": "pnpm run build && E2E_MODE=ssg pnpm exec playwright test --ui",
-    "clean": "rm -rf .angular && rm -rf node_modules",
+    "clean": "rm -rf .angular && rm -rf .nx && rm -rf node_modules",
     "clean:reinstall": "pnpm run clean && pnpm install",
     "prepare": "[ -n \"$CI\" ] || lefthook install"
   },
@@ -110,8 +109,5 @@
     "vite": "8.3.4",
     "vitest": "5.0.3"
   },
-  "packageManager": "pnpm@12.11.0",
-  "nx": {
-    "includedScripts": []
-  }
+  "packageManager": "pnpm@12.11.0"
 }

@@ -81,7 +81,7 @@ Do not commit `test.only`.
 ## Build
 
 ```bash
-pnpm run build    # SSG → dist/rapaglaz-portfolio/browser
+pnpm run build    # SSG → dist/apps/rapaglaz-portfolio/browser
 pnpm run preview  # serve the static build on port 4233
 ```
 

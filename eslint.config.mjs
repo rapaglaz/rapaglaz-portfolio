@@ -1,7 +1,7 @@
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import eslint from '@eslint/js';
-import angular from 'angular-eslint';
+import nx from '@nx/eslint-plugin';
 import eslintConfigPrettier from 'eslint-config-prettier';
 import { defineConfig } from 'eslint/config';
 import tseslint from 'typescript-eslint';
@@ -9,17 +9,28 @@ import tseslint from 'typescript-eslint';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig(
+  ...nx.configs['flat/base'],
+  ...nx.configs['flat/typescript'],
+  ...nx.configs['flat/javascript'],
+  {
+    ignores: [
+      '**/dist',
+      '**/out-tsc',
+      '**/vitest.config.*.timestamp*',
+      '**/coverage',
+      'scripts/**',
+      // The Workers were never linted; their lint setup comes with their Nx project
+      'workers/**',
+    ],
+  },
   {
     files: ['**/*.ts'],
-    ignores: ['coverage/**', 'dist/**', 'scripts/**'],
     extends: [
       eslint.configs.recommended,
       ...tseslint.configs.strict,
       ...tseslint.configs.stylistic,
-      ...angular.configs.tsRecommended,
       eslintConfigPrettier,
     ],
-    processor: angular.processInlineTemplates,
     languageOptions: {
       parserOptions: {
         projectService: true,
@@ -27,31 +38,6 @@ export default defineConfig(
       },
     },
     rules: {
-      '@angular-eslint/directive-selector': [
-        'error',
-        {
-          type: 'attribute',
-          prefix: 'app',
-          style: 'camelCase',
-        },
-      ],
-      '@angular-eslint/component-selector': [
-        'error',
-        {
-          type: 'element',
-          prefix: 'app',
-          style: 'kebab-case',
-        },
-      ],
-      // Angular specific rules
-      '@angular-eslint/no-empty-lifecycle-method': 'error',
-      '@angular-eslint/prefer-on-push-component-change-detection': 'warn',
-      '@angular-eslint/prefer-output-readonly': 'warn',
-      '@angular-eslint/prefer-signals': 'warn',
-      '@angular-eslint/prefer-standalone': 'warn',
-      '@angular-eslint/use-lifecycle-interface': 'error',
-
-      // TypeScript specific rules
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
       '@typescript-eslint/explicit-function-return-type': 'warn',
@@ -98,31 +84,6 @@ export default defineConfig(
       ],
 
       'max-lines': ['warn', 500],
-    },
-  },
-  {
-    files: ['**/*.html'],
-    extends: [...angular.configs.templateRecommended, ...angular.configs.templateAccessibility],
-    rules: {
-      // Accessibility
-      '@angular-eslint/template/alt-text': 'warn',
-      '@angular-eslint/template/elements-content': 'warn',
-      '@angular-eslint/template/label-has-associated-control': 'warn',
-      '@angular-eslint/template/table-scope': 'warn',
-      '@angular-eslint/template/valid-aria': 'warn',
-      '@angular-eslint/template/click-events-have-key-events': 'warn',
-      '@angular-eslint/template/mouse-events-have-key-events': 'warn',
-
-      // Other template rules
-      '@angular-eslint/template/no-duplicate-attributes': 'warn',
-      '@angular-eslint/template/conditional-complexity': ['warn', { maxComplexity: 5 }],
-      '@angular-eslint/template/cyclomatic-complexity': ['warn', { maxComplexity: 5 }],
-      '@angular-eslint/template/use-track-by-function': 'warn',
-      '@angular-eslint/template/button-has-type': 'warn',
-      '@angular-eslint/template/eqeqeq': 'error',
-      '@angular-eslint/template/prefer-control-flow': 'error',
-      '@angular-eslint/template/prefer-ngsrc': 'warn',
-      '@angular-eslint/template/prefer-self-closing-tags': 'warn',
     },
   },
   // Test files configuration with relaxed rules

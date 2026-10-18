@@ -1,0 +1,100 @@
+{
+  "name": "rapaglaz-portfolio",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "prefix": "app",
+  "sourceRoot": "apps/rapaglaz-portfolio/src",
+  "tags": ["type:app"],
+  "targets": {
+    "build": {
+      "executor": "@angular/build:application",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/apps/rapaglaz-portfolio",
+        "browser": "apps/rapaglaz-portfolio/src/main.ts",
+        "server": "apps/rapaglaz-portfolio/src/main.server.ts",
+        "tsConfig": "apps/rapaglaz-portfolio/tsconfig.app.json",
+        "assets": [
+          {
+            "glob": "**/*",
+            "input": "apps/rapaglaz-portfolio/public"
+          }
+        ],
+        "styles": ["apps/rapaglaz-portfolio/src/styles.css"]
+      },
+      "configurations": {
+        "production": {
+          "outputMode": "static",
+          "optimization": {
+            "scripts": true,
+            "styles": {
+              "minify": true,
+              "inlineCritical": true,
+              "removeSpecialComments": true
+            },
+            "fonts": {
+              "inline": true
+            }
+          },
+          "sourceMap": {
+            "scripts": false,
+            "styles": false,
+            "hidden": true,
+            "sourcesContent": false
+          },
+          "subresourceIntegrity": true,
+          "crossOrigin": "anonymous",
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "560KB",
+              "maximumError": "700KB"
+            },
+            {
+              "type": "allScript",
+              "maximumWarning": "450KB",
+              "maximumError": "500KB"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "10kB",
+              "maximumError": "20kB"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": {
+            "scripts": true,
+            "styles": true,
+            "vendor": false,
+            "hidden": false
+          }
+        }
+      }
+    },
+    "serve": {
+      "continuous": true,
+      "executor": "@angular/build:dev-server",
+      "defaultConfiguration": "development",
+      "configurations": {
+        "production": {
+          "buildTarget": "rapaglaz-portfolio:build:production"
+        },
+        "development": {
+          "buildTarget": "rapaglaz-portfolio:build:development"
+        }
+      }
+    },
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "coverage/apps/rapaglaz-portfolio"
+      }
+    }
+  }
+}
