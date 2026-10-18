@@ -10,8 +10,8 @@ export type ContactItem = {
 export const CONTACT_ITEMS: readonly ContactItem[] = [
   {
     id: 'email',
-    href: 'mailto:paul@rapaglaz.de',
-    value: 'paul@rapaglaz.de',
+    href: 'mailto:radek@rapaglaz.de',
+    value: 'radek@rapaglaz.de',
     isExternal: false,
   },
   {
@@ -27,3 +27,7 @@ export const CONTACT_ITEMS: readonly ContactItem[] = [
     isExternal: true,
   },
 ] as const;
+
+export const CONTACT_LINKS = Object.fromEntries(
+  CONTACT_ITEMS.map(item => [item.id, item.href]),
+) as Readonly<Record<ContactItemId, string>>;

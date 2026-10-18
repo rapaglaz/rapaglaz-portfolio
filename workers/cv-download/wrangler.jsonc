@@ -10,4 +10,11 @@
   "r2_buckets": [{ "binding": "PORTFOLIO_FILES", "bucket_name": "portfolio-files" }],
   "secrets": { "required": ["TURNSTILE_SECRET"] },
   "observability": { "logs": { "enabled": true }, "traces": { "enabled": true } },
+  "ratelimits": [
+    {
+      "name": "DOWNLOAD_RATE_LIMITER",
+      "namespace_id": "1001",
+      "simple": { "limit": 10, "period": 60 },
+    },
+  ],
 }

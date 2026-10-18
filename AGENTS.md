@@ -92,6 +92,8 @@ Bundle budgets (`angular.json`): initial 700KB error, all scripts 500KB error, a
 Languages: `en` (default), `de`. Translations in `public/i18n/{lang}.json`.
 Routes: `/en`, `/de`, root `/` falls back to `en`.
 Never hardcode user-facing strings — use Transloco keys.
+A key built at runtime or passed as an input must also appear in a `/** t(key) */` (TS) or
+`<!-- t(key) -->` (HTML) comment next to its use; otherwise `i18n:check` reports it as unused.
 
 ## Change policy
 

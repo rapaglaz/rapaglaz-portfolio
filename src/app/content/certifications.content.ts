@@ -7,6 +7,15 @@ export type Certification = {
   readonly remote: boolean;
 };
 
+// Templates build portfolio.certifications.items.<id>.title and .issuer; listed for i18n:check.
+/** t(
+  portfolio.certifications.items.angular-architecture.title,
+  portfolio.certifications.items.angular-architecture.issuer,
+  portfolio.certifications.items.angular-testing.title,
+  portfolio.certifications.items.angular-testing.issuer,
+  portfolio.certifications.items.angular-spa-typescript.title,
+  portfolio.certifications.items.angular-spa-typescript.issuer
+) */
 export const CERTIFICATIONS: readonly Certification[] = [
   {
     id: 'angular-architecture',

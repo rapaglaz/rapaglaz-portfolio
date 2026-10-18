@@ -45,7 +45,7 @@ describe('portfolio routes', () => {
 
     expect(TestBed.inject(Router).url).toBe(path);
     expect(harness.routeNativeElement?.querySelector('main')).toBeInstanceOf(HTMLElement);
-    expect(harness.routeNativeElement?.querySelector('h1')?.textContent).toContain('Radoslaw');
+    expect(harness.routeNativeElement?.querySelector('h1')?.textContent).toContain('Radek');
     expect(TestBed.inject(TranslocoService).getActiveLang()).toBe(lang);
     expect(TestBed.inject(DOCUMENT).documentElement.lang).toBe(lang);
     expect(harness.routeNativeElement?.querySelector('app-about h2')?.textContent).toContain(

@@ -89,7 +89,7 @@ describe('Navbar', () => {
         .querySelector<HTMLButtonElement>('button[aria-label="Contact Me"]')!
         .click();
 
-      expect(assignMock).toHaveBeenCalledExactlyOnceWith('mailto:paul@rapaglaz.de');
+      expect(assignMock).toHaveBeenCalledExactlyOnceWith('mailto:radek@rapaglaz.de');
     } finally {
       cleanup();
     }

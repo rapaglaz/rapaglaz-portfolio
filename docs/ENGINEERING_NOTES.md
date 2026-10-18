@@ -122,3 +122,85 @@ Problems from this repo's history, oldest first, with the PRs that fixed them.
   only `siteverify` outages, and local origins are compared by hostname. Found while adding the
   Worker sources to this repo; `workers/cv-download/index.spec.js` reproduces each case.
   [#777](https://github.com/rapaglaz/rapaglaz-portfolio/pull/777)
+
+## Same origin check left in a second Worker (2026-10-18)
+
+- **Problem:** after #777, `portfolio-settings` still matched `localhost` as a substring, so
+  `https://evil-localhost.example` received an `Access-Control-Allow-Origin` header for `/config`.
+  `feature-flag` threw an unhandled `URIError` for a malformed escape such as `%E0%A4%A`.
+- **Cause:** #777 fixed and tested only `cv-download`; the other two Workers had no behaviour tests.
+- **Fix:** compare the parsed hostname, match `/config` exactly and send a real weak ETag
+  ([#781](https://github.com/rapaglaz/rapaglaz-portfolio/pull/781)); answer 400 for a malformed
+  flag name ([#782](https://github.com/rapaglaz/rapaglaz-portfolio/pull/782)). Both Workers now
+  have specs.
+
+## Worker changes lost when a newer push cancelled the run (2026-10-18)
+
+- **Problem:** a Worker change could stay undeployed while CI was green.
+- **Cause:** `deploy-workers` compared each Worker folder with `github.event.before`. When a newer
+  push cancelled a run before that job, or the run failed, the next run diffed only its own push.
+  20 of the 100 Main Branch CI/CD runs before the fix had been cancelled by a newer push.
+- **Fix:** compare with the head SHA of the last successful run on `main`, read with
+  `gh run list` ([#784](https://github.com/rapaglaz/rapaglaz-portfolio/pull/784)).
+
+## Lazy-loaded shell, eagerly bundled sections (2026-10-18)
+
+- **Problem:** the router lazy-loaded the `Portfolio` shell, yet its chunk held only 2.61 kB; all
+  sections were in `main`.
+- **Cause:** the root component imported `Navbar` and `Footer` from the `features` barrel, which
+  re-exports every section.
+- **Fix:** import both from their own files and allow only the portfolio layer to import the
+  barrel (dependency-cruiser rule `features-barrel-in-portfolio-only`). Initial bundle 503.94 kB →
+  490.17 kB, `portfolio` chunk 2.61 kB → 17.04 kB
+  ([#785](https://github.com/rapaglaz/rapaglaz-portfolio/pull/785)).
+
+## Security headers documented but not served (2026-10-18)
+
+- **Problem:** `docs/SECURITY.md` listed five headers set "at the Cloudflare edge (Workers)"; a
+  curl of `https://rapaglaz.de/en` returned only `Strict-Transport-Security: max-age=15768000`.
+- **Cause:** the Workers set only their own response headers, and no Cloudflare rule set the rest.
+- **Fix:** a Cloudflare Response Header Transform Rule (`security-headers`) sets the other four; a
+  second curl confirmed them, and the notes list the HSTS value that is served
+  ([#786](https://github.com/rapaglaz/rapaglaz-portfolio/pull/786)).
+
+## Config retried errors that cannot change (2026-10-18)
+
+- **Problem:** `ConfigService` retried every failure three times back to back, including a 4xx and
+  a response that failed the Valibot schema.
+- **Cause:** `retry({ count: 3 })` ran after validation, with no condition and no delay.
+- **Fix:** retry only network errors and 5xx on the HTTP request, 250 ms, 500 ms and 1 s apart
+  ([#790](https://github.com/rapaglaz/rapaglaz-portfolio/pull/790)).
+
+## /de served the English prerender (2026-10-18)
+
+- **Problem:** `https://rapaglaz.de/de` returned `<html lang="en">`, English text and a canonical
+  link to `/en` until the client switched the language.
+- **Cause:** Cloudflare URL Rewrite Rules mapped `/en` and `/de` to `/index.html`, the prerender of
+  `/`, although the build writes `en/index.html` and `de/index.html`.
+- **Fix:** rewrite to `/en/index.html` and `/de/index.html`; curl then returned `lang="de"`, the
+  `/de` canonical link and German text. The rules are documented in
+  [Architecture](./ARCHITECTURE.md#ssg--hydration)
+  ([#792](https://github.com/rapaglaz/rapaglaz-portfolio/pull/792)).
+
+## i18n check that never failed on unused keys (2026-10-18)
+
+- **Problem:** `i18n:find` reported 55 "extra" keys on every run and still passed.
+- **Cause:** 53 keys are built at runtime, read as a whole object or passed as an input, which
+  transloco-keys-manager cannot see; two keys were unused.
+- **Fix:** list the runtime keys in `t(...)` comments next to their use, remove the two unused keys
+  and set `emitErrorOnExtraKeys: true`
+  ([#793](https://github.com/rapaglaz/rapaglaz-portfolio/pull/793)).
+
+## Incremental hydration measured, not merged (2026-10-18)
+
+- **Experiment:** wrap the five sections below the hero in `@defer (on idle; hydrate on viewport)`;
+  Angular 22 enables incremental hydration by default.
+- **Measured** against `main` (static build, local Chromium, `/en`): JS downloaded on load
+  419.27 kB → 419.78 kB, after scrolling to the end 419.27 kB → 431.94 kB; main-thread script time
+  until network idle with 4× CPU throttling (median of 7 runs, two series) 295 / 270 ms →
+  183 / 179 ms; all scripts 486.99 kB → 499.73 kB against the 500 kB error budget. A section
+  hydrated while on screen loses and regains its scroll-reveal `visible` class within 4 ms, so
+  visible content replays its entrance animation.
+- **Outcome:** not merged. The code and the measurements are on the
+  [`perf/defer-portfolio-sections`](https://github.com/rapaglaz/rapaglaz-portfolio/tree/perf/defer-portfolio-sections)
+  branch.

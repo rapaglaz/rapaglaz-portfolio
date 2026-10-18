@@ -1,6 +1,6 @@
 {
   "common": {
-    "firstName": "Radoslaw",
+    "firstName": "Radek",
     "lastName": "Glaz",
     "bootstrapError": "Failed to load the application. Please refresh the page.",
     "navbar": {
@@ -114,8 +114,6 @@
       }
     },
     "cv": {
-      "download": "CV downloaded successfully! 🎉",
-      "downloading": "Downloading...",
       "error": "Download failed. Please try again.",
       "turnstile": {
         "title": "Security Verification",
