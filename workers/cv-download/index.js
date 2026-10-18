@@ -36,7 +36,8 @@ export default {
 
     try {
       const url = new URL(request.url);
-      const clientIp = request.headers.get('CF-Connecting-IP') || 'unknown';
+      const remoteIp = request.headers.get('CF-Connecting-IP');
+      const clientIp = remoteIp || 'unknown';
 
       // Get allowed origins from environment or use defaults
       allowedOrigins = parseAllowedOrigins(env.ALLOWED_ORIGINS);
@@ -109,7 +110,7 @@ export default {
       }
 
       // --- Verify Turnstile ---
-      const turnstileValid = await verifyTurnstileWithCircuitBreaker(token, env);
+      const turnstileValid = await verifyTurnstileWithCircuitBreaker(token, env, remoteIp);
       if (!turnstileValid) {
         return buildResponse('Forbidden: Turnstile verification failed', 403);
       }
@@ -214,7 +215,7 @@ async function checkRateLimit(kvStore, clientIp, maxRequests) {
   }
 }
 
-async function verifyTurnstileWithCircuitBreaker(token, env) {
+async function verifyTurnstileWithCircuitBreaker(token, env, remoteIp) {
   const now = Date.now();
 
   // Check circuit breaker state
@@ -225,7 +226,7 @@ async function verifyTurnstileWithCircuitBreaker(token, env) {
     return isTestToken(token, env);
   }
 
-  const { valid, outage } = await verifyTurnstile(token, env);
+  const { valid, outage } = await verifyTurnstile(token, env, remoteIp);
 
   // Only siteverify outages open the breaker; a rejected token is a normal answer
   if (outage) {
@@ -244,7 +245,7 @@ function isTestToken(token, env) {
   return env.ALLOW_TEST_TOKEN === 'true' && token === CONFIG.TEST_TOKEN;
 }
 
-async function verifyTurnstile(token, env) {
+async function verifyTurnstile(token, env, remoteIp) {
   if (isTestToken(token, env)) return { valid: true, outage: false };
 
   // AbortController + setTimeout, as in Cloudflare's own Turnstile example
@@ -254,7 +255,12 @@ async function verifyTurnstile(token, env) {
     const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ secret: env.TURNSTILE_SECRET, response: token }),
+      // remoteip is optional; Cloudflare's examples pass CF-Connecting-IP
+      body: JSON.stringify({
+        secret: env.TURNSTILE_SECRET,
+        response: token,
+        ...(remoteIp && { remoteip: remoteIp }),
+      }),
       signal: controller.signal,
     });
     const result = await res.json();

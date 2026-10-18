@@ -169,6 +169,21 @@ describe('CV download worker', () => {
     expect(JSON.parse(init.body)).toEqual({ secret: 'turnstile-secret', response: 'valid-token' });
   });
 
+  it('passes the client IP to siteverify as remoteip', async () => {
+    const siteverify = mockSiteverify(true);
+
+    await worker.fetch(
+      downloadRequest({ headers: { 'CF-Connecting-IP': '203.0.113.7' } }),
+      createEnv(),
+    );
+
+    expect(JSON.parse(siteverify.mock.calls[0][1].body)).toEqual({
+      secret: 'turnstile-secret',
+      response: 'valid-token',
+      remoteip: '203.0.113.7',
+    });
+  });
+
   it('keeps verifying real tokens after repeated rejected tokens', async () => {
     const siteverify = vi
       .spyOn(globalThis, 'fetch')
