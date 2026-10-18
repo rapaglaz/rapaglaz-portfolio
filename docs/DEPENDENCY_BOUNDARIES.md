@@ -51,7 +51,9 @@ dependencies before the narrow exceptions below.
 
 Features cannot import another feature or the shared `features/index.ts` barrel. The one
 peer exception is `features/navbar` importing `features/language-switcher`. The root feature
-barrel may re-export features so that the portfolio shell can compose them.
+barrel may re-export features so that the portfolio shell can compose them. Only the portfolio
+layer and specs may import that barrel: it re-exports every section, so an import from the root
+component put all sections into the initial bundle although the router lazy-loads the shell.
 
 Specs are exempt from layer rules because they need to construct and mock collaborators.
 They remain in cycle analysis. Production files cannot import `*.spec.ts` files or `testing`.

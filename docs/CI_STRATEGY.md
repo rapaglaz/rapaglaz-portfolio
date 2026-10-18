@@ -95,8 +95,10 @@ Redundant runs are cancelled when a new commit is pushed to the same branch.
 
 ## Cloudflare Workers
 
-`deploy-workers` in Main Branch CI/CD deploys the Workers whose folders changed, after `lint` and
-`test`. It is opt-in through the repository variable `DEPLOY_WORKERS` and runs
-`cloudflare/wrangler-action` with the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets.
+`deploy-workers` in Main Branch CI/CD deploys the Workers whose folders changed since the last green
+run on `main`, after `lint` and `test`. Comparing with the previous push instead would lose the
+changes of a run that was cancelled by a newer push or failed. It is opt-in through the repository
+variable `DEPLOY_WORKERS` and runs `wrangler deploy` with the `CLOUDFLARE_API_TOKEN` and
+`CLOUDFLARE_ACCOUNT_ID` secrets.
 Pull requests never get these secrets; they only bundle the Workers with `wrangler deploy --dry-run`.
 See [Cloudflare Workers](../workers/README.md) for the configuration and the first deploy.
