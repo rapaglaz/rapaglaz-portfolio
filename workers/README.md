@@ -25,7 +25,8 @@ as a blob. See [Security notes](../docs/SECURITY.md) for the download flow.
 ## Deploy
 
 `deploy-workers` in `.github/workflows/main-branch-ci-cd.yaml` deploys a Worker from `main` after
-lint and tests pass, and only when its folder or `workers/package.json` changed. It runs only while
+lint and tests pass, and only when its folder or `workers/package.json` changed since the last green
+run on `main`, so a run that was cancelled or failed does not lose its changes. It runs only while
 the repository variable `DEPLOY_WORKERS` is `true` and uses the secrets `CLOUDFLARE_API_TOKEN` (Edit
 Cloudflare Workers) and `CLOUDFLARE_ACCOUNT_ID`.
 

@@ -135,6 +135,8 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: read
+      # gh run list reads the last green main run
+      actions: read
     strategy:
       fail-fast: false
       matrix:
@@ -148,12 +150,16 @@ jobs:
       - name: Check for changes in this Worker
         id: changes
         env:
-          BEFORE: ${{ github.event.before }}
+          GH_TOKEN: ${{ github.token }}
           WORKER: ${{ matrix.worker }}
         run: |
-          # manual runs and pushes without a known base deploy every Worker
-          if [ -z "$BEFORE" ] || ! git cat-file -e "$BEFORE^{commit}" 2>/dev/null ||
-            ! git diff --quiet "$BEFORE" HEAD -- "workers/$WORKER" workers/package.json; then
+          # Compare with the last green main run, not the previous push: a run that was cancelled
+          # by a newer push or failed never deployed its Worker changes.
+          BASE=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow main-branch-ci-cd.yaml \
+            --branch main --status success --limit 1 --json headSha --jq '.[0].headSha // empty') || BASE=''
+          # without a known base every Worker deploys
+          if [ -z "$BASE" ] || ! git cat-file -e "$BASE^{commit}" 2>/dev/null ||
+            ! git diff --quiet "$BASE" HEAD -- "workers/$WORKER" workers/package.json; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
           else
             echo "changed=false" >> "$GITHUB_OUTPUT"
