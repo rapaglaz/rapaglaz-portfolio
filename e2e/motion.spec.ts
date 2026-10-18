@@ -237,7 +237,9 @@ test.describe('Motion preferences', () => {
       }
     });
     await toast.getByRole('button', { name: 'Benachrichtigung schließen' }).focus();
-    expect(await readMotion(toast)).toMatchObject({ opacity: '1', transform: 'none' });
+    await expect
+      .poll(async () => readMotion(toast))
+      .toMatchObject({ opacity: '1', transform: 'none' });
   });
 
   test('shows an error notification immediately without an entrance animation in reduce mode', async ({
