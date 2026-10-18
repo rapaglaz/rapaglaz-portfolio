@@ -4,11 +4,10 @@ import { computed, inject, Injectable, Injector, PLATFORM_ID, Signal } from '@an
 import * as v from 'valibot';
 import { API_FEATURE_FLAG_URL } from '../../utils/tokens/api-urls.token';
 
-const FeatureFlagResponseSchema = v.record(v.string(), v.unknown());
-
+// The Worker answers { "<name>": true | false }; any other shape reads as false
 export function readFlagValue(raw: unknown, flagName: string): boolean {
-  const result = v.safeParse(FeatureFlagResponseSchema, raw);
-  return result.success && result.output[flagName] === true;
+  const result = v.safeParse(v.object({ [flagName]: v.boolean() }), raw);
+  return result.success && result.output[flagName];
 }
 
 @Injectable({
