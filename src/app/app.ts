@@ -2,7 +2,8 @@ import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { Component, inject, PLATFORM_ID } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { Footer, Navbar } from './features';
+import { Footer } from './features/footer/footer';
+import { Navbar } from './features/navbar/navbar';
 
 @Component({
   selector: 'app-root',
