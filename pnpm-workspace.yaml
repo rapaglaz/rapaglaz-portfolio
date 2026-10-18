@@ -6,3 +6,4 @@ allowBuilds:
   lefthook: true
   lmdb: false
   msgpackr-extract: false
+  nx: false
