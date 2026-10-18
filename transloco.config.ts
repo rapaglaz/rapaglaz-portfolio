@@ -7,7 +7,8 @@ const config: TranslocoGlobalConfig = {
   langs: [...AVAILABLE_LANGS],
   keysManager: {
     input: ['src'],
-    emitErrorOnExtraKeys: false,
+    // Keys built at runtime are listed in t(...) comments next to their use
+    emitErrorOnExtraKeys: true,
   },
 };
 

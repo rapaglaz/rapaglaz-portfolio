@@ -114,8 +114,6 @@
       }
     },
     "cv": {
-      "download": "Lebenslauf erfolgreich heruntergeladen!",
-      "downloading": "Wird heruntergeladen...",
       "error": "Download fehlgeschlagen. Bitte versuchen Sie es erneut.",
       "turnstile": {
         "title": "Sicherheitsüberprüfung",

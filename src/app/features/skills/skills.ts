@@ -17,6 +17,8 @@ const toBadges = (categories: typeof SKILL_CATEGORIES): SkillBadge[] =>
     })),
   );
 
+// section-wrapper translates titleKey; listed for i18n:check
+/** t(portfolio.skills.title) */
 @Component({
   selector: 'app-skills',
   imports: [TranslocoModule, SectionWrapper],

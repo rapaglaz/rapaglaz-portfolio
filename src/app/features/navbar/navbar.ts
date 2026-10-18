@@ -59,6 +59,7 @@ export class Navbar {
     this.cvDownloadService
       .downloadCV(trigger)
       .pipe(
+        /** t(portfolio.cv.error) */
         withErrorToast('portfolio.cv.error', this.toastService, this.translocoService, this.logger),
         finalize(() => this.isDownloading.set(false)),
         takeUntilDestroyed(this.destroyRef),

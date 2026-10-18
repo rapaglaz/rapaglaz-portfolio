@@ -149,6 +149,10 @@ I validate translations with:
 pnpm run i18n:check
 ```
 
+It fails on missing keys and on keys that no code uses. transloco-keys-manager cannot see keys
+built at runtime (`'portfolio.skills.items.' + id`) or passed as an input (`titleKey`), so those
+are listed in `t(...)` comments next to their use.
+
 ## Trade-offs
 
 - No NgRx. Not needed here.

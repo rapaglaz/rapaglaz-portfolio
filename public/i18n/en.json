@@ -114,8 +114,6 @@
       }
     },
     "cv": {
-      "download": "CV downloaded successfully! 🎉",
-      "downloading": "Downloading...",
       "error": "Download failed. Please try again.",
       "turnstile": {
         "title": "Security Verification",
