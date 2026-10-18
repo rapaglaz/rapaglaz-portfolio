@@ -169,6 +169,21 @@ describe('CV download worker', () => {
     expect(JSON.parse(init.body)).toEqual({ secret: 'turnstile-secret', response: 'valid-token' });
   });
 
+  it('passes the client IP to siteverify as remoteip', async () => {
+    const siteverify = mockSiteverify(true);
+
+    await worker.fetch(
+      downloadRequest({ headers: { 'CF-Connecting-IP': '203.0.113.7' } }),
+      createEnv(),
+    );
+
+    expect(JSON.parse(siteverify.mock.calls[0][1].body)).toEqual({
+      secret: 'turnstile-secret',
+      response: 'valid-token',
+      remoteip: '203.0.113.7',
+    });
+  });
+
   it('keeps verifying real tokens after repeated rejected tokens', async () => {
     const siteverify = vi
       .spyOn(globalThis, 'fetch')
@@ -236,6 +251,37 @@ describe('CV download worker', () => {
 
     expect(response.status).toBe(403);
     expect(siteverify.mock.calls[0][1].signal.aborted).toBe(true);
+  });
+
+  it('keeps the CORS header for allowed origins on an internal error', async () => {
+    mockSiteverify(true);
+    const env = createEnv({
+      PORTFOLIO_FILES: { get: vi.fn(async () => Promise.reject(new Error('R2 down'))) },
+    });
+
+    const response = await worker.fetch(downloadRequest(), env);
+
+    expect(response.status).toBe(500);
+    expect(await response.text()).toBe('Internal Server Error');
+    expect(response.headers.get('Access-Control-Allow-Origin')).toBe(ORIGIN);
+  });
+
+  it('sends no CORS header to other origins on an internal error', async () => {
+    // an error before the origin check is the only way another origin reaches the catch block
+    const env = createEnv();
+    Object.defineProperty(env, 'ALLOWED_ORIGINS', {
+      get() {
+        throw new Error('broken binding');
+      },
+    });
+
+    const response = await worker.fetch(
+      downloadRequest({ headers: { Origin: 'https://attacker.example' } }),
+      env,
+    );
+
+    expect(response.status).toBe(500);
+    expect(response.headers.get('Access-Control-Allow-Origin')).toBeNull();
   });
 
   it('limits each client IP to 10 requests per minute', async () => {

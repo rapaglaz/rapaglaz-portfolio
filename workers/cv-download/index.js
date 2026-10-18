@@ -20,7 +20,6 @@ const CONFIG = {
 };
 
 const HEADERS = {
-  CONTENT_TYPE_JSON: 'application/json',
   CONTENT_TYPE_PDF: 'application/pdf',
   WWW_AUTHENTICATE: 'Turnstile realm="cv-download"',
 };
@@ -30,22 +29,22 @@ let turnstileLastFailureTime = 0;
 
 export default {
   async fetch(request, env) {
-    const requestId = crypto.randomUUID();
-    const startTime = Date.now();
+    const sourceOrigin =
+      request.headers.get('Origin') || extractOriginFromReferer(request.headers.get('Referer'));
+    // replaced from the environment below; the catch block keeps the defaults if that fails
+    let allowedOrigins = CONFIG.DEFAULT_ALLOWED_ORIGINS;
 
     try {
       const url = new URL(request.url);
-      const origin = request.headers.get('Origin') || '';
-      const referer = request.headers.get('Referer') || '';
-      const clientIp = request.headers.get('CF-Connecting-IP') || 'unknown';
+      const remoteIp = request.headers.get('CF-Connecting-IP');
+      const clientIp = remoteIp || 'unknown';
 
       // Get allowed origins from environment or use defaults
-      const allowedOrigins = parseAllowedOrigins(env.ALLOWED_ORIGINS);
+      allowedOrigins = parseAllowedOrigins(env.ALLOWED_ORIGINS);
 
       // Helper function to build responses with CORS support
       const buildResponse = (body, status, extraHeaders = {}) => {
         const headers = new Headers(extraHeaders);
-        const sourceOrigin = origin || extractOriginFromReferer(referer);
 
         // Always add CORS headers if origin is allowed (even for errors)
         if (isOriginAllowed(sourceOrigin, allowedOrigins)) {
@@ -79,8 +78,8 @@ export default {
       }
 
       // --- Validate origin ---
-      if (!isOriginAllowed(origin || extractOriginFromReferer(referer), allowedOrigins)) {
-        console.warn('Blocked Origin:', origin || referer);
+      if (!isOriginAllowed(sourceOrigin, allowedOrigins)) {
+        console.warn('Blocked Origin:', sourceOrigin);
         return buildResponse('Forbidden: Origin not allowed', 403);
       }
 
@@ -111,7 +110,7 @@ export default {
       }
 
       // --- Verify Turnstile ---
-      const turnstileValid = await verifyTurnstileWithCircuitBreaker(token, env);
+      const turnstileValid = await verifyTurnstileWithCircuitBreaker(token, env, remoteIp);
       if (!turnstileValid) {
         return buildResponse('Forbidden: Turnstile verification failed', 403);
       }
@@ -135,11 +134,10 @@ export default {
       return buildResponse(object.body, 200, successHeaders);
     } catch (error) {
       console.error('Internal error:', error.message);
-      // Return error with CORS headers
+      // CORS headers only for allowed origins, as on every other response
       const headers = new Headers({ 'Content-Type': 'text/plain; charset=utf-8' });
-      const sourceOrigin = request.headers.get('Origin') || '';
-      if (sourceOrigin) {
-        headers.set('Access-Control-Allow-Origin', sourceOrigin);
+      if (isOriginAllowed(sourceOrigin, allowedOrigins)) {
+        headers.set('Access-Control-Allow-Origin', sourceOrigin.replace(/\/$/, ''));
         headers.set('Vary', 'Origin');
       }
       return new Response('Internal Server Error', { status: 500, headers });
@@ -217,7 +215,7 @@ async function checkRateLimit(kvStore, clientIp, maxRequests) {
   }
 }
 
-async function verifyTurnstileWithCircuitBreaker(token, env) {
+async function verifyTurnstileWithCircuitBreaker(token, env, remoteIp) {
   const now = Date.now();
 
   // Check circuit breaker state
@@ -228,7 +226,7 @@ async function verifyTurnstileWithCircuitBreaker(token, env) {
     return isTestToken(token, env);
   }
 
-  const { valid, outage } = await verifyTurnstile(token, env);
+  const { valid, outage } = await verifyTurnstile(token, env, remoteIp);
 
   // Only siteverify outages open the breaker; a rejected token is a normal answer
   if (outage) {
@@ -247,7 +245,7 @@ function isTestToken(token, env) {
   return env.ALLOW_TEST_TOKEN === 'true' && token === CONFIG.TEST_TOKEN;
 }
 
-async function verifyTurnstile(token, env) {
+async function verifyTurnstile(token, env, remoteIp) {
   if (isTestToken(token, env)) return { valid: true, outage: false };
 
   // AbortController + setTimeout, as in Cloudflare's own Turnstile example
@@ -257,7 +255,12 @@ async function verifyTurnstile(token, env) {
     const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ secret: env.TURNSTILE_SECRET, response: token }),
+      // remoteip is optional; Cloudflare's examples pass CF-Connecting-IP
+      body: JSON.stringify({
+        secret: env.TURNSTILE_SECRET,
+        response: token,
+        ...(remoteIp && { remoteip: remoteIp }),
+      }),
       signal: controller.signal,
     });
     const result = await res.json();
