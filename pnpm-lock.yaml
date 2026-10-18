@@ -246,7 +246,7 @@ importers:
         specifier: 10.0.1
         version: 10.0.1(eslint@10.12.0(jiti@2.7.0)(supports-color@8.1.1))
       '@ianvs/prettier-plugin-sort-imports':
-        specifier: ^4.7.1
+        specifier: 4.7.1
         version: 4.7.1(prettier@3.9.9)(supports-color@8.1.1)
       '@jsverse/transloco-keys-manager':
         specifier: 8.1.1
