@@ -1,8 +1,10 @@
 import { DOCUMENT } from '@angular/common';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslocoService } from '@jsverse/transloco';
+import { FeatureFlagService } from '@rapaglaz/shared/data-access';
 import { provideTranslocoTesting } from '@rapaglaz/shared/testing';
 import { firstValueFrom } from 'rxjs';
 import { beforeEach, describe, expect, it } from 'vitest';
@@ -87,5 +89,35 @@ describe('Portfolio', () => {
     expect(head.querySelector('meta[property="og:title"]')).toBeNull();
     expect(head.querySelector('meta[property="og:image"]')).toBeNull();
     expect(head.querySelector('link[data-seo-id]')).toBeNull();
+  });
+
+  it('passes the content and the open-to-work flag to the sections', async () => {
+    const openToWork = signal(false);
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      imports: [Portfolio],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideTranslocoTesting(),
+        { provide: FeatureFlagService, useValue: { getFlagValue: () => openToWork.asReadonly() } },
+      ],
+    });
+    await firstValueFrom(TestBed.inject(TranslocoService).load('en'));
+    const page = TestBed.createComponent(Portfolio);
+    page.detectChanges();
+    const host = page.nativeElement as HTMLElement;
+    const count = (testId: string): number =>
+      host.querySelectorAll(`[data-testid="${testId}"]`).length;
+
+    expect(count('skill-badge')).toBe(25);
+    expect(count('skill-badge-secondary')).toBe(2);
+    expect(count('certification-card')).toBe(3);
+    expect(count('contact-link')).toBe(3);
+    expect(count('hero-badge-mobile')).toBe(0);
+
+    openToWork.set(true);
+    page.detectChanges();
+    expect(count('hero-badge-mobile')).toBe(1);
   });
 });

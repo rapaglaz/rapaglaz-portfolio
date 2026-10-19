@@ -14,19 +14,24 @@ Nx forbids importing an application from another project by path. Every project 
 and libraries also have a scope tag. Each tag has a constraint that lists the tags it may depend
 on:
 
-| Tag                | Projects                                            | May depend on                                              |
-| ------------------ | --------------------------------------------------- | ---------------------------------------------------------- |
-| `type:app`         | `rapaglaz-portfolio`                                | `type:data-access`, `type:ui`, `type:util`, `type:testing` |
-| `type:e2e`         | `rapaglaz-portfolio-e2e`                            | `type:app`                                                 |
-| `type:worker`      | `cv-download`, `feature-flag`, `portfolio-settings` | Nothing                                                    |
-| `type:data-access` | `shared-data-access`                                | `type:data-access`, `type:util`, `type:testing`            |
-| `type:ui`          | `shared-ui`                                         | `type:ui`, `type:util`, `type:testing`                     |
-| `type:util`        | `shared-util`                                       | `type:util`                                                |
-| `type:testing`     | `shared-testing`                                    | `type:util`                                                |
-| `scope:shared`     | all `libs/shared/*` libraries                       | `scope:shared`                                             |
+| Tag                | Projects                                            | May depend on                                                              |
+| ------------------ | --------------------------------------------------- | -------------------------------------------------------------------------- |
+| `type:app`         | `rapaglaz-portfolio`                                | `type:feature`, `type:data-access`, `type:ui`, `type:util`, `type:testing` |
+| `type:feature`     | `portfolio-feature`                                 | `type:data-access`, `type:ui`, `type:util`, `type:testing`                 |
+| `type:e2e`         | `rapaglaz-portfolio-e2e`                            | `type:app`                                                                 |
+| `type:worker`      | `cv-download`, `feature-flag`, `portfolio-settings` | Nothing                                                                    |
+| `type:data-access` | `shared-data-access`                                | `type:data-access`, `type:util`, `type:testing`                            |
+| `type:ui`          | `shared-ui`, `portfolio-ui`                         | `type:ui`, `type:util`, `type:testing`                                     |
+| `type:util`        | `shared-util`                                       | `type:util`                                                                |
+| `type:testing`     | `shared-testing`                                    | `type:util`                                                                |
+| `scope:shared`     | all `libs/shared/*` libraries                       | `scope:shared`                                                             |
+| `scope:portfolio`  | `portfolio-feature`, `portfolio-ui`                 | `scope:portfolio`, `scope:shared`                                          |
 
 Data access does not depend on UI: the Turnstile modal belongs to `shared-data-access`, and the
 navbar connects the CV download to the toasts.
+
+The router loads `portfolio-feature` with a dynamic import, so Nx treats it as lazy-loaded and
+rejects every static import of it, specs included; `app.routes.spec.ts` imports it dynamically.
 
 The e2e project tests the app through `implicitDependencies`, not through imports. A new library
 gets a type and a scope tag, and the constraints are extended to say which projects may use it.
@@ -106,36 +111,35 @@ Paths in the rest of this document are relative to `apps/rapaglaz-portfolio/`.
 Imports within the same layer are allowed. The table describes additional application-layer
 dependencies before the narrow exceptions below.
 
-| Source layer | Additional allowed targets                                                   |
-| ------------ | ---------------------------------------------------------------------------- |
-| `content`    | None; content may compose other content and re-export it through its barrel. |
-| `utils`      | `content`; no features or portfolio.                                         |
-| `features`   | `utils`, `content`                                                           |
-| `portfolio`  | `features`                                                                   |
+| Source layer | Additional allowed targets |
+| ------------ | -------------------------- |
+| `utils`      | None; no features.         |
+| `features`   | `utils`                    |
 
 Libraries are outside these layers: what the app may import from them is decided by the project
 tags.
 
-Features cannot import another feature or the shared `features/index.ts` barrel. The one
-peer exception is `features/navbar` importing `features/language-switcher`. The root feature
-barrel may re-export features so that the portfolio shell can compose them. Only the portfolio
-layer and specs may import that barrel: it re-exports every section, so an import from the root
-component put all sections into the initial bundle although the router lazy-loads the shell.
+Features cannot import another feature. The one peer exception is `features/navbar` importing
+`features/language-switcher`.
+
+Inside the libraries, dependency-cruiser adds three rules:
+
+- `no-cross-section`: a section in `libs/portfolio/ui` cannot import another section; the page
+  composes them.
+- `portfolio-ui-in-feature-only`: only `portfolio-feature` and specs may import the section barrel.
+  It re-exports every section, so an import from the root component would put all sections into
+  the initial bundle although the router lazy-loads the page.
+- `content-is-independent`: the content in `libs/portfolio/feature/src/lib/content` imports nothing
+  at runtime; the input types it uses are type-only imports.
 
 Specs are exempt from layer rules because they need to construct and mock collaborators.
 They remain in cycle analysis. Production files cannot import `*.spec.ts` files or
 `@rapaglaz/shared/testing`.
-Files outside the portfolio layer cannot import portfolio, except for specs and the route
-entry point listed below.
 
 ### Narrow exceptions
 
-Every exception has a comment in the configuration. The specialized rules keep all other
-forbidden targets checked for the source files that need an exception.
-
-| Source                  | Additional allowed target | Reason                                         |
-| ----------------------- | ------------------------- | ---------------------------------------------- |
-| `src/app/app.routes.ts` | The `portfolio` layer     | The router must lazy-load the portfolio shell. |
+There are none left. The routing exception went away when the page moved to `portfolio-feature`:
+the Nx lazy-load rule now keeps everything but the router from importing it.
 
 There is no cycle allow-list. The missing handler (logger) and portfolio shell (SEO language
 constants) exceptions went away when logger and i18n moved to `shared-util`; the toast and

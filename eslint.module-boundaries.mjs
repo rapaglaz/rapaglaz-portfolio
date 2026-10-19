@@ -21,13 +21,21 @@ export const moduleBoundaries = (allow = []) => ({
         depConstraints: [
           {
             sourceTag: 'type:app',
+            onlyDependOnLibsWithTags: [
+              'type:feature',
+              'type:data-access',
+              'type:ui',
+              'type:util',
+              'type:testing',
+            ],
+          },
+          {
+            sourceTag: 'type:feature',
             onlyDependOnLibsWithTags: ['type:data-access', 'type:ui', 'type:util', 'type:testing'],
           },
           // The E2E project tests the app through its implicit dependency, not through imports
           { sourceTag: 'type:e2e', onlyDependOnLibsWithTags: ['type:app'] },
           { sourceTag: 'type:worker', onlyDependOnLibsWithTags: [] },
-          // Utilities stay leaves; the testing helpers build on them. dependency-cruiser keeps
-          // production files from importing the testing library, which this rule cannot see.
           // Data access owns its overlay UI (the Turnstile modal), so it needs no UI library
           {
             sourceTag: 'type:data-access',
@@ -37,9 +45,15 @@ export const moduleBoundaries = (allow = []) => ({
             sourceTag: 'type:ui',
             onlyDependOnLibsWithTags: ['type:ui', 'type:util', 'type:testing'],
           },
+          // Utilities stay leaves; the testing helpers build on them. dependency-cruiser keeps
+          // production files from importing the testing library, which this rule cannot see.
           { sourceTag: 'type:util', onlyDependOnLibsWithTags: ['type:util'] },
           { sourceTag: 'type:testing', onlyDependOnLibsWithTags: ['type:util'] },
           { sourceTag: 'scope:shared', onlyDependOnLibsWithTags: ['scope:shared'] },
+          {
+            sourceTag: 'scope:portfolio',
+            onlyDependOnLibsWithTags: ['scope:portfolio', 'scope:shared'],
+          },
         ],
       },
     ],

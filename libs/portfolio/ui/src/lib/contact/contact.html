@@ -7,7 +7,7 @@
     <div
       class="animate-container flex flex-col gap-6"
       [class.visible]="wrapper.scrollReveal.isVisible()">
-      @for (contact of contactItems; track contact.id; let i = $index) {
+      @for (contact of items(); track contact.id; let i = $index) {
         <a
           data-testid="contact-link"
           [href]="contact.href"

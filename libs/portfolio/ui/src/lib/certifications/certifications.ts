@@ -1,8 +1,16 @@
-import { Component, computed, viewChild } from '@angular/core';
+import { Component, computed, input, viewChild } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
 import { SectionWrapper } from '@rapaglaz/shared/ui';
 import { buildDelayGetter, injectActiveLang } from '@rapaglaz/shared/util';
-import { CERTIFICATIONS, type Certification } from '../../content';
+
+export type CertificationId = 'angular-architecture' | 'angular-testing' | 'angular-spa-typescript';
+
+export type Certification = {
+  readonly id: CertificationId;
+  readonly date: string;
+  readonly durationDays: number;
+  readonly remote: boolean;
+};
 
 type CertificationWithFormattedDate = Certification & {
   formattedDate: string;
@@ -14,6 +22,8 @@ type CertificationWithFormattedDate = Certification & {
   templateUrl: './certifications.html',
 })
 export class Certifications {
+  readonly items = input.required<readonly Certification[]>();
+
   protected readonly sectionWrapper = viewChild.required(SectionWrapper);
 
   private readonly activeLang = injectActiveLang();
@@ -28,7 +38,7 @@ export class Certifications {
 
   protected readonly certifications = computed<CertificationWithFormattedDate[]>(() => {
     const formatter = this.dateFormatter();
-    return CERTIFICATIONS.map(cert => ({
+    return this.items().map(cert => ({
       ...cert,
       formattedDate: this.formatDate(cert.date, formatter),
     }));

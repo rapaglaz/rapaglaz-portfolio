@@ -6,7 +6,7 @@ tasks; it adds no runtime code.
 
 ## Folder layout
 
-The workspace has nine projects:
+The workspace has eleven projects:
 
 ```plaintext
 apps/
@@ -17,6 +17,9 @@ apps/
     ├── feature-flag/
     └── portfolio-settings/
 libs/
+├── portfolio/
+│   ├── feature/              # portfolio-feature, tags scope:portfolio type:feature
+│   └── ui/                   # portfolio-ui, tags scope:portfolio type:ui
 └── shared/
     ├── data-access/          # shared-data-access, tags scope:shared type:data-access
     ├── ui/                   # shared-ui, tags scope:shared type:ui
@@ -38,6 +41,12 @@ Turnstile, and the feature flag. The Turnstile modal and the interceptor live th
 service never reaches into another layer for its overlay. The libraries export only what the app
 uses: `ConfigService`, `TURNSTILE_TOKEN`, the modal and the toast container stay internal.
 
+`portfolio-feature` is the page: SEO tags, the skills and certifications content and the feature
+flag. It passes them to the sections in `portfolio-ui` through inputs, so the sections only render;
+the input types (`SkillCategory`, `Certification`) live with the sections and the content imports
+them. The router loads the page with a dynamic import, which keeps the sections out of the initial
+bundle; Nx rejects a static import of the library anywhere, specs included.
+
 Each Worker is its own Nx project, not one `workers` project. Cloudflare deploys every Worker on its
 own, and `nx affected` decides per project: with one project, a fix in `feature-flag` would also
 redeploy `cv-download` and `portfolio-settings`. A deploy replaces the bindings of a Worker with the
@@ -56,10 +65,8 @@ Shared bits go to a shared place.
 ```plaintext
 apps/rapaglaz-portfolio/src/app/
 ├── app.ts / app.config.ts / app.routes.ts   # bootstrap, routing, providers
-├── portfolio/     # top-level portfolio shell component
-├── features/      # hero, navbar, language-switcher, about, skills, languages, certifications, contact, footer
-├── utils/         # helpers (layout)
-└── content/       # typed static content (skills, certifications)
+├── features/      # navbar, language-switcher, footer
+└── utils/         # helpers (layout)
 ```
 
 I try to keep features isolated (no feature → feature imports). One exception:

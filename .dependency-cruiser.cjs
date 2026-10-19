@@ -1,4 +1,4 @@
-// Runtime layer rules inside the app. Boundaries between Nx projects are enforced by
+// Runtime layer rules inside the app and inside libraries. Boundaries between Nx projects are enforced by
 // @nx/enforce-module-boundaries (eslint.module-boundaries.mjs). See docs/DEPENDENCY_BOUNDARIES.md.
 const path = require('node:path');
 
@@ -13,17 +13,14 @@ module.exports = {
     },
     {
       name: 'content-is-independent',
-      comment: 'Content may depend on its own layer for composition and barrel exports only.',
+      comment: 'Portfolio content is plain data; it imports nothing at runtime.',
       severity: 'error',
-      from: { path: '^apps/rapaglaz-portfolio/src/app/content/', pathNot: '\\.spec\\.ts$' },
-      to: {
-        path: '^apps/rapaglaz-portfolio/src/app/',
-        pathNot: '^apps/rapaglaz-portfolio/src/app/content/',
-      },
+      from: { path: '^libs/portfolio/feature/src/lib/content/', pathNot: '\\.spec\\.ts$' },
+      to: { pathNot: '^libs/portfolio/feature/src/lib/content/' },
     },
     {
       name: 'utils-layer',
-      comment: 'Utilities must not depend on features or the shell.',
+      comment: 'Utilities must not depend on features.',
       severity: 'error',
       from: {
         path: '^apps/rapaglaz-portfolio/src/app/utils/',
@@ -31,22 +28,22 @@ module.exports = {
         pathNot: '\\.spec\\.ts$',
       },
       to: {
-        path: '^apps/rapaglaz-portfolio/src/app/(features|portfolio)/',
+        path: '^apps/rapaglaz-portfolio/src/app/features/',
       },
     },
     {
       name: 'features-layer',
-      comment: 'Features may depend on utilities and content; peer rules follow.',
+      comment: 'Features may depend on utilities; peer rules follow.',
       severity: 'error',
       from: { path: '^apps/rapaglaz-portfolio/src/app/features/', pathNot: '\\.spec\\.ts$' },
       to: {
         path: '^apps/rapaglaz-portfolio/src/app/(?!testing/)',
-        pathNot: '^apps/rapaglaz-portfolio/src/app/(features|utils|content)/',
+        pathNot: '^apps/rapaglaz-portfolio/src/app/(features|utils)/',
       },
     },
     {
       name: 'no-cross-feature',
-      comment: 'Each feature must stay independent of its peers, including the shared barrel.',
+      comment: 'Each feature must stay independent of its peers.',
       severity: 'error',
       from: {
         path: '^apps/rapaglaz-portfolio/src/app/features/([^/]+)/',
@@ -68,43 +65,25 @@ module.exports = {
       },
     },
     {
-      name: 'portfolio-layer',
-      comment: 'The portfolio layer may compose features.',
+      name: 'no-cross-section',
+      comment: 'Each portfolio section stays independent of its peers; the page composes them.',
       severity: 'error',
-      from: {
-        path: '^apps/rapaglaz-portfolio/src/app/portfolio/',
-        pathNot: '\\.spec\\.ts$',
-      },
+      from: { path: '^libs/portfolio/ui/src/lib/([^/]+)/', pathNot: '\\.spec\\.ts$' },
       to: {
-        path: '^apps/rapaglaz-portfolio/src/app/(?!testing/)',
-        pathNot: '^apps/rapaglaz-portfolio/src/app/(portfolio|features)/',
+        path: '^libs/portfolio/ui/src/lib/',
+        pathNot: '^libs/portfolio/ui/src/lib/$1/',
       },
     },
     {
-      name: 'no-portfolio-imports',
-      comment: 'Application files outside the portfolio layer must not depend on the shell.',
-      severity: 'error',
-      from: {
-        path: '^apps/rapaglaz-portfolio/src/app/',
-        // The router must load its shell; specs may exercise the shell directly.
-        pathNot: [
-          '^apps/rapaglaz-portfolio/src/app/portfolio/',
-          '^apps/rapaglaz-portfolio/src/app/app\\.routes\\.ts$',
-          '\\.spec\\.ts$',
-        ],
-      },
-      to: { path: '^apps/rapaglaz-portfolio/src/app/portfolio/' },
-    },
-    {
-      name: 'features-barrel-in-portfolio-only',
+      name: 'portfolio-ui-in-feature-only',
       comment:
-        'The features barrel re-exports every section; imported outside the lazy-loaded shell, it pulls all sections into the initial bundle.',
+        'The section barrel re-exports every section; imported outside the lazy-loaded page, it pulls all sections into the initial bundle.',
       severity: 'error',
       from: {
-        path: '^apps/rapaglaz-portfolio/src/app/',
-        pathNot: ['^apps/rapaglaz-portfolio/src/app/portfolio/', '\\.spec\\.ts$'],
+        path: '^(apps/rapaglaz-portfolio/src/app|libs)/',
+        pathNot: ['^libs/portfolio/', '\\.spec\\.ts$'],
       },
-      to: { path: '^apps/rapaglaz-portfolio/src/app/features/index\\.ts$' },
+      to: { path: '^libs/portfolio/ui/' },
     },
     {
       name: 'no-production-to-testing',

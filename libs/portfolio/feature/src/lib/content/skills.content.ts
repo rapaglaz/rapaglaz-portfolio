@@ -1,14 +1,4 @@
-export type SkillCategoryId =
-  'frontend' | 'testing' | 'devops' | 'architecture' | 'backend' | 'soft-skills' | 'familiar';
-
-export type Skill = {
-  readonly id: string;
-};
-
-export type SkillCategory = {
-  readonly id: SkillCategoryId;
-  readonly skills: readonly Skill[];
-};
+import type { SkillCategory } from '@rapaglaz/portfolio/ui';
 
 // Templates build portfolio.skills.items.<id> and portfolio.skills.categoryTitles.<category id>.
 // transloco-keys-manager cannot see dynamic keys, so i18n:check reads them from this list.
