@@ -21,6 +21,14 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 1
 
+      - name: Connect Nx remote cache
+        uses: ./.github/actions/nx-remote-cache
+        with:
+          server: ${{ secrets.NX_SELF_HOSTED_REMOTE_CACHE_SERVER }}
+          access-token: ${{ secrets.NX_CACHE_ACCESS_TOKEN }}
+          ts-oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          ts-oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+
       - name: Run Lint
         uses: ./.github/actions/quality-check
         with:
@@ -39,6 +47,14 @@ jobs:
           persist-credentials: false
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
+
+      - name: Connect Nx remote cache
+        uses: ./.github/actions/nx-remote-cache
+        with:
+          server: ${{ secrets.NX_SELF_HOSTED_REMOTE_CACHE_SERVER }}
+          access-token: ${{ secrets.NX_CACHE_ACCESS_TOKEN }}
+          ts-oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          ts-oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
 
       - name: Run Tests
         uses: ./.github/actions/quality-check
@@ -97,6 +113,14 @@ jobs:
         with:
           persist-credentials: false
           ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Connect Nx remote cache
+        uses: ./.github/actions/nx-remote-cache
+        with:
+          server: ${{ secrets.NX_SELF_HOSTED_REMOTE_CACHE_SERVER }}
+          access-token: ${{ secrets.NX_CACHE_ACCESS_TOKEN }}
+          ts-oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          ts-oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
 
       - name: Build application
         uses: ./.github/actions/build

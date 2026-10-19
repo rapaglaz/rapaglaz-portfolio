@@ -118,6 +118,14 @@ pnpm exec playwright install --with-deps
 The `pnpm run` scripts call Nx, so build, lint and test results come from the local cache in
 `.nx/` when nothing they depend on has changed.
 
+On the tailnet you can share the CI cache (see [CI strategy](./CI_STRATEGY.md#nx-remote-cache)) by
+exporting the cache variables before running Nx:
+
+```bash
+export NX_SELF_HOSTED_REMOTE_CACHE_SERVER=<cache server URL>
+export NX_SELF_HOSTED_REMOTE_CACHE_ACCESS_TOKEN=<access token>
+```
+
 ```bash
 pnpm nx show projects                    # rapaglaz-portfolio, rapaglaz-portfolio-e2e
 pnpm nx show project rapaglaz-portfolio  # resolved targets, inputs and outputs
