@@ -24,11 +24,15 @@ as a blob. See [Security notes](../../docs/SECURITY.md) for the download flow.
 
 ## Deploy
 
-`deploy-workers` in `.github/workflows/main-branch-ci-cd.yaml` deploys a Worker from `main` after
-lint and tests pass, and only when its folder or `apps/workers/package.json` changed since the last green
-run on `main`, so a run that was cancelled or failed does not lose its changes. It runs only while
-the repository variable `DEPLOY_WORKERS` is `true` and uses the secrets `CLOUDFLARE_API_TOKEN` (Edit
-Cloudflare Workers) and `CLOUDFLARE_ACCOUNT_ID`.
+Each Worker folder is an Nx project with the tag `type:worker` and the targets `test`, `check`
+(`wrangler deploy --dry-run`), `deploy` (`wrangler deploy`) and `lint`. `check` and `deploy` are
+defined once in `nx.json`; the lint rules live in [`eslint.config.mjs`](./eslint.config.mjs) in this
+folder, separate from the root config.
+
+`deploy-workers` in `.github/workflows/main-branch-ci-cd.yaml` deploys from `main` after lint and
+tests pass, and only the Workers that `nx affected` reports since the last green run on `main`, so a
+run that was cancelled or failed does not lose its changes. The job uses the secrets
+`CLOUDFLARE_API_TOKEN` (Edit Cloudflare Workers) and `CLOUDFLARE_ACCOUNT_ID`.
 
 ### First deploy from this repo
 
@@ -43,8 +47,17 @@ Before deploying a Worker from this repo:
 2. Run `pnpm run test:workers`: it fails when a config lacks a binding the code needs, when the
    code reads an `env` name the test does not know, or when `vars` sets `ALLOW_TEST_TOKEN`.
 3. Run `pnpm run workers:check` and compare the bindings it lists with the active version.
-4. Deploy from the Worker folder with `npx wrangler@4.151.1 deploy` and check that the deploy output
-   lists the same bindings. If something breaks, `npx wrangler@4.151.1 rollback` returns to the
-   previous version.
+4. Deploy with `pnpm nx deploy <worker>` and check that the deploy output lists the same bindings.
+   If something breaks, `npx wrangler@4.151.1 rollback` in the Worker folder returns to the previous
+   version.
 
-Set `DEPLOY_WORKERS` to `true` only after all three Workers went through these steps.
+All three Workers went through these steps before `DEPLOY_WORKERS` was set to `true` on 2026-10-17;
+a new Worker goes through them before its first deploy from CI.
+
+### Stopping deploys
+
+The repository variable `DEPLOY_WORKERS` is a kill switch. While it is anything but `true`,
+`deploy-workers` is skipped, for example during an incident or while a binding is changed in the
+dashboard. A run with the job skipped is still green and becomes the base of the next comparison, so
+Worker changes merged while the switch is off are not deployed when it is turned back on. Deploy
+them by hand with `pnpm nx deploy <worker>`.

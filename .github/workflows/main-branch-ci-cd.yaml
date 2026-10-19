@@ -123,8 +123,8 @@ jobs:
 
   deploy-workers:
     needs: [lint, test]
-    # Opt-in: set the repository variable DEPLOY_WORKERS to true once every wrangler.jsonc
-    # carries the bindings from the dashboard, otherwise a deploy would drop them.
+    # Kill switch: set the repository variable DEPLOY_WORKERS to anything but true to stop Worker
+    # deploys without a commit, e.g. during an incident or while the dashboard config is changed.
     if: >-
       !cancelled() &&
       vars.DEPLOY_WORKERS == 'true' &&
@@ -137,38 +137,44 @@ jobs:
       contents: read
       # gh run list reads the last green main run
       actions: read
-    strategy:
-      fail-fast: false
-      matrix:
-        worker: [feature-flag, portfolio-settings, cv-download]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           fetch-depth: 0
 
-      - name: Check for changes in this Worker
-        id: changes
+      - name: Setup environment
+        uses: ./.github/actions/workspace-setup
+
+      - name: Find affected Workers
+        id: affected
         env:
           GH_TOKEN: ${{ github.token }}
-          WORKER: ${{ matrix.worker }}
         run: |
           # Compare with the last green main run, not the previous push: a run that was cancelled
           # by a newer push or failed never deployed its Worker changes.
           BASE=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow main-branch-ci-cd.yaml \
             --branch main --status success --limit 1 --json headSha --jq '.[0].headSha // empty') || BASE=''
           # without a known base every Worker deploys
-          if [ -z "$BASE" ] || ! git cat-file -e "$BASE^{commit}" 2>/dev/null ||
-            ! git diff --quiet "$BASE" HEAD -- "apps/workers/$WORKER" apps/workers/package.json; then
-            echo "changed=true" >> "$GITHUB_OUTPUT"
+          if [ -n "$BASE" ] && git cat-file -e "$BASE^{commit}" 2>/dev/null; then
+            WORKERS=$(pnpm nx show projects --affected --base="$BASE" --head=HEAD -t deploy --json | jq -r 'join(",")')
           else
-            echo "changed=false" >> "$GITHUB_OUTPUT"
+            WORKERS=$(pnpm nx show projects -t deploy --json | jq -r 'join(",")')
           fi
+          echo "Workers to deploy: ${WORKERS:-none}"
+          echo "workers=$WORKERS" >> "$GITHUB_OUTPUT"
 
-      - name: Deploy Worker
-        if: steps.changes.outputs.changed == 'true'
+      - name: Test and bundle Workers
+        if: steps.affected.outputs.workers != ''
+        env:
+          WORKERS: ${{ steps.affected.outputs.workers }}
+        run: pnpm nx run-many -t test,check -p "$WORKERS"
+
+      # Nx continues with the other Workers when one deploy fails and reports the failure at the end
+      - name: Deploy Workers
+        if: steps.affected.outputs.workers != ''
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          WORKER: ${{ matrix.worker }}
-        run: npx --yes wrangler@4.151.1 deploy --config "apps/workers/$WORKER/wrangler.jsonc"
+          WORKERS: ${{ steps.affected.outputs.workers }}
+        run: pnpm nx run-many -t deploy -p "$WORKERS" --excludeTaskDependencies
