@@ -1,6 +1,8 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "analytics": false,
+  "neverConnectToCloud": true,
+  "useDaemonProcess": false,
   "namedInputs": {
     "default": ["{projectRoot}/**/*", "sharedGlobals"],
     "production": [
@@ -8,33 +10,25 @@
       "!{projectRoot}/.eslintrc.json",
       "!{projectRoot}/eslint.config.mjs",
       "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
-      "!{projectRoot}/tsconfig.spec.json"
+      "!{projectRoot}/tsconfig.spec.json",
+      "!{projectRoot}/src/test-setup.[jt]s"
     ],
-    "sharedGlobals": []
-  },
-  "targetDefaults": {
-    "@angular/build:application": {
-      "cache": true,
-      "dependsOn": ["^build"],
-      "inputs": ["production", "^production"]
-    },
-    "@nx/eslint:lint": {
-      "cache": true,
-      "inputs": [
-        "default",
-        "^default",
-        "{workspaceRoot}/.eslintrc.json",
-        "{workspaceRoot}/.eslintignore",
-        "{workspaceRoot}/eslint.config.mjs",
-        "{workspaceRoot}/tools/eslint-rules/**/*"
-      ]
-    },
-    "@nx/vitest:test": {
-      "cache": true,
-      "inputs": ["default", "^production"]
-    }
+    "sharedGlobals": [],
+    "lintGlobals": [
+      "{workspaceRoot}/eslint.config.mjs",
+      "{workspaceRoot}/tsconfig*.json",
+      "{workspaceRoot}/package.json",
+      "{workspaceRoot}/pnpm-workspace.yaml",
+      "{workspaceRoot}/pnpm-lock.yaml"
+    ]
   },
   "plugins": [
+    {
+      "plugin": "@nx/eslint/plugin",
+      "options": {
+        "targetName": "lint"
+      }
+    },
     {
       "plugin": "@nx/playwright/plugin",
       "options": {
@@ -42,17 +36,36 @@
       }
     },
     {
-      "plugin": "@nx/eslint/plugin",
+      "plugin": "@nx/vitest",
       "options": {
-        "targetName": "lint"
+        "testTargetName": "test",
+        "testMode": "watch"
       }
     }
   ],
+  "targetDefaults": {
+    "@angular/build:application": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
+    },
+    "lint": {
+      "cache": true,
+      "inputs": ["default", "^default", "lintGlobals"]
+    }
+  },
   "generators": {
     "@nx/angular:application": {
       "e2eTestRunner": "playwright",
       "linter": "eslint",
       "style": "css",
+      "unitTestRunner": "vitest-analog"
+    },
+    "@nx/angular:component": {
+      "style": "css"
+    },
+    "@nx/angular:library": {
+      "linter": "eslint",
       "unitTestRunner": "vitest-analog"
     }
   }
