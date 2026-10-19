@@ -22,8 +22,21 @@ tests and config check, and SonarCloud analysis. The dependency check fails the 
 or cycles, so it also blocks the PR quality gate and main deployment.
 See [Dependency boundaries](./DEPENDENCY_BOUNDARIES.md) for the architecture policy.
 
-The scripts behind these steps call Nx, but CI runs every target in full: there is no
-`nx affected` and no cache shared between runs.
+The scripts behind these steps call Nx. Apart from the Worker deploy, CI runs every target in full
+(no `nx affected`), but results are shared between runs through the remote cache below.
+
+## Nx remote cache
+
+Every job that runs Nx (`lint`, `test`, `build`, `deploy-workers`) calls
+`.github/actions/nx-remote-cache` right after checkout. The action joins the tailnet with Tailscale
+(tag `tag:ci`) and sets `NX_SELF_HOSTED_REMOTE_CACHE_SERVER` and
+`NX_SELF_HOSTED_REMOTE_CACHE_ACCESS_TOKEN`, so Nx reads and writes the self-hosted cache server. A
+`main` run after a merge then reuses the lint, test and build results of the pull request. Cached
+`test` results restore `coverage/`, so SonarCloud still gets the lcov report.
+
+Repository secrets: `NX_SELF_HOSTED_REMOTE_CACHE_SERVER`, `NX_CACHE_ACCESS_TOKEN`,
+`TS_OAUTH_CLIENT_ID`, `TS_OAUTH_SECRET`. Without them (fork pull requests) or when Tailscale fails
+to connect, the action posts a notice and Nx uses only the local cache; the cache never fails a job.
 
 ## Pull request workflow
 

@@ -1,0 +1,51 @@
+name: Nx Remote Cache
+description: 'Joins the tailscale and points Nx at the self-hosted remote cache. Falls back to the local cache when secrets are missing or Tailscale fails.'
+
+inputs:
+  server:
+    description: 'URL of the self-hosted Nx remote cache server'
+    required: false
+    default: ''
+  access-token:
+    description: 'Access token for the Nx remote cache server'
+    required: false
+    default: ''
+  ts-oauth-client-id:
+    description: 'Tailscale OAuth client ID'
+    required: false
+    default: ''
+  ts-oauth-secret:
+    description: 'Tailscale OAuth client secret'
+    required: false
+    default: ''
+
+runs:
+  using: 'composite'
+  steps:
+    # Secrets are empty on fork PRs; the cache must never fail CI
+    - name: Connect to Tailscale
+      id: tailscale
+      if: ${{ inputs.server != '' && inputs.ts-oauth-client-id != '' }}
+      continue-on-error: true
+      uses: tailscale/github-action@d1b6cd204f8dceda5b3eaad7f1f767be390056cd # v4.2.0
+      with:
+        oauth-client-id: ${{ inputs.ts-oauth-client-id }}
+        oauth-secret: ${{ inputs.ts-oauth-secret }}
+        tags: tag:ci
+
+    - name: Enable Nx remote cache
+      if: ${{ steps.tailscale.outcome == 'success' }}
+      shell: bash
+      env:
+        CACHE_SERVER: ${{ inputs.server }}
+        CACHE_TOKEN: ${{ inputs.access-token }}
+      run: |
+        {
+          echo "NX_SELF_HOSTED_REMOTE_CACHE_SERVER=$CACHE_SERVER"
+          echo "NX_SELF_HOSTED_REMOTE_CACHE_ACCESS_TOKEN=$CACHE_TOKEN"
+        } >> "$GITHUB_ENV"
+
+    - name: Report local cache fallback
+      if: ${{ steps.tailscale.outcome != 'success' }}
+      shell: bash
+      run: echo "::notice::Nx remote cache unavailable, using the local cache only"
