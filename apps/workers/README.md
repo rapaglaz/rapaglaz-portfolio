@@ -34,6 +34,10 @@ tests pass, and only the Workers that `nx affected` reports since the last green
 run that was cancelled or failed does not lose its changes. The job uses the secrets
 `CLOUDFLARE_API_TOKEN` (Edit Cloudflare Workers) and `CLOUDFLARE_ACCOUNT_ID`.
 
+Every deploy tags the Worker version with the short commit SHA and the commit subject (`--tag`,
+`--message`), so `wrangler deployments status` shows which commit is live. Author and Source come
+from Cloudflare and cannot be set from Wrangler.
+
 ### First deploy from this repo
 
 `wrangler deploy` replaces the bindings and vars of a Worker with the ones in its `wrangler.jsonc`;
