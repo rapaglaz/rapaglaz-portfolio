@@ -18,6 +18,17 @@ apps/
     └── portfolio-settings/
 ```
 
+Each Worker is its own Nx project, not one `workers` project. Cloudflare deploys every Worker on its
+own, and `nx affected` decides per project: with one project, a fix in `feature-flag` would also
+redeploy `cv-download` and `portfolio-settings`. A deploy replaces the bindings of a Worker with the
+ones in its `wrangler.jsonc` (that is how `feature-flag` lost its KV binding on 2026-10-17), so I want
+a deploy to touch only the Worker that changed. The test and check cache is per Worker as well.
+
+The cost is small: three short `project.json` files. `check` and `deploy` are defined once in
+`nx.json`, and the lint config and the spec helpers are shared in `apps/workers/`. All three still
+deploy together when something they share changes: `nx.json`, `tsconfig.base.json`,
+`apps/workers/eslint.config.mjs` or the Nx version.
+
 Inside the app I organise by feature, not by layers inside every folder.
 Shared bits go to a shared place.
 
