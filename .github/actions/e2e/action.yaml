@@ -1,5 +1,5 @@
 name: E2E Tests
-description: 'Runs Playwright E2E tests on the runner. Installs the browsers the config uses and their system dependencies.'
+description: 'Runs Playwright E2E tests on the runner through Nx; the ci configuration installs the browsers.'
 
 inputs:
   build-artifact-name:
@@ -32,26 +32,11 @@ runs:
       if: ${{ inputs.build-artifact-name == '' }}
       uses: ./.github/actions/build
 
-    - name: Get Playwright version
-      id: playwright
-      shell: bash
-      run: echo "version=$(pnpm exec playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
-
-    - name: Cache Playwright browsers
-      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-      with:
-        path: ~/.cache/ms-playwright
-        key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
-
-    # System dependencies are not cached; --with-deps installs them on every run.
-    # The browsers match the projects in playwright.config.mts.
-    - name: Install Playwright browsers
-      shell: bash
-      run: pnpm exec playwright install --with-deps chromium webkit
-
+    # The ci configuration installs the browsers and their system dependencies inside the
+    # Nx task, so a remote cache hit skips both the install and the tests.
     - name: Run Playwright tests
       shell: bash
-      run: pnpm exec nx e2e rapaglaz-portfolio-e2e
+      run: pnpm exec nx e2e rapaglaz-portfolio-e2e --configuration=ci
 
     - name: Check Playwright report
       if: failure()

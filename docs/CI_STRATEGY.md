@@ -80,8 +80,9 @@ config serves `dist/apps/rapaglaz-portfolio/browser` itself. On failure the acti
 HTML report from `dist/.playwright/apps/rapaglaz-portfolio-e2e/playwright-report`.
 The e2e jobs run on `ubuntu-latest`, not in the Playwright container: Tailscale needs `sudo` and
 a TUN device, which the container lacks, so the job could not reach the remote cache. The action
-restores the browsers from `actions/cache` (keyed by the Playwright version) and installs their
-system dependencies with `playwright install --with-deps`.
+runs `nx e2e rapaglaz-portfolio-e2e --configuration=ci`, whose command runs
+`playwright install --with-deps chromium webkit` before the tests. The install is part of the
+Nx task, so a cache hit skips it together with the tests.
 
 The `e2e` target is cacheable. Its inputs are the e2e sources, the production inputs of the app,
 `E2E_MODE`, `CI`, and the Playwright version, so `main` reuses the result of the pull request run

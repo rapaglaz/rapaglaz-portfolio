@@ -19,7 +19,13 @@
         { "env": "E2E_MODE" },
         { "env": "CI" },
         { "externalDependencies": ["@playwright/test"] }
-      ]
+      ],
+      "// configurations": "ci installs the browsers inside the task, so a cache hit skips the install too; the browsers match the projects in playwright.config.mts",
+      "configurations": {
+        "ci": {
+          "command": "playwright install --with-deps chromium webkit && playwright test"
+        }
+      }
     },
     "typecheck": {
       "executor": "nx:run-commands",
