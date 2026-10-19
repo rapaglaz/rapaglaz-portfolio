@@ -1,10 +1,13 @@
 import eslint from '@eslint/js';
 import eslintConfigPrettier from 'eslint-config-prettier';
 import { defineConfig } from 'eslint/config';
+import { moduleBoundaries } from '../../eslint.module-boundaries.mjs';
 
 // Own config for the Cloudflare Workers: ESLint uses the config nearest to each file, so the root
 // config (Angular, TypeScript) does not apply here, and a change to it does not affect the Workers.
-export default defineConfig({
+// The Nx project boundary rule is shared with the root config. The specs share a helper in
+// testing/, which belongs to no project.
+export default defineConfig(moduleBoundaries(['../testing/wrangler-config.js']), {
   files: ['**/*.{js,mjs}'],
   extends: [eslint.configs.recommended, eslintConfigPrettier],
   languageOptions: {

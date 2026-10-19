@@ -5,6 +5,7 @@ import nx from '@nx/eslint-plugin';
 import eslintConfigPrettier from 'eslint-config-prettier';
 import { defineConfig } from 'eslint/config';
 import tseslint from 'typescript-eslint';
+import { moduleBoundaries } from './eslint.module-boundaries.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -12,6 +13,7 @@ export default defineConfig(
   ...nx.configs['flat/base'],
   ...nx.configs['flat/typescript'],
   ...nx.configs['flat/javascript'],
+  moduleBoundaries(),
   {
     ignores: [
       '**/dist',

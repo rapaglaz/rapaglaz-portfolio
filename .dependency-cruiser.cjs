@@ -1,4 +1,5 @@
-// Runtime architecture rules. See docs/DEPENDENCY_BOUNDARIES.md for the rollout decisions.
+// Runtime layer rules inside the app. Boundaries between Nx projects are enforced by
+// @nx/enforce-module-boundaries (eslint.module-boundaries.mjs). See docs/DEPENDENCY_BOUNDARIES.md.
 const path = require('node:path');
 
 module.exports = {
@@ -231,7 +232,7 @@ module.exports = {
     tsConfig: { fileName: path.join(__dirname, 'apps/rapaglaz-portfolio/tsconfig.app.json') },
     // Ignore type-only and other erased imports: they create no runtime dependency or cycle.
     // This applies to every rule, so type-only layer violations are intentionally not reported.
-    // https://github.com/sverweij/dependency-cruiser/blob/v18.5.0/doc/options-reference.md#tsprecompilationdeps
+    // https://github.com/sverweij/dependency-cruiser/blob/v18.6.0/doc/options-reference.md#tsprecompilationdeps
     tsPreCompilationDeps: false,
   },
 };

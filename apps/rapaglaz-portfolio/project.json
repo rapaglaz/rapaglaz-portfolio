@@ -94,6 +94,38 @@
       "options": {
         "tsConfig": "apps/rapaglaz-portfolio/tsconfig.json"
       }
+    },
+    "deps-check": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": [
+        "default",
+        "{workspaceRoot}/.dependency-cruiser.cjs",
+        "{workspaceRoot}/tsconfig.base.json",
+        {
+          "externalDependencies": ["dependency-cruiser"]
+        }
+      ],
+      "outputs": [],
+      "options": {
+        "command": "depcruise --config .dependency-cruiser.cjs --output-type err apps/rapaglaz-portfolio/src/app"
+      }
+    },
+    "deps-graph": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": [
+        "default",
+        "{workspaceRoot}/.dependency-cruiser.cjs",
+        "{workspaceRoot}/tsconfig.base.json",
+        {
+          "externalDependencies": ["dependency-cruiser"]
+        }
+      ],
+      "outputs": ["{workspaceRoot}/tmp/dependency-cruiser"],
+      "options": {
+        "command": "mkdir -p tmp/dependency-cruiser && depcruise --config .dependency-cruiser.cjs --output-type html --output-to tmp/dependency-cruiser/dependencies.html apps/rapaglaz-portfolio/src/app"
+      }
     }
   }
 }

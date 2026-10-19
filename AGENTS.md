@@ -39,6 +39,10 @@ apps/rapaglaz-portfolio/src/app/
 
 No feature→feature imports. One exception: navbar→language-switcher.
 
+Imports between Nx projects are checked by `@nx/enforce-module-boundaries` through project tags
+(`type:app`, `type:e2e`, `type:worker`) in `eslint.module-boundaries.mjs`, shared by the root and
+the Workers ESLint configs.
+
 Runtime layer boundaries and circular dependencies are checked by dependency-cruiser in
 `.dependency-cruiser.cjs`. Content stays within its own layer; utils cannot depend on higher layers;
 UI uses utils; services use utils and content; interceptors use services and utils; features use

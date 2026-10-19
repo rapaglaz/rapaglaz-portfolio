@@ -26,8 +26,10 @@ as a blob. See [Security notes](../../docs/SECURITY.md) for the download flow.
 
 Each Worker folder is an Nx project with the tag `type:worker` and the targets `test`, `check`
 (`wrangler deploy --dry-run`), `deploy` (`wrangler deploy`) and `lint`. `check` and `deploy` are
-defined once in `nx.json`; the lint rules live in [`eslint.config.mjs`](./eslint.config.mjs) in this
-folder, separate from the root config.
+defined once in `nx.json`, and so are the lint cache inputs (the `workerLint` named input). The lint
+rules live in [`eslint.config.mjs`](./eslint.config.mjs) in this folder, separate from the root config;
+it adds only the shared Nx boundary rule from
+[`eslint.module-boundaries.mjs`](../../eslint.module-boundaries.mjs).
 
 `deploy-workers` in `.github/workflows/main-branch-ci-cd.yaml` deploys from `main` after lint and
 tests pass, and only the Workers that `nx affected` reports since the last green run on `main`, so a

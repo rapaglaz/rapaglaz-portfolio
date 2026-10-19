@@ -17,10 +17,24 @@
     "sharedGlobals": ["{workspaceRoot}/tsconfig.base.json"],
     "lintGlobals": [
       "{workspaceRoot}/eslint.config.mjs",
+      "{workspaceRoot}/eslint.module-boundaries.mjs",
       "{workspaceRoot}/tsconfig*.json",
       "{workspaceRoot}/package.json",
       "{workspaceRoot}/pnpm-workspace.yaml",
       "{workspaceRoot}/pnpm-lock.yaml"
+    ],
+    "workerLint": [
+      "default",
+      "{workspaceRoot}/apps/workers/eslint.config.mjs",
+      "{workspaceRoot}/eslint.module-boundaries.mjs",
+      {
+        "externalDependencies": [
+          "eslint",
+          "@eslint/js",
+          "eslint-config-prettier",
+          "@nx/eslint-plugin"
+        ]
+      }
     ],
     "workerSource": [
       "{projectRoot}/**/*",
