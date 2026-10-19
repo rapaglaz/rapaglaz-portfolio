@@ -66,7 +66,7 @@ export class LanguageSwitcher {
 
   protected getLangLabel(lang: string): string {
     if (isAvailableLang(lang)) {
-      return LANG_LABELS[lang];
+      return `${lang.toUpperCase()} ${LANG_LABELS[lang]}`;
     }
     return lang;
   }
