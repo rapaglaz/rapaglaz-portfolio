@@ -1,18 +1,17 @@
 import { TranslocoService } from '@jsverse/transloco';
-import type { LoggerService } from '@rapaglaz/shared/util';
 import { of, throwError } from 'rxjs';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { ToastService } from './toast.service';
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
+import type { LoggerService } from '../logging/logger.service';
 import { withErrorToast } from './with-error-toast.operator';
 
 describe('withErrorToast', () => {
-  let mockToastService: { error: ReturnType<typeof vi.fn> };
+  let mockToastService: { error: Mock<(message: string) => void> };
   let mockTranslocoService: { translate: ReturnType<typeof vi.fn> };
   let mockLogger: { error: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     mockToastService = {
-      error: vi.fn(),
+      error: vi.fn<(message: string) => void>(),
     };
 
     mockTranslocoService = {
@@ -33,7 +32,7 @@ describe('withErrorToast', () => {
         .pipe(
           withErrorToast(
             'error.key',
-            mockToastService as unknown as ToastService,
+            mockToastService,
             mockTranslocoService as unknown as TranslocoService,
             mockLogger as unknown as LoggerService,
           ),
@@ -56,7 +55,7 @@ describe('withErrorToast', () => {
         .pipe(
           withErrorToast(
             'error.key',
-            mockToastService as unknown as ToastService,
+            mockToastService,
             mockTranslocoService as unknown as TranslocoService,
             mockLogger as unknown as LoggerService,
           ),

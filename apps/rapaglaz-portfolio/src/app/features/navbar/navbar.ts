@@ -4,8 +4,8 @@ import { Component, computed, DestroyRef, inject, PLATFORM_ID, signal } from '@a
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { CvDownloadService, FeatureFlagService } from '@rapaglaz/shared/data-access';
-import { Badge, ToastService, withErrorToast } from '@rapaglaz/shared/ui';
-import { injectContactEmailOpener, LoggerService } from '@rapaglaz/shared/util';
+import { Badge, ToastService } from '@rapaglaz/shared/ui';
+import { injectContactEmailOpener, LoggerService, withErrorToast } from '@rapaglaz/shared/util';
 import { finalize, map, startWith } from 'rxjs';
 import { MeasureNavbarHeightDirective } from '../../utils/layout';
 import { LanguageSwitcher } from '../language-switcher/language-switcher';
