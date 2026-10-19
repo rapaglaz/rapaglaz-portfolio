@@ -2,7 +2,12 @@ import { CdkListboxModule, type ListboxValueChangeEvent } from '@angular/cdk/lis
 import { Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
-import { AVAILABLE_LANGS, injectActiveLang, isAvailableLang, LANG_LABELS } from '../../utils/i18n';
+import {
+  AVAILABLE_LANGS,
+  injectActiveLang,
+  isAvailableLang,
+  LANG_LABELS,
+} from '@rapaglaz/shared/util';
 
 @Component({
   selector: 'app-language-switcher',

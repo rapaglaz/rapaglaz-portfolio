@@ -1,6 +1,6 @@
 import { Component, viewChild } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
-import { SectionWrapper } from '../../ui';
+import { SectionWrapper } from '@rapaglaz/shared/ui';
 
 // section-wrapper translates titleKey; listed for i18n:check
 /** t(portfolio.about.title) */

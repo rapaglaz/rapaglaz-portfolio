@@ -21,7 +21,20 @@ apps/
 ├── rapaglaz-portfolio/       # the Angular app (project.json, vite.config.mts, public/, src/)
 ├── rapaglaz-portfolio-e2e/   # Playwright project (playwright.config.mts, src/)
 └── workers/                  # Cloudflare Workers: one Nx project per Worker (test, check, deploy)
+libs/
+└── shared/
+    ├── data-access/          # @rapaglaz/shared/data-access: CV download (config, Turnstile), feature flag
+    ├── ui/                   # @rapaglaz/shared/ui: badge, section wrapper, toast
+    ├── util/                 # @rapaglaz/shared/util: logger, API tokens, i18n + dictionaries, animation, contact
+    │                         # @rapaglaz/shared/util/translations: server translation loader, keeps the
+    │                         # dictionaries out of the browser bundle
+    └── testing/              # @rapaglaz/shared/testing: Transloco test setup, window mocks
 ```
+
+Libraries are not buildable; the app compiles them from source through the aliases in
+`tsconfig.base.json`. `@nx/angular:library` refuses Vitest 5, so a new library copies
+`project.json`, `eslint.config.mjs`, the tsconfigs, `vite.config.mts` and `src/test-setup.ts` from
+an existing one.
 
 Inside the app:
 
@@ -29,28 +42,23 @@ Inside the app:
 apps/rapaglaz-portfolio/src/app/
 ├── portfolio/      # top-level shell (lazy-loaded by router)
 ├── features/       # hero, navbar, language-switcher, about, skills, languages, certifications, contact, footer
-├── ui/             # reusable presentational pieces
-├── services/       # cv-download, feature-flag, turnstile, toast, config, logger
-├── interceptors/   # turnstile token injection
-├── utils/          # i18n, rxjs, scroll, animation, layout, tokens, contact
-├── content/        # typed static content (const objects)
-└── testing/        # shared test helpers
+├── utils/          # layout
+└── content/        # typed static content (const objects)
 ```
 
 No feature→feature imports. One exception: navbar→language-switcher.
 
 Imports between Nx projects are checked by `@nx/enforce-module-boundaries` through project tags
-(`type:app`, `type:e2e`, `type:worker`) in `eslint.module-boundaries.mjs`, shared by the root and
+(`type:*`, and `scope:*` on libraries) in `eslint.module-boundaries.mjs`, shared by the root and
 the Workers ESLint configs.
 
 Runtime layer boundaries and circular dependencies are checked by dependency-cruiser in
-`.dependency-cruiser.cjs`. Content stays within its own layer; utils cannot depend on higher layers;
-UI uses utils; services use utils and content; interceptors use services and utils; features use
-UI, services, utils, and content; portfolio composes features and UI. Imports within a layer are
-allowed. Only specs and testing helpers may import `testing`, and production files cannot import
+`.dependency-cruiser.cjs`. Content stays within its own layer; utils cannot depend on features or
+portfolio; features use utils and content; portfolio composes features. Imports within a layer are
+allowed. Only specs may import `@rapaglaz/shared/testing`, and production files cannot import
 specs. Specs are exempt from layer rules, while cycles are errors and orphans are warnings.
-Type-only imports are ignored. Narrow exceptions for logging, overlays, SEO, and routing are
-documented in [Dependency boundaries](./docs/DEPENDENCY_BOUNDARIES.md).
+Type-only imports are ignored. The routing exception is documented in
+[Dependency boundaries](./docs/DEPENDENCY_BOUNDARIES.md).
 
 ## Conventions
 
@@ -79,14 +87,14 @@ pnpm run i18n:check
 ```
 
 The scripts run their targets through Nx. To run a target directly: `pnpm nx <target> <project>`,
-for example `pnpm nx test rapaglaz-portfolio`.
+for example `pnpm nx test rapaglaz-portfolio` or `pnpm nx test shared-util`.
 
 Coverage thresholds: statements 80%, branches 70%, functions 80%, lines 80%.
 
 ## Tests
 
 ```bash
-pnpm test                # unit (Vitest, single run)
+pnpm test                # unit (Vitest, single run) for the app and the libraries
 pnpm run test:watch      # unit in watch mode
 pnpm run test:coverage   # unit with coverage report
 pnpm run e2e             # Playwright against dev server (port 4200)
@@ -108,7 +116,7 @@ The warnings (600KB initial, 575KB all scripts) leave room for NgRx.
 
 ## i18n
 
-Languages: `en` (default), `de`. Translations in `apps/rapaglaz-portfolio/public/i18n/{lang}.json`.
+Languages: `en` (default), `de`. Translations in `libs/shared/util/src/i18n/{lang}.json`, copied to `/i18n/` by the build.
 Routes: `/en`, `/de`, root `/` falls back to `en`.
 Never hardcode user-facing strings — use Transloco keys.
 A key built at runtime or passed as an input must also appear in a `/** t(key) */` (TS) or

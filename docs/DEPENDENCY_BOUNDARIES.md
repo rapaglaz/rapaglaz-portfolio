@@ -4,22 +4,37 @@ Two tools check imports, each at its own level:
 
 - `@nx/enforce-module-boundaries` (ESLint) checks imports **between Nx projects** through
   project tags. The rule lives in [`../eslint.module-boundaries.mjs`](../eslint.module-boundaries.mjs).
-- Dependency-cruiser checks the runtime **layers inside the Angular app**. The rules live in
+- Dependency-cruiser checks the runtime **layers inside the Angular app** and cycles across the
+  app and the libraries. The rules live in
   [`../.dependency-cruiser.cjs`](../.dependency-cruiser.cjs).
 
 ## Project boundaries (Nx)
 
-The workspace has only applications, and Nx forbids importing an application from another
-project by path. Each project tag has a constraint that lists the tags it may depend on:
+Nx forbids importing an application from another project by path. Every project has a type tag,
+and libraries also have a scope tag. Each tag has a constraint that lists the tags it may depend
+on:
 
-| Tag           | Projects                                            | May depend on |
-| ------------- | --------------------------------------------------- | ------------- |
-| `type:app`    | `rapaglaz-portfolio`                                | Nothing       |
-| `type:e2e`    | `rapaglaz-portfolio-e2e`                            | `type:app`    |
-| `type:worker` | `cv-download`, `feature-flag`, `portfolio-settings` | Nothing       |
+| Tag                | Projects                                            | May depend on                                              |
+| ------------------ | --------------------------------------------------- | ---------------------------------------------------------- |
+| `type:app`         | `rapaglaz-portfolio`                                | `type:data-access`, `type:ui`, `type:util`, `type:testing` |
+| `type:e2e`         | `rapaglaz-portfolio-e2e`                            | `type:app`                                                 |
+| `type:worker`      | `cv-download`, `feature-flag`, `portfolio-settings` | Nothing                                                    |
+| `type:data-access` | `shared-data-access`                                | `type:data-access`, `type:util`, `type:testing`            |
+| `type:ui`          | `shared-ui`                                         | `type:ui`, `type:util`, `type:testing`                     |
+| `type:util`        | `shared-util`                                       | `type:util`                                                |
+| `type:testing`     | `shared-testing`                                    | `type:util`                                                |
+| `scope:shared`     | all `libs/shared/*` libraries                       | `scope:shared`                                             |
+
+Data access does not depend on UI: the Turnstile modal belongs to `shared-data-access`, and the
+navbar connects the CV download to the toasts.
 
 The e2e project tests the app through `implicitDependencies`, not through imports. A new library
-gets a tag, and the constraints are extended to say which projects may use it.
+gets a type and a scope tag, and the constraints are extended to say which projects may use it.
+
+The app may use `type:testing` because the rule does not know specs from production files;
+dependency-cruiser checks that only specs import `@rapaglaz/shared/testing`. Specs in
+`shared-util` cannot use it at all: `shared-testing` imports `shared-util`, and Nx sees the import
+in a spec as a project dependency, so it would be a cycle.
 
 The rule runs through `pnpm run lint`. The root config and the Workers config
 (`apps/workers/eslint.config.mjs`, which does not extend the root config) both use the shared
@@ -54,8 +69,10 @@ Both scripts run Nx targets of `rapaglaz-portfolio`, cached in the local and rem
 cache key includes the project files, `.dependency-cruiser.cjs`, `tsconfig.base.json`, and the
 installed dependency-cruiser version.
 
-`deps:check` scans every supported module under `apps/rapaglaz-portfolio/src/app`, including
-specs and barrel exports.
+`deps:check` scans every supported module under `apps/rapaglaz-portfolio/src/app` and
+`libs/*/*/src`, including specs and barrel exports. The layer rules are for the app; the cycle,
+spec, testing and orphan rules also cover the libraries, whose sources are in the cache key
+(`^default`).
 It exits non-zero for error-severity violations. All boundary and cycle rules are errors;
 `no-orphans` remains a warning. Both GitHub Actions workflows run this command through the
 shared quality-check action's lint mode.
@@ -66,8 +83,9 @@ The matrix works without GraphViz; it is not a node-and-edge SVG graph.
 
 Resolution uses `apps/rapaglaz-portfolio/tsconfig.app.json`, passed as an absolute path: with a
 relative one, TypeScript resolves the tsconfig `extends` chain against that path a second time.
-The graph is restricted to `apps/rapaglaz-portfolio/src/app`, with `node_modules`, `dist`, and
-`coverage` excluded. Imports outside it, including external packages, are outside these layer
+The graph is restricted to `apps/rapaglaz-portfolio/src/app` and `libs/*/*/src`, with
+`node_modules`, `dist`, and `coverage` excluded; library imports resolve to source through the
+aliases in `tsconfig.base.json`. Imports outside it, including external packages, are outside these layer
 checks. Dynamic imports and runtime re-exports are included.
 
 `tsPreCompilationDeps: false` excludes type-only and other imports erased during compilation.
@@ -77,7 +95,8 @@ also excludes type-only layer violations. See the
 
 `no-orphans` means modules without incoming or outgoing dependencies in the scoped graph;
 it is not a complete unused-code analysis. Entry points (`main.ts`, `main.server.ts`), app
-configs/routes, specs, and E2E files are excluded from orphan warnings. The main entry points
+configs/routes, library entry points and test setups, specs, and E2E files are excluded from
+orphan warnings. The main entry points
 and the e2e project already fall outside the scanned folder.
 
 Paths in the rest of this document are relative to `apps/rapaglaz-portfolio/`.
@@ -87,16 +106,15 @@ Paths in the rest of this document are relative to `apps/rapaglaz-portfolio/`.
 Imports within the same layer are allowed. The table describes additional application-layer
 dependencies before the narrow exceptions below.
 
-| Source layer   | Additional allowed targets                                                                      |
-| -------------- | ----------------------------------------------------------------------------------------------- |
-| `content`      | None; content may compose other content and re-export it through its barrel.                    |
-| `utils`        | `content`; no features, UI, services, interceptors, or portfolio.                               |
-| `ui`           | `utils`                                                                                         |
-| `services`     | `utils`, `content`                                                                              |
-| `interceptors` | `services`, `utils`                                                                             |
-| `features`     | `ui`, `services`, `utils`, `content`                                                            |
-| `portfolio`    | `features`, `ui`                                                                                |
-| `testing`      | May use application modules for test support. Only specs and other testing files may import it. |
+| Source layer | Additional allowed targets                                                   |
+| ------------ | ---------------------------------------------------------------------------- |
+| `content`    | None; content may compose other content and re-export it through its barrel. |
+| `utils`      | `content`; no features or portfolio.                                         |
+| `features`   | `utils`, `content`                                                           |
+| `portfolio`  | `features`                                                                   |
+
+Libraries are outside these layers: what the app may import from them is decided by the project
+tags.
 
 Features cannot import another feature or the shared `features/index.ts` barrel. The one
 peer exception is `features/navbar` importing `features/language-switcher`. The root feature
@@ -105,7 +123,8 @@ layer and specs may import that barrel: it re-exports every section, so an impor
 component put all sections into the initial bundle although the router lazy-loads the shell.
 
 Specs are exempt from layer rules because they need to construct and mock collaborators.
-They remain in cycle analysis. Production files cannot import `*.spec.ts` files or `testing`.
+They remain in cycle analysis. Production files cannot import `*.spec.ts` files or
+`@rapaglaz/shared/testing`.
 Files outside the portfolio layer cannot import portfolio, except for specs and the route
 entry point listed below.
 
@@ -114,16 +133,13 @@ entry point listed below.
 Every exception has a comment in the configuration. The specialized rules keep all other
 forbidden targets checked for the source files that need an exception.
 
-| Source                                            | Additional allowed target                   | Reason                                                                                        |
-| ------------------------------------------------- | ------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| `src/app/utils/i18n/transloco-missing-handler.ts` | `src/app/services/logger/logger.service.ts` | Missing keys must use the central logger. The direct import avoids the services barrel cycle. |
-| `src/app/services/toast/toast.service.ts`         | `src/app/ui/index.ts`                       | The service owns the CDK overlay lifecycle and instantiates the toast UI.                     |
-| `src/app/services/turnstile/turnstile.service.ts` | `src/app/ui/index.ts`                       | The service owns the CDK overlay lifecycle and instantiates the Turnstile modal.              |
-| `src/app/portfolio/portfolio.ts`                  | `src/app/utils/i18n/index.ts`               | Shared language constants drive canonical and alternate SEO links.                            |
-| `src/app/app.routes.ts`                           | The `portfolio` layer                       | The router must lazy-load the portfolio shell.                                                |
+| Source                  | Additional allowed target | Reason                                         |
+| ----------------------- | ------------------------- | ---------------------------------------------- |
+| `src/app/app.routes.ts` | The `portfolio` layer     | The router must lazy-load the portfolio shell. |
 
-There is no cycle allow-list. Importing the central logger directly fixes the original cycle
-without changing the missing handler's behavior or moving files.
+There is no cycle allow-list. The missing handler (logger) and portfolio shell (SEO language
+constants) exceptions went away when logger and i18n moved to `shared-util`; the toast and
+Turnstile overlay exceptions went away when each service moved into one library with its UI.
 
 ### Initial report and enforcement
 

@@ -3,6 +3,8 @@
 @import '@fontsource/manrope/latin-700.css';
 
 @import 'tailwindcss' source('.');
+/* Library templates live outside the app source root */
+@source '../../../libs';
 
 @plugin 'daisyui' {
   themes: false;

@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
-import { CONTACT_LINKS } from '../../content';
-import { injectContactEmailOpener } from '../../utils/contact';
+import { CONTACT_LINKS, injectContactEmailOpener } from '@rapaglaz/shared/util';
 
 @Component({
   selector: 'app-footer',

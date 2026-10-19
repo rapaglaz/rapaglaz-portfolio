@@ -1,9 +1,8 @@
 import { Component, computed, viewChild } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
+import { SectionWrapper } from '@rapaglaz/shared/ui';
+import { buildDelayGetter, injectActiveLang } from '@rapaglaz/shared/util';
 import { CERTIFICATIONS, type Certification } from '../../content';
-import { SectionWrapper } from '../../ui';
-import { buildDelayGetter } from '../../utils/animation';
-import { injectActiveLang } from '../../utils/i18n';
 
 type CertificationWithFormattedDate = Certification & {
   formattedDate: string;

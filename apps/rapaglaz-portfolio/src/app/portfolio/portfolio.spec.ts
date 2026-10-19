@@ -3,9 +3,9 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslocoService } from '@jsverse/transloco';
+import { provideTranslocoTesting } from '@rapaglaz/shared/testing';
 import { firstValueFrom } from 'rxjs';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { provideTranslocoTesting } from '../testing';
 import { Portfolio } from './portfolio';
 
 describe('Portfolio', () => {

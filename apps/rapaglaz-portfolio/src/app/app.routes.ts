@@ -2,10 +2,15 @@ import { DOCUMENT } from '@angular/common';
 import { inject, Type } from '@angular/core';
 import { RedirectCommand, ResolveFn, Router, Routes } from '@angular/router';
 import { TranslocoService } from '@jsverse/transloco';
+import {
+  AVAILABLE_LANGS,
+  DEFAULT_LANG,
+  isAvailableLang,
+  LoggerService,
+  type AvailableLang,
+} from '@rapaglaz/shared/util';
 import { catchError, EMPTY, map, of, tap } from 'rxjs';
 import { Portfolio } from './portfolio/portfolio';
-import { LoggerService } from './services/logger/logger.service';
-import { AVAILABLE_LANGS, DEFAULT_LANG, isAvailableLang, type AvailableLang } from './utils/i18n';
 
 const resolvePortfolioLocale: ResolveFn<AvailableLang> = route => {
   const transloco = inject(TranslocoService);

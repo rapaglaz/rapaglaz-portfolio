@@ -3,12 +3,11 @@ import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { Component, computed, DestroyRef, inject, PLATFORM_ID, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
+import { CvDownloadService, FeatureFlagService } from '@rapaglaz/shared/data-access';
+import { Badge, ToastService } from '@rapaglaz/shared/ui';
+import { injectContactEmailOpener, LoggerService, withErrorToast } from '@rapaglaz/shared/util';
 import { finalize, map, startWith } from 'rxjs';
-import { CvDownloadService, FeatureFlagService, LoggerService, ToastService } from '../../services';
-import { Badge } from '../../ui';
-import { injectContactEmailOpener } from '../../utils/contact';
 import { MeasureNavbarHeightDirective } from '../../utils/layout';
-import { withErrorToast } from '../../utils/rxjs';
 import { LanguageSwitcher } from '../language-switcher/language-switcher';
 
 @Component({

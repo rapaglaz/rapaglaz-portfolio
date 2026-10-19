@@ -1,7 +1,7 @@
 import { Component, computed, viewChild } from '@angular/core';
 import { translateObjectSignal, TranslocoModule } from '@jsverse/transloco';
-import { SectionWrapper } from '../../ui';
-import { buildDelayGetter } from '../../utils/animation';
+import { SectionWrapper } from '@rapaglaz/shared/ui';
+import { buildDelayGetter } from '@rapaglaz/shared/util';
 
 @Component({
   selector: 'app-languages',

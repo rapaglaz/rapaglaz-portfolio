@@ -8,7 +8,7 @@ module.exports = {
       name: 'no-circular',
       comment: 'Runtime dependencies must not form cycles, including through barrel exports.',
       severity: 'error',
-      from: { path: '^apps/rapaglaz-portfolio/src/app/' },
+      from: { path: '^(apps/rapaglaz-portfolio/src/app|libs)/' },
       to: { circular: true },
     },
     {
@@ -23,91 +23,25 @@ module.exports = {
     },
     {
       name: 'utils-layer',
-      comment: 'Utilities must not depend on features, UI, services, interceptors, or the shell.',
+      comment: 'Utilities must not depend on features or the shell.',
       severity: 'error',
       from: {
         path: '^apps/rapaglaz-portfolio/src/app/utils/',
-        // Specs may test collaborators; the missing handler has a narrower logger rule below.
-        pathNot: [
-          '\\.spec\\.ts$',
-          '^apps/rapaglaz-portfolio/src/app/utils/i18n/transloco-missing-handler\\.ts$',
-        ],
+        // Specs may test collaborators
+        pathNot: '\\.spec\\.ts$',
       },
       to: {
-        path: '^apps/rapaglaz-portfolio/src/app/(features|ui|services|interceptors|portfolio)/',
-      },
-    },
-    {
-      name: 'missing-handler-layer',
-      comment: 'The missing translation handler uses the central logger to report missing keys.',
-      severity: 'error',
-      from: { path: '^apps/rapaglaz-portfolio/src/app/utils/i18n/transloco-missing-handler\\.ts$' },
-      to: {
-        path: '^apps/rapaglaz-portfolio/src/app/(features|ui|services|interceptors|portfolio)/',
-        pathNot: '^apps/rapaglaz-portfolio/src/app/services/logger/logger\\.service\\.ts$',
-      },
-    },
-    {
-      name: 'ui-layer',
-      comment: 'UI may depend on its own layer and utilities; test helpers are checked separately.',
-      severity: 'error',
-      from: { path: '^apps/rapaglaz-portfolio/src/app/ui/', pathNot: '\\.spec\\.ts$' },
-      to: {
-        path: '^apps/rapaglaz-portfolio/src/app/(?!testing/)',
-        pathNot: '^apps/rapaglaz-portfolio/src/app/(ui|utils)/',
-      },
-    },
-    {
-      name: 'services-layer',
-      comment: 'Services may depend on their own layer, utilities, and content.',
-      severity: 'error',
-      from: {
-        path: '^apps/rapaglaz-portfolio/src/app/services/',
-        // Overlay services instantiate UI; the companion rule limits that exception below.
-        pathNot: [
-          '\\.spec\\.ts$',
-          '^apps/rapaglaz-portfolio/src/app/services/(toast/toast|turnstile/turnstile)\\.service\\.ts$',
-        ],
-      },
-      to: {
-        path: '^apps/rapaglaz-portfolio/src/app/(?!testing/)',
-        pathNot: '^apps/rapaglaz-portfolio/src/app/(services|utils|content)/',
-      },
-    },
-    {
-      name: 'overlay-services-layer',
-      comment:
-        'Toast and Turnstile services own CDK overlay lifecycles and instantiate UI components.',
-      severity: 'error',
-      from: {
-        path: '^apps/rapaglaz-portfolio/src/app/services/(toast/toast|turnstile/turnstile)\\.service\\.ts$',
-      },
-      to: {
-        path: '^apps/rapaglaz-portfolio/src/app/(?!testing/)',
-        pathNot: [
-          '^apps/rapaglaz-portfolio/src/app/(services|utils|content)/',
-          '^apps/rapaglaz-portfolio/src/app/ui/index\\.ts$',
-        ],
-      },
-    },
-    {
-      name: 'interceptors-layer',
-      comment: 'Interceptors may depend on their own layer, services, and utilities.',
-      severity: 'error',
-      from: { path: '^apps/rapaglaz-portfolio/src/app/interceptors/', pathNot: '\\.spec\\.ts$' },
-      to: {
-        path: '^apps/rapaglaz-portfolio/src/app/(?!testing/)',
-        pathNot: '^apps/rapaglaz-portfolio/src/app/(interceptors|services|utils)/',
+        path: '^apps/rapaglaz-portfolio/src/app/(features|portfolio)/',
       },
     },
     {
       name: 'features-layer',
-      comment: 'Features may depend on UI, services, utilities, and content; peer rules follow.',
+      comment: 'Features may depend on utilities and content; peer rules follow.',
       severity: 'error',
       from: { path: '^apps/rapaglaz-portfolio/src/app/features/', pathNot: '\\.spec\\.ts$' },
       to: {
         path: '^apps/rapaglaz-portfolio/src/app/(?!testing/)',
-        pathNot: '^apps/rapaglaz-portfolio/src/app/(features|ui|services|utils|content)/',
+        pathNot: '^apps/rapaglaz-portfolio/src/app/(features|utils|content)/',
       },
     },
     {
@@ -135,30 +69,15 @@ module.exports = {
     },
     {
       name: 'portfolio-layer',
-      comment: 'The portfolio layer may compose features and UI.',
+      comment: 'The portfolio layer may compose features.',
       severity: 'error',
       from: {
         path: '^apps/rapaglaz-portfolio/src/app/portfolio/',
-        // The shell component has a narrow exception for shared SEO language constants below.
-        pathNot: ['\\.spec\\.ts$', '^apps/rapaglaz-portfolio/src/app/portfolio/portfolio\\.ts$'],
+        pathNot: '\\.spec\\.ts$',
       },
       to: {
         path: '^apps/rapaglaz-portfolio/src/app/(?!testing/)',
-        pathNot: '^apps/rapaglaz-portfolio/src/app/(portfolio|features|ui)/',
-      },
-    },
-    {
-      name: 'portfolio-component-layer',
-      comment:
-        'The shell uses shared language constants to build canonical and alternate SEO links.',
-      severity: 'error',
-      from: { path: '^apps/rapaglaz-portfolio/src/app/portfolio/portfolio\\.ts$' },
-      to: {
-        path: '^apps/rapaglaz-portfolio/src/app/(?!testing/)',
-        pathNot: [
-          '^apps/rapaglaz-portfolio/src/app/(portfolio|features|ui)/',
-          '^apps/rapaglaz-portfolio/src/app/utils/i18n/index\\.ts$',
-        ],
+        pathNot: '^apps/rapaglaz-portfolio/src/app/(portfolio|features)/',
       },
     },
     {
@@ -189,21 +108,21 @@ module.exports = {
     },
     {
       name: 'no-production-to-testing',
-      comment: 'Only spec files and other testing helpers may import the testing layer.',
+      comment: 'Only spec files and other testing helpers may import the testing library.',
       severity: 'error',
       from: {
-        path: '^apps/rapaglaz-portfolio/src/app/',
-        pathNot: ['\\.spec\\.ts$', '^apps/rapaglaz-portfolio/src/app/testing/'],
+        path: '^(apps/rapaglaz-portfolio/src/app|libs)/',
+        pathNot: ['\\.spec\\.ts$', '^libs/shared/testing/'],
       },
-      to: { path: '^apps/rapaglaz-portfolio/src/app/testing/' },
+      to: { path: '^libs/shared/testing/' },
     },
     {
       name: 'no-production-to-specs',
       comment: 'Production files must not import spec files.',
       severity: 'error',
       from: {
-        path: '^apps/rapaglaz-portfolio/src/app/',
-        pathNot: ['\\.spec\\.ts$', '^apps/rapaglaz-portfolio/src/app/testing/'],
+        path: '^(apps/rapaglaz-portfolio/src/app|libs)/',
+        pathNot: ['\\.spec\\.ts$', '^libs/shared/testing/'],
       },
       to: { path: '\\.spec\\.ts$' },
     },
@@ -213,9 +132,11 @@ module.exports = {
         'Warn about isolated modules, excluding entry points, configs, routes, specs, and E2E.',
       severity: 'warn',
       from: {
-        path: '^apps/rapaglaz-portfolio/src/app/',
+        path: '^(apps/rapaglaz-portfolio/src/app|libs)/',
         orphan: true,
         pathNot: [
+          // Library entry points are reached through path aliases; test-setup is loaded by Vitest
+          '^libs/.+/src/(index|translations|test-setup)\\.ts$',
           '(^|/)main(\\.server)?\\.ts$',
           '^apps/rapaglaz-portfolio/src/app/app\\.(config|routes)(\\.server)?\\.ts$',
           '\\.spec\\.ts$',
@@ -226,7 +147,7 @@ module.exports = {
     },
   ],
   options: {
-    includeOnly: '^apps/rapaglaz-portfolio/src/app/',
+    includeOnly: '^(apps/rapaglaz-portfolio/src/app|libs/[^/]+/[^/]+/src)/',
     exclude: '(^|/)(node_modules|dist|coverage)/',
     // Absolute path: with a relative one, TypeScript resolves the tsconfig `extends` chain twice
     tsConfig: { fileName: path.join(__dirname, 'apps/rapaglaz-portfolio/tsconfig.app.json') },

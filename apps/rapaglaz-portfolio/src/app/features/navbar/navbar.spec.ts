@@ -5,10 +5,16 @@ import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { TranslocoService } from '@jsverse/transloco';
+import { CvDownloadService, FeatureFlagService } from '@rapaglaz/shared/data-access';
+import {
+  mockWindowLocation,
+  mockWindowScrollY,
+  provideTranslocoTesting,
+} from '@rapaglaz/shared/testing';
+import { ToastService } from '@rapaglaz/shared/ui';
+import { LoggerService } from '@rapaglaz/shared/util';
 import { firstValueFrom, of, Subject, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { CvDownloadService, FeatureFlagService, LoggerService, ToastService } from '../../services';
-import { mockWindowLocation, mockWindowScrollY, provideTranslocoTesting } from '../../testing';
 import { Navbar } from './navbar';
 
 const openToWork = signal(true);

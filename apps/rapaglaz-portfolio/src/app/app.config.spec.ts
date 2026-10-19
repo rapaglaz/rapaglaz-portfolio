@@ -8,10 +8,14 @@ import {
   TranslocoLoader,
   TranslocoService,
 } from '@jsverse/transloco';
+import {
+  AVAILABLE_LANGS,
+  DEFAULT_LANG,
+  StrictTranslocoMissingHandler,
+} from '@rapaglaz/shared/util';
 import { firstValueFrom, Observable, of, throwError, toArray } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { bootstrap, initTranslocoDefaultLang, provideTranslocoWithDynamicLang } from './app.config';
-import { AVAILABLE_LANGS, DEFAULT_LANG, StrictTranslocoMissingHandler } from './utils/i18n';
 
 vi.mock('@angular/platform-browser', async importOriginal => ({
   ...(await importOriginal<typeof import('@angular/platform-browser')>()),

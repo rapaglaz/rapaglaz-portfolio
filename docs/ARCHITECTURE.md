@@ -6,7 +6,7 @@ tasks; it adds no runtime code.
 
 ## Folder layout
 
-The workspace has five projects:
+The workspace has nine projects:
 
 ```plaintext
 apps/
@@ -16,7 +16,27 @@ apps/
     ├── cv-download/
     ├── feature-flag/
     └── portfolio-settings/
+libs/
+└── shared/
+    ├── data-access/          # shared-data-access, tags scope:shared type:data-access
+    ├── ui/                   # shared-ui, tags scope:shared type:ui
+    ├── util/                 # shared-util, tags scope:shared type:util
+    └── testing/              # shared-testing, tags scope:shared type:testing
 ```
+
+The libraries are not buildable. There is one app, so a build step per library would only add
+work; the app compiles them from source through the aliases in `tsconfig.base.json`.
+`shared-util` holds what every layer uses: logger, API URL tokens, i18n with the `en`/`de`
+dictionaries, the entrance animation helpers and the contact links. The server translation
+loader has its own entry point, `@rapaglaz/shared/util/translations`: it bundles both
+dictionaries, and from the main barrel they ended up in the browser main chunk (+5 kB) although
+only `app.config.server.ts` uses it.
+
+`shared-ui` has the presentational pieces and the toast service, which renders its own container.
+`shared-data-access` has the services that talk to the backend: CV download with config and
+Turnstile, and the feature flag. The Turnstile modal and the interceptor live there too, so a
+service never reaches into another layer for its overlay. The libraries export only what the app
+uses: `ConfigService`, `TURNSTILE_TOKEN`, the modal and the toast container stay internal.
 
 Each Worker is its own Nx project, not one `workers` project. Cloudflare deploys every Worker on its
 own, and `nx affected` decides per project: with one project, a fix in `feature-flag` would also
@@ -38,12 +58,8 @@ apps/rapaglaz-portfolio/src/app/
 ├── app.ts / app.config.ts / app.routes.ts   # bootstrap, routing, providers
 ├── portfolio/     # top-level portfolio shell component
 ├── features/      # hero, navbar, language-switcher, about, skills, languages, certifications, contact, footer
-├── ui/            # small reusable presentational pieces (badge, section-wrapper, toast-container, turnstile-modal)
-├── services/      # shared logic (cv-download, feature-flag, turnstile, toast, config, logger)
-├── interceptors/  # HTTP interceptors (turnstile token injection)
-├── utils/         # helpers (i18n, rxjs, scroll, animation, layout, tokens, contact)
-├── content/       # typed static content (skills, certifications, contact)
-└── testing/       # shared test helpers (transloco loader, window mocks)
+├── utils/         # helpers (layout)
+└── content/       # typed static content (skills, certifications)
 ```
 
 I try to keep features isolated (no feature → feature imports). One exception:
@@ -95,7 +111,8 @@ There is one component entry point; the URL segment only determines the active l
 
 ## State and services
 
-Most sections have no real business logic. The interesting parts are in services:
+Most sections have no real business logic. The interesting parts are in services
+(`shared-data-access`, `shared-ui` for toasts, `shared-util` for the logger):
 
 - CV download: get config → get Turnstile token → call backend endpoint → trigger browser download
 - Turnstile: load the script once and render the widget in the active `en` or `de` locale. An interactive challenge opens in a CDK Dialog with a focus trap and focus restored to the CV button. WebKit needs explicit focus-region boundaries around the iframe for keyboard navigation. Any way of closing the dialog ends verification without a token or download. The CDK Dialog chunk loads next to the Turnstile script after the CV click, and the widget renders once both are ready.
@@ -130,9 +147,10 @@ Components read the flag through `hasValue()` inside a computed instead.
 ### Unit tests
 
 Unit tests run on Vitest through `@nx/vitest`, with AnalogJS compiling Angular and setting up a
-zoneless TestBed (`apps/rapaglaz-portfolio/src/test-setup.ts`). They use the `forks` pool:
-AnalogJS defaults to `vmThreads`, where jsdom's `window` is the global and `window.location`
-cannot be redefined, which the window mocks in `apps/rapaglaz-portfolio/src/app/testing` need.
+zoneless TestBed (`src/test-setup.ts` in every project). Every project has its own
+`vite.config.mts` with the same settings; the coverage thresholds apply per project. They use the
+`forks` pool: AnalogJS defaults to `vmThreads`, where jsdom's `window` is the global and
+`window.location` cannot be redefined, which the window mocks in `@rapaglaz/shared/testing` need.
 
 AnalogJS compiles the specs without type-checking them. `pnpm run typecheck` runs
 `angular-typechecker`, which checks the app and spec tsconfigs with the Angular compiler,
@@ -169,7 +187,7 @@ See [CI/CD strategy](./CI_STRATEGY.md#lighthouse) for how it runs and why it use
 
 ## i18n
 
-Transloco with JSON under `apps/rapaglaz-portfolio/public/i18n`.
+Transloco with JSON under `libs/shared/util/src/i18n`, copied to `/i18n/` by the build.
 Runtime has a strict missing handler, so missing keys are loud.
 Routes are `/en` and `/de`. The URL segment decides the active language.
 Root `/` falls back to the default language (`en`).

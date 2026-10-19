@@ -19,6 +19,11 @@
           {
             "glob": "**/*",
             "input": "apps/rapaglaz-portfolio/public"
+          },
+          {
+            "glob": "*.json",
+            "input": "libs/shared/util/src/i18n",
+            "output": "i18n"
           }
         ],
         "styles": ["apps/rapaglaz-portfolio/src/styles.css"]
@@ -100,6 +105,7 @@
       "cache": true,
       "inputs": [
         "default",
+        "^default",
         "{workspaceRoot}/.dependency-cruiser.cjs",
         "{workspaceRoot}/tsconfig.base.json",
         {
@@ -108,7 +114,7 @@
       ],
       "outputs": [],
       "options": {
-        "command": "depcruise --config .dependency-cruiser.cjs --output-type err apps/rapaglaz-portfolio/src/app"
+        "command": "depcruise --config .dependency-cruiser.cjs --output-type err apps/rapaglaz-portfolio/src/app libs"
       }
     },
     "deps-graph": {
@@ -116,6 +122,7 @@
       "cache": true,
       "inputs": [
         "default",
+        "^default",
         "{workspaceRoot}/.dependency-cruiser.cjs",
         "{workspaceRoot}/tsconfig.base.json",
         {
@@ -124,7 +131,7 @@
       ],
       "outputs": ["{workspaceRoot}/tmp/dependency-cruiser"],
       "options": {
-        "command": "mkdir -p tmp/dependency-cruiser && depcruise --config .dependency-cruiser.cjs --output-type html --output-to tmp/dependency-cruiser/dependencies.html apps/rapaglaz-portfolio/src/app"
+        "command": "mkdir -p tmp/dependency-cruiser && depcruise --config .dependency-cruiser.cjs --output-type html --output-to tmp/dependency-cruiser/dependencies.html apps/rapaglaz-portfolio/src/app libs"
       }
     }
   }
