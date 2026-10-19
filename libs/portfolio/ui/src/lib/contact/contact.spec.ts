@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslocoService } from '@jsverse/transloco';
 import { provideTranslocoTesting } from '@rapaglaz/shared/testing';
+import { CONTACT_ITEMS } from '@rapaglaz/shared/util';
 import { firstValueFrom } from 'rxjs';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { Contact } from './contact';
@@ -11,6 +12,7 @@ describe('Contact', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({ imports: [Contact], providers: [provideTranslocoTesting()] });
     fixture = TestBed.createComponent(Contact);
+    fixture.componentRef.setInput('items', CONTACT_ITEMS);
     fixture.detectChanges();
   });
 

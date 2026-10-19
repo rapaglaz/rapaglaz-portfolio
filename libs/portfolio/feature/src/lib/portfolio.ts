@@ -2,8 +2,16 @@ import { DOCUMENT } from '@angular/common';
 import { Component, DestroyRef, inject } from '@angular/core';
 import { Meta } from '@angular/platform-browser';
 import { TranslocoService } from '@jsverse/transloco';
-import { AVAILABLE_LANGS, DEFAULT_LANG, type AvailableLang } from '@rapaglaz/shared/util';
-import { About, Certifications, Contact, Hero, Languages, Skills } from '../features';
+import { About, Certifications, Contact, Hero, Languages, Skills } from '@rapaglaz/portfolio/ui';
+import { FeatureFlagService } from '@rapaglaz/shared/data-access';
+import {
+  AVAILABLE_LANGS,
+  CONTACT_ITEMS,
+  DEFAULT_LANG,
+  type AvailableLang,
+} from '@rapaglaz/shared/util';
+import { CERTIFICATIONS } from './content/certifications.content';
+import { SKILL_CATEGORIES } from './content/skills.content';
 
 const SITE_ORIGIN = 'https://rapaglaz.de';
 const OG_LOCALE: Record<AvailableLang, string> = { de: 'de_DE', en: 'en_US' };
@@ -20,16 +28,21 @@ const SEO_IMAGE = `${SITE_ORIGIN}/images/IMG_2290-384.webp`;
       id="main-content"
       class="focus-visible:outline-primary min-h-screen focus-visible:outline-2 focus-visible:-outline-offset-2"
       tabindex="-1">
-      <app-hero />
+      <app-hero [openToWork]="openToWork()" />
       <app-about />
-      <app-certifications />
-      <app-skills />
+      <app-certifications [items]="certifications" />
+      <app-skills [categories]="skillCategories" />
       <app-languages />
-      <app-contact />
+      <app-contact [items]="contactItems" />
     </main>
   `,
 })
 export class Portfolio {
+  protected readonly openToWork = inject(FeatureFlagService).getFlagValue('openToWork');
+  protected readonly certifications = CERTIFICATIONS;
+  protected readonly skillCategories = SKILL_CATEGORIES;
+  protected readonly contactItems = CONTACT_ITEMS;
+
   private readonly meta = inject(Meta);
   private readonly document = inject(DOCUMENT);
   private readonly destroyRef = inject(DestroyRef);

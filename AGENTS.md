@@ -22,6 +22,9 @@ apps/
 ├── rapaglaz-portfolio-e2e/   # Playwright project (playwright.config.mts, src/)
 └── workers/                  # Cloudflare Workers: one Nx project per Worker (test, check, deploy)
 libs/
+├── portfolio/
+│   ├── feature/              # @rapaglaz/portfolio/feature: the page (lazy-loaded by the router), skills and certifications content
+│   └── ui/                   # @rapaglaz/portfolio/ui: hero, about, certifications, skills, languages, contact (inputs only)
 └── shared/
     ├── data-access/          # @rapaglaz/shared/data-access: CV download (config, Turnstile), feature flag
     ├── ui/                   # @rapaglaz/shared/ui: badge, section wrapper, toast
@@ -40,25 +43,25 @@ Inside the app:
 
 ```text
 apps/rapaglaz-portfolio/src/app/
-├── portfolio/      # top-level shell (lazy-loaded by router)
-├── features/       # hero, navbar, language-switcher, about, skills, languages, certifications, contact, footer
-├── utils/          # layout
-└── content/        # typed static content (const objects)
+├── features/       # navbar, language-switcher, footer
+└── utils/          # layout
 ```
 
-No feature→feature imports. One exception: navbar→language-switcher.
+No feature→feature imports. One exception: navbar→language-switcher. The portfolio sections are
+presentational: the page passes them content and the feature flag through inputs, and they do not
+import each other.
 
 Imports between Nx projects are checked by `@nx/enforce-module-boundaries` through project tags
 (`type:*`, and `scope:*` on libraries) in `eslint.module-boundaries.mjs`, shared by the root and
 the Workers ESLint configs.
 
 Runtime layer boundaries and circular dependencies are checked by dependency-cruiser in
-`.dependency-cruiser.cjs`. Content stays within its own layer; utils cannot depend on features or
-portfolio; features use utils and content; portfolio composes features. Imports within a layer are
-allowed. Only specs may import `@rapaglaz/shared/testing`, and production files cannot import
+`.dependency-cruiser.cjs`. Utils cannot depend on features; features use utils; the portfolio
+content imports nothing; only `portfolio-feature` may import the section barrel. Imports within a
+layer are allowed. Only the router loads `@rapaglaz/portfolio/feature`, with a dynamic import: Nx
+rejects any static import of a lazy-loaded library. Only specs may import `@rapaglaz/shared/testing`, and production files cannot import
 specs. Specs are exempt from layer rules, while cycles are errors and orphans are warnings.
-Type-only imports are ignored. The routing exception is documented in
-[Dependency boundaries](./docs/DEPENDENCY_BOUNDARIES.md).
+Type-only imports are ignored. See [Dependency boundaries](./docs/DEPENDENCY_BOUNDARIES.md).
 
 ## Conventions
 

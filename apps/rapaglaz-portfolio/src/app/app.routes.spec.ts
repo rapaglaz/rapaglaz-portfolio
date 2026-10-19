@@ -1,18 +1,24 @@
 import { DOCUMENT } from '@angular/common';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { Type } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { TranslocoService } from '@jsverse/transloco';
 import { provideTranslocoTesting } from '@rapaglaz/shared/testing';
 import { firstValueFrom, throwError } from 'rxjs';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { routes } from './app.routes';
-import { Portfolio } from './portfolio/portfolio';
 
 describe('portfolio routes', () => {
   let originalDocumentLang: string;
+  // The router loads the library lazily; a static import would fail the Nx lazy-load lint rule
+  let Portfolio: Type<unknown>;
+
+  beforeAll(async () => {
+    ({ Portfolio } = await import('@rapaglaz/portfolio/feature'));
+  });
 
   beforeEach(async () => {
     TestBed.configureTestingModule({

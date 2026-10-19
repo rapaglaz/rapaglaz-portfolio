@@ -1,0 +1,16 @@
+{
+  "name": "portfolio-ui",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "libs/portfolio/ui/src",
+  "prefix": "app",
+  "tags": ["scope:portfolio", "type:ui"],
+  "targets": {
+    "typecheck": {
+      "executor": "angular-typechecker:typecheck",
+      "options": {
+        "tsConfig": "libs/portfolio/ui/tsconfig.json"
+      }
+    }
+  }
+}

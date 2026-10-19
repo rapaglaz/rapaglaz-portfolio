@@ -10,7 +10,6 @@ import {
   type AvailableLang,
 } from '@rapaglaz/shared/util';
 import { catchError, EMPTY, map, of, tap } from 'rxjs';
-import { Portfolio } from './portfolio/portfolio';
 
 const resolvePortfolioLocale: ResolveFn<AvailableLang> = route => {
   const transloco = inject(TranslocoService);
@@ -44,8 +43,9 @@ const resolvePortfolioLocale: ResolveFn<AvailableLang> = route => {
   );
 };
 
-const loadPortfolio = (): Promise<Type<Portfolio>> =>
-  import('./portfolio/portfolio').then(m => m.Portfolio);
+// A static import of the library, even of its type, would fail the Nx lazy-load lint rule
+const loadPortfolio = (): Promise<Type<unknown>> =>
+  import('@rapaglaz/portfolio/feature').then(m => m.Portfolio);
 
 export const routes: Routes = [
   {

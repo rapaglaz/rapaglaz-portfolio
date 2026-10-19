@@ -1,11 +1,4 @@
-export type CertificationId = 'angular-architecture' | 'angular-testing' | 'angular-spa-typescript';
-
-export type Certification = {
-  readonly id: CertificationId;
-  readonly date: string;
-  readonly durationDays: number;
-  readonly remote: boolean;
-};
+import type { Certification } from '@rapaglaz/portfolio/ui';
 
 // Templates build portfolio.certifications.items.<id>.title and .issuer; listed for i18n:check.
 /** t(

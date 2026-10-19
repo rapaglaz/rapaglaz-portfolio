@@ -1,35 +1,22 @@
-import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FeatureFlagService } from '@rapaglaz/shared/data-access';
 import { provideTranslocoTesting } from '@rapaglaz/shared/testing';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { Hero } from './hero';
 
 describe('Hero', () => {
   let fixture: ComponentFixture<Hero>;
-  const openToWork = signal(false);
 
   beforeEach(() => {
-    openToWork.set(false);
-    TestBed.configureTestingModule({
-      imports: [Hero],
-      providers: [
-        provideTranslocoTesting(),
-        {
-          provide: FeatureFlagService,
-          useValue: { getFlagValue: vi.fn(() => openToWork.asReadonly()) },
-        },
-      ],
-    });
+    TestBed.configureTestingModule({ imports: [Hero], providers: [provideTranslocoTesting()] });
     fixture = TestBed.createComponent(Hero);
     fixture.detectChanges();
   });
 
-  it('renders the availability badge only while the feature flag is enabled', () => {
+  it('renders the availability badge only while openToWork is set', () => {
     const element = fixture.nativeElement as HTMLElement;
     expect(element.querySelector('[data-testid="hero-badge-mobile"]')).toBeNull();
 
-    openToWork.set(true);
+    fixture.componentRef.setInput('openToWork', true);
     fixture.detectChanges();
 
     expect(element.querySelector('[data-testid="hero-badge-mobile"]')?.textContent?.trim()).toBe(
@@ -37,7 +24,7 @@ describe('Hero', () => {
     );
     expect(element.querySelector('img')?.getAttribute('alt')).toBe('Radek Glaz');
 
-    openToWork.set(false);
+    fixture.componentRef.setInput('openToWork', false);
     fixture.detectChanges();
     expect(element.querySelector('[data-testid="hero-badge-mobile"]')).toBeNull();
   });
