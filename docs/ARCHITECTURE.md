@@ -119,6 +119,10 @@ zoneless TestBed (`apps/rapaglaz-portfolio/src/test-setup.ts`). They use the `fo
 AnalogJS defaults to `vmThreads`, where jsdom's `window` is the global and `window.location`
 cannot be redefined, which the window mocks in `apps/rapaglaz-portfolio/src/app/testing` need.
 
+AnalogJS compiles the specs without type-checking them. `pnpm run typecheck` runs
+`angular-typechecker`, which checks the app and spec tsconfigs with the Angular compiler,
+including templates, as a separate cached task.
+
 For presentational sections I keep tests as smoke checks (renders, key elements exist).
 For services/interceptors I test behaviour and error paths.
 

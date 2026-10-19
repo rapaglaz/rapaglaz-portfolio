@@ -88,6 +88,12 @@
           "buildTarget": "rapaglaz-portfolio:build:development"
         }
       }
+    },
+    "typecheck": {
+      "executor": "angular-typechecker:typecheck",
+      "options": {
+        "tsConfig": "apps/rapaglaz-portfolio/tsconfig.json"
+      }
     }
   }
 }

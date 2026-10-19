@@ -16,7 +16,7 @@ Exact versions live in `package.json` (dependencies, `packageManager` for pnpm),
 
 ## Folder structure
 
-```
+```text
 apps/
 ├── rapaglaz-portfolio/       # the Angular app (project.json, vite.config.mts, public/, src/)
 └── rapaglaz-portfolio-e2e/   # Playwright project (playwright.config.mts, src/)
@@ -25,7 +25,7 @@ workers/                      # Cloudflare Workers; hidden from Nx by .nxignore 
 
 Inside the app:
 
-```
+```text
 apps/rapaglaz-portfolio/src/app/
 ├── portfolio/      # top-level shell (lazy-loaded by router)
 ├── features/       # hero, navbar, language-switcher, about, skills, languages, certifications, contact, footer
@@ -65,6 +65,7 @@ documented in [Dependency boundaries](./docs/DEPENDENCY_BOUNDARIES.md).
 
 ```bash
 pnpm run lint
+pnpm run typecheck
 pnpm run deps:check
 pnpm run format:check
 pnpm test

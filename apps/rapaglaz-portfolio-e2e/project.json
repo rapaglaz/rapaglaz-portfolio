@@ -12,6 +12,15 @@
       "dependsOn": [],
       "// cache": "results depend on E2E_MODE and CI, which are not task inputs",
       "cache": false
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": ["default", "^production"],
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "tsc -p tsconfig.json --noEmit"
+      }
     }
   }
 }
