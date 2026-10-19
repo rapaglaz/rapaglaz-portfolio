@@ -10,7 +10,7 @@
 # Dependencies
 **/node_modules/
 
-# Locally installed agent skills (gitignored)
+# Agent skills vendored by the skills CLI (tracked in git, kept as shipped)
 .agents/
 
 # Lockfiles

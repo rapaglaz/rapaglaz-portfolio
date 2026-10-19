@@ -1,4 +1,4 @@
-# Radek Glaz Portfolio
+# My Portfolio
 
 Source of [rapaglaz.de](https://rapaglaz.de), my personal site: a small bilingual (EN/DE) Angular 22
 app, prerendered to static HTML and hydrated in the browser.
@@ -37,7 +37,7 @@ Details: [engineering notes](./docs/ENGINEERING_NOTES.md) from the PR history.
 
 | Check                                                                        | Runs on  | Blocks                       |
 | ---------------------------------------------------------------------------- | -------- | ---------------------------- |
-| `format:check`, `lint`, `deps:check` (dependency-cruiser)                    | PR, main | yes                          |
+| `format:check`, `lint`, `typecheck`, `deps:check` (dependency-cruiser)       | PR, main | yes                          |
 | `i18n:check`, `test:coverage` (80% statements/functions/lines, 70% branches) | PR, main | yes                          |
 | SSG build with bundle budgets from `apps/rapaglaz-portfolio/project.json`    | PR, main | yes                          |
 | Playwright E2E in the official Playwright container, against the build       | PR, main | yes                          |

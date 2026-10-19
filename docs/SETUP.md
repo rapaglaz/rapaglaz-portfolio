@@ -51,6 +51,7 @@ key that local dev uses, so locally the download ends in the error toast. E2E mo
 ```bash
 pnpm run format:check
 pnpm run lint
+pnpm run typecheck
 pnpm run deps:check
 pnpm run i18n:check
 ```

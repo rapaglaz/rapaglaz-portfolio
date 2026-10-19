@@ -42,6 +42,11 @@ runs:
       shell: bash
       run: pnpm run lint
 
+    - name: Run type check
+      if: ${{ inputs.mode == 'lint' || inputs.mode == 'all' }}
+      shell: bash
+      run: pnpm run typecheck
+
     - name: Check dependency boundaries
       if: ${{ inputs.mode == 'lint' || inputs.mode == 'all' }}
       shell: bash

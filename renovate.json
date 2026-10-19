@@ -78,6 +78,15 @@
       "automerge": false
     },
     {
+      "description": "Nx packages must share one version: update together (majors included, still approval-gated), no automerge, run the Nx migrations manually",
+      "matchPackageNames": ["nx", "@nx/**"],
+      "groupName": "nx",
+      "automerge": false,
+      "prBodyNotes": [
+        "Nx may ship migrations for this update. On this branch run `pnpm nx migrate <new version> --from=nx@<old version>`, then `pnpm nx migrate --run-migrations` if it created `migrations.json`. Commit the changes and delete `migrations.json`."
+      ]
+    },
+    {
       "description": "Playwright npm package and Docker image must stay in sync: one PR, no automerge, no release age wait (the image has no release timestamp and would be filtered out alone)",
       "matchPackageNames": ["@playwright/test", "mcr.microsoft.com/playwright"],
       "groupName": "playwright",

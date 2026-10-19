@@ -11,9 +11,10 @@
       "!{projectRoot}/eslint.config.mjs",
       "!{projectRoot}/**/?(*.)+(spec|test).[jt]s?(x)?(.snap)",
       "!{projectRoot}/tsconfig.spec.json",
-      "!{projectRoot}/src/test-setup.[jt]s"
+      "!{projectRoot}/src/test-setup.[jt]s",
+      "!{projectRoot}/transloco.config.ts"
     ],
-    "sharedGlobals": [],
+    "sharedGlobals": ["{workspaceRoot}/tsconfig.base.json"],
     "lintGlobals": [
       "{workspaceRoot}/eslint.config.mjs",
       "{workspaceRoot}/tsconfig*.json",
@@ -39,6 +40,7 @@
       "plugin": "@nx/vitest",
       "options": {
         "testTargetName": "test",
+        "ciTargetName": "test-ci",
         "testMode": "watch"
       }
     }
@@ -47,11 +49,32 @@
     "@angular/build:application": {
       "cache": true,
       "dependsOn": ["^build"],
-      "inputs": ["production", "^production"]
+      "inputs": ["production", "^production", "{workspaceRoot}/.postcssrc.json"]
+    },
+    "test": {
+      "inputs": ["default", "^production", { "env": "CI" }]
     },
     "lint": {
       "cache": true,
       "inputs": ["default", "^default", "lintGlobals"]
+    },
+    "angular-typechecker:typecheck": {
+      "cache": true,
+      "outputs": [],
+      "inputs": [
+        "default",
+        "{projectRoot}/tsconfig*.json",
+        "{projectRoot}/package.json",
+        "{workspaceRoot}/tsconfig.base.json",
+        "^default",
+        {
+          "dependentTasksOutputFiles": "**/*.{d.ts,d.cts,d.mts,tsbuildinfo}",
+          "transitive": true
+        },
+        {
+          "externalDependencies": ["typescript", "@angular/compiler-cli"]
+        }
+      ]
     }
   },
   "generators": {

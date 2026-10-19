@@ -17,7 +17,7 @@ There are two workflows:
 - `main-branch-ci-cd.yaml` (Main Branch CI/CD) — runs on push to main (skips docs/markdown changes), and deploys to production when checks pass
 
 Both workflows use `.github/actions/quality-check/action.yaml`. Its `lint` mode runs
-format, lint, and `pnpm run deps:check`; its `test` mode runs i18n, coverage tests, the Worker
+format, lint, type check, and `pnpm run deps:check`; its `test` mode runs i18n, coverage tests, the Worker
 tests and config check, and SonarCloud analysis. The dependency check fails the lint job for forbidden runtime imports
 or cycles, so it also blocks the PR quality gate and main deployment.
 See [Dependency boundaries](./DEPENDENCY_BOUNDARIES.md) for the architecture policy.

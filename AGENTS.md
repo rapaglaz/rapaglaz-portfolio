@@ -16,7 +16,7 @@ Exact versions live in `package.json` (dependencies, `packageManager` for pnpm),
 
 ## Folder structure
 
-```
+```text
 apps/
 ├── rapaglaz-portfolio/       # the Angular app (project.json, vite.config.mts, public/, src/)
 └── rapaglaz-portfolio-e2e/   # Playwright project (playwright.config.mts, src/)
@@ -25,7 +25,7 @@ workers/                      # Cloudflare Workers; hidden from Nx by .nxignore 
 
 Inside the app:
 
-```
+```text
 apps/rapaglaz-portfolio/src/app/
 ├── portfolio/      # top-level shell (lazy-loaded by router)
 ├── features/       # hero, navbar, language-switcher, about, skills, languages, certifications, contact, footer
@@ -65,6 +65,7 @@ documented in [Dependency boundaries](./docs/DEPENDENCY_BOUNDARIES.md).
 
 ```bash
 pnpm run lint
+pnpm run typecheck
 pnpm run deps:check
 pnpm run format:check
 pnpm test
@@ -98,7 +99,8 @@ pnpm run build    # SSG → dist/apps/rapaglaz-portfolio/browser
 pnpm run preview  # serve the static build on port 4233
 ```
 
-Bundle budgets (`apps/rapaglaz-portfolio/project.json`): initial 700KB error, all scripts 500KB error, any component style 20KB error.
+Bundle budgets (`apps/rapaglaz-portfolio/project.json`): initial 750KB error, all scripts 650KB error, any component style 20KB error.
+The warnings (600KB initial, 575KB all scripts) leave room for NgRx.
 
 ## i18n
 
@@ -118,6 +120,11 @@ A key built at runtime or passed as an input must also appear in a `/** t(key) *
 - Never push, force-push or open a PR without the maintainer's approval
 - A task is finished only when the quality gates above pass; report a failing gate instead of
   skipping or disabling it
+
+## AI tooling
+
+- Do not run `nx configure-ai-agents` for Claude: it copies the block below into `CLAUDE.md` and adds
+  the Nx marketplace plugin, which duplicates `.mcp.json` and the skills in `.agents/skills`.
 
 <!-- nx configuration start-->
 <!-- Leave the start & end comments to automatically receive updates. -->
