@@ -1,5 +1,5 @@
-// Runtime layer rules inside the app and inside libraries. Boundaries between Nx projects are enforced by
-// @nx/enforce-module-boundaries (eslint.module-boundaries.mjs). See docs/DEPENDENCY_BOUNDARIES.md.
+// Runtime rules inside the app and inside libraries. Boundaries between Nx projects are enforced
+// by @nx/enforce-module-boundaries (eslint.module-boundaries.mjs). See docs/DEPENDENCY_BOUNDARIES.md.
 const path = require('node:path');
 
 module.exports = {
@@ -19,49 +19,16 @@ module.exports = {
       to: { pathNot: '^libs/portfolio/feature/src/lib/content/' },
     },
     {
-      name: 'utils-layer',
-      comment: 'Utilities must not depend on features.',
+      name: 'layout-peer-boundary',
+      comment: 'The footer and the language switcher do not use the navbar or each other.',
       severity: 'error',
       from: {
-        path: '^apps/rapaglaz-portfolio/src/app/utils/',
-        // Specs may test collaborators
+        path: '^libs/portfolio/layout/src/lib/(footer|language-switcher)/',
         pathNot: '\\.spec\\.ts$',
       },
       to: {
-        path: '^apps/rapaglaz-portfolio/src/app/features/',
-      },
-    },
-    {
-      name: 'features-layer',
-      comment: 'Features may depend on utilities; peer rules follow.',
-      severity: 'error',
-      from: { path: '^apps/rapaglaz-portfolio/src/app/features/', pathNot: '\\.spec\\.ts$' },
-      to: {
-        path: '^apps/rapaglaz-portfolio/src/app/(?!testing/)',
-        pathNot: '^apps/rapaglaz-portfolio/src/app/(features|utils)/',
-      },
-    },
-    {
-      name: 'no-cross-feature',
-      comment: 'Each feature must stay independent of its peers.',
-      severity: 'error',
-      from: {
-        path: '^apps/rapaglaz-portfolio/src/app/features/([^/]+)/',
-        pathNot: ['\\.spec\\.ts$', '^apps/rapaglaz-portfolio/src/app/features/navbar/'],
-      },
-      to: {
-        path: '^apps/rapaglaz-portfolio/src/app/features/',
-        pathNot: '^apps/rapaglaz-portfolio/src/app/features/$1/',
-      },
-    },
-    {
-      name: 'navbar-feature-boundary',
-      comment: 'Navbar composes the language switcher; this is the single allowed peer dependency.',
-      severity: 'error',
-      from: { path: '^apps/rapaglaz-portfolio/src/app/features/navbar/', pathNot: '\\.spec\\.ts$' },
-      to: {
-        path: '^apps/rapaglaz-portfolio/src/app/features/',
-        pathNot: '^apps/rapaglaz-portfolio/src/app/features/(navbar|language-switcher)/',
+        path: '^libs/portfolio/layout/src/lib/',
+        pathNot: '^libs/portfolio/layout/src/lib/$1/',
       },
     },
     {
@@ -81,7 +48,7 @@ module.exports = {
       severity: 'error',
       from: {
         path: '^(apps/rapaglaz-portfolio/src/app|libs)/',
-        pathNot: ['^libs/portfolio/', '\\.spec\\.ts$'],
+        pathNot: ['^libs/portfolio/(feature|ui)/', '\\.spec\\.ts$'],
       },
       to: { path: '^libs/portfolio/ui/' },
     },

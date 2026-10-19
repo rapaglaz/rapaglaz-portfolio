@@ -14,10 +14,10 @@ import { routes } from './app.routes';
 describe('portfolio routes', () => {
   let originalDocumentLang: string;
   // The router loads the library lazily; a static import would fail the Nx lazy-load lint rule
-  let Portfolio: Type<unknown>;
+  let PortfolioPage: Type<unknown>;
 
   beforeAll(async () => {
-    ({ Portfolio } = await import('@rapaglaz/portfolio/feature'));
+    ({ PortfolioPage } = await import('@rapaglaz/portfolio/feature'));
   });
 
   beforeEach(async () => {
@@ -46,7 +46,7 @@ describe('portfolio routes', () => {
   ])('synchronizes content and document language at %s', async (path, lang, heading) => {
     const harness = await RouterTestingHarness.create();
 
-    await harness.navigateByUrl(path, Portfolio);
+    await harness.navigateByUrl(path, PortfolioPage);
 
     expect(TestBed.inject(Router).url).toBe(path);
     expect(harness.routeNativeElement?.querySelector('main')).toBeInstanceOf(HTMLElement);
@@ -64,7 +64,7 @@ describe('portfolio routes', () => {
   it('returns to English when navigating from German to the root fallback', async () => {
     const harness = await RouterTestingHarness.create('/de');
 
-    await harness.navigateByUrl('/', Portfolio);
+    await harness.navigateByUrl('/', PortfolioPage);
 
     expect(TestBed.inject(TranslocoService).getActiveLang()).toBe('en');
     expect(TestBed.inject(DOCUMENT).documentElement.lang).toBe('en');
@@ -81,7 +81,7 @@ describe('portfolio routes', () => {
       lang === 'de' ? throwError(() => new Error('Translation unavailable')) : load(lang),
     );
 
-    await harness.navigateByUrl('/de?source=navbar#skills', Portfolio);
+    await harness.navigateByUrl('/de?source=navbar#skills', PortfolioPage);
 
     expect(TestBed.inject(Router).url).toBe('/en?source=navbar#skills');
     expect(transloco.getActiveLang()).toBe('en');
@@ -109,7 +109,7 @@ describe('portfolio routes', () => {
   it('redirects an unknown path to the root portfolio', async () => {
     const harness = await RouterTestingHarness.create();
 
-    await harness.navigateByUrl('/unknown/page', Portfolio);
+    await harness.navigateByUrl('/unknown/page', PortfolioPage);
 
     expect(TestBed.inject(Router).url).toBe('/');
     expect(harness.routeNativeElement?.querySelector('main')).toBeInstanceOf(HTMLElement);

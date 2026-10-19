@@ -6,7 +6,7 @@ tasks; it adds no runtime code.
 
 ## Folder layout
 
-The workspace has eleven projects:
+The workspace has twelve projects:
 
 ```plaintext
 apps/
@@ -19,6 +19,7 @@ apps/
 libs/
 ├── portfolio/
 │   ├── feature/              # portfolio-feature, tags scope:portfolio type:feature
+│   ├── layout/               # portfolio-layout, tags scope:portfolio type:feature
 │   └── ui/                   # portfolio-ui, tags scope:portfolio type:ui
 └── shared/
     ├── data-access/          # shared-data-access, tags scope:shared type:data-access
@@ -59,18 +60,14 @@ The cost is small: three short `project.json` files. `check`, `deploy` and the l
 `tsconfig.base.json`, `apps/workers/eslint.config.mjs`, `eslint.module-boundaries.mjs` or the Nx
 version.
 
-Inside the app I organise by feature, not by layers inside every folder.
-Shared bits go to a shared place.
+The app itself is only the bootstrap: `app.ts`, `app.config.ts`, `app.routes.ts`.
 
-```plaintext
-apps/rapaglaz-portfolio/src/app/
-├── app.ts / app.config.ts / app.routes.ts   # bootstrap, routing, providers
-├── features/      # navbar, language-switcher, footer
-└── utils/         # helpers (layout)
-```
-
-I try to keep features isolated (no feature → feature imports). One exception:
-navbar uses the language switcher. It is fine, but it is a conscious choice.
+`app.ts` renders only `<app-portfolio />`. `Portfolio` in `portfolio-layout` glues the page in its
+template: skip link, navbar, router outlet and footer. The navbar and footer stay outside the
+outlet: a language switch is a new route, so the router recreates only `PortfolioPage`, and the
+navbar keeps its focus and the CV download. The navbar uses the language
+switcher. It is fine, but it is a conscious choice. The switcher only navigates; its specs use stub
+routes, and `language-switch.spec.ts` in the app tests it with the real routes and resolver.
 
 Dependency-cruiser enforces the runtime layer boundaries and rejects circular imports.
 See [Dependency boundaries](./DEPENDENCY_BOUNDARIES.md) for the allowed dependencies,
@@ -90,7 +87,7 @@ as a signal already and there is no manual subscribe anywhere.
 
 DOM measuring lives in directives, not components. Scroll reveal was already a directive,
 and the navbar height (`--navbar-height` CSS variable via ResizeObserver) moved into
-`MeasureNavbarHeightDirective` in `utils/layout` to follow the same pattern.
+`MeasureNavbarHeightDirective`, next to the navbar in `portfolio-layout`, to follow the same pattern.
 The navbar component keeps only state and actions.
 
 ### SSG + hydration
@@ -113,7 +110,7 @@ link and text with `curl -sS https://rapaglaz.de/<path>`.
 
 ### Routing + lazy loading
 
-All routes (`/`, `/en`, `/de`) use `loadComponent` to lazy-load the `Portfolio` shell.
+All routes (`/`, `/en`, `/de`) use `loadComponent` to lazy-load `PortfolioPage`.
 There is one component entry point; the URL segment only determines the active language.
 
 ## State and services
@@ -225,4 +222,7 @@ are listed in `t(...)` comments next to their use.
 
 ## Trade-offs
 
-- No NgRx. Not needed here.
+- NgRx SignalStore only where state is shared. Stores go to `data-access` libraries:
+  `FeatureFlagStore` and `CvDownloadStore` to `shared-data-access`, because the navbar and the page
+  both use them; a store only the portfolio uses would get `libs/portfolio/data-access`. Features
+  inject stores, UI libraries get inputs, and the project tags keep it that way.

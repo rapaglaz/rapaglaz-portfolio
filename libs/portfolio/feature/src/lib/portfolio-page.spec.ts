@@ -8,15 +8,15 @@ import { FeatureFlagService } from '@rapaglaz/shared/data-access';
 import { provideTranslocoTesting } from '@rapaglaz/shared/testing';
 import { firstValueFrom } from 'rxjs';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { Portfolio } from './portfolio';
+import { PortfolioPage } from './portfolio-page';
 
-describe('Portfolio', () => {
-  let fixture: ComponentFixture<Portfolio>;
+describe('PortfolioPage', () => {
+  let fixture: ComponentFixture<PortfolioPage>;
   let element: HTMLElement;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Portfolio],
+      imports: [PortfolioPage],
       providers: [provideHttpClient(), provideHttpClientTesting(), provideTranslocoTesting()],
     }).compileComponents();
 
@@ -24,7 +24,7 @@ describe('Portfolio', () => {
     // that so constructor-time translate() sees loaded values
     await firstValueFrom(TestBed.inject(TranslocoService).load('en'));
 
-    fixture = TestBed.createComponent(Portfolio);
+    fixture = TestBed.createComponent(PortfolioPage);
     element = fixture.nativeElement;
     fixture.detectChanges();
   });
@@ -95,7 +95,7 @@ describe('Portfolio', () => {
     const openToWork = signal(false);
     TestBed.resetTestingModule();
     TestBed.configureTestingModule({
-      imports: [Portfolio],
+      imports: [PortfolioPage],
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
@@ -104,7 +104,7 @@ describe('Portfolio', () => {
       ],
     });
     await firstValueFrom(TestBed.inject(TranslocoService).load('en'));
-    const page = TestBed.createComponent(Portfolio);
+    const page = TestBed.createComponent(PortfolioPage);
     page.detectChanges();
     const host = page.nativeElement as HTMLElement;
     const count = (testId: string): number =>

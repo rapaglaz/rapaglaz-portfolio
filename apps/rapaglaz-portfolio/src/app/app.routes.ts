@@ -45,7 +45,7 @@ const resolvePortfolioLocale: ResolveFn<AvailableLang> = route => {
 
 // A static import of the library, even of its type, would fail the Nx lazy-load lint rule
 const loadPortfolio = (): Promise<Type<unknown>> =>
-  import('@rapaglaz/portfolio/feature').then(m => m.Portfolio);
+  import('@rapaglaz/portfolio/feature').then(m => m.PortfolioPage);
 
 export const routes: Routes = [
   {
