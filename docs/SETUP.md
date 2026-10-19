@@ -76,7 +76,7 @@ pnpm run test:coverage
 
 Coverage output goes to `coverage/apps/rapaglaz-portfolio/`.
 
-The Cloudflare Workers in `apps/workers/` have their own Vitest run in a Node environment:
+The Cloudflare Workers in `apps/workers/` are one Nx project each and run Vitest in a Node environment:
 
 ```bash
 pnpm run test:workers

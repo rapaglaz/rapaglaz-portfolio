@@ -6,13 +6,16 @@ tasks; it adds no runtime code.
 
 ## Folder layout
 
-The workspace has two projects:
+The workspace has five projects:
 
 ```plaintext
 apps/
 ├── rapaglaz-portfolio/       # the Angular app
 ├── rapaglaz-portfolio-e2e/   # Playwright suite, depends on the app
-└── workers/                  # Cloudflare Workers, not an Nx project yet (.nxignore)
+└── workers/                  # Cloudflare Workers, tag type:worker
+    ├── cv-download/
+    ├── feature-flag/
+    └── portfolio-settings/
 ```
 
 Inside the app I organise by feature, not by layers inside every folder.
