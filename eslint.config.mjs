@@ -33,7 +33,11 @@ export default defineConfig(
     ],
     languageOptions: {
       parserOptions: {
-        projectService: true,
+        projectService: {
+          // Root config files such as transloco.config.ts belong to no project tsconfig
+          allowDefaultProject: ['*.ts'],
+          defaultProject: 'tsconfig.base.json',
+        },
         tsconfigRootDir: __dirname,
       },
     },
