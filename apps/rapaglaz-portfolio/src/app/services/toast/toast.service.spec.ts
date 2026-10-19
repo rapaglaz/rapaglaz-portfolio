@@ -1,8 +1,8 @@
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { provideTranslocoTesting } from '@rapaglaz/shared/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { provideTranslocoTesting } from '../../testing';
 import { ToastService } from './toast.service';
 
 describe('ToastService', () => {

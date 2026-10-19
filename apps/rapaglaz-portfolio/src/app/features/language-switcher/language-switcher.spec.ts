@@ -4,11 +4,11 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { TranslocoService, type Translation } from '@jsverse/transloco';
+import { provideTranslocoTesting } from '@rapaglaz/shared/testing';
+import { LANG_LABELS } from '@rapaglaz/shared/util';
 import { firstValueFrom, Subject } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { routes } from '../../app.routes';
-import { provideTranslocoTesting } from '../../testing';
-import { LANG_LABELS } from '../../utils/i18n';
 import { LanguageSwitcher } from './language-switcher';
 
 const EN_OPTION = '[aria-label="EN English"]';

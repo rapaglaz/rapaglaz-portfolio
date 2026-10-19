@@ -2,8 +2,8 @@ import { DOCUMENT } from '@angular/common';
 import { Component, DestroyRef, inject } from '@angular/core';
 import { Meta } from '@angular/platform-browser';
 import { TranslocoService } from '@jsverse/transloco';
+import { AVAILABLE_LANGS, DEFAULT_LANG, type AvailableLang } from '@rapaglaz/shared/util';
 import { About, Certifications, Contact, Hero, Languages, Skills } from '../features';
-import { AVAILABLE_LANGS, DEFAULT_LANG, type AvailableLang } from '../utils/i18n';
 
 const SITE_ORIGIN = 'https://rapaglaz.de';
 const OG_LOCALE: Record<AvailableLang, string> = { de: 'de_DE', en: 'en_US' };

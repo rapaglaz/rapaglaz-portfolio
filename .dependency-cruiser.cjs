@@ -8,7 +8,7 @@ module.exports = {
       name: 'no-circular',
       comment: 'Runtime dependencies must not form cycles, including through barrel exports.',
       severity: 'error',
-      from: { path: '^apps/rapaglaz-portfolio/src/app/' },
+      from: { path: '^(apps/rapaglaz-portfolio/src/app|libs)/' },
       to: { circular: true },
     },
     {
@@ -27,24 +27,11 @@ module.exports = {
       severity: 'error',
       from: {
         path: '^apps/rapaglaz-portfolio/src/app/utils/',
-        // Specs may test collaborators; the missing handler has a narrower logger rule below.
-        pathNot: [
-          '\\.spec\\.ts$',
-          '^apps/rapaglaz-portfolio/src/app/utils/i18n/transloco-missing-handler\\.ts$',
-        ],
+        // Specs may test collaborators
+        pathNot: '\\.spec\\.ts$',
       },
       to: {
         path: '^apps/rapaglaz-portfolio/src/app/(features|ui|services|interceptors|portfolio)/',
-      },
-    },
-    {
-      name: 'missing-handler-layer',
-      comment: 'The missing translation handler uses the central logger to report missing keys.',
-      severity: 'error',
-      from: { path: '^apps/rapaglaz-portfolio/src/app/utils/i18n/transloco-missing-handler\\.ts$' },
-      to: {
-        path: '^apps/rapaglaz-portfolio/src/app/(features|ui|services|interceptors|portfolio)/',
-        pathNot: '^apps/rapaglaz-portfolio/src/app/services/logger/logger\\.service\\.ts$',
       },
     },
     {
@@ -139,26 +126,11 @@ module.exports = {
       severity: 'error',
       from: {
         path: '^apps/rapaglaz-portfolio/src/app/portfolio/',
-        // The shell component has a narrow exception for shared SEO language constants below.
-        pathNot: ['\\.spec\\.ts$', '^apps/rapaglaz-portfolio/src/app/portfolio/portfolio\\.ts$'],
+        pathNot: '\\.spec\\.ts$',
       },
       to: {
         path: '^apps/rapaglaz-portfolio/src/app/(?!testing/)',
         pathNot: '^apps/rapaglaz-portfolio/src/app/(portfolio|features|ui)/',
-      },
-    },
-    {
-      name: 'portfolio-component-layer',
-      comment:
-        'The shell uses shared language constants to build canonical and alternate SEO links.',
-      severity: 'error',
-      from: { path: '^apps/rapaglaz-portfolio/src/app/portfolio/portfolio\\.ts$' },
-      to: {
-        path: '^apps/rapaglaz-portfolio/src/app/(?!testing/)',
-        pathNot: [
-          '^apps/rapaglaz-portfolio/src/app/(portfolio|features|ui)/',
-          '^apps/rapaglaz-portfolio/src/app/utils/i18n/index\\.ts$',
-        ],
       },
     },
     {
@@ -189,21 +161,21 @@ module.exports = {
     },
     {
       name: 'no-production-to-testing',
-      comment: 'Only spec files and other testing helpers may import the testing layer.',
+      comment: 'Only spec files and other testing helpers may import the testing library.',
       severity: 'error',
       from: {
-        path: '^apps/rapaglaz-portfolio/src/app/',
-        pathNot: ['\\.spec\\.ts$', '^apps/rapaglaz-portfolio/src/app/testing/'],
+        path: '^(apps/rapaglaz-portfolio/src/app|libs)/',
+        pathNot: ['\\.spec\\.ts$', '^libs/shared/testing/'],
       },
-      to: { path: '^apps/rapaglaz-portfolio/src/app/testing/' },
+      to: { path: '^libs/shared/testing/' },
     },
     {
       name: 'no-production-to-specs',
       comment: 'Production files must not import spec files.',
       severity: 'error',
       from: {
-        path: '^apps/rapaglaz-portfolio/src/app/',
-        pathNot: ['\\.spec\\.ts$', '^apps/rapaglaz-portfolio/src/app/testing/'],
+        path: '^(apps/rapaglaz-portfolio/src/app|libs)/',
+        pathNot: ['\\.spec\\.ts$', '^libs/shared/testing/'],
       },
       to: { path: '\\.spec\\.ts$' },
     },
@@ -213,9 +185,11 @@ module.exports = {
         'Warn about isolated modules, excluding entry points, configs, routes, specs, and E2E.',
       severity: 'warn',
       from: {
-        path: '^apps/rapaglaz-portfolio/src/app/',
+        path: '^(apps/rapaglaz-portfolio/src/app|libs)/',
         orphan: true,
         pathNot: [
+          // Library entry points are reached through path aliases; test-setup is loaded by Vitest
+          '^libs/.+/src/(index|test-setup)\\.ts$',
           '(^|/)main(\\.server)?\\.ts$',
           '^apps/rapaglaz-portfolio/src/app/app\\.(config|routes)(\\.server)?\\.ts$',
           '\\.spec\\.ts$',
@@ -226,7 +200,7 @@ module.exports = {
     },
   ],
   options: {
-    includeOnly: '^apps/rapaglaz-portfolio/src/app/',
+    includeOnly: '^(apps/rapaglaz-portfolio/src/app|libs/[^/]+/[^/]+/src)/',
     exclude: '(^|/)(node_modules|dist|coverage)/',
     // Absolute path: with a relative one, TypeScript resolves the tsconfig `extends` chain twice
     tsConfig: { fileName: path.join(__dirname, 'apps/rapaglaz-portfolio/tsconfig.app.json') },

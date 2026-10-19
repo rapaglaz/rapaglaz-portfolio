@@ -1,9 +1,14 @@
 import { EnvironmentProviders } from '@angular/core';
 import { provideTransloco, Translation, TranslocoLoader } from '@jsverse/transloco';
+import {
+  AVAILABLE_LANGS,
+  DEFAULT_LANG,
+  isAvailableLang,
+  type AvailableLang,
+} from '@rapaglaz/shared/util';
+import deTranslations from '@rapaglaz/shared/util/i18n/de.json';
+import enTranslations from '@rapaglaz/shared/util/i18n/en.json';
 import { Observable, of } from 'rxjs';
-import deTranslations from '../../../public/i18n/de.json';
-import enTranslations from '../../../public/i18n/en.json';
-import { AVAILABLE_LANGS, DEFAULT_LANG, isAvailableLang, type AvailableLang } from '../utils/i18n';
 
 // loads translations synchronously from imports, no HTTP needed in tests
 export class TranslocoTestLoader implements TranslocoLoader {

@@ -1,9 +1,9 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { API_BASE_URL } from '@rapaglaz/shared/util';
 import { catchError, map, Observable, of, retry, shareReplay, throwError, timer } from 'rxjs';
 import * as v from 'valibot';
-import { API_BASE_URL } from '../../utils/tokens/api-urls.token';
 
 const ConfigSchema = v.object({
   turnstileSiteKey: v.pipe(v.string(), v.minLength(1, 'Turnstile site key cannot be empty')),

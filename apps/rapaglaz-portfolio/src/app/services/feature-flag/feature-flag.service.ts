@@ -1,8 +1,8 @@
 import { isPlatformBrowser } from '@angular/common';
 import { httpResource, HttpResourceRef } from '@angular/common/http';
 import { computed, inject, Injectable, Injector, PLATFORM_ID, Signal } from '@angular/core';
+import { API_FEATURE_FLAG_URL } from '@rapaglaz/shared/util';
 import * as v from 'valibot';
-import { API_FEATURE_FLAG_URL } from '../../utils/tokens/api-urls.token';
 
 // The Worker answers { "<name>": true | false }; any other shape reads as false
 export function readFlagValue(raw: unknown, flagName: string): boolean {

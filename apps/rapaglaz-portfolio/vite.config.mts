@@ -16,7 +16,7 @@ export default defineConfig(() => ({
     globals: true,
     environment: 'jsdom',
     // AnalogJS defaults to vmThreads, where jsdom's window is the global and window.location
-    // cannot be redefined; the window mocks in src/app/testing need the default forks pool
+    // cannot be redefined; the window mocks in @rapaglaz/shared/testing need forks
     pool: 'forks',
     include: ['{src,tests}/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
     setupFiles: ['src/test-setup.ts'],

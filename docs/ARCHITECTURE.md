@@ -6,7 +6,7 @@ tasks; it adds no runtime code.
 
 ## Folder layout
 
-The workspace has five projects:
+The workspace has seven projects:
 
 ```plaintext
 apps/
@@ -16,7 +16,17 @@ apps/
     ├── cv-download/
     ├── feature-flag/
     └── portfolio-settings/
+libs/
+└── shared/
+    ├── util/                 # shared-util, tags scope:shared type:util
+    └── testing/              # shared-testing, tags scope:shared type:testing
 ```
+
+The libraries are not buildable. There is one app, so a build step per library would only add
+work; the app compiles them from source through the aliases in `tsconfig.base.json`.
+`shared-util` holds what every layer uses: logger, API URL tokens, i18n with the `en`/`de`
+dictionaries, the entrance animation helpers and the contact links. The server translation
+loader stays in the app next to `app.config.server.ts`, its only user.
 
 Each Worker is its own Nx project, not one `workers` project. Cloudflare deploys every Worker on its
 own, and `nx affected` decides per project: with one project, a fix in `feature-flag` would also
@@ -39,11 +49,10 @@ apps/rapaglaz-portfolio/src/app/
 ├── portfolio/     # top-level portfolio shell component
 ├── features/      # hero, navbar, language-switcher, about, skills, languages, certifications, contact, footer
 ├── ui/            # small reusable presentational pieces (badge, section-wrapper, toast-container, turnstile-modal)
-├── services/      # shared logic (cv-download, feature-flag, turnstile, toast, config, logger)
+├── services/      # shared logic (cv-download, feature-flag, turnstile, toast, config)
 ├── interceptors/  # HTTP interceptors (turnstile token injection)
-├── utils/         # helpers (i18n, rxjs, scroll, animation, layout, tokens, contact)
-├── content/       # typed static content (skills, certifications, contact)
-└── testing/       # shared test helpers (transloco loader, window mocks)
+├── utils/         # helpers (rxjs, layout)
+└── content/       # typed static content (skills, certifications)
 ```
 
 I try to keep features isolated (no feature → feature imports). One exception:
@@ -130,9 +139,10 @@ Components read the flag through `hasValue()` inside a computed instead.
 ### Unit tests
 
 Unit tests run on Vitest through `@nx/vitest`, with AnalogJS compiling Angular and setting up a
-zoneless TestBed (`apps/rapaglaz-portfolio/src/test-setup.ts`). They use the `forks` pool:
-AnalogJS defaults to `vmThreads`, where jsdom's `window` is the global and `window.location`
-cannot be redefined, which the window mocks in `apps/rapaglaz-portfolio/src/app/testing` need.
+zoneless TestBed (`src/test-setup.ts` in every project). Every project has its own
+`vite.config.mts` with the same settings; the coverage thresholds apply per project. They use the
+`forks` pool: AnalogJS defaults to `vmThreads`, where jsdom's `window` is the global and
+`window.location` cannot be redefined, which the window mocks in `@rapaglaz/shared/testing` need.
 
 AnalogJS compiles the specs without type-checking them. `pnpm run typecheck` runs
 `angular-typechecker`, which checks the app and spec tsconfigs with the Angular compiler,
@@ -169,7 +179,7 @@ See [CI/CD strategy](./CI_STRATEGY.md#lighthouse) for how it runs and why it use
 
 ## i18n
 
-Transloco with JSON under `apps/rapaglaz-portfolio/public/i18n`.
+Transloco with JSON under `libs/shared/util/src/i18n`, copied to `/i18n/` by the build.
 Runtime has a strict missing handler, so missing keys are loud.
 Routes are `/en` and `/de`. The URL segment decides the active language.
 Root `/` falls back to the default language (`en`).

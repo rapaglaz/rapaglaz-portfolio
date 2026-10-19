@@ -1,8 +1,8 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideTranslocoTesting } from '@rapaglaz/shared/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { FeatureFlagService } from '../../services';
-import { provideTranslocoTesting } from '../../testing';
 import { Hero } from './hero';
 
 describe('Hero', () => {

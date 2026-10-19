@@ -3,10 +3,10 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TranslocoService } from '@jsverse/transloco';
+import { provideTranslocoTesting } from '@rapaglaz/shared/testing';
+import { API_BASE_URL } from '@rapaglaz/shared/util';
 import { EMPTY, firstValueFrom, of, throwError } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { provideTranslocoTesting } from '../../testing';
-import { API_BASE_URL } from '../../utils/tokens/api-urls.token';
 import { ConfigService } from '../config/config.service';
 import { TurnstileService } from '../turnstile/turnstile.service';
 import { CvDownloadService, triggerBrowserDownload, TURNSTILE_TOKEN } from './cv-download.service';

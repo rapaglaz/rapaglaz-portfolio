@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideTranslocoTesting } from '@rapaglaz/shared/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { provideTranslocoTesting } from '../../testing';
 import { SectionWrapper } from './section-wrapper';
 
 describe('SectionWrapper', () => {
