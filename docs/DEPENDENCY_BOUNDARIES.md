@@ -25,6 +25,11 @@ The rule runs through `pnpm run lint`. The root config and the Workers config
 (`apps/workers/eslint.config.mjs`, which does not extend the root config) both use the shared
 block, so the constraints cannot drift apart.
 
+The shared file is a lint cache input for every project: through `lintGlobals` for the app and e2e,
+and through the `workerLint` named input for the Workers, which also lists `@nx/eslint-plugin` as
+an external dependency. A change to it reruns lint everywhere and marks all three Workers as
+affected, so the next `main` run redeploys them.
+
 The rule treats files that belong to no project as external resources. Two cases are handled
 explicitly:
 
