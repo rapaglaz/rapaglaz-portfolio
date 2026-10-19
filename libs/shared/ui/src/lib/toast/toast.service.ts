@@ -4,7 +4,7 @@ import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { ComponentRef, DestroyRef, inject, Injectable, Injector, PLATFORM_ID } from '@angular/core';
 import { LoggerService } from '@rapaglaz/shared/util';
 import { fromEvent, Subscription } from 'rxjs';
-import { ToastContainer, ToastType } from '../../ui';
+import { ToastContainer, ToastType } from './toast-container';
 
 const NAVBAR_OFFSET = 'var(--navbar-height, 5rem)';
 

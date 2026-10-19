@@ -6,7 +6,7 @@ tasks; it adds no runtime code.
 
 ## Folder layout
 
-The workspace has seven projects:
+The workspace has nine projects:
 
 ```plaintext
 apps/
@@ -18,6 +18,8 @@ apps/
     └── portfolio-settings/
 libs/
 └── shared/
+    ├── data-access/          # shared-data-access, tags scope:shared type:data-access
+    ├── ui/                   # shared-ui, tags scope:shared type:ui
     ├── util/                 # shared-util, tags scope:shared type:util
     └── testing/              # shared-testing, tags scope:shared type:testing
 ```
@@ -27,6 +29,12 @@ work; the app compiles them from source through the aliases in `tsconfig.base.js
 `shared-util` holds what every layer uses: logger, API URL tokens, i18n with the `en`/`de`
 dictionaries, the entrance animation helpers and the contact links. The server translation
 loader stays in the app next to `app.config.server.ts`, its only user.
+
+`shared-ui` has the presentational pieces and the toast service, which renders its own container.
+`shared-data-access` has the services that talk to the backend: CV download with config and
+Turnstile, and the feature flag. The Turnstile modal and the interceptor live there too, so a
+service never reaches into another layer for its overlay. The libraries export only what the app
+uses: `ConfigService`, `TURNSTILE_TOKEN`, the modal and the toast container stay internal.
 
 Each Worker is its own Nx project, not one `workers` project. Cloudflare deploys every Worker on its
 own, and `nx affected` decides per project: with one project, a fix in `feature-flag` would also
@@ -48,10 +56,7 @@ apps/rapaglaz-portfolio/src/app/
 ├── app.ts / app.config.ts / app.routes.ts   # bootstrap, routing, providers
 ├── portfolio/     # top-level portfolio shell component
 ├── features/      # hero, navbar, language-switcher, about, skills, languages, certifications, contact, footer
-├── ui/            # small reusable presentational pieces (badge, section-wrapper, toast-container, turnstile-modal)
-├── services/      # shared logic (cv-download, feature-flag, turnstile, toast, config)
-├── interceptors/  # HTTP interceptors (turnstile token injection)
-├── utils/         # helpers (rxjs, layout)
+├── utils/         # helpers (layout)
 └── content/       # typed static content (skills, certifications)
 ```
 
@@ -104,7 +109,8 @@ There is one component entry point; the URL segment only determines the active l
 
 ## State and services
 
-Most sections have no real business logic. The interesting parts are in services:
+Most sections have no real business logic. The interesting parts are in services
+(`shared-data-access`, `shared-ui` for toasts, `shared-util` for the logger):
 
 - CV download: get config → get Turnstile token → call backend endpoint → trigger browser download
 - Turnstile: load the script once and render the widget in the active `en` or `de` locale. An interactive challenge opens in a CDK Dialog with a focus trap and focus restored to the CV button. WebKit needs explicit focus-region boundaries around the iframe for keyboard navigation. Any way of closing the dialog ends verification without a token or download. The CDK Dialog chunk loads next to the Turnstile script after the CV click, and the widget renders once both are ready.

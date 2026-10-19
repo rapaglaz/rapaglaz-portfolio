@@ -23,7 +23,7 @@ module.exports = {
     },
     {
       name: 'utils-layer',
-      comment: 'Utilities must not depend on features, UI, services, interceptors, or the shell.',
+      comment: 'Utilities must not depend on features or the shell.',
       severity: 'error',
       from: {
         path: '^apps/rapaglaz-portfolio/src/app/utils/',
@@ -31,70 +31,17 @@ module.exports = {
         pathNot: '\\.spec\\.ts$',
       },
       to: {
-        path: '^apps/rapaglaz-portfolio/src/app/(features|ui|services|interceptors|portfolio)/',
-      },
-    },
-    {
-      name: 'ui-layer',
-      comment: 'UI may depend on its own layer and utilities; test helpers are checked separately.',
-      severity: 'error',
-      from: { path: '^apps/rapaglaz-portfolio/src/app/ui/', pathNot: '\\.spec\\.ts$' },
-      to: {
-        path: '^apps/rapaglaz-portfolio/src/app/(?!testing/)',
-        pathNot: '^apps/rapaglaz-portfolio/src/app/(ui|utils)/',
-      },
-    },
-    {
-      name: 'services-layer',
-      comment: 'Services may depend on their own layer, utilities, and content.',
-      severity: 'error',
-      from: {
-        path: '^apps/rapaglaz-portfolio/src/app/services/',
-        // Overlay services instantiate UI; the companion rule limits that exception below.
-        pathNot: [
-          '\\.spec\\.ts$',
-          '^apps/rapaglaz-portfolio/src/app/services/(toast/toast|turnstile/turnstile)\\.service\\.ts$',
-        ],
-      },
-      to: {
-        path: '^apps/rapaglaz-portfolio/src/app/(?!testing/)',
-        pathNot: '^apps/rapaglaz-portfolio/src/app/(services|utils|content)/',
-      },
-    },
-    {
-      name: 'overlay-services-layer',
-      comment:
-        'Toast and Turnstile services own CDK overlay lifecycles and instantiate UI components.',
-      severity: 'error',
-      from: {
-        path: '^apps/rapaglaz-portfolio/src/app/services/(toast/toast|turnstile/turnstile)\\.service\\.ts$',
-      },
-      to: {
-        path: '^apps/rapaglaz-portfolio/src/app/(?!testing/)',
-        pathNot: [
-          '^apps/rapaglaz-portfolio/src/app/(services|utils|content)/',
-          '^apps/rapaglaz-portfolio/src/app/ui/index\\.ts$',
-        ],
-      },
-    },
-    {
-      name: 'interceptors-layer',
-      comment: 'Interceptors may depend on their own layer, services, and utilities.',
-      severity: 'error',
-      from: { path: '^apps/rapaglaz-portfolio/src/app/interceptors/', pathNot: '\\.spec\\.ts$' },
-      to: {
-        path: '^apps/rapaglaz-portfolio/src/app/(?!testing/)',
-        pathNot: '^apps/rapaglaz-portfolio/src/app/(interceptors|services|utils)/',
+        path: '^apps/rapaglaz-portfolio/src/app/(features|portfolio)/',
       },
     },
     {
       name: 'features-layer',
-      comment: 'Features may depend on UI, services, utilities, and content; peer rules follow.',
+      comment: 'Features may depend on utilities and content; peer rules follow.',
       severity: 'error',
       from: { path: '^apps/rapaglaz-portfolio/src/app/features/', pathNot: '\\.spec\\.ts$' },
       to: {
         path: '^apps/rapaglaz-portfolio/src/app/(?!testing/)',
-        pathNot: '^apps/rapaglaz-portfolio/src/app/(features|ui|services|utils|content)/',
+        pathNot: '^apps/rapaglaz-portfolio/src/app/(features|utils|content)/',
       },
     },
     {
@@ -122,7 +69,7 @@ module.exports = {
     },
     {
       name: 'portfolio-layer',
-      comment: 'The portfolio layer may compose features and UI.',
+      comment: 'The portfolio layer may compose features.',
       severity: 'error',
       from: {
         path: '^apps/rapaglaz-portfolio/src/app/portfolio/',
@@ -130,7 +77,7 @@ module.exports = {
       },
       to: {
         path: '^apps/rapaglaz-portfolio/src/app/(?!testing/)',
-        pathNot: '^apps/rapaglaz-portfolio/src/app/(portfolio|features|ui)/',
+        pathNot: '^apps/rapaglaz-portfolio/src/app/(portfolio|features)/',
       },
     },
     {

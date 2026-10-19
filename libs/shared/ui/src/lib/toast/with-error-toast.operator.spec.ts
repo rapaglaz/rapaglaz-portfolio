@@ -2,7 +2,7 @@ import { TranslocoService } from '@jsverse/transloco';
 import type { LoggerService } from '@rapaglaz/shared/util';
 import { of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { ToastService } from '../../services';
+import type { ToastService } from './toast.service';
 import { withErrorToast } from './with-error-toast.operator';
 
 describe('withErrorToast', () => {

@@ -20,7 +20,7 @@ import {
   switchMap,
   throwError,
 } from 'rxjs';
-import { TurnstileModal } from '../../ui';
+import { TurnstileModal } from './turnstile-modal';
 
 type TurnstileAPI = {
   render(

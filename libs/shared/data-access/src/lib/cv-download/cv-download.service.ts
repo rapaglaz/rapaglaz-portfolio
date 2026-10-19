@@ -8,8 +8,8 @@ import {
   LoggerService,
 } from '@rapaglaz/shared/util';
 import { map, Observable, switchMap, throwError } from 'rxjs';
-import { ConfigService } from '../config/config.service';
 import { TurnstileService } from '../turnstile/turnstile.service';
+import { ConfigService } from './config.service';
 
 export const TURNSTILE_TOKEN = new HttpContextToken<string | null>(() => null);
 

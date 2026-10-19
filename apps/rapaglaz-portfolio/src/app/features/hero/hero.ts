@@ -1,8 +1,8 @@
 import { NgOptimizedImage } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
-import { FeatureFlagService } from '../../services';
-import { Badge } from '../../ui';
+import { FeatureFlagService } from '@rapaglaz/shared/data-access';
+import { Badge } from '@rapaglaz/shared/ui';
 
 @Component({
   selector: 'app-hero',

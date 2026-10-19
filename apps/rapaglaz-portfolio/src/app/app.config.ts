@@ -23,6 +23,7 @@ import {
   translocoConfig,
   TranslocoService,
 } from '@jsverse/transloco';
+import { turnstileInterceptor } from '@rapaglaz/shared/data-access';
 import {
   AVAILABLE_LANGS,
   DEFAULT_LANG,
@@ -36,7 +37,6 @@ import { common as enCommon } from '@rapaglaz/shared/util/i18n/en.json';
 import { catchError, EMPTY, Observable } from 'rxjs';
 import { App } from './app';
 import { routes } from './app.routes';
-import { turnstileInterceptor } from './interceptors';
 
 const DEFAULT_LANG_TOKEN = new InjectionToken<string>('DEFAULT_LANG');
 

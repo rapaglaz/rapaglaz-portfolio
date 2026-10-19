@@ -14,14 +14,19 @@ Nx forbids importing an application from another project by path. Every project 
 and libraries also have a scope tag. Each tag has a constraint that lists the tags it may depend
 on:
 
-| Tag            | Projects                                            | May depend on               |
-| -------------- | --------------------------------------------------- | --------------------------- |
-| `type:app`     | `rapaglaz-portfolio`                                | `type:util`, `type:testing` |
-| `type:e2e`     | `rapaglaz-portfolio-e2e`                            | `type:app`                  |
-| `type:worker`  | `cv-download`, `feature-flag`, `portfolio-settings` | Nothing                     |
-| `type:util`    | `shared-util`                                       | `type:util`                 |
-| `type:testing` | `shared-testing`                                    | `type:util`                 |
-| `scope:shared` | `shared-util`, `shared-testing`                     | `scope:shared`              |
+| Tag                | Projects                                            | May depend on                                              |
+| ------------------ | --------------------------------------------------- | ---------------------------------------------------------- |
+| `type:app`         | `rapaglaz-portfolio`                                | `type:data-access`, `type:ui`, `type:util`, `type:testing` |
+| `type:e2e`         | `rapaglaz-portfolio-e2e`                            | `type:app`                                                 |
+| `type:worker`      | `cv-download`, `feature-flag`, `portfolio-settings` | Nothing                                                    |
+| `type:data-access` | `shared-data-access`                                | `type:data-access`, `type:util`, `type:testing`            |
+| `type:ui`          | `shared-ui`                                         | `type:ui`, `type:util`, `type:testing`                     |
+| `type:util`        | `shared-util`                                       | `type:util`                                                |
+| `type:testing`     | `shared-testing`                                    | `type:util`                                                |
+| `scope:shared`     | all `libs/shared/*` libraries                       | `scope:shared`                                             |
+
+Data access does not depend on UI: the Turnstile modal belongs to `shared-data-access`, and the
+navbar connects the CV download to the toasts.
 
 The e2e project tests the app through `implicitDependencies`, not through imports. A new library
 gets a type and a scope tag, and the constraints are extended to say which projects may use it.
@@ -101,15 +106,12 @@ Paths in the rest of this document are relative to `apps/rapaglaz-portfolio/`.
 Imports within the same layer are allowed. The table describes additional application-layer
 dependencies before the narrow exceptions below.
 
-| Source layer   | Additional allowed targets                                                   |
-| -------------- | ---------------------------------------------------------------------------- |
-| `content`      | None; content may compose other content and re-export it through its barrel. |
-| `utils`        | `content`; no features, UI, services, interceptors, or portfolio.            |
-| `ui`           | `utils`                                                                      |
-| `services`     | `utils`, `content`                                                           |
-| `interceptors` | `services`, `utils`                                                          |
-| `features`     | `ui`, `services`, `utils`, `content`                                         |
-| `portfolio`    | `features`, `ui`                                                             |
+| Source layer | Additional allowed targets                                                   |
+| ------------ | ---------------------------------------------------------------------------- |
+| `content`    | None; content may compose other content and re-export it through its barrel. |
+| `utils`      | `content`; no features or portfolio.                                         |
+| `features`   | `utils`, `content`                                                           |
+| `portfolio`  | `features`                                                                   |
 
 Libraries are outside these layers: what the app may import from them is decided by the project
 tags.
@@ -131,14 +133,13 @@ entry point listed below.
 Every exception has a comment in the configuration. The specialized rules keep all other
 forbidden targets checked for the source files that need an exception.
 
-| Source                                            | Additional allowed target | Reason                                                                           |
-| ------------------------------------------------- | ------------------------- | -------------------------------------------------------------------------------- |
-| `src/app/services/toast/toast.service.ts`         | `src/app/ui/index.ts`     | The service owns the CDK overlay lifecycle and instantiates the toast UI.        |
-| `src/app/services/turnstile/turnstile.service.ts` | `src/app/ui/index.ts`     | The service owns the CDK overlay lifecycle and instantiates the Turnstile modal. |
-| `src/app/app.routes.ts`                           | The `portfolio` layer     | The router must lazy-load the portfolio shell.                                   |
+| Source                  | Additional allowed target | Reason                                         |
+| ----------------------- | ------------------------- | ---------------------------------------------- |
+| `src/app/app.routes.ts` | The `portfolio` layer     | The router must lazy-load the portfolio shell. |
 
 There is no cycle allow-list. The missing handler (logger) and portfolio shell (SEO language
-constants) exceptions went away when logger and i18n moved to `shared-util`.
+constants) exceptions went away when logger and i18n moved to `shared-util`; the toast and
+Turnstile overlay exceptions went away when each service moved into one library with its UI.
 
 ### Initial report and enforcement
 

@@ -2,9 +2,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { TranslocoService } from '@jsverse/transloco';
 import { provideTranslocoTesting } from '@rapaglaz/shared/testing';
+import { SectionWrapper } from '@rapaglaz/shared/ui';
 import { firstValueFrom } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { SectionWrapper } from '../../ui';
 import { About } from './about';
 
 describe('About', () => {

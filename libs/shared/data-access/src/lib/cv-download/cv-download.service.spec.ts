@@ -7,8 +7,8 @@ import { provideTranslocoTesting } from '@rapaglaz/shared/testing';
 import { API_BASE_URL } from '@rapaglaz/shared/util';
 import { EMPTY, firstValueFrom, of, throwError } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { ConfigService } from '../config/config.service';
 import { TurnstileService } from '../turnstile/turnstile.service';
+import { ConfigService } from './config.service';
 import { CvDownloadService, triggerBrowserDownload, TURNSTILE_TOKEN } from './cv-download.service';
 
 describe('CvDownloadService', () => {

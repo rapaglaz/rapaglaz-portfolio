@@ -20,7 +20,9 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "paths": {
+      "@rapaglaz/shared/data-access": ["./libs/shared/data-access/src/index.ts"],
       "@rapaglaz/shared/testing": ["./libs/shared/testing/src/index.ts"],
+      "@rapaglaz/shared/ui": ["./libs/shared/ui/src/index.ts"],
       "@rapaglaz/shared/util": ["./libs/shared/util/src/index.ts"],
       "@rapaglaz/shared/util/i18n/*": ["./libs/shared/util/src/i18n/*"]
     }

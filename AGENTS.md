@@ -23,6 +23,8 @@ apps/
 └── workers/                  # Cloudflare Workers: one Nx project per Worker (test, check, deploy)
 libs/
 └── shared/
+    ├── data-access/          # @rapaglaz/shared/data-access: CV download (config, Turnstile), feature flag
+    ├── ui/                   # @rapaglaz/shared/ui: badge, section wrapper, toast
     ├── util/                 # @rapaglaz/shared/util: logger, API tokens, i18n + dictionaries, animation, contact
     └── testing/              # @rapaglaz/shared/testing: Transloco test setup, window mocks
 ```
@@ -38,10 +40,7 @@ Inside the app:
 apps/rapaglaz-portfolio/src/app/
 ├── portfolio/      # top-level shell (lazy-loaded by router)
 ├── features/       # hero, navbar, language-switcher, about, skills, languages, certifications, contact, footer
-├── ui/             # reusable presentational pieces
-├── services/       # cv-download, feature-flag, turnstile, toast, config
-├── interceptors/   # turnstile token injection
-├── utils/          # rxjs, layout
+├── utils/          # layout
 └── content/        # typed static content (const objects)
 ```
 
@@ -52,12 +51,12 @@ Imports between Nx projects are checked by `@nx/enforce-module-boundaries` throu
 the Workers ESLint configs.
 
 Runtime layer boundaries and circular dependencies are checked by dependency-cruiser in
-`.dependency-cruiser.cjs`. Content stays within its own layer; utils cannot depend on higher layers;
-UI uses utils; services use utils and content; interceptors use services and utils; features use
-UI, services, utils, and content; portfolio composes features and UI. Imports within a layer are
+`.dependency-cruiser.cjs`. Content stays within its own layer; utils cannot depend on features or
+portfolio; features use utils and content; portfolio composes features. Imports within a layer are
 allowed. Only specs may import `@rapaglaz/shared/testing`, and production files cannot import
 specs. Specs are exempt from layer rules, while cycles are errors and orphans are warnings.
-Type-only imports are ignored. Narrow exceptions for overlays and routing are documented in [Dependency boundaries](./docs/DEPENDENCY_BOUNDARIES.md).
+Type-only imports are ignored. The routing exception is documented in
+[Dependency boundaries](./docs/DEPENDENCY_BOUNDARIES.md).
 
 ## Conventions
 

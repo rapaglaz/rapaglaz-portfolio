@@ -1,8 +1,8 @@
 import { Component, viewChild } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
+import { SectionWrapper } from '@rapaglaz/shared/ui';
 import { buildDelayGetter } from '@rapaglaz/shared/util';
 import { SKILL_CATEGORIES, type SkillCategoryId } from '../../content';
-import { SectionWrapper } from '../../ui';
 
 // Skills without production experience; shown in a separate, labelled group.
 const SECONDARY_CATEGORY: SkillCategoryId = 'familiar';
