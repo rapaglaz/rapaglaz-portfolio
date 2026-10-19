@@ -217,7 +217,9 @@ test.describe('Motion preferences', () => {
     await page.getByRole('link', { name: 'Skip to main content' }).focus();
     await page.keyboard.press(browserName === 'webkit' ? 'Alt+Tab' : 'Tab');
     await expect(page.getByTestId('cv-download-btn')).toBeFocused();
-    expect((await readMotion(navbar)).opacity).toBe('1');
+    // WebKit can report the paused animation value for a moment after focus; the animation
+    // stays paused, so a navbar that never becomes visible still fails the poll
+    await expect.poll(async () => (await readMotion(navbar)).opacity).toBe('1');
   });
 
   test('keeps the close action visible when focused during the toast entrance animation', async ({

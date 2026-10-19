@@ -1,5 +1,5 @@
 name: E2E Tests
-description: 'Runs Playwright E2E tests. Requires a Playwright container on the calling job.'
+description: 'Runs Playwright E2E tests on the runner through Nx; the ci configuration installs the browsers.'
 
 inputs:
   build-artifact-name:
@@ -32,9 +32,11 @@ runs:
       if: ${{ inputs.build-artifact-name == '' }}
       uses: ./.github/actions/build
 
+    # The ci configuration installs the browsers and their system dependencies inside the
+    # Nx task, so a remote cache hit skips both the install and the tests.
     - name: Run Playwright tests
       shell: bash
-      run: pnpm exec nx e2e rapaglaz-portfolio-e2e
+      run: pnpm exec nx e2e rapaglaz-portfolio-e2e --configuration=ci
 
     - name: Check Playwright report
       if: failure()

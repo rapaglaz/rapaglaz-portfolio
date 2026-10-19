@@ -87,11 +87,10 @@
       ]
     },
     {
-      "description": "Playwright npm package and Docker image must stay in sync: one PR, no automerge, no release age wait (the image has no release timestamp and would be filtered out alone)",
-      "matchPackageNames": ["@playwright/test", "mcr.microsoft.com/playwright"],
+      "description": "Playwright installs its own browsers and system deps in CI: no automerge, a bump changes the E2E environment",
+      "matchPackageNames": ["@playwright/test"],
       "groupName": "playwright",
-      "automerge": false,
-      "minimumReleaseAge": null
+      "automerge": false
     }
   ]
 }

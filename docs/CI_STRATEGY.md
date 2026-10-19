@@ -34,8 +34,8 @@ Every job that runs Nx (`lint`, `test`, `build`, `deploy-workers`) calls
 `main` run after a merge then reuses the lint, test and build results of the pull request. Cached
 `test` results restore `coverage/`, so SonarCloud still gets the lcov report.
 
-Repository secrets: `NX_SELF_HOSTED_REMOTE_CACHE_SERVER`, `NX_CACHE_ACCESS_TOKEN`,
-`TS_OAUTH_CLIENT_ID`, `TS_OAUTH_SECRET`. Without them (fork pull requests) or when Tailscale fails
+Repository secrets: `NX_SELF_HOSTED_REMOTE_CACHE_SERVER`, `NX_SELF_HOSTED_REMOTE_CACHE_ACCESS_TOKEN`,
+`NX_SELF_HOSTED_TS_OAUTH_CLIENT_ID`, `NX_SELF_HOSTED_TS_OAUTH_SECRET`. Without them (fork pull requests) or when Tailscale fails
 to connect, the action posts a notice and Nx uses only the local cache; the cache never fails a job.
 
 ## Pull request workflow
@@ -78,9 +78,15 @@ E2E runs against the static build served on port 4233.
 The e2e action runs `pnpm exec nx e2e rapaglaz-portfolio-e2e`; with `CI` set, the Playwright
 config serves `dist/apps/rapaglaz-portfolio/browser` itself. On failure the action uploads the
 HTML report from `dist/.playwright/apps/rapaglaz-portfolio-e2e/playwright-report`.
-Playwright runs inside the official `mcr.microsoft.com/playwright` container.
-The image tag must match `@playwright/test` in package.json; Renovate bumps both in one
-`playwright` PR.
+The e2e jobs run on `ubuntu-latest`, not in the Playwright container: Tailscale needs `sudo` and
+a TUN device, which the container lacks, so the job could not reach the remote cache. The action
+runs `nx e2e rapaglaz-portfolio-e2e --configuration=ci`, whose command runs
+`playwright install --with-deps chromium webkit` before the tests. The install is part of the
+Nx task, so a cache hit skips it together with the tests.
+
+The `e2e` target is cacheable. Its inputs are the e2e sources, the production inputs of the app,
+`E2E_MODE`, `CI`, and the Playwright version, so `main` reuses the result of the pull request run
+for the same code. Nx caches only successful runs, so a rerun after a failure runs the tests again.
 Locally `pnpm run e2e` uses the dev server on 4200.
 
 ## Lighthouse

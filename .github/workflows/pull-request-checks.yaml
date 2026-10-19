@@ -135,8 +135,6 @@ jobs:
   e2e-tests:
     needs: [build]
     runs-on: ubuntu-latest
-    container:
-      image: mcr.microsoft.com/playwright:v1.64.1-noble@sha256:7852dc5a7d72f5fe458a597d690f6c42fbc8e9e26ddfa95f8e6ef552558d9bbf
     timeout-minutes: 15
     permissions:
       contents: read
@@ -147,6 +145,14 @@ jobs:
           persist-credentials: false
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 1
+      - name: Connect Nx remote cache
+        uses: ./.github/actions/nx-remote-cache
+        with:
+          server: ${{ secrets.NX_SELF_HOSTED_REMOTE_CACHE_SERVER }}
+          access-token: ${{ secrets.NX_SELF_HOSTED_REMOTE_CACHE_ACCESS_TOKEN }}
+          ts-oauth-client-id: ${{ secrets.NX_SELF_HOSTED_TS_OAUTH_CLIENT_ID }}
+          ts-oauth-secret: ${{ secrets.NX_SELF_HOSTED_TS_OAUTH_SECRET }}
+
       - name: Run E2E tests
         uses: ./.github/actions/e2e
         with:
