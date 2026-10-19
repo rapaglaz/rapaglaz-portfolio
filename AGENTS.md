@@ -98,7 +98,8 @@ pnpm run build    # SSG → dist/apps/rapaglaz-portfolio/browser
 pnpm run preview  # serve the static build on port 4233
 ```
 
-Bundle budgets (`apps/rapaglaz-portfolio/project.json`): initial 700KB error, all scripts 500KB error, any component style 20KB error.
+Bundle budgets (`apps/rapaglaz-portfolio/project.json`): initial 750KB error, all scripts 650KB error, any component style 20KB error.
+The warnings (600KB initial, 575KB all scripts) leave room for NgRx.
 
 ## i18n
 
