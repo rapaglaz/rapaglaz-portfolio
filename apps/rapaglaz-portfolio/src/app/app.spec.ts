@@ -4,11 +4,11 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { TranslocoService } from '@jsverse/transloco';
+import { provideTranslocoTesting } from '@rapaglaz/shared/testing';
 import { firstValueFrom } from 'rxjs';
 import { describe, expect, it, vi } from 'vitest';
 import { App } from './app';
 import { routes } from './app.routes';
-import { provideTranslocoTesting } from './testing';
 
 describe('App', () => {
   let fixture: ComponentFixture<App>;

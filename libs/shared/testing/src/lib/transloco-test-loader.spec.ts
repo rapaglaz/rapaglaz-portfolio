@@ -1,6 +1,8 @@
+import { TestBed } from '@angular/core/testing';
+import { TranslocoService } from '@jsverse/transloco';
 import { firstValueFrom } from 'rxjs';
 import { describe, expect, it } from 'vitest';
-import { TranslocoTestLoader } from './transloco-test-loader';
+import { provideTranslocoTesting, TranslocoTestLoader } from './transloco-test-loader';
 
 describe('TranslocoTestLoader', () => {
   it.each([
@@ -24,5 +26,17 @@ describe('TranslocoTestLoader', () => {
 
     expect(revisited).toBe(first);
     expect(revisited['portfolio'].about.title).toBe('About Me');
+  });
+});
+
+describe('provideTranslocoTesting', () => {
+  it('serves the bundled dictionaries in the default language', async () => {
+    TestBed.configureTestingModule({ providers: [provideTranslocoTesting()] });
+    const transloco = TestBed.inject(TranslocoService);
+
+    await firstValueFrom(transloco.load('en'));
+
+    expect(transloco.getActiveLang()).toBe('en');
+    expect(transloco.translate('portfolio.about.title')).toBe('About Me');
   });
 });

@@ -1,0 +1,15 @@
+export { API_BASE_URL, API_FEATURE_FLAG_URL } from './lib/api/api-urls.token';
+export { ANIMATION_CONFIG, buildDelayGetter } from './lib/animation/animation-config';
+export type { AnimationType } from './lib/animation/animation-config';
+export { createScrollRevealState } from './lib/animation/scroll-reveal-state';
+export type { ScrollRevealState } from './lib/animation/scroll-reveal-state';
+export { ScrollRevealDirective } from './lib/animation/scroll-reveal.directive';
+export * from './lib/contact/contact.content';
+export { injectContactEmailOpener } from './lib/contact/open-contact-email';
+export { injectActiveLang } from './lib/i18n/active-lang';
+export { getBrowserLanguage } from './lib/i18n/browser-language';
+export { AVAILABLE_LANGS, DEFAULT_LANG, LANG_LABELS, isAvailableLang } from './lib/i18n/languages';
+export type { AvailableLang } from './lib/i18n/languages';
+export { TranslocoHttpLoader } from './lib/i18n/transloco-loader';
+export { StrictTranslocoMissingHandler } from './lib/i18n/transloco-missing-handler';
+export { LoggerService } from './lib/logging/logger.service';

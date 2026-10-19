@@ -63,7 +63,7 @@ admin can bypass that gate; between July and October 2026 that happened for four
 
 ## Also inside
 
-- Transloco i18n with a runtime switch; JSON in `apps/rapaglaz-portfolio/public/i18n`, locale routes `/en` and `/de`
+- Transloco i18n with a runtime switch; JSON in `libs/shared/util/src/i18n`, locale routes `/en` and `/de`
 - "Open to Work" feature flag from a Cloudflare Worker + KV
 - Tailwind CSS 4 + DaisyUI + small custom CSS
 

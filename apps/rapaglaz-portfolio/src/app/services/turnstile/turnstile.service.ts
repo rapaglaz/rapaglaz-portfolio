@@ -2,6 +2,12 @@ import type { Dialog, DialogRef } from '@angular/cdk/dialog';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { inject, Injectable, Injector, PLATFORM_ID } from '@angular/core';
 import {
+  DEFAULT_LANG,
+  injectActiveLang,
+  isAvailableLang,
+  LoggerService,
+} from '@rapaglaz/shared/util';
+import {
   catchError,
   defer,
   finalize,
@@ -15,8 +21,6 @@ import {
   throwError,
 } from 'rxjs';
 import { TurnstileModal } from '../../ui';
-import { DEFAULT_LANG, injectActiveLang, isAvailableLang } from '../../utils/i18n';
-import { LoggerService } from '../logger/logger.service';
 
 type TurnstileAPI = {
   render(

@@ -1,0 +1,16 @@
+{
+  "name": "shared-testing",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "libs/shared/testing/src",
+  "prefix": "app",
+  "tags": ["scope:shared", "type:testing"],
+  "targets": {
+    "typecheck": {
+      "executor": "angular-typechecker:typecheck",
+      "options": {
+        "tsConfig": "libs/shared/testing/tsconfig.json"
+      }
+    }
+  }
+}

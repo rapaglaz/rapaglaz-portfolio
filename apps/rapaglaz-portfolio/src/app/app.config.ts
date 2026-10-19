@@ -23,12 +23,6 @@ import {
   translocoConfig,
   TranslocoService,
 } from '@jsverse/transloco';
-import { catchError, EMPTY, Observable } from 'rxjs';
-import { common as deCommon } from '../../public/i18n/de.json';
-import { common as enCommon } from '../../public/i18n/en.json';
-import { App } from './app';
-import { routes } from './app.routes';
-import { turnstileInterceptor } from './interceptors';
 import {
   AVAILABLE_LANGS,
   DEFAULT_LANG,
@@ -36,7 +30,13 @@ import {
   StrictTranslocoMissingHandler,
   TranslocoHttpLoader,
   type AvailableLang,
-} from './utils/i18n';
+} from '@rapaglaz/shared/util';
+import { common as deCommon } from '@rapaglaz/shared/util/i18n/de.json';
+import { common as enCommon } from '@rapaglaz/shared/util/i18n/en.json';
+import { catchError, EMPTY, Observable } from 'rxjs';
+import { App } from './app';
+import { routes } from './app.routes';
+import { turnstileInterceptor } from './interceptors';
 
 const DEFAULT_LANG_TOKEN = new InjectionToken<string>('DEFAULT_LANG');
 

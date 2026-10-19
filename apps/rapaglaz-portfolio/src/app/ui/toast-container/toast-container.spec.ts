@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslocoService } from '@jsverse/transloco';
+import { provideTranslocoTesting } from '@rapaglaz/shared/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { provideTranslocoTesting } from '../../testing';
 import { ToastContainer } from './toast-container';
 
 describe('ToastContainer', () => {

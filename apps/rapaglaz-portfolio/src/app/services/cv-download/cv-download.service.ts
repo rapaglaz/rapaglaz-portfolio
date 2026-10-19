@@ -1,11 +1,14 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpContext, HttpContextToken } from '@angular/common/http';
 import { computed, inject, Injectable, PLATFORM_ID } from '@angular/core';
+import {
+  API_BASE_URL,
+  getBrowserLanguage,
+  injectActiveLang,
+  LoggerService,
+} from '@rapaglaz/shared/util';
 import { map, Observable, switchMap, throwError } from 'rxjs';
-import { getBrowserLanguage, injectActiveLang } from '../../utils/i18n';
-import { API_BASE_URL } from '../../utils/tokens/api-urls.token';
 import { ConfigService } from '../config/config.service';
-import { LoggerService } from '../logger/logger.service';
 import { TurnstileService } from '../turnstile/turnstile.service';
 
 export const TURNSTILE_TOKEN = new HttpContextToken<string | null>(() => null);

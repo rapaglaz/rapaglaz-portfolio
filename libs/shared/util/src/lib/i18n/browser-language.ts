@@ -1,5 +1,5 @@
 import { isDevMode } from '@angular/core';
-import { LoggerService } from '../../services';
+import { LoggerService } from '../logging/logger.service';
 import { DEFAULT_LANG } from './languages';
 
 // fallback to 'en' when navigator missing (SSR) or invalid

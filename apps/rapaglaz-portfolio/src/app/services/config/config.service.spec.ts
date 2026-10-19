@@ -1,9 +1,9 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { API_BASE_URL } from '@rapaglaz/shared/util';
 import { firstValueFrom } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { API_BASE_URL } from '../../utils/tokens/api-urls.token';
 import { ConfigService } from './config.service';
 
 describe('ConfigService', () => {

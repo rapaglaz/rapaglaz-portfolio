@@ -19,7 +19,11 @@
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
-    "paths": {}
+    "paths": {
+      "@rapaglaz/shared/testing": ["./libs/shared/testing/src/index.ts"],
+      "@rapaglaz/shared/util": ["./libs/shared/util/src/index.ts"],
+      "@rapaglaz/shared/util/i18n/*": ["./libs/shared/util/src/i18n/*"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

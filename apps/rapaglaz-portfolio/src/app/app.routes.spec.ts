@@ -5,11 +5,11 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { TranslocoService } from '@jsverse/transloco';
+import { provideTranslocoTesting } from '@rapaglaz/shared/testing';
 import { firstValueFrom, throwError } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { routes } from './app.routes';
 import { Portfolio } from './portfolio/portfolio';
-import { provideTranslocoTesting } from './testing';
 
 describe('portfolio routes', () => {
   let originalDocumentLang: string;

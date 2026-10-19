@@ -1,6 +1,7 @@
 import { TranslocoService } from '@jsverse/transloco';
+import type { LoggerService } from '@rapaglaz/shared/util';
 import { catchError, EMPTY, MonoTypeOperatorFunction, Observable } from 'rxjs';
-import type { LoggerService, ToastService } from '../../services';
+import type { ToastService } from '../../services';
 
 export function withErrorToast<T>(
   messageKey: string,

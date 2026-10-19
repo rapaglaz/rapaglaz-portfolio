@@ -1,23 +1,27 @@
 import { DOCUMENT } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { afterEach, describe, expect, it } from 'vitest';
-import { mockWindowLocation } from '../../testing';
+import { describe, expect, it, vi } from 'vitest';
 import { injectContactEmailOpener } from './open-contact-email';
 
-describe('injectContactEmailOpener', () => {
-  let restoreLocation: (() => void) | undefined;
-
-  afterEach(() => {
-    restoreLocation?.();
-    restoreLocation = undefined;
+// The opener navigates through DOCUMENT, so a document stub replaces window.location
+function setup(platformId: 'browser' | 'server'): {
+  openEmail: () => void;
+  assignMock: ReturnType<typeof vi.fn>;
+} {
+  const assignMock = vi.fn();
+  TestBed.configureTestingModule({
+    providers: [
+      { provide: PLATFORM_ID, useValue: platformId },
+      { provide: DOCUMENT, useValue: { defaultView: { location: { assign: assignMock } } } },
+    ],
   });
+  return { openEmail: TestBed.runInInjectionContext(injectContactEmailOpener), assignMock };
+}
 
+describe('injectContactEmailOpener', () => {
   it('opens the configured email address in the browser', () => {
-    const { assignMock, cleanup } = mockWindowLocation();
-    restoreLocation = cleanup;
-    TestBed.configureTestingModule({ providers: [{ provide: PLATFORM_ID, useValue: 'browser' }] });
-    const openEmail = TestBed.runInInjectionContext(injectContactEmailOpener);
+    const { openEmail, assignMock } = setup('browser');
 
     openEmail();
 
@@ -25,10 +29,7 @@ describe('injectContactEmailOpener', () => {
   });
 
   it('does not navigate during server rendering', () => {
-    const { assignMock, cleanup } = mockWindowLocation();
-    restoreLocation = cleanup;
-    TestBed.configureTestingModule({ providers: [{ provide: PLATFORM_ID, useValue: 'server' }] });
-    const openEmail = TestBed.runInInjectionContext(injectContactEmailOpener);
+    const { openEmail, assignMock } = setup('server');
 
     openEmail();
 

@@ -2,10 +2,10 @@ import { DOCUMENT } from '@angular/common';
 import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { TranslocoService } from '@jsverse/transloco';
+import { provideTranslocoTesting } from '@rapaglaz/shared/testing';
+import { LoggerService } from '@rapaglaz/shared/util';
 import { firstValueFrom } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { provideTranslocoTesting } from '../../testing';
-import { LoggerService } from '../logger/logger.service';
 import { TurnstileService } from './turnstile.service';
 
 describe('TurnstileService (integration)', () => {
