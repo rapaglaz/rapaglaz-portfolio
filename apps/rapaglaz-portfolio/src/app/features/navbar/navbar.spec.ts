@@ -67,7 +67,7 @@ describe('Navbar', () => {
 
   it.each([
     ['en', 'Download CV'],
-    ['de', 'Lebenslauf herunterladen (CV)'],
+    ['de', 'CV herunterladen'],
   ])('names the CV action in %s and includes its visible label', async (lang, label) => {
     const transloco = TestBed.inject(TranslocoService);
     await firstValueFrom(transloco.load(lang));

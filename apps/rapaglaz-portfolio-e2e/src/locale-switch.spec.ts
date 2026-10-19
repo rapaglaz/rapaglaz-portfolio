@@ -72,7 +72,7 @@ test.describe('Locale Switch Journey', () => {
         `GitHub (${newTab})`,
       );
       await expect(page.getByTestId('cv-download-btn')).toHaveAccessibleName(
-        lang === 'de' ? 'Lebenslauf herunterladen (CV)' : 'Download CV',
+        lang === 'de' ? 'CV herunterladen' : 'Download CV',
       );
     });
   }

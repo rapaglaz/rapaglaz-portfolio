@@ -11,6 +11,9 @@ import { provideTranslocoTesting } from '../../testing';
 import { LANG_LABELS } from '../../utils/i18n';
 import { LanguageSwitcher } from './language-switcher';
 
+const EN_OPTION = '[aria-label="EN English"]';
+const DE_OPTION = '[aria-label="DE Deutsch"]';
+
 describe('LanguageSwitcher', () => {
   let fixture: ComponentFixture<LanguageSwitcher>;
   let element: HTMLElement;
@@ -47,7 +50,11 @@ describe('LanguageSwitcher', () => {
 
     expect(listbox).toBeInstanceOf(HTMLElement);
     const labels = options.map(option => option.getAttribute('aria-label'));
-    expect(labels).toEqual(expect.arrayContaining(Object.values(LANG_LABELS)));
+    expect(labels).toEqual(
+      expect.arrayContaining(
+        Object.entries(LANG_LABELS).map(([lang, label]) => `${lang.toUpperCase()} ${label}`),
+      ),
+    );
     options.forEach(option => {
       expect(option.textContent?.trim()).toMatch(/^[A-Z]{2}$/);
     });
@@ -57,8 +64,8 @@ describe('LanguageSwitcher', () => {
     expect(element.querySelector('[role="listbox"]')?.getAttribute('aria-orientation')).toBe(
       'horizontal',
     );
-    expect(element.querySelector('[aria-label="English"]')?.getAttribute('lang')).toBe('en');
-    expect(element.querySelector('[aria-label="Deutsch"]')?.getAttribute('lang')).toBe('de');
+    expect(element.querySelector(EN_OPTION)?.getAttribute('lang')).toBe('en');
+    expect(element.querySelector(DE_OPTION)?.getAttribute('lang')).toBe('de');
   });
 
   it('translates the listbox label when the active language changes', async () => {
@@ -76,7 +83,7 @@ describe('LanguageSwitcher', () => {
 
     await vi.waitFor(() => {
       fixture.detectChanges();
-      const activeOption = element.querySelector('[role="option"][aria-label="English"]');
+      const activeOption = element.querySelector(`[role="option"]${EN_OPTION}`);
 
       expect(activeOption).toBeInstanceOf(HTMLElement);
       expect(activeOption?.className).toContain('text-primary');
@@ -89,7 +96,7 @@ describe('LanguageSwitcher', () => {
 
     await vi.waitFor(() => {
       fixture.detectChanges();
-      const inactiveOption = element.querySelector('[role="option"][aria-label="Deutsch"]');
+      const inactiveOption = element.querySelector(`[role="option"]${DE_OPTION}`);
 
       expect(inactiveOption).toBeInstanceOf(HTMLElement);
       expect(inactiveOption?.className).toContain('cursor-pointer');
@@ -102,7 +109,7 @@ describe('LanguageSwitcher', () => {
     fixture.detectChanges();
 
     const deOption = element.querySelector(
-      '[role="option"][aria-label="Deutsch"]',
+      `[role="option"]${DE_OPTION}`,
     ) as HTMLButtonElement | null;
 
     expect(deOption).toBeInstanceOf(HTMLButtonElement);
@@ -114,7 +121,7 @@ describe('LanguageSwitcher', () => {
       expect(translocoService.getActiveLang()).toBe('de');
       expect(TestBed.inject(Router).url).toBe('/de');
       expect(TestBed.inject(DOCUMENT).documentElement.lang).toBe('de');
-      const activeOption = element.querySelector('[role="option"][aria-label="Deutsch"]');
+      const activeOption = element.querySelector(`[role="option"]${DE_OPTION}`);
       expect(activeOption?.className).toContain('pointer-events-none');
     });
   });
@@ -125,7 +132,7 @@ describe('LanguageSwitcher', () => {
     fixture.detectChanges();
 
     const deOption = element.querySelector(
-      '[role="option"][aria-label="Deutsch"]',
+      `[role="option"]${DE_OPTION}`,
     ) as HTMLButtonElement | null;
 
     expect(deOption).toBeInstanceOf(HTMLButtonElement);
@@ -148,18 +155,14 @@ describe('LanguageSwitcher', () => {
       .mockImplementation(lang => (lang === 'de' ? pendingTranslation : load(lang)));
     fixture.detectChanges();
 
-    element.querySelector<HTMLButtonElement>('[aria-label="Deutsch"]')?.click();
+    element.querySelector<HTMLButtonElement>(DE_OPTION)?.click();
     await vi.waitFor(() => expect(loadSpy).toHaveBeenCalledWith('de'));
     fixture.detectChanges();
 
     expect(router.url).toBe('/en');
     expect(translocoService.getActiveLang()).toBe('en');
-    expect(element.querySelector('[aria-label="English"]')?.getAttribute('aria-selected')).toBe(
-      'true',
-    );
-    expect(element.querySelector('[aria-label="Deutsch"]')?.getAttribute('aria-selected')).toBe(
-      'false',
-    );
+    expect(element.querySelector(EN_OPTION)?.getAttribute('aria-selected')).toBe('true');
+    expect(element.querySelector(DE_OPTION)?.getAttribute('aria-selected')).toBe('false');
 
     pendingTranslation.next(translocoService.getTranslation('de'));
     pendingTranslation.complete();
@@ -168,9 +171,7 @@ describe('LanguageSwitcher', () => {
 
     expect(router.url).toBe('/de');
     expect(translocoService.getActiveLang()).toBe('de');
-    expect(element.querySelector('[aria-label="Deutsch"]')?.getAttribute('aria-selected')).toBe(
-      'true',
-    );
+    expect(element.querySelector(DE_OPTION)?.getAttribute('aria-selected')).toBe('true');
   });
 
   it('keeps the committed language selected when navigation is cancelled', async () => {
@@ -183,18 +184,14 @@ describe('LanguageSwitcher', () => {
     await router.navigateByUrl('/en');
     fixture.detectChanges();
 
-    element.querySelector<HTMLButtonElement>('[aria-label="Deutsch"]')?.click();
+    element.querySelector<HTMLButtonElement>(DE_OPTION)?.click();
     await fixture.whenStable();
     fixture.detectChanges();
 
     expect(router.url).toBe('/en');
     expect(translocoService.getActiveLang()).toBe('en');
     expect(TestBed.inject(DOCUMENT).documentElement.lang).toBe('en');
-    expect(element.querySelector('[aria-label="English"]')?.getAttribute('aria-selected')).toBe(
-      'true',
-    );
-    expect(element.querySelector('[aria-label="Deutsch"]')?.getAttribute('aria-selected')).toBe(
-      'false',
-    );
+    expect(element.querySelector(EN_OPTION)?.getAttribute('aria-selected')).toBe('true');
+    expect(element.querySelector(DE_OPTION)?.getAttribute('aria-selected')).toBe('false');
   });
 });
