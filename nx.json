@@ -33,8 +33,7 @@
       "plugin": "@nx/eslint/plugin",
       "options": {
         "targetName": "lint"
-      },
-      "exclude": ["apps/workers/**"]
+      }
     },
     {
       "plugin": "@nx/playwright/plugin",

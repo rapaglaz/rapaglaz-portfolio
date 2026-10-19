@@ -162,7 +162,8 @@ function isValidFilePath(filePath) {
     filePath.startsWith(CONFIG.ALLOWED_FILE_PREFIX) &&
     !filePath.includes('..') &&
     !filePath.includes('//') &&
-    !/[\x00-\x1f\x7f]/.test(filePath) // No control characters
+    // eslint-disable-next-line no-control-regex -- rejecting control characters is the point of this check
+    !/[\x00-\x1f\x7f]/.test(filePath)
   );
 }
 

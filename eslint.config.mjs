@@ -19,8 +19,6 @@ export default defineConfig(
       '**/vitest.config.*.timestamp*',
       '**/coverage',
       'scripts/**',
-      // The Workers were never linted; their lint setup comes with their Nx project
-      'apps/workers/**',
     ],
   },
   {
