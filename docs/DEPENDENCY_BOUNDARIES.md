@@ -1,16 +1,53 @@
 # Dependency boundaries
 
-Dependency-cruiser checks the runtime imports in this single Angular app. The rules live in
-[`../.dependency-cruiser.cjs`](../.dependency-cruiser.cjs); they are separate from ESLint.
-The Nx projects carry tags (`type:app`, `type:e2e`), but `@nx/enforce-module-boundaries` is not
-enabled, so dependency-cruiser is the only boundary check.
+Two tools check imports, each at its own level:
 
-## Commands and scope
+- `@nx/enforce-module-boundaries` (ESLint) checks imports **between Nx projects** through
+  project tags. The rule lives in [`../eslint.module-boundaries.mjs`](../eslint.module-boundaries.mjs).
+- Dependency-cruiser checks the runtime **layers inside the Angular app**. The rules live in
+  [`../.dependency-cruiser.cjs`](../.dependency-cruiser.cjs).
+
+## Project boundaries (Nx)
+
+The workspace has only applications, and Nx forbids importing an application from another
+project by path. Each project tag has a constraint that lists the tags it may depend on:
+
+| Tag           | Projects                                            | May depend on |
+| ------------- | --------------------------------------------------- | ------------- |
+| `type:app`    | `rapaglaz-portfolio`                                | Nothing       |
+| `type:e2e`    | `rapaglaz-portfolio-e2e`                            | `type:app`    |
+| `type:worker` | `cv-download`, `feature-flag`, `portfolio-settings` | Nothing       |
+
+The e2e project tests the app through `implicitDependencies`, not through imports. A new library
+gets a tag, and the constraints are extended to say which projects may use it.
+
+The rule runs through `pnpm run lint`. The root config and the Workers config
+(`apps/workers/eslint.config.mjs`, which does not extend the root config) both use the shared
+block, so the constraints cannot drift apart.
+
+The rule treats files that belong to no project as external resources. Two cases are handled
+explicitly:
+
+- `eslint.config.mjs` files are excluded: the project configs extend the root config, which
+  belongs to no project.
+- The Workers config allows the exact import `../testing/wrangler-config.js`, the shared spec
+  helper in `apps/workers/testing/`.
+
+Two temporary probes made lint fail with a boundary error: a Worker importing another Worker,
+and an e2e spec importing app source.
+
+## Layer boundaries (dependency-cruiser)
+
+### Commands and scope
 
 ```bash
-pnpm run deps:check
-pnpm run deps:graph
+pnpm run deps:check   # pnpm nx deps-check rapaglaz-portfolio
+pnpm run deps:graph   # pnpm nx deps-graph rapaglaz-portfolio
 ```
+
+Both scripts run Nx targets of `rapaglaz-portfolio`, cached in the local and remote Nx cache. The
+cache key includes the project files, `.dependency-cruiser.cjs`, `tsconfig.base.json`, and the
+installed dependency-cruiser version.
 
 `deps:check` scans every supported module under `apps/rapaglaz-portfolio/src/app`, including
 specs and barrel exports.
@@ -40,7 +77,7 @@ and the e2e project already fall outside the scanned folder.
 
 Paths in the rest of this document are relative to `apps/rapaglaz-portfolio/`.
 
-## Layer rules
+### Layer rules
 
 Imports within the same layer are allowed. The table describes additional application-layer
 dependencies before the narrow exceptions below.
@@ -67,7 +104,7 @@ They remain in cycle analysis. Production files cannot import `*.spec.ts` files 
 Files outside the portfolio layer cannot import portfolio, except for specs and the route
 entry point listed below.
 
-## Narrow exceptions
+### Narrow exceptions
 
 Every exception has a comment in the configuration. The specialized rules keep all other
 forbidden targets checked for the source files that need an exception.
@@ -83,7 +120,7 @@ forbidden targets checked for the source files that need an exception.
 There is no cycle allow-list. Importing the central logger directly fixes the original cycle
 without changing the missing handler's behavior or moving files.
 
-## Initial report and enforcement
+### Initial report and enforcement
 
 On 2026-10-08 the first check ran with every rule set to `warn` and reported 11 warnings across
 81 modules: one cycle (the missing handler importing the services barrel) and ten layer

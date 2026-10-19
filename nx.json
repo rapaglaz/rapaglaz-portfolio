@@ -17,6 +17,7 @@
     "sharedGlobals": ["{workspaceRoot}/tsconfig.base.json"],
     "lintGlobals": [
       "{workspaceRoot}/eslint.config.mjs",
+      "{workspaceRoot}/eslint.module-boundaries.mjs",
       "{workspaceRoot}/tsconfig*.json",
       "{workspaceRoot}/package.json",
       "{workspaceRoot}/pnpm-workspace.yaml",
