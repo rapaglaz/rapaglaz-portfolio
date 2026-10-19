@@ -26,6 +26,8 @@ libs/
     ├── data-access/          # @rapaglaz/shared/data-access: CV download (config, Turnstile), feature flag
     ├── ui/                   # @rapaglaz/shared/ui: badge, section wrapper, toast
     ├── util/                 # @rapaglaz/shared/util: logger, API tokens, i18n + dictionaries, animation, contact
+    │                         # @rapaglaz/shared/util/translations: server translation loader, keeps the
+    │                         # dictionaries out of the browser bundle
     └── testing/              # @rapaglaz/shared/testing: Transloco test setup, window mocks
 ```
 

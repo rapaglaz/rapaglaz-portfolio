@@ -28,7 +28,9 @@ The libraries are not buildable. There is one app, so a build step per library w
 work; the app compiles them from source through the aliases in `tsconfig.base.json`.
 `shared-util` holds what every layer uses: logger, API URL tokens, i18n with the `en`/`de`
 dictionaries, the entrance animation helpers and the contact links. The server translation
-loader stays in the app next to `app.config.server.ts`, its only user.
+loader has its own entry point, `@rapaglaz/shared/util/translations`: it bundles both
+dictionaries, and from the main barrel they ended up in the browser main chunk (+5 kB) although
+only `app.config.server.ts` uses it.
 
 `shared-ui` has the presentational pieces and the toast service, which renders its own container.
 `shared-data-access` has the services that talk to the backend: CV download with config and

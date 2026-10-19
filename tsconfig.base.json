@@ -24,7 +24,8 @@
       "@rapaglaz/shared/testing": ["./libs/shared/testing/src/index.ts"],
       "@rapaglaz/shared/ui": ["./libs/shared/ui/src/index.ts"],
       "@rapaglaz/shared/util": ["./libs/shared/util/src/index.ts"],
-      "@rapaglaz/shared/util/i18n/*": ["./libs/shared/util/src/i18n/*"]
+      "@rapaglaz/shared/util/i18n/*": ["./libs/shared/util/src/i18n/*"],
+      "@rapaglaz/shared/util/translations": ["./libs/shared/util/src/translations.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

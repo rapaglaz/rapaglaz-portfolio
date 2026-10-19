@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Translation, TranslocoLoader } from '@jsverse/transloco';
-import { DEFAULT_LANG, isAvailableLang, type AvailableLang } from '@rapaglaz/shared/util';
-import deTranslations from '@rapaglaz/shared/util/i18n/de.json';
-import enTranslations from '@rapaglaz/shared/util/i18n/en.json';
 import { Observable, of } from 'rxjs';
+import deTranslations from '../../i18n/de.json';
+import enTranslations from '../../i18n/en.json';
+import { DEFAULT_LANG, isAvailableLang, type AvailableLang } from './languages';
 
 // Server only: the dictionaries are bundled into the server build, the browser loads them over HTTP
 const TRANSLATIONS: Record<AvailableLang, Translation> = {

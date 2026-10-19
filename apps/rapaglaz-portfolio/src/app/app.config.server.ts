@@ -2,9 +2,9 @@ import { ApplicationConfig, mergeApplicationConfig } from '@angular/core';
 import { provideServerRendering } from '@angular/platform-server';
 import { provideRouter, withEnabledBlockingInitialNavigation } from '@angular/router';
 import { TRANSLOCO_LOADER } from '@jsverse/transloco';
+import { TranslocoFsLoader } from '@rapaglaz/shared/util/translations';
 import { appConfigBase } from './app.config';
 import { routes } from './app.routes';
-import { TranslocoFsLoader } from './transloco-fs-loader';
 
 const serverConfig: ApplicationConfig = {
   providers: [
