@@ -23,6 +23,19 @@
       "{workspaceRoot}/pnpm-workspace.yaml",
       "{workspaceRoot}/pnpm-lock.yaml"
     ],
+    "workerLint": [
+      "default",
+      "{workspaceRoot}/apps/workers/eslint.config.mjs",
+      "{workspaceRoot}/eslint.module-boundaries.mjs",
+      {
+        "externalDependencies": [
+          "eslint",
+          "@eslint/js",
+          "eslint-config-prettier",
+          "@nx/eslint-plugin"
+        ]
+      }
+    ],
     "workerSource": [
       "{projectRoot}/**/*",
       "!{projectRoot}/**/*.spec.js",
