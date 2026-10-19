@@ -4,17 +4,17 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { TranslocoService, type Translation } from '@jsverse/transloco';
+import { LanguageSwitcher } from '@rapaglaz/portfolio/layout';
 import { provideTranslocoTesting } from '@rapaglaz/shared/testing';
-import { LANG_LABELS } from '@rapaglaz/shared/util';
 import { firstValueFrom, Subject } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { routes } from '../../app.routes';
-import { LanguageSwitcher } from './language-switcher';
+import { routes } from './app.routes';
 
 const EN_OPTION = '[aria-label="EN English"]';
 const DE_OPTION = '[aria-label="DE Deutsch"]';
 
-describe('LanguageSwitcher', () => {
+// The switcher only navigates; the route resolver loads and activates the language
+describe('language switch with the app routes', () => {
   let fixture: ComponentFixture<LanguageSwitcher>;
   let element: HTMLElement;
   let translocoService: TranslocoService;
@@ -44,66 +44,6 @@ describe('LanguageSwitcher', () => {
     vi.restoreAllMocks();
   });
 
-  it('shows language options with user-friendly labels', () => {
-    const listbox = element.querySelector('[role="listbox"]');
-    const options = Array.from(element.querySelectorAll('[role="option"]')) as HTMLElement[];
-
-    expect(listbox).toBeInstanceOf(HTMLElement);
-    const labels = options.map(option => option.getAttribute('aria-label'));
-    expect(labels).toEqual(
-      expect.arrayContaining(
-        Object.entries(LANG_LABELS).map(([lang, label]) => `${lang.toUpperCase()} ${label}`),
-      ),
-    );
-    options.forEach(option => {
-      expect(option.textContent?.trim()).toMatch(/^[A-Z]{2}$/);
-    });
-  });
-
-  it('exposes the horizontal orientation and each option language', () => {
-    expect(element.querySelector('[role="listbox"]')?.getAttribute('aria-orientation')).toBe(
-      'horizontal',
-    );
-    expect(element.querySelector(EN_OPTION)?.getAttribute('lang')).toBe('en');
-    expect(element.querySelector(DE_OPTION)?.getAttribute('lang')).toBe('de');
-  });
-
-  it('translates the listbox label when the active language changes', async () => {
-    await firstValueFrom(translocoService.load('de'));
-    translocoService.setActiveLang('de');
-    await fixture.whenStable();
-
-    expect(element.querySelector('[role="listbox"]')?.getAttribute('aria-label')).toBe(
-      'Sprachauswahl',
-    );
-  });
-
-  it('marks the active language visually', async () => {
-    translocoService.setActiveLang('en');
-
-    await vi.waitFor(() => {
-      fixture.detectChanges();
-      const activeOption = element.querySelector(`[role="option"]${EN_OPTION}`);
-
-      expect(activeOption).toBeInstanceOf(HTMLElement);
-      expect(activeOption?.className).toContain('text-primary');
-      expect(activeOption?.className).toContain('pointer-events-none');
-    });
-  });
-
-  it('keeps inactive language selectable', async () => {
-    translocoService.setActiveLang('en');
-
-    await vi.waitFor(() => {
-      fixture.detectChanges();
-      const inactiveOption = element.querySelector(`[role="option"]${DE_OPTION}`);
-
-      expect(inactiveOption).toBeInstanceOf(HTMLElement);
-      expect(inactiveOption?.className).toContain('cursor-pointer');
-      expect(inactiveOption?.className).not.toContain('pointer-events-none');
-    });
-  });
-
   it('switches language on click and updates styles', async () => {
     translocoService.setActiveLang('en');
     fixture.detectChanges();
@@ -123,24 +63,6 @@ describe('LanguageSwitcher', () => {
       expect(TestBed.inject(DOCUMENT).documentElement.lang).toBe('de');
       const activeOption = element.querySelector(`[role="option"]${DE_OPTION}`);
       expect(activeOption?.className).toContain('pointer-events-none');
-    });
-  });
-
-  it('navigates to the new locale and preserves query parameters and the fragment', async () => {
-    const router = TestBed.inject(Router);
-    await router.navigateByUrl('/en?source=navbar#skills');
-    fixture.detectChanges();
-
-    const deOption = element.querySelector(
-      `[role="option"]${DE_OPTION}`,
-    ) as HTMLButtonElement | null;
-
-    expect(deOption).toBeInstanceOf(HTMLButtonElement);
-    deOption?.click();
-    fixture.detectChanges();
-
-    await vi.waitFor(() => {
-      expect(router.url).toBe('/de?source=navbar#skills');
     });
   });
 

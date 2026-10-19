@@ -20,7 +20,7 @@ const SEO_ROLE = 'Senior Frontend Engineer (Angular)';
 const SEO_IMAGE = `${SITE_ORIGIN}/images/IMG_2290-384.webp`;
 
 @Component({
-  selector: 'app-portfolio',
+  selector: 'app-portfolio-page',
   imports: [Hero, About, Skills, Languages, Certifications, Contact],
 
   template: `
@@ -37,7 +37,7 @@ const SEO_IMAGE = `${SITE_ORIGIN}/images/IMG_2290-384.webp`;
     </main>
   `,
 })
-export class Portfolio {
+export class PortfolioPage {
   protected readonly openToWork = inject(FeatureFlagService).getFlagValue('openToWork');
   protected readonly certifications = CERTIFICATIONS;
   protected readonly skillCategories = SKILL_CATEGORIES;

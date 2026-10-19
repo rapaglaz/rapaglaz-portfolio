@@ -7,8 +7,8 @@ import { CvDownloadService, FeatureFlagService } from '@rapaglaz/shared/data-acc
 import { Badge, ToastService } from '@rapaglaz/shared/ui';
 import { injectContactEmailOpener, LoggerService, withErrorToast } from '@rapaglaz/shared/util';
 import { finalize, map, startWith } from 'rxjs';
-import { MeasureNavbarHeightDirective } from '../../utils/layout';
 import { LanguageSwitcher } from '../language-switcher/language-switcher';
+import { MeasureNavbarHeightDirective } from './measure-navbar-height.directive';
 
 @Component({
   selector: 'app-navbar',

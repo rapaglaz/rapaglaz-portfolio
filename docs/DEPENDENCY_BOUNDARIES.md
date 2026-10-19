@@ -17,7 +17,7 @@ on:
 | Tag                | Projects                                            | May depend on                                                              |
 | ------------------ | --------------------------------------------------- | -------------------------------------------------------------------------- |
 | `type:app`         | `rapaglaz-portfolio`                                | `type:feature`, `type:data-access`, `type:ui`, `type:util`, `type:testing` |
-| `type:feature`     | `portfolio-feature`                                 | `type:data-access`, `type:ui`, `type:util`, `type:testing`                 |
+| `type:feature`     | `portfolio-feature`, `portfolio-layout`             | `type:data-access`, `type:ui`, `type:util`, `type:testing`                 |
 | `type:e2e`         | `rapaglaz-portfolio-e2e`                            | `type:app`                                                                 |
 | `type:worker`      | `cv-download`, `feature-flag`, `portfolio-settings` | Nothing                                                                    |
 | `type:data-access` | `shared-data-access`                                | `type:data-access`, `type:util`, `type:testing`                            |
@@ -25,7 +25,7 @@ on:
 | `type:util`        | `shared-util`                                       | `type:util`                                                                |
 | `type:testing`     | `shared-testing`                                    | `type:util`                                                                |
 | `scope:shared`     | all `libs/shared/*` libraries                       | `scope:shared`                                                             |
-| `scope:portfolio`  | `portfolio-feature`, `portfolio-ui`                 | `scope:portfolio`, `scope:shared`                                          |
+| `scope:portfolio`  | all `libs/portfolio/*` libraries                    | `scope:portfolio`, `scope:shared`                                          |
 
 Data access does not depend on UI: the Turnstile modal belongs to `shared-data-access`, and the
 navbar connects the CV download to the toasts.
@@ -106,23 +106,13 @@ and the e2e project already fall outside the scanned folder.
 
 Paths in the rest of this document are relative to `apps/rapaglaz-portfolio/`.
 
-### Layer rules
+### Rules inside the libraries
 
-Imports within the same layer are allowed. The table describes additional application-layer
-dependencies before the narrow exceptions below.
+The app has only the bootstrap; what it may import from libraries is decided by the project tags.
+Inside the libraries, dependency-cruiser adds four rules:
 
-| Source layer | Additional allowed targets |
-| ------------ | -------------------------- |
-| `utils`      | None; no features.         |
-| `features`   | `utils`                    |
-
-Libraries are outside these layers: what the app may import from them is decided by the project
-tags.
-
-Features cannot import another feature. The one peer exception is `features/navbar` importing
-`features/language-switcher`.
-
-Inside the libraries, dependency-cruiser adds three rules:
+- `layout-peer-boundary`: in `libs/portfolio/layout` the footer and the language switcher do not
+  import other layout pieces; the navbar may use the language switcher.
 
 - `no-cross-section`: a section in `libs/portfolio/ui` cannot import another section; the page
   composes them.

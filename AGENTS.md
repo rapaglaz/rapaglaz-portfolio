@@ -23,7 +23,8 @@ apps/
 └── workers/                  # Cloudflare Workers: one Nx project per Worker (test, check, deploy)
 libs/
 ├── portfolio/
-│   ├── feature/              # @rapaglaz/portfolio/feature: the page (lazy-loaded by the router), skills and certifications content
+│   ├── feature/              # @rapaglaz/portfolio/feature: PortfolioPage (lazy-loaded by the router), skills and certifications content
+│   ├── layout/               # @rapaglaz/portfolio/layout: Portfolio (glues the page), navbar, language switcher, footer
 │   └── ui/                   # @rapaglaz/portfolio/ui: hero, about, certifications, skills, languages, contact (inputs only)
 └── shared/
     ├── data-access/          # @rapaglaz/shared/data-access: CV download (config, Turnstile), feature flag
@@ -34,20 +35,19 @@ libs/
     └── testing/              # @rapaglaz/shared/testing: Transloco test setup, window mocks
 ```
 
+Libraries follow `libs/<scope>/<type>`; the type tag says what a library is when the name does
+not (`portfolio/layout` is `type:feature`). Stores (NgRx SignalStore) go only to `data-access`
+libraries.
+
 Libraries are not buildable; the app compiles them from source through the aliases in
 `tsconfig.base.json`. `@nx/angular:library` refuses Vitest 5, so a new library copies
 `project.json`, `eslint.config.mjs`, the tsconfigs, `vite.config.mts` and `src/test-setup.ts` from
 an existing one.
 
-Inside the app:
+The app itself is only the bootstrap: `app.ts` (renders `<app-portfolio />`), `app.config*.ts` and
+`app.routes.ts`.
 
-```text
-apps/rapaglaz-portfolio/src/app/
-├── features/       # navbar, language-switcher, footer
-└── utils/          # layout
-```
-
-No feature→feature imports. One exception: navbar→language-switcher. The portfolio sections are
+The navbar uses the language switcher; otherwise layout pieces do not import each other. The portfolio sections are
 presentational: the page passes them content and the feature flag through inputs, and they do not
 import each other.
 
@@ -55,13 +55,16 @@ Imports between Nx projects are checked by `@nx/enforce-module-boundaries` throu
 (`type:*`, and `scope:*` on libraries) in `eslint.module-boundaries.mjs`, shared by the root and
 the Workers ESLint configs.
 
-Runtime layer boundaries and circular dependencies are checked by dependency-cruiser in
-`.dependency-cruiser.cjs`. Utils cannot depend on features; features use utils; the portfolio
-content imports nothing; only `portfolio-feature` may import the section barrel. Imports within a
-layer are allowed. Only the router loads `@rapaglaz/portfolio/feature`, with a dynamic import: Nx
-rejects any static import of a lazy-loaded library. Only specs may import `@rapaglaz/shared/testing`, and production files cannot import
-specs. Specs are exempt from layer rules, while cycles are errors and orphans are warnings.
-Type-only imports are ignored. See [Dependency boundaries](./docs/DEPENDENCY_BOUNDARIES.md).
+dependency-cruiser (`.dependency-cruiser.cjs`) checks the rules inside projects:
+
+- no cycles; production files import neither specs nor `@rapaglaz/shared/testing`
+- footer and language switcher do not import other layout pieces
+- sections do not import each other; only `portfolio-feature` imports the section barrel; the
+  portfolio content imports nothing
+
+Only the router loads `@rapaglaz/portfolio/feature`, with a dynamic import: Nx rejects any static
+import of a lazy-loaded library. Specs are exempt from the layer rules, type-only imports are
+ignored. See [Dependency boundaries](./docs/DEPENDENCY_BOUNDARIES.md).
 
 ## Conventions
 

@@ -1,0 +1,16 @@
+{
+  "name": "portfolio-layout",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "libs/portfolio/layout/src",
+  "prefix": "app",
+  "tags": ["scope:portfolio", "type:feature"],
+  "targets": {
+    "typecheck": {
+      "executor": "angular-typechecker:typecheck",
+      "options": {
+        "tsConfig": "libs/portfolio/layout/tsconfig.json"
+      }
+    }
+  }
+}
