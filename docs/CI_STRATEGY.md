@@ -34,8 +34,8 @@ Every job that runs Nx (`lint`, `test`, `build`, `deploy-workers`) calls
 `main` run after a merge then reuses the lint, test and build results of the pull request. Cached
 `test` results restore `coverage/`, so SonarCloud still gets the lcov report.
 
-Repository secrets: `NX_SELF_HOSTED_REMOTE_CACHE_SERVER`, `NX_CACHE_ACCESS_TOKEN`,
-`TS_OAUTH_CLIENT_ID`, `TS_OAUTH_SECRET`. Without them (fork pull requests) or when Tailscale fails
+Repository secrets: `NX_SELF_HOSTED_REMOTE_CACHE_SERVER`, `NX_SELF_HOSTED_REMOTE_CACHE_ACCESS_TOKEN`,
+`NX_SELF_HOSTED_TS_OAUTH_CLIENT_ID`, `NX_SELF_HOSTED_TS_OAUTH_SECRET`. Without them (fork pull requests) or when Tailscale fails
 to connect, the action posts a notice and Nx uses only the local cache; the cache never fails a job.
 
 ## Pull request workflow
