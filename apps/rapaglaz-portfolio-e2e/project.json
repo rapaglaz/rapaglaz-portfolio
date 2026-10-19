@@ -17,6 +17,7 @@
       "executor": "nx:run-commands",
       "cache": true,
       "inputs": ["default", "^production"],
+      "outputs": [],
       "options": {
         "cwd": "{projectRoot}",
         "command": "tsc -p tsconfig.json --noEmit"
