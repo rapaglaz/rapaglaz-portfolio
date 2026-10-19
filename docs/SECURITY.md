@@ -29,7 +29,7 @@ a hash-based one, but it is still experimental.
 
 ## Subresource Integrity (SRI)
 
-The production build has `subresourceIntegrity: true` in `angular.json`.
+The production build has `subresourceIntegrity: true` in `apps/rapaglaz-portfolio/project.json`.
 Angular injects `integrity` and `crossorigin` attributes on all script and style tags, and lists
 the hashes of lazy-loaded chunks in an import map (`<script type="importmap">`) in the same HTML.
 The browser refuses a script or stylesheet that does not match the hash in the HTML.

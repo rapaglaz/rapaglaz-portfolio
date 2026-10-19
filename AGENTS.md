@@ -8,15 +8,25 @@ Exact versions live in `package.json` (dependencies, `packageManager` for pnpm),
 (Node.js) and `mise.toml` (actionlint, zizmor). Majors are listed only where they shape the code.
 
 - **Angular 22** — zoneless, standalone, OnPush, SSG + hydration
+- **Nx 23** — workspace, task runner and local cache; no Nx Cloud
 - **TypeScript**, **Node.js 24**, **pnpm**
-- **Tailwind CSS 4** + **DaisyUI 5** (CSS-first config in `src/styles.css`)
+- **Tailwind CSS 4** + **DaisyUI 5** (CSS-first config in `apps/rapaglaz-portfolio/src/styles.css`)
 - **Transloco** (i18n), **Valibot 1** (schema validation, `v.pipe` API), **RxJS**
-- **Vitest** (unit), **Playwright** (E2E)
+- **Vitest** (unit, through `@nx/vitest` and AnalogJS), **Playwright** (E2E, through `@nx/playwright`)
 
 ## Folder structure
 
 ```
-src/app/
+apps/
+├── rapaglaz-portfolio/       # the Angular app (project.json, vite.config.mts, public/, src/)
+└── rapaglaz-portfolio-e2e/   # Playwright project (playwright.config.mts, src/)
+workers/                      # Cloudflare Workers; hidden from Nx by .nxignore until they get a project
+```
+
+Inside the app:
+
+```
+apps/rapaglaz-portfolio/src/app/
 ├── portfolio/      # top-level shell (lazy-loaded by router)
 ├── features/       # hero, navbar, language-switcher, about, skills, languages, certifications, contact, footer
 ├── ui/             # reusable presentational pieces
@@ -63,6 +73,9 @@ pnpm run workers:check
 pnpm run i18n:check
 ```
 
+The scripts run their targets through Nx. To run a target directly: `pnpm nx <target> <project>`,
+for example `pnpm nx test rapaglaz-portfolio`.
+
 Coverage thresholds: statements 80%, branches 70%, functions 80%, lines 80%.
 
 ## Tests
@@ -75,7 +88,7 @@ pnpm run e2e             # Playwright against dev server (port 4200)
 pnpm run e2e:ssg         # Playwright against static build (port 4233)
 ```
 
-E2E uses helpers in `e2e/utils.ts` — `visitPortfolio()`, `mockFeatureFlag()`, `mockTurnstileAPI()`.
+E2E uses helpers in `apps/rapaglaz-portfolio-e2e/src/utils.ts` — `visitPortfolio()`, `mockFeatureFlag()`, `mockTurnstileAPI()`.
 Do not commit `test.only`.
 
 ## Build
@@ -85,11 +98,11 @@ pnpm run build    # SSG → dist/apps/rapaglaz-portfolio/browser
 pnpm run preview  # serve the static build on port 4233
 ```
 
-Bundle budgets (`angular.json`): initial 700KB error, all scripts 500KB error, any component style 20KB error.
+Bundle budgets (`apps/rapaglaz-portfolio/project.json`): initial 700KB error, all scripts 500KB error, any component style 20KB error.
 
 ## i18n
 
-Languages: `en` (default), `de`. Translations in `public/i18n/{lang}.json`.
+Languages: `en` (default), `de`. Translations in `apps/rapaglaz-portfolio/public/i18n/{lang}.json`.
 Routes: `/en`, `/de`, root `/` falls back to `en`.
 Never hardcode user-facing strings — use Transloco keys.
 A key built at runtime or passed as an input must also appear in a `/** t(key) */` (TS) or

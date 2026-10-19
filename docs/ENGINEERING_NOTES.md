@@ -204,3 +204,27 @@ Problems from this repo's history, oldest first, with the PRs that fixed them.
 - **Outcome:** not merged. The code and the measurements are on the
   [`perf/defer-portfolio-sections`](https://github.com/rapaglaz/rapaglaz-portfolio/tree/perf/defer-portfolio-sections)
   branch.
+
+## Unit tests failed after the move to AnalogJS (2026-10-19)
+
+- **Problem:** with the app moved to `apps/rapaglaz-portfolio` and its tests on `@nx/vitest` with
+  AnalogJS, 23 tests in 5 files failed with `Cannot redefine property: location` (once
+  `document`). They passed under `@angular/build:unit-test`.
+- **Cause:** AnalogJS sets Vitest's `pool` to `vmThreads` unless the config names one. In a VM
+  pool the global is jsdom's own `Window`, where `location` and `document` are not configurable;
+  the old runner used the default `forks` pool, where they are configurable copies on the Node
+  global.
+- **Fix:** `pool: 'forks'` in `vite.config.mts`, without changing the tests. All 187 tests pass.
+  Coverage numbers moved because the instrumentation changed, not the tests: branches went from
+  92.56% of 457 to 86.69% of 233, and untested entry files now count.
+
+## Paths that broke with the apps/ layout (2026-10-19)
+
+- **Problem:** after the move, `deps:check` stopped with
+  `Cannot read file apps/rapaglaz-portfolio/apps/rapaglaz-portfolio/tsconfig.json`, and the lcov
+  report listed `src/app/...` paths that Sonar resolves from the repository root.
+- **Cause:** dependency-cruiser passes the tsconfig path to TypeScript as given, and a relative
+  path makes TypeScript resolve `extends` against it twice. Vitest writes lcov paths relative to
+  its root, which is now the app folder.
+- **Fix:** an absolute tsconfig path in `.dependency-cruiser.cjs`, and `projectRoot` for the lcov
+  reporter set to the repository root. Both were caught before the commit.

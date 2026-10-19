@@ -2,6 +2,8 @@
 
 Dependency-cruiser checks the runtime imports in this single Angular app. The rules live in
 [`../.dependency-cruiser.cjs`](../.dependency-cruiser.cjs); they are separate from ESLint.
+The Nx projects carry tags (`type:app`, `type:e2e`), but `@nx/enforce-module-boundaries` is not
+enabled, so dependency-cruiser is the only boundary check.
 
 ## Commands and scope
 
@@ -10,7 +12,8 @@ pnpm run deps:check
 pnpm run deps:graph
 ```
 
-`deps:check` scans every supported module under `src/app`, including specs and barrel exports.
+`deps:check` scans every supported module under `apps/rapaglaz-portfolio/src/app`, including
+specs and barrel exports.
 It exits non-zero for error-severity violations. All boundary and cycle rules are errors;
 `no-orphans` remains a warning. Both GitHub Actions workflows run this command through the
 shared quality-check action's lint mode.
@@ -19,9 +22,11 @@ shared quality-check action's lint mode.
 It creates the directory automatically. The existing `/tmp` Git ignore covers this output.
 The matrix works without GraphViz; it is not a node-and-edge SVG graph.
 
-Resolution uses `tsconfig.app.json`. The graph is restricted to `src/app`, with `node_modules`,
-`dist`, and `coverage` excluded. Imports outside `src/app`, including external packages, are
-outside these layer checks. Dynamic imports and runtime re-exports are included.
+Resolution uses `apps/rapaglaz-portfolio/tsconfig.app.json`, passed as an absolute path: with a
+relative one, TypeScript resolves the tsconfig `extends` chain against that path a second time.
+The graph is restricted to `apps/rapaglaz-portfolio/src/app`, with `node_modules`, `dist`, and
+`coverage` excluded. Imports outside it, including external packages, are outside these layer
+checks. Dynamic imports and runtime re-exports are included.
 
 `tsPreCompilationDeps: false` excludes type-only and other imports erased during compilation.
 They cannot create runtime initialization cycles. This setting applies to every rule, so it
@@ -31,7 +36,9 @@ also excludes type-only layer violations. See the
 `no-orphans` means modules without incoming or outgoing dependencies in the scoped graph;
 it is not a complete unused-code analysis. Entry points (`main.ts`, `main.server.ts`), app
 configs/routes, specs, and E2E files are excluded from orphan warnings. The main entry points
-and repository-level E2E files already fall outside `src/app`.
+and the e2e project already fall outside the scanned folder.
+
+Paths in the rest of this document are relative to `apps/rapaglaz-portfolio/`.
 
 ## Layer rules
 

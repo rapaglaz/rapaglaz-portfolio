@@ -22,6 +22,9 @@ tests and config check, and SonarCloud analysis. The dependency check fails the 
 or cycles, so it also blocks the PR quality gate and main deployment.
 See [Dependency boundaries](./DEPENDENCY_BOUNDARIES.md) for the architecture policy.
 
+The scripts behind these steps call Nx, but CI runs every target in full: there is no
+`nx affected` and no cache shared between runs.
+
 ## Pull request workflow
 
 Jobs: `lint`, `test`, `actionlint`, `zizmor`, `build`, `e2e-tests`, `lighthouse`, `quality-check`.
@@ -59,6 +62,9 @@ Credentials (`SERVER`, `USER`, `PASS`) live in GitHub Secrets.
 ## E2E target
 
 E2E runs against the static build served on port 4233.
+The e2e action runs `pnpm exec nx e2e rapaglaz-portfolio-e2e`; with `CI` set, the Playwright
+config serves `dist/apps/rapaglaz-portfolio/browser` itself. On failure the action uploads the
+HTML report from `dist/.playwright/apps/rapaglaz-portfolio-e2e/playwright-report`.
 Playwright runs inside the official `mcr.microsoft.com/playwright` container.
 The image tag must match `@playwright/test` in package.json; Renovate bumps both in one
 `playwright` PR.

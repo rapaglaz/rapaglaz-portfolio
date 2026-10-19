@@ -11,6 +11,9 @@ app, prerendered to static HTML and hydrated in the browser.
 - **Static prerendering + hydration.** `outputMode: static` prerenders `/`, `/en` and `/de` at
   build time. The client hydrates that HTML, so it does not repaint the whole page. Browser APIs
   are guarded with `isPlatformBrowser`, and the feature flag fires no request during prerender.
+- **Nx workspace.** The app and its Playwright suite are separate Nx projects in `apps/`. Build,
+  lint and unit tests run through Nx with a local cache. Nx adds no runtime code; the layer rules
+  inside the app stay with dependency-cruiser.
 - **Layer boundaries enforced by dependency-cruiser.** It checks runtime imports across seven
   layers, rejects feature-to-feature imports and cycles, and fails the CI lint job.
   The first report-only run found 11 warnings, including one cycle. The five remaining exceptions
@@ -36,7 +39,7 @@ Details: [engineering notes](./docs/ENGINEERING_NOTES.md) from the PR history.
 | ---------------------------------------------------------------------------- | -------- | ---------------------------- |
 | `format:check`, `lint`, `deps:check` (dependency-cruiser)                    | PR, main | yes                          |
 | `i18n:check`, `test:coverage` (80% statements/functions/lines, 70% branches) | PR, main | yes                          |
-| SSG build with bundle budgets from `angular.json`                            | PR, main | yes                          |
+| SSG build with bundle budgets from `apps/rapaglaz-portfolio/project.json`    | PR, main | yes                          |
 | Playwright E2E in the official Playwright container, against the build       | PR, main | yes                          |
 | SonarCloud analysis (in the test job)                                        | PR, main | no, quality gate not awaited |
 | actionlint, zizmor (workflow linting and security)                           | PR       | yes                          |
@@ -60,7 +63,7 @@ admin can bypass that gate; between July and October 2026 that happened for four
 
 ## Also inside
 
-- Transloco i18n with a runtime switch; JSON in `public/i18n`, locale routes `/en` and `/de`
+- Transloco i18n with a runtime switch; JSON in `apps/rapaglaz-portfolio/public/i18n`, locale routes `/en` and `/de`
 - "Open to Work" feature flag from a Cloudflare Worker + KV
 - Tailwind CSS 4 + DaisyUI + small custom CSS
 

@@ -1,15 +1,25 @@
 # Architecture
 
 This app is small, so I keep the structure boring and predictable.
-No framework on top of framework. Just Angular.
+It is a plain Angular app inside an Nx workspace. Nx runs and caches the build, lint and test
+tasks; it adds no runtime code.
 
 ## Folder layout
 
-I organise by feature, not by layers inside every folder.
+The workspace has two projects:
+
+```plaintext
+apps/
+├── rapaglaz-portfolio/       # the Angular app
+└── rapaglaz-portfolio-e2e/   # Playwright suite, depends on the app
+workers/                      # Cloudflare Workers, not an Nx project yet (.nxignore)
+```
+
+Inside the app I organise by feature, not by layers inside every folder.
 Shared bits go to a shared place.
 
 ```plaintext
-src/app/
+apps/rapaglaz-portfolio/src/app/
 ├── app.ts / app.config.ts / app.routes.ts   # bootstrap, routing, providers
 ├── portfolio/     # top-level portfolio shell component
 ├── features/      # hero, navbar, language-switcher, about, skills, languages, certifications, contact, footer
@@ -104,7 +114,10 @@ Components read the flag through `hasValue()` inside a computed instead.
 
 ### Unit tests
 
-Unit tests run via Angular’s unit-test builder with the Vitest runner.
+Unit tests run on Vitest through `@nx/vitest`, with AnalogJS compiling Angular and setting up a
+zoneless TestBed (`apps/rapaglaz-portfolio/src/test-setup.ts`). They use the `forks` pool:
+AnalogJS defaults to `vmThreads`, where jsdom's `window` is the global and `window.location`
+cannot be redefined, which the window mocks in `apps/rapaglaz-portfolio/src/app/testing` need.
 
 For presentational sections I keep tests as smoke checks (renders, key elements exist).
 For services/interceptors I test behaviour and error paths.
@@ -124,8 +137,8 @@ are opaque so the content beneath them cannot lower contrast. Decorative borders
 are not treated as essential controls. These checks run after finite animations finish.
 
 With `prefers-reduced-motion: reduce`, CSS disables entrance animations, delays, transitions,
-smooth scrolling and hover scaling; `e2e/motion.spec.ts` covers both preferences and a change after
-page load. Keyboard focus bypasses entrance effects in either mode.
+smooth scrolling and hover scaling; `apps/rapaglaz-portfolio-e2e/src/motion.spec.ts` covers both
+preferences and a change after page load. Keyboard focus bypasses entrance effects in either mode.
 
 In CI (and in `e2e:ssg`) tests run against the static build served on port 4233.
 Locally `pnpm run e2e` uses the dev server on 4200.
@@ -137,7 +150,7 @@ See [CI/CD strategy](./CI_STRATEGY.md#lighthouse) for how it runs and why it use
 
 ## i18n
 
-Transloco with JSON under `public/i18n`.
+Transloco with JSON under `apps/rapaglaz-portfolio/public/i18n`.
 Runtime has a strict missing handler, so missing keys are loud.
 Routes are `/en` and `/de`. The URL segment decides the active language.
 Root `/` falls back to the default language (`en`).

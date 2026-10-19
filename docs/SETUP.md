@@ -66,14 +66,14 @@ See [Dependency boundaries](./DEPENDENCY_BOUNDARIES.md) for the rules and except
 pnpm test
 ```
 
-This runs Vitest via Angular’s test runner.
+This runs Vitest through Nx (`@nx/vitest`) with AnalogJS.
 For coverage:
 
 ```bash
 pnpm run test:coverage
 ```
 
-Coverage output goes to `coverage/`.
+Coverage output goes to `coverage/apps/rapaglaz-portfolio/`.
 
 The Cloudflare Workers in `workers/` have their own Vitest run in a Node environment:
 
@@ -104,10 +104,24 @@ UI runner:
 pnpm run e2e:ui
 ```
 
+The HTML report goes to `dist/.playwright/apps/rapaglaz-portfolio-e2e/playwright-report/`.
+
 If browsers are missing:
 
 ```bash
 pnpm exec playwright install --with-deps
+```
+
+## Nx
+
+The `pnpm run` scripts call Nx, so build, lint and test results come from the local cache in
+`.nx/` when nothing they depend on has changed.
+
+```bash
+pnpm nx show projects                    # rapaglaz-portfolio, rapaglaz-portfolio-e2e
+pnpm nx show project rapaglaz-portfolio  # resolved targets, inputs and outputs
+pnpm nx graph                            # project graph in the browser
+pnpm nx reset                            # clear the cache and stop the daemon
 ```
 
 ## Preview (static build)
@@ -139,3 +153,4 @@ does 3 runs, desktop preset, and reports go to `.lighthouseci/`.
 
 - Playwright is flaky locally: usually missing browsers or old cache. Reinstall and retry.
 - Translations break: run `pnpm run i18n:check`.
+- A task result looks stale: run `pnpm nx reset` and run the task again.
