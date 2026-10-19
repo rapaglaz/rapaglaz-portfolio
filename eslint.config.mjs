@@ -24,7 +24,7 @@ export default defineConfig(
     ],
   },
   {
-    files: ['**/*.ts'],
+    files: ['**/*.{ts,mts}'],
     extends: [
       eslint.configs.recommended,
       ...tseslint.configs.strict,
@@ -34,8 +34,8 @@ export default defineConfig(
     languageOptions: {
       parserOptions: {
         projectService: {
-          // Root config files such as transloco.config.ts belong to no project tsconfig
-          allowDefaultProject: ['*.ts'],
+          // The root vitest.config.mts belongs to no project tsconfig
+          allowDefaultProject: ['*.mts'],
           defaultProject: 'tsconfig.base.json',
         },
         tsconfigRootDir: __dirname,
@@ -103,7 +103,7 @@ export default defineConfig(
 
   // Configuration files with specific rules
   {
-    files: ['*.config.{js,ts}'],
+    files: ['*.config.{js,ts,mts}'],
     rules: {
       '@typescript-eslint/no-var-requires': 'off',
       'no-console': 'off',

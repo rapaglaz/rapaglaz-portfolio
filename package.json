@@ -19,7 +19,7 @@
     "format:check": "prettier --check .",
     "format:write": "prettier --write .",
     "i18n:validate": "transloco-validator apps/rapaglaz-portfolio/public/i18n/*.json",
-    "i18n:find": "transloco-keys-manager find",
+    "i18n:find": "transloco-keys-manager find -c apps/rapaglaz-portfolio/transloco.config.ts",
     "i18n:check": "pnpm run i18n:validate && pnpm run i18n:find",
     "preview": "serve dist/apps/rapaglaz-portfolio/browser -l 4233",
     "e2e": "nx e2e rapaglaz-portfolio-e2e",
