@@ -1,4 +1,4 @@
-# Radek Glaz Portfolio
+# My Portfolio
 
 Source of [rapaglaz.de](https://rapaglaz.de), my personal site: a small bilingual (EN/DE) Angular 22
 app, prerendered to static HTML and hydrated in the browser.
