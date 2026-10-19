@@ -76,14 +76,14 @@ pnpm run test:coverage
 
 Coverage output goes to `coverage/apps/rapaglaz-portfolio/`.
 
-The Cloudflare Workers in `workers/` have their own Vitest run in a Node environment:
+The Cloudflare Workers in `apps/workers/` have their own Vitest run in a Node environment:
 
 ```bash
 pnpm run test:workers
 ```
 
 `pnpm run workers:check` bundles each Worker with `wrangler deploy --dry-run` and needs no Cloudflare
-login. Deploying is described in [Cloudflare Workers](../workers/README.md).
+login. Deploying is described in [Cloudflare Workers](../apps/workers/README.md).
 
 ## E2E tests (Playwright)
 

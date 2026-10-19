@@ -20,7 +20,7 @@ export default defineConfig(
       '**/coverage',
       'scripts/**',
       // The Workers were never linted; their lint setup comes with their Nx project
-      'workers/**',
+      'apps/workers/**',
     ],
   },
   {

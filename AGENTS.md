@@ -19,8 +19,8 @@ Exact versions live in `package.json` (dependencies, `packageManager` for pnpm),
 ```text
 apps/
 ├── rapaglaz-portfolio/       # the Angular app (project.json, vite.config.mts, public/, src/)
-└── rapaglaz-portfolio-e2e/   # Playwright project (playwright.config.mts, src/)
-workers/                      # Cloudflare Workers; hidden from Nx by .nxignore until they get a project
+├── rapaglaz-portfolio-e2e/   # Playwright project (playwright.config.mts, src/)
+└── workers/                  # Cloudflare Workers; hidden from Nx by .nxignore until they get a project
 ```
 
 Inside the app:

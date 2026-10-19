@@ -10,7 +10,7 @@ Cloudflare, and its `wrangler.jsonc` is the source of truth for that Worker.
 | [`portfolio-settings`](./portfolio-settings/) | `GET` or `HEAD /config`        | none; the Turnstile site key is public by design                                                                                                                                   |
 
 The frontend validates `/config` and `/feature-flag` responses with Valibot and reads `/download`
-as a blob. See [Security notes](../docs/SECURITY.md) for the download flow.
+as a blob. See [Security notes](../../docs/SECURITY.md) for the download flow.
 
 ## Configuration
 
@@ -25,7 +25,7 @@ as a blob. See [Security notes](../docs/SECURITY.md) for the download flow.
 ## Deploy
 
 `deploy-workers` in `.github/workflows/main-branch-ci-cd.yaml` deploys a Worker from `main` after
-lint and tests pass, and only when its folder or `workers/package.json` changed since the last green
+lint and tests pass, and only when its folder or `apps/workers/package.json` changed since the last green
 run on `main`, so a run that was cancelled or failed does not lose its changes. It runs only while
 the repository variable `DEPLOY_WORKERS` is `true` and uses the secrets `CLOUDFLARE_API_TOKEN` (Edit
 Cloudflare Workers) and `CLOUDFLARE_ACCOUNT_ID`.

@@ -11,8 +11,8 @@ The workspace has two projects:
 ```plaintext
 apps/
 ├── rapaglaz-portfolio/       # the Angular app
-└── rapaglaz-portfolio-e2e/   # Playwright suite, depends on the app
-workers/                      # Cloudflare Workers, not an Nx project yet (.nxignore)
+├── rapaglaz-portfolio-e2e/   # Playwright suite, depends on the app
+└── workers/                  # Cloudflare Workers, not an Nx project yet (.nxignore)
 ```
 
 Inside the app I organise by feature, not by layers inside every folder.

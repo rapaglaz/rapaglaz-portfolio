@@ -107,4 +107,4 @@ changes of a run that was cancelled by a newer push or failed. It is opt-in thro
 variable `DEPLOY_WORKERS` and runs `wrangler deploy` with the `CLOUDFLARE_API_TOKEN` and
 `CLOUDFLARE_ACCOUNT_ID` secrets.
 Pull requests never get these secrets; they only bundle the Workers with `wrangler deploy --dry-run`.
-See [Cloudflare Workers](../workers/README.md) for the configuration and the first deploy.
+See [Cloudflare Workers](../apps/workers/README.md) for the configuration and the first deploy.
