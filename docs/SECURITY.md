@@ -7,7 +7,7 @@ It's mostly static content + a CV download endpoint.
 
 I set basic security headers at the Cloudflare edge, not in this repository. A Response Header
 Transform Rule (`security-headers`) sets the last four with "Set static" on all requests; the
-Workers in [`workers/`](../workers/) set only their own response headers.
+Workers in [`apps/workers/`](../apps/workers/) set only their own response headers.
 
 ```http
 Strict-Transport-Security: max-age=15768000
@@ -53,7 +53,7 @@ Flow:
 6. If ok, Worker streams the PDF from R2 with `Cache-Control: private, no-store` and
    `X-Robots-Tag: noindex, noarchive, nofollow`
 
-The code is in [`workers/cv-download`](../workers/cv-download/). Cloudflare's test token skips
+The code is in [`apps/workers/cv-download`](../apps/workers/cv-download/). Cloudflare's test token skips
 `siteverify` only on a Worker with `ALLOW_TEST_TOKEN=true`, which is meant for development.
 Origin and Referer never decide that, because the client sets them.
 

@@ -1,0 +1,32 @@
+{
+  "name": "cv-download",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/workers/cv-download",
+  "tags": ["type:worker"],
+  "targets": {
+    "lint": {
+      "inputs": [
+        "default",
+        "{workspaceRoot}/apps/workers/eslint.config.mjs",
+        {
+          "externalDependencies": ["eslint", "@eslint/js", "eslint-config-prettier"]
+        }
+      ]
+    },
+    "test": {
+      "inputs": [
+        "default",
+        "{workspaceRoot}/apps/workers/testing/**/*",
+        {
+          "env": "CI"
+        },
+        {
+          "externalDependencies": ["vitest"]
+        }
+      ]
+    },
+    "check": {},
+    "deploy": {}
+  }
+}

@@ -40,7 +40,7 @@ SonarQube analysis runs inside the `test` job on both PR and main, using `sonar-
 ## Main branch CI/CD
 
 Jobs: `lint`, `test`, `build`, `e2e-tests`, `deploy` — all run on every push to main — and the
-opt-in `deploy-workers` (see [Cloudflare Workers](#cloudflare-workers)).
+`deploy-workers`, which the variable `DEPLOY_WORKERS` can switch off (see [Cloudflare Workers](#cloudflare-workers)).
 
 `lint`, `test`, `build` are parallel. `e2e-tests` depends on `build`. `deploy` depends on all four.
 
@@ -101,10 +101,15 @@ Redundant runs are cancelled when a new commit is pushed to the same branch.
 
 ## Cloudflare Workers
 
-`deploy-workers` in Main Branch CI/CD deploys the Workers whose folders changed since the last green
-run on `main`, after `lint` and `test`. Comparing with the previous push instead would lose the
-changes of a run that was cancelled by a newer push or failed. It is opt-in through the repository
-variable `DEPLOY_WORKERS` and runs `wrangler deploy` with the `CLOUDFLARE_API_TOKEN` and
-`CLOUDFLARE_ACCOUNT_ID` secrets.
+`deploy-workers` in Main Branch CI/CD deploys the Workers that `nx affected` reports since the last
+green run on `main`, after `lint` and `test`. Comparing with the previous push instead would lose
+the changes of a run that was cancelled by a newer push or failed. Each Worker is its own Nx
+project, so a change in one Worker deploys only that Worker; a change to `nx.json`,
+`tsconfig.base.json`, the Workers' own `apps/workers/eslint.config.mjs` or an Nx plugin version
+deploys all of them. With `projectsAffectedByDependencyUpdates: "auto"` other dependency updates
+deploy no Worker, because the Workers import no npm package. The job runs `test` and `check` before
+it passes the Cloudflare secrets to the `deploy` step. The repository variable `DEPLOY_WORKERS` is a
+kill switch: the job runs only while it is `true`. It runs `wrangler deploy` with the
+`CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets.
 Pull requests never get these secrets; they only bundle the Workers with `wrangler deploy --dry-run`.
-See [Cloudflare Workers](../workers/README.md) for the configuration and the first deploy.
+See [Cloudflare Workers](../apps/workers/README.md) for the configuration and the first deploy.
