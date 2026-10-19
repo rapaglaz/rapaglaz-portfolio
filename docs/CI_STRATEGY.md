@@ -78,9 +78,14 @@ E2E runs against the static build served on port 4233.
 The e2e action runs `pnpm exec nx e2e rapaglaz-portfolio-e2e`; with `CI` set, the Playwright
 config serves `dist/apps/rapaglaz-portfolio/browser` itself. On failure the action uploads the
 HTML report from `dist/.playwright/apps/rapaglaz-portfolio-e2e/playwright-report`.
-Playwright runs inside the official `mcr.microsoft.com/playwright` container.
-The image tag must match `@playwright/test` in package.json; Renovate bumps both in one
-`playwright` PR.
+The e2e jobs run on `ubuntu-latest`, not in the Playwright container: Tailscale needs `sudo` and
+a TUN device, which the container lacks, so the job could not reach the remote cache. The action
+restores the browsers from `actions/cache` (keyed by the Playwright version) and installs their
+system dependencies with `playwright install --with-deps`.
+
+The `e2e` target is cacheable. Its inputs are the e2e sources, the production inputs of the app,
+`E2E_MODE`, `CI`, and the Playwright version, so `main` reuses the result of the pull request run
+for the same code. Nx caches only successful runs, so a rerun after a failure runs the tests again.
 Locally `pnpm run e2e` uses the dev server on 4200.
 
 ## Lighthouse

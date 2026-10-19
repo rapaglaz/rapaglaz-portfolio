@@ -1,5 +1,5 @@
 name: E2E Tests
-description: 'Runs Playwright E2E tests. Requires a Playwright container on the calling job.'
+description: 'Runs Playwright E2E tests on the runner. Installs the browsers the config uses and their system dependencies.'
 
 inputs:
   build-artifact-name:
@@ -31,6 +31,23 @@ runs:
     - name: Build application
       if: ${{ inputs.build-artifact-name == '' }}
       uses: ./.github/actions/build
+
+    - name: Get Playwright version
+      id: playwright
+      shell: bash
+      run: echo "version=$(pnpm exec playwright --version | awk '{print $2}')" >> "$GITHUB_OUTPUT"
+
+    - name: Cache Playwright browsers
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+
+    # System dependencies are not cached; --with-deps installs them on every run.
+    # The browsers match the projects in playwright.config.mts.
+    - name: Install Playwright browsers
+      shell: bash
+      run: pnpm exec playwright install --with-deps chromium webkit
 
     - name: Run Playwright tests
       shell: bash
