@@ -28,9 +28,9 @@ jobs:
         uses: ./.github/actions/nx-remote-cache
         with:
           server: ${{ secrets.NX_SELF_HOSTED_REMOTE_CACHE_SERVER }}
-          access-token: ${{ secrets.NX_CACHE_ACCESS_TOKEN }}
-          ts-oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
-          ts-oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          access-token: ${{ secrets.NX_SELF_HOSTED_REMOTE_CACHE_ACCESS_TOKEN }}
+          ts-oauth-client-id: ${{ secrets.NX_SELF_HOSTED_TS_OAUTH_CLIENT_ID }}
+          ts-oauth-secret: ${{ secrets.NX_SELF_HOSTED_TS_OAUTH_SECRET }}
 
       - name: Run Lint
         uses: ./.github/actions/quality-check
@@ -54,9 +54,9 @@ jobs:
         uses: ./.github/actions/nx-remote-cache
         with:
           server: ${{ secrets.NX_SELF_HOSTED_REMOTE_CACHE_SERVER }}
-          access-token: ${{ secrets.NX_CACHE_ACCESS_TOKEN }}
-          ts-oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
-          ts-oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          access-token: ${{ secrets.NX_SELF_HOSTED_REMOTE_CACHE_ACCESS_TOKEN }}
+          ts-oauth-client-id: ${{ secrets.NX_SELF_HOSTED_TS_OAUTH_CLIENT_ID }}
+          ts-oauth-secret: ${{ secrets.NX_SELF_HOSTED_TS_OAUTH_SECRET }}
 
       - name: Run Tests
         uses: ./.github/actions/quality-check
@@ -84,9 +84,9 @@ jobs:
         uses: ./.github/actions/nx-remote-cache
         with:
           server: ${{ secrets.NX_SELF_HOSTED_REMOTE_CACHE_SERVER }}
-          access-token: ${{ secrets.NX_CACHE_ACCESS_TOKEN }}
-          ts-oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
-          ts-oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          access-token: ${{ secrets.NX_SELF_HOSTED_REMOTE_CACHE_ACCESS_TOKEN }}
+          ts-oauth-client-id: ${{ secrets.NX_SELF_HOSTED_TS_OAUTH_CLIENT_ID }}
+          ts-oauth-secret: ${{ secrets.NX_SELF_HOSTED_TS_OAUTH_SECRET }}
 
       - name: Build application
         uses: ./.github/actions/build
@@ -174,9 +174,9 @@ jobs:
         uses: ./.github/actions/nx-remote-cache
         with:
           server: ${{ secrets.NX_SELF_HOSTED_REMOTE_CACHE_SERVER }}
-          access-token: ${{ secrets.NX_CACHE_ACCESS_TOKEN }}
-          ts-oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
-          ts-oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          access-token: ${{ secrets.NX_SELF_HOSTED_REMOTE_CACHE_ACCESS_TOKEN }}
+          ts-oauth-client-id: ${{ secrets.NX_SELF_HOSTED_TS_OAUTH_CLIENT_ID }}
+          ts-oauth-secret: ${{ secrets.NX_SELF_HOSTED_TS_OAUTH_SECRET }}
 
       - name: Setup environment
         uses: ./.github/actions/workspace-setup
