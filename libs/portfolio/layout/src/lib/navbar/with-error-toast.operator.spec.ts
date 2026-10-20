@@ -1,17 +1,17 @@
 import { TranslocoService } from '@jsverse/transloco';
+import type { LoggerService } from '@rapaglaz/shared/util';
 import { of, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
-import type { LoggerService } from '../logging/logger.service';
 import { withErrorToast } from './with-error-toast.operator';
 
 describe('withErrorToast', () => {
-  let mockToastService: { error: Mock<(message: string) => void> };
+  let mockToastService: { error: Mock<(message: string) => Promise<void>> };
   let mockTranslocoService: { translate: ReturnType<typeof vi.fn> };
   let mockLogger: { error: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     mockToastService = {
-      error: vi.fn<(message: string) => void>(),
+      error: vi.fn<(message: string) => Promise<void>>().mockResolvedValue(undefined),
     };
 
     mockTranslocoService = {

@@ -1,13 +1,11 @@
 import { TranslocoService } from '@jsverse/transloco';
+import type { ToastService } from '@rapaglaz/shared/ui';
+import type { LoggerService } from '@rapaglaz/shared/util';
 import { catchError, EMPTY, MonoTypeOperatorFunction, Observable } from 'rxjs';
-import type { LoggerService } from '../logging/logger.service';
-
-// Only the method the operator calls: utilities cannot depend on the ToastService in shared-ui
-export type ErrorToast = { error(message: string): unknown };
 
 export function withErrorToast<T>(
   messageKey: string,
-  toastService: ErrorToast,
+  toastService: Pick<ToastService, 'error'>,
   translocoService: TranslocoService,
   logger: LoggerService,
 ): MonoTypeOperatorFunction<T> {

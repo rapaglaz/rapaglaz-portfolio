@@ -5,10 +5,11 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
 import { CvDownloadService, FeatureFlagService } from '@rapaglaz/shared/data-access';
 import { Badge, ToastService } from '@rapaglaz/shared/ui';
-import { injectContactEmailOpener, LoggerService, withErrorToast } from '@rapaglaz/shared/util';
+import { injectContactEmailOpener, LoggerService } from '@rapaglaz/shared/util';
 import { finalize, map, startWith } from 'rxjs';
 import { LanguageSwitcher } from '../language-switcher/language-switcher';
 import { MeasureNavbarHeightDirective } from './measure-navbar-height.directive';
+import { withErrorToast } from './with-error-toast.operator';
 
 @Component({
   selector: 'app-navbar',

@@ -13,4 +13,3 @@ export type { AvailableLang } from './lib/i18n/languages';
 export { TranslocoHttpLoader } from './lib/i18n/transloco-loader';
 export { StrictTranslocoMissingHandler } from './lib/i18n/transloco-missing-handler';
 export { LoggerService } from './lib/logging/logger.service';
-export { withErrorToast } from './lib/rxjs/with-error-toast.operator';
