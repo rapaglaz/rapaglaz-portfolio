@@ -1,9 +1,9 @@
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { inject, Injectable, PLATFORM_ID } from '@angular/core';
-import { API_BASE_URL } from '@rapaglaz/shared/util';
 import { catchError, map, Observable, of, retry, shareReplay, throwError, timer } from 'rxjs';
 import * as v from 'valibot';
+import { API_BASE_URL } from '../api/api-urls.token';
 
 const ConfigSchema = v.object({
   turnstileSiteKey: v.pipe(v.string(), v.minLength(1, 'Turnstile site key cannot be empty')),
@@ -19,7 +19,7 @@ function isTransientHttpError(error: unknown): boolean {
 @Injectable({
   providedIn: 'root',
 })
-export class ConfigService {
+export class TurnstileConfigService {
   private readonly http = inject(HttpClient);
   private readonly document = inject(DOCUMENT);
   private readonly platformId = inject(PLATFORM_ID);
@@ -56,10 +56,10 @@ export class ConfigService {
 
     return this.http.get<unknown>(this.configUrl).pipe(
       retry({
-        count: ConfigService.MAX_CONFIG_RETRIES,
+        count: TurnstileConfigService.MAX_CONFIG_RETRIES,
         delay: (error: unknown, retryCount: number) =>
           isTransientHttpError(error)
-            ? timer(ConfigService.RETRY_BASE_DELAY_MS * 2 ** (retryCount - 1))
+            ? timer(TurnstileConfigService.RETRY_BASE_DELAY_MS * 2 ** (retryCount - 1))
             : throwError(() => error),
       }),
       map((response: unknown) => {

@@ -1,13 +1,13 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { API_BASE_URL } from '@rapaglaz/shared/util';
 import { firstValueFrom } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { ConfigService } from './config.service';
+import { API_BASE_URL } from '../api/api-urls.token';
+import { TurnstileConfigService } from './turnstile-config.service';
 
-describe('ConfigService', () => {
-  let service: ConfigService;
+describe('TurnstileConfigService', () => {
+  let service: TurnstileConfigService;
   let httpMock: HttpTestingController;
   let originalLocation: Location;
 
@@ -17,13 +17,13 @@ describe('ConfigService', () => {
 
     TestBed.configureTestingModule({
       providers: [
-        ConfigService,
+        TurnstileConfigService,
         provideHttpClient(),
         provideHttpClientTesting(),
         { provide: API_BASE_URL, useValue: '' },
       ],
     });
-    service = TestBed.inject(ConfigService);
+    service = TestBed.inject(TurnstileConfigService);
     httpMock = TestBed.inject(HttpTestingController);
   });
 

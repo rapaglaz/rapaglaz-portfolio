@@ -3,10 +3,10 @@ import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import { Component, computed, DestroyRef, inject, PLATFORM_ID, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoModule, TranslocoService } from '@jsverse/transloco';
-import { injectContactEmailOpener } from '@rapaglaz/portfolio/util';
-import { CvDownloadService, FeatureFlagService } from '@rapaglaz/shared/data-access';
+import { cvFileName, injectContactEmailOpener } from '@rapaglaz/portfolio/util';
+import { FeatureFlagService, ProtectedDownloadService } from '@rapaglaz/shared/data-access';
 import { Badge, ToastService } from '@rapaglaz/shared/ui';
-import { LoggerService } from '@rapaglaz/shared/util';
+import { DEFAULT_LANG, isAvailableLang, LoggerService } from '@rapaglaz/shared/util';
 import { finalize, map, startWith } from 'rxjs';
 import { LanguageSwitcher } from '../language-switcher/language-switcher';
 import { MeasureNavbarHeightDirective } from './measure-navbar-height.directive';
@@ -21,7 +21,7 @@ import { withErrorToast } from './with-error-toast.operator';
 export class Navbar {
   private readonly scrollDispatcher = inject(ScrollDispatcher);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly cvDownloadService = inject(CvDownloadService);
+  private readonly downloadService = inject(ProtectedDownloadService);
   private readonly toastService = inject(ToastService);
   private readonly translocoService = inject(TranslocoService);
   private readonly logger = inject(LoggerService);
@@ -57,8 +57,9 @@ export class Navbar {
     }
     this.isDownloading.set(true);
 
-    this.cvDownloadService
-      .downloadCV(trigger)
+    const lang = this.translocoService.getActiveLang();
+    this.downloadService
+      .download(cvFileName(isAvailableLang(lang) ? lang : DEFAULT_LANG), trigger)
       .pipe(
         /** t(portfolio.cv.error) */
         withErrorToast('portfolio.cv.error', this.toastService, this.translocoService, this.logger),
