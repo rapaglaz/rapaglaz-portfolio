@@ -82,7 +82,7 @@ module.exports = {
         orphan: true,
         pathNot: [
           // Library entry points are reached through path aliases; test-setup is loaded by Vitest
-          '^libs/.+/src/(index|translations|test-setup)\\.ts$',
+          '^libs/.+/src/(index|translations|bootstrap-messages|test-setup)\\.ts$',
           '(^|/)main(\\.server)?\\.ts$',
           '^apps/rapaglaz-portfolio/src/app/app\\.(config|routes)(\\.server)?\\.ts$',
           '\\.spec\\.ts$',
