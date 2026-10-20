@@ -1,5 +1,5 @@
 name: Quality Check
-description: 'Runs format, lint, dependency boundaries, i18n, app and Worker tests, and SonarCloud scan.'
+description: 'Runs format, lint, dependency boundaries, i18n, app and Worker tests, and uploads the coverage.'
 
 inputs:
   mode:
@@ -14,17 +14,6 @@ inputs:
     description: 'Days to retain coverage artifact (0 = default/unlimited)'
     required: false
     default: '0'
-  sonar-token:
-    description: 'SonarCloud token'
-    required: false
-    default: ''
-  github-token:
-    description: 'GitHub token for API access'
-    required: true
-  sonar-extra-args:
-    description: 'Extra -D arguments appended to the SonarCloud scan'
-    required: false
-    default: ''
 
 runs:
   using: 'composite'
@@ -80,13 +69,3 @@ runs:
         path: coverage/
         retention-days: ${{ inputs.coverage-retention-days != '0' && inputs.coverage-retention-days || '' }}
         if-no-files-found: ignore
-
-    - name: SonarCloud Scan
-      if: ${{ (inputs.mode == 'test' || inputs.mode == 'all') && inputs.sonar-token != '' && !failure() }}
-      uses: SonarSource/sonarqube-scan-action@d209202bc7d53ff1cc128f7f907dac145c9d6ae9 # v8.3
-      env:
-        SONAR_HOST_URL: https://sonarcloud.io
-        SONAR_TOKEN: ${{ inputs.sonar-token }}
-        GITHUB_TOKEN: ${{ inputs.github-token }}
-      with:
-        args: ${{ inputs.sonar-extra-args }}
