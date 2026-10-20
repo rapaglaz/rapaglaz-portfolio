@@ -120,8 +120,12 @@ jobs:
           ts-oauth-client-id: ${{ secrets.NX_SELF_HOSTED_TS_OAUTH_CLIENT_ID }}
           ts-oauth-secret: ${{ secrets.NX_SELF_HOSTED_TS_OAUTH_SECRET }}
 
+      # main builds the artifact it deploys itself; a cache hit could replay a pull request build
       - name: Build application
         uses: ./.github/actions/build
+        with:
+          skip-nx-cache: 'true'
+
       - name: Upload build artifact
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
@@ -154,6 +158,8 @@ jobs:
           build-artifact-name: build-artifact-main
           report-artifact-name: playwright-report-main
           report-retention-days: 7
+          # the deployed artifact is tested in this run, never replayed from the cache
+          skip-nx-cache: 'true'
 
   deploy:
     needs: [lint, test, build, e2e-tests]

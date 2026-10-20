@@ -18,7 +18,7 @@
         "{workspaceRoot}/.postcssrc.json",
         { "env": "E2E_MODE" },
         { "env": "CI" },
-        { "externalDependencies": ["@playwright/test"] }
+        { "externalDependencies": ["@playwright/test", "@axe-core/playwright"] }
       ],
       "// configurations": "ci installs the browsers inside the task, so a cache hit skips the install too; the browsers match the projects in playwright.config.mts",
       "configurations": {
