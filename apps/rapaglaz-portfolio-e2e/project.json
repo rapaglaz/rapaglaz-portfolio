@@ -20,10 +20,13 @@
         { "env": "CI" },
         { "externalDependencies": ["@playwright/test", "@axe-core/playwright"] }
       ],
-      "// configurations": "ci installs the browsers inside the task, so a cache hit skips the install too; the browsers match the projects in playwright.config.mts",
+      "// configurations": "CI runs one job per project in playwright.config.mts; each ci-* configuration installs only its browser inside the task, so a cache hit skips the install too",
       "configurations": {
-        "ci": {
-          "command": "playwright install --with-deps chromium webkit && playwright test"
+        "ci-chromium": {
+          "command": "playwright install --with-deps chromium && playwright test --project=chromium"
+        },
+        "ci-webkit": {
+          "command": "playwright install --with-deps webkit && playwright test --project=\"Mobile Safari\""
         }
       }
     },

@@ -1,7 +1,10 @@
 name: E2E Tests
-description: 'Runs Playwright E2E tests on the runner through Nx; the ci configuration installs the browsers.'
+description: 'Runs Playwright E2E tests on the runner through Nx; each ci-* configuration installs its browser.'
 
 inputs:
+  configuration:
+    description: 'Nx configuration of the e2e target: ci-chromium or ci-webkit, one browser project each.'
+    required: true
   build-artifact-name:
     description: 'Name of a pre-built dist artifact to download. When empty, builds the application from scratch.'
     required: false
@@ -38,17 +41,18 @@ runs:
       with:
         skip-nx-cache: ${{ inputs.skip-nx-cache }}
 
-    # The ci configuration installs the browsers and their system dependencies inside the
+    # The ci-* configurations install their browser and its system dependencies inside the
     # Nx task, so a remote cache hit skips both the install and the tests.
     - name: Run Playwright tests
       shell: bash
       env:
+        CONFIGURATION: ${{ inputs.configuration }}
         SKIP_NX_CACHE: ${{ inputs.skip-nx-cache }}
       run: |
         if [ "$SKIP_NX_CACHE" = 'true' ]; then
-          pnpm exec nx e2e rapaglaz-portfolio-e2e --configuration=ci --skip-nx-cache
+          pnpm exec nx e2e rapaglaz-portfolio-e2e "--configuration=$CONFIGURATION" --skip-nx-cache
         else
-          pnpm exec nx e2e rapaglaz-portfolio-e2e --configuration=ci
+          pnpm exec nx e2e rapaglaz-portfolio-e2e "--configuration=$CONFIGURATION"
         fi
 
     # Retries on CI turn a test that fails and then passes into a green job; list those tests.
