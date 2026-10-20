@@ -1,7 +1,7 @@
 import { Component, computed, input, viewChild } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
 import { SectionWrapper } from '@rapaglaz/shared/ui';
-import { buildDelayGetter, injectActiveLang } from '@rapaglaz/shared/util';
+import { buildStaggerDelay, injectActiveLang } from '@rapaglaz/shared/util';
 
 export type CertificationId = 'angular-architecture' | 'angular-testing' | 'angular-spa-typescript';
 
@@ -44,7 +44,7 @@ export class Certifications {
     }));
   });
 
-  protected readonly getCertDelay = buildDelayGetter('certifications');
+  protected readonly getCertDelay = buildStaggerDelay({ base: 0, increment: 0.075 });
 
   private formatDate(isoDate: string, formatter: Intl.DateTimeFormat): string {
     const parts = isoDate.split('-');

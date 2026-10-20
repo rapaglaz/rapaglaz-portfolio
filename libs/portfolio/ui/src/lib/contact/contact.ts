@@ -2,7 +2,7 @@ import { Component, input, viewChild } from '@angular/core';
 import { translateObjectSignal, translateSignal, TranslocoModule } from '@jsverse/transloco';
 import type { ContactItem } from '@rapaglaz/portfolio/util';
 import { SectionWrapper } from '@rapaglaz/shared/ui';
-import { buildDelayGetter } from '@rapaglaz/shared/util';
+import { buildStaggerDelay } from '@rapaglaz/shared/util';
 
 @Component({
   selector: 'app-contact',
@@ -14,7 +14,7 @@ export class Contact {
   readonly items = input.required<readonly ContactItem[]>();
 
   protected readonly sectionWrapper = viewChild.required(SectionWrapper);
-  protected readonly getContactDelay = buildDelayGetter('contact');
+  protected readonly getContactDelay = buildStaggerDelay({ base: 0.15, increment: 0.075 });
   protected readonly contactLabels = translateObjectSignal('portfolio.contact.labels');
   protected readonly opensInNewTabLabel = translateSignal('common.a11y.opensInNewTab');
 

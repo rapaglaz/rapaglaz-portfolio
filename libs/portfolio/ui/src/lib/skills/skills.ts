@@ -1,7 +1,7 @@
 import { Component, computed, input, viewChild } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
 import { SectionWrapper } from '@rapaglaz/shared/ui';
-import { buildDelayGetter } from '@rapaglaz/shared/util';
+import { buildStaggerDelay } from '@rapaglaz/shared/util';
 
 export type SkillCategoryId =
   'frontend' | 'testing' | 'devops' | 'architecture' | 'backend' | 'soft-skills' | 'familiar';
@@ -91,5 +91,5 @@ export class Skills {
     toBadges(this.categories().filter(category => category.id === SECONDARY_CATEGORY)),
   );
 
-  protected readonly getSkillDelay = buildDelayGetter('skills');
+  protected readonly getSkillDelay = buildStaggerDelay({ base: 0.15, increment: 0.015 });
 }

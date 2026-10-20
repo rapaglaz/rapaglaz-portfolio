@@ -1,7 +1,7 @@
 import { Component, computed, viewChild } from '@angular/core';
 import { translateObjectSignal, TranslocoModule } from '@jsverse/transloco';
 import { SectionWrapper } from '@rapaglaz/shared/ui';
-import { buildDelayGetter } from '@rapaglaz/shared/util';
+import { buildStaggerDelay } from '@rapaglaz/shared/util';
 
 @Component({
   selector: 'app-languages',
@@ -57,5 +57,5 @@ export class Languages {
     }));
   });
 
-  protected readonly getLanguageDelay = buildDelayGetter('languages');
+  protected readonly getLanguageDelay = buildStaggerDelay({ base: 0.15, increment: 0.05 });
 }
