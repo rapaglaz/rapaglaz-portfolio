@@ -219,3 +219,28 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           WORKERS: ${{ steps.affected.outputs.workers }}
         run: pnpm nx run-many -t deploy -p "$WORKERS" --excludeTaskDependencies
+
+  # Checks the live site and the Workers after the deploy. It cannot undo a deploy, but a red run
+  # shows that the Cloudflare rules in the dashboard or a Worker no longer match the docs.
+  smoke:
+    needs: [deploy, deploy-workers]
+    if: >-
+      !cancelled() &&
+      needs.deploy.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Check the site
+        run: sh scripts/site-smoke.sh
+
+      # runs even when the site check failed, so one run shows every problem
+      - name: Check the Workers
+        if: ${{ !cancelled() }}
+        run: bash apps/workers/scripts/workers-smoke.sh
