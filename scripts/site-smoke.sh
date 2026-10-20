@@ -1,7 +1,8 @@
 #!/bin/sh
 # Production smoke checks for the pages of rapaglaz.de: the redirects, rewrites and response headers
 # that Cloudflare rules in the dashboard decide, and the lang and canonical link of the prerender.
-# Read-only: GET requests only. Run it with BASE=<url> to check another host.
+# Read-only: GET requests only. Run it with BASE=<url> to check another host, and with
+# EXPECTED_DIR=<build output> to also check that /en and /de load the main bundle of that build.
 set -u
 
 BASE="${BASE:-https://rapaglaz.de}"
@@ -20,6 +21,8 @@ fetch() { curl -sS --max-time 20 --retry 3 --retry-delay 5 "$@"; }
 
 status() { fetch -o /dev/null -w '%{http_code}' "$@"; }
 
+bundle() { grep -o 'main-[A-Za-z0-9_-]*\.js' | head -n 1; } # first main bundle name in stdin
+
 header() { # header name, then curl arguments
   name=$(echo "$1" | tr '[:upper:]' '[:lower:]')
   shift
@@ -35,6 +38,12 @@ for lang in en de; do
     "$(printf '%s' "$html" | grep -o '<html[^>]*>' | sed -n 's/.*lang="\([^"]*\)".*/\1/p' | head -n 1)"
   check "/$lang points its canonical link to itself" "$BASE/$lang" \
     "$(printf '%s' "$html" | grep -o '<link[^>]*rel="canonical"[^>]*>' | sed -n 's/.*href="\([^"]*\)".*/\1/p' | head -n 1)"
+  if [ -n "${EXPECTED_DIR:-}" ]; then
+    expected=$(bundle < "$EXPECTED_DIR/$lang/index.html")
+    check "/$lang serves the deployed main bundle" \
+      "${expected:-no main bundle in $EXPECTED_DIR/$lang/index.html}" \
+      "$(printf '%s' "$html" | bundle)"
+  fi
 done
 
 echo "== redirects from /"
