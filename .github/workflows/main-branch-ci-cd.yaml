@@ -194,7 +194,7 @@ jobs:
           local-dir: ./dist/apps/rapaglaz-portfolio/browser/
 
   deploy-workers:
-    needs: [lint, test]
+    needs: [lint, test, build, e2e-tests]
     # Kill switch: set the repository variable DEPLOY_WORKERS to anything but true to stop Worker
     # deploys without a commit, e.g. during an incident or while the dashboard config is changed.
     if: >-
@@ -203,6 +203,8 @@ jobs:
       vars.DEPLOY_WORKERS == 'true' &&
       needs.lint.result == 'success' &&
       needs.test.result == 'success' &&
+      needs.build.result == 'success' &&
+      needs.e2e-tests.result == 'success' &&
       github.actor != 'renovate[bot]'
     runs-on: ubuntu-latest
     timeout-minutes: 10
