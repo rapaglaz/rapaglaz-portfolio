@@ -29,7 +29,7 @@ libs/
 │   └── util/                 # @rapaglaz/portfolio/util: contact links and the email opener
 └── shared/
     ├── data-access/          # @rapaglaz/shared/data-access: CV download (config, Turnstile), feature flag
-    ├── ui/                   # @rapaglaz/shared/ui: badge, section wrapper, toast
+    ├── ui/                   # @rapaglaz/shared/ui: badge, section wrapper with scroll reveal, toast
     ├── util/                 # @rapaglaz/shared/util: logger, API tokens, i18n + dictionaries, animation
     │                         # @rapaglaz/shared/util/translations: server translation loader, keeps the
     │                         # dictionaries out of the browser bundle

@@ -1,6 +1,7 @@
 import { Component, input } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
-import { createScrollRevealState, ScrollRevealDirective } from '@rapaglaz/shared/util';
+import { createScrollRevealState } from '../scroll-reveal/scroll-reveal-state';
+import { ScrollRevealDirective } from '../scroll-reveal/scroll-reveal.directive';
 
 @Component({
   selector: 'app-section-wrapper',
