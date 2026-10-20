@@ -1,23 +1,6 @@
 {
   "extends": "../../../tsconfig.base.json",
-  "compilerOptions": {
-    "resolveJsonModule": true
-  },
-  "angularCompilerOptions": {
-    "enableI18nLegacyMessageIdFormat": false,
-    "strictInjectionParameters": true,
-    "strictInputAccessModifiers": true,
-    "typeCheckHostBindings": true,
-    "strictTemplates": true
-  },
   "files": [],
   "include": [],
-  "references": [
-    {
-      "path": "./tsconfig.lib.json"
-    },
-    {
-      "path": "./tsconfig.spec.json"
-    }
-  ]
+  "references": [{ "path": "./tsconfig.lib.json" }, { "path": "./tsconfig.spec.json" }]
 }
