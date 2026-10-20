@@ -101,6 +101,31 @@ jobs:
             -Dsonar.projectVersion=${{ github.sha }}
             -Dsonar.branch.name=main
 
+  # Not in the needs of the deploy. Direct pushes to main skip the pull request checks, so the
+  # workflows are linted here too, with the versions from mise.toml.
+  workflow-lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Install actionlint and zizmor
+        uses: jdx/mise-action@9b200bcecbfd6303e69a4a261b2e09e3757440a7 # v5.2.0
+
+      - name: Run actionlint
+        run: actionlint
+
+      - name: Run zizmor
+        env:
+          # the online audits read the pinned actions through the GitHub API
+          GH_TOKEN: ${{ github.token }}
+        run: zizmor --format=github --config .github/zizmor.yml .
+
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 5

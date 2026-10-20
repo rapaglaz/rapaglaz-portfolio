@@ -8,4 +8,4 @@ rules:
   # update it when the deploy step moves.
   ref-version-mismatch:
     ignore:
-      - main-branch-ci-cd.yaml:187
+      - main-branch-ci-cd.yaml:212
