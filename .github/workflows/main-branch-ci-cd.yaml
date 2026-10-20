@@ -204,6 +204,8 @@ jobs:
       needs.e2e-tests.result == 'success' &&
       github.actor != 'renovate[bot]'
     runs-on: ubuntu-latest
+    # the deploy secrets live in this environment, which only main can use
+    environment: production
     timeout-minutes: 15
     permissions:
       contents: read
@@ -217,9 +219,9 @@ jobs:
       - name: Deploy (FTP)
         uses: SamKirkland/FTP-Deploy-Action@110f9186c050f71550953127052e77650219c287 # v4.4.0
         with:
-          server: ${{ secrets.SERVER }}
-          username: ${{ secrets.USER }}
-          password: ${{ secrets.PASS }}
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftps
           server-dir: /
           local-dir: ./dist/apps/rapaglaz-portfolio/browser/
@@ -238,6 +240,7 @@ jobs:
       needs.e2e-tests.result == 'success' &&
       github.actor != 'renovate[bot]'
     runs-on: ubuntu-latest
+    environment: production
     timeout-minutes: 10
     permissions:
       contents: read
