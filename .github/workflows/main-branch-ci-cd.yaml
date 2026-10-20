@@ -8,9 +8,13 @@ on:
       - '*.md'
   workflow_dispatch:
 
+# Runs queue, so a newer push cannot cancel a running deploy. GitHub keeps only the newest pending
+# run, so a burst of pushes still ends in one run of the latest commit.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
+
+permissions: {}
 
 jobs:
   lint:
@@ -43,7 +47,6 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: read
-      statuses: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -103,7 +106,6 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: read
-      statuses: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -126,8 +128,10 @@ jobs:
 
   deploy:
     needs: [lint, test, build, e2e-tests]
+    # workflow_dispatch can run this workflow on any branch, but only main deploys
     if: >-
       !cancelled() &&
+      github.ref == 'refs/heads/main' &&
       needs.lint.result == 'success' &&
       needs.build.result == 'success' &&
       needs.test.result == 'success' &&
@@ -160,6 +164,7 @@ jobs:
     # deploys without a commit, e.g. during an incident or while the dashboard config is changed.
     if: >-
       !cancelled() &&
+      github.ref == 'refs/heads/main' &&
       vars.DEPLOY_WORKERS == 'true' &&
       needs.lint.result == 'success' &&
       needs.test.result == 'success' &&
