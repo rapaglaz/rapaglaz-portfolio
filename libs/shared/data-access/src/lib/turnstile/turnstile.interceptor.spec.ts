@@ -1,6 +1,6 @@
 import { HttpContext, HttpHandlerFn, HttpRequest } from '@angular/common/http';
 import { describe, expect, it } from 'vitest';
-import { TURNSTILE_TOKEN } from '../cv-download/cv-download.service';
+import { TURNSTILE_TOKEN } from './turnstile-context';
 import { turnstileInterceptor } from './turnstile.interceptor';
 
 describe('turnstileInterceptor', () => {

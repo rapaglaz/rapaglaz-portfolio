@@ -5,7 +5,7 @@ import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { TranslocoService } from '@jsverse/transloco';
-import { CvDownloadService, FeatureFlagService } from '@rapaglaz/shared/data-access';
+import { FeatureFlagService, ProtectedDownloadService } from '@rapaglaz/shared/data-access';
 import {
   mockWindowLocation,
   mockWindowScrollY,
@@ -144,7 +144,7 @@ describe('Navbar', () => {
 describe('Navbar - CV Download', () => {
   let fixture: ComponentFixture<Navbar>;
   let element: HTMLElement;
-  let mockCvDownloadService: { downloadCV: ReturnType<typeof vi.fn> };
+  let mockDownloadService: { download: ReturnType<typeof vi.fn> };
   let mockToastService: { error: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
@@ -153,8 +153,8 @@ describe('Navbar - CV Download', () => {
       scrolled: vi.fn().mockReturnValue(new Subject<void>().asObservable()),
     };
 
-    mockCvDownloadService = {
-      downloadCV: vi.fn().mockReturnValue(of(void 0)),
+    mockDownloadService = {
+      download: vi.fn().mockReturnValue(of(void 0)),
     };
 
     mockToastService = {
@@ -169,7 +169,7 @@ describe('Navbar - CV Download', () => {
         provideRouter([]),
         provideTranslocoTesting(),
         { provide: ScrollDispatcher, useValue: mockScrollDispatcher },
-        { provide: CvDownloadService, useValue: mockCvDownloadService },
+        { provide: ProtectedDownloadService, useValue: mockDownloadService },
         { provide: ToastService, useValue: mockToastService },
         { provide: FeatureFlagService, useValue: mockFeatureFlagService },
         { provide: LoggerService, useValue: { error: vi.fn(), warn: vi.fn(), info: vi.fn() } },
@@ -183,7 +183,7 @@ describe('Navbar - CV Download', () => {
 
   it('keeps the busy button focusable and restores its available state on completion', async () => {
     const download$ = new Subject<void>();
-    mockCvDownloadService.downloadCV.mockReturnValue(download$.asObservable());
+    mockDownloadService.download.mockReturnValue(download$.asObservable());
 
     const btn = element.querySelector<HTMLButtonElement>('[data-testid="cv-download-btn"]')!;
 
@@ -209,9 +209,7 @@ describe('Navbar - CV Download', () => {
   });
 
   it('re-enables button and shows toast on download failure', async () => {
-    mockCvDownloadService.downloadCV.mockReturnValue(
-      throwError(() => new Error('Download failed')),
-    );
+    mockDownloadService.download.mockReturnValue(throwError(() => new Error('Download failed')));
 
     const btn = element.querySelector<HTMLButtonElement>('[data-testid="cv-download-btn"]')!;
     btn.click();
@@ -225,7 +223,7 @@ describe('Navbar - CV Download', () => {
 
   it('prevents concurrent download requests', () => {
     const download$ = new Subject<void>();
-    mockCvDownloadService.downloadCV.mockReturnValue(download$.asObservable());
+    mockDownloadService.download.mockReturnValue(download$.asObservable());
 
     const btn = element.querySelector<HTMLButtonElement>('[data-testid="cv-download-btn"]')!;
 
@@ -233,8 +231,20 @@ describe('Navbar - CV Download', () => {
     btn.click();
     btn.click();
 
-    expect(mockCvDownloadService.downloadCV).toHaveBeenCalledOnce();
+    expect(mockDownloadService.download).toHaveBeenCalledOnce();
 
     download$.complete();
+  });
+
+  it.each([
+    ['en', 'Radoslaw_Pawel_Glaz_CV-EN.pdf'],
+    ['de', 'Radoslaw_Pawel_Glaz_CV-DE.pdf'],
+  ])('downloads the CV in the active language %s', (lang, fileName) => {
+    TestBed.inject(TranslocoService).setActiveLang(lang);
+    const btn = element.querySelector<HTMLButtonElement>('[data-testid="cv-download-btn"]')!;
+
+    btn.click();
+
+    expect(mockDownloadService.download).toHaveBeenCalledExactlyOnceWith(fileName, btn);
   });
 });

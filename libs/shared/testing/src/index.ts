@@ -1,2 +1,2 @@
-export { TranslocoTestLoader, provideTranslocoTesting } from './lib/transloco-test-loader';
+export { provideTranslocoTesting } from './lib/transloco-testing';
 export { mockWindowLocation, mockWindowScrollY } from './lib/window-mocks';

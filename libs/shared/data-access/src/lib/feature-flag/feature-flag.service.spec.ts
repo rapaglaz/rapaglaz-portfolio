@@ -2,8 +2,8 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { API_FEATURE_FLAG_URL } from '@rapaglaz/shared/util';
 import { afterEach, describe, expect, it } from 'vitest';
+import { API_FEATURE_FLAG_URL } from '../api/api-urls.token';
 import { FeatureFlagService } from './feature-flag.service';
 
 type Platform = 'browser' | 'server';

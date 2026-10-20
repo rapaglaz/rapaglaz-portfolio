@@ -7,10 +7,7 @@
   "tags": ["scope:shared", "type:ui"],
   "targets": {
     "typecheck": {
-      "executor": "angular-typechecker:typecheck",
-      "options": {
-        "tsConfig": "libs/shared/ui/tsconfig.json"
-      }
+      "executor": "angular-typechecker:typecheck"
     }
   }
 }

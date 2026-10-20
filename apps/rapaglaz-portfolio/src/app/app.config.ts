@@ -32,8 +32,7 @@ import {
   TranslocoHttpLoader,
   type AvailableLang,
 } from '@rapaglaz/shared/util';
-import { common as deCommon } from '@rapaglaz/shared/util/i18n/de.json';
-import { common as enCommon } from '@rapaglaz/shared/util/i18n/en.json';
+import { BOOTSTRAP_ERRORS } from '@rapaglaz/shared/util/bootstrap-messages';
 import { catchError, EMPTY, Observable } from 'rxjs';
 import { App } from './app';
 import { routes } from './app.routes';
@@ -117,8 +116,7 @@ export function bootstrap(): Promise<ApplicationRef> {
     errorEl.setAttribute('role', 'alert');
     errorEl.style.cssText =
       'display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;text-align:center;padding:1rem';
-    /** t(common.bootstrapError) */
-    errorEl.textContent = { en: enCommon.bootstrapError, de: deCommon.bootstrapError }[lang];
+    errorEl.textContent = BOOTSTRAP_ERRORS[lang];
     document.body.replaceChildren(errorEl);
     throw err;
   });

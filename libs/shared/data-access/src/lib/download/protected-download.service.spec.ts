@@ -2,74 +2,69 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { TranslocoService } from '@jsverse/transloco';
-import { provideTranslocoTesting } from '@rapaglaz/shared/testing';
-import { API_BASE_URL } from '@rapaglaz/shared/util';
 import { EMPTY, firstValueFrom, of, throwError } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { API_BASE_URL } from '../api/api-urls.token';
+import { TurnstileConfigService } from '../turnstile/turnstile-config.service';
+import { TURNSTILE_TOKEN } from '../turnstile/turnstile-context';
 import { TurnstileService } from '../turnstile/turnstile.service';
-import { ConfigService } from './config.service';
-import { CvDownloadService, triggerBrowserDownload, TURNSTILE_TOKEN } from './cv-download.service';
+import { ProtectedDownloadService, triggerBrowserDownload } from './protected-download.service';
 
-describe('CvDownloadService', () => {
-  let service: CvDownloadService;
+describe('ProtectedDownloadService', () => {
+  let service: ProtectedDownloadService;
   let httpMock: HttpTestingController;
-  let translocoService: TranslocoService;
   let turnstileService: TurnstileService;
-  let configService: ConfigService;
+  let turnstileConfig: TurnstileConfigService;
 
   beforeEach(async () => {
-    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined);
     await TestBed.configureTestingModule({
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        provideTranslocoTesting(),
-        CvDownloadService,
+        ProtectedDownloadService,
         { provide: API_BASE_URL, useValue: '' },
-        { provide: ConfigService, useValue: { getConfig: vi.fn() } },
+        { provide: TurnstileConfigService, useValue: { getConfig: vi.fn() } },
         { provide: TurnstileService, useValue: { getToken$: vi.fn() } },
       ],
     }).compileComponents();
 
-    service = TestBed.inject(CvDownloadService);
+    service = TestBed.inject(ProtectedDownloadService);
     httpMock = TestBed.inject(HttpTestingController);
-    translocoService = TestBed.inject(TranslocoService);
     turnstileService = TestBed.inject(TurnstileService);
-    configService = TestBed.inject(ConfigService);
+    turnstileConfig = TestBed.inject(TurnstileConfigService);
+    vi.spyOn(turnstileConfig, 'getConfig').mockReturnValue(of({ turnstileSiteKey: 'test-key' }));
   });
 
   afterEach(() => {
     httpMock.verify();
     vi.restoreAllMocks();
-    vi.unstubAllGlobals();
   });
 
-  it('requests language-specific CV and attaches Turnstile token to context', async () => {
-    translocoService.setActiveLang('de');
-    vi.spyOn(configService, 'getConfig').mockReturnValue(of({ turnstileSiteKey: 'test-key' }));
+  it('requests the file under the cv/ prefix with the Turnstile token in the context', async () => {
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (
+      this: HTMLAnchorElement,
+    ) {
+      expect(this.download).toBe('CV-DE.pdf');
+    });
     vi.spyOn(turnstileService, 'getToken$').mockReturnValue(of('token-123'));
 
-    const downloadPromise = firstValueFrom(service.downloadCV());
+    const downloadPromise = firstValueFrom(service.download('CV-DE.pdf'));
 
-    const req = httpMock.expectOne(
-      `/download?file=${encodeURIComponent('cv/Radoslaw_Pawel_Glaz_CV-DE.pdf')}`,
-    );
+    const req = httpMock.expectOne(`/download?file=${encodeURIComponent('cv/CV-DE.pdf')}`);
     expect(req.request.method).toBe('GET');
     expect(req.request.context.get(TURNSTILE_TOKEN)).toBe('token-123');
 
     req.flush(new Blob(['test'], { type: 'application/pdf' }));
     await downloadPromise;
+    expect(click).toHaveBeenCalledOnce();
   });
 
-  it('propagates Turnstile failures and skips download request', async () => {
-    translocoService.setActiveLang('en');
-    vi.spyOn(configService, 'getConfig').mockReturnValue(of({ turnstileSiteKey: 'test-key' }));
+  it('propagates Turnstile failures and skips the download request', async () => {
     vi.spyOn(turnstileService, 'getToken$').mockReturnValue(
       throwError(() => new Error('Turnstile failed')),
     );
 
-    const downloadPromise = firstValueFrom(service.downloadCV());
+    const downloadPromise = firstValueFrom(service.download('CV-EN.pdf'));
 
     httpMock.expectNone(req => /\.?\/download\?file=/.test(req.urlWithParams));
     await expect(downloadPromise).rejects.toThrow('Turnstile failed');
@@ -77,13 +72,12 @@ describe('CvDownloadService', () => {
 
   it('passes the download trigger to verification and completes cancellation without HTTP', () => {
     const trigger = document.createElement('button');
-    vi.spyOn(configService, 'getConfig').mockReturnValue(of({ turnstileSiteKey: 'test-key' }));
     const getToken = vi.spyOn(turnstileService, 'getToken$').mockReturnValue(EMPTY);
     const next = vi.fn();
     const error = vi.fn();
     const complete = vi.fn();
 
-    service.downloadCV(trigger).subscribe({ next, error, complete });
+    service.download('CV-EN.pdf', trigger).subscribe({ next, error, complete });
 
     expect(getToken).toHaveBeenCalledExactlyOnceWith('test-key', trigger);
     expect(next).not.toHaveBeenCalled();
@@ -93,39 +87,18 @@ describe('CvDownloadService', () => {
   });
 
   it('propagates backend download errors', async () => {
-    vi.spyOn(configService, 'getConfig').mockReturnValue(of({ turnstileSiteKey: 'test-key' }));
     vi.spyOn(turnstileService, 'getToken$').mockReturnValue(of('token-123'));
 
-    const downloadPromise = firstValueFrom(service.downloadCV());
+    const downloadPromise = firstValueFrom(service.download('CV-EN.pdf'));
 
-    const req = httpMock.expectOne(
-      `/download?file=${encodeURIComponent('cv/Radoslaw_Pawel_Glaz_CV-EN.pdf')}`,
-    );
+    const req = httpMock.expectOne(`/download?file=${encodeURIComponent('cv/CV-EN.pdf')}`);
     req.error(new ProgressEvent('error'), { status: 500, statusText: 'Internal Server Error' });
 
     await expect(downloadPromise).rejects.toThrow();
   });
-
-  it.each([
-    ['de-DE', 'DE'],
-    [123, 'EN'],
-  ])('uses browser language %s when there is no active locale', async (language, code) => {
-    translocoService.setActiveLang('');
-    vi.stubGlobal('navigator', { language });
-    vi.spyOn(configService, 'getConfig').mockReturnValue(of({ turnstileSiteKey: 'test-key' }));
-    vi.spyOn(turnstileService, 'getToken$').mockReturnValue(of('token-123'));
-
-    const download = firstValueFrom(service.downloadCV());
-    const request = httpMock.expectOne(
-      `/download?file=${encodeURIComponent(`cv/Radoslaw_Pawel_Glaz_CV-${code}.pdf`)}`,
-    );
-    request.flush(new Blob(['CV'], { type: 'application/pdf' }));
-
-    await expect(download).resolves.toBeUndefined();
-  });
 });
 
-describe('CvDownloadService (server)', () => {
+describe('ProtectedDownloadService (server)', () => {
   it('rejects downloads without requesting configuration or verification', async () => {
     const getConfig = vi.fn();
     const getToken$ = vi.fn();
@@ -133,16 +106,15 @@ describe('CvDownloadService (server)', () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        provideTranslocoTesting(),
         { provide: PLATFORM_ID, useValue: 'server' },
-        { provide: ConfigService, useValue: { getConfig } },
+        { provide: TurnstileConfigService, useValue: { getConfig } },
         { provide: TurnstileService, useValue: { getToken$ } },
       ],
     });
 
-    await expect(firstValueFrom(TestBed.inject(CvDownloadService).downloadCV())).rejects.toThrow(
-      'CV download is only available in the browser',
-    );
+    await expect(
+      firstValueFrom(TestBed.inject(ProtectedDownloadService).download('CV-EN.pdf')),
+    ).rejects.toThrow('Downloads are only available in the browser');
 
     expect(getConfig).not.toHaveBeenCalled();
     expect(getToken$).not.toHaveBeenCalled();

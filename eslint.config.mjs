@@ -13,7 +13,8 @@ export default defineConfig(
   ...nx.configs['flat/base'],
   ...nx.configs['flat/typescript'],
   ...nx.configs['flat/javascript'],
-  moduleBoundaries(),
+  // The project Vitest configs import the shared factory from the repository root
+  moduleBoundaries(['^(\\.\\./)+vitest\\.angular\\.mts$']),
   {
     ignores: [
       '**/dist',
@@ -34,7 +35,7 @@ export default defineConfig(
     languageOptions: {
       parserOptions: {
         projectService: {
-          // The root vitest.config.mts belongs to no project tsconfig
+          // The root Vitest configs belong to no project tsconfig
           allowDefaultProject: ['*.mts'],
           defaultProject: 'tsconfig.base.json',
         },

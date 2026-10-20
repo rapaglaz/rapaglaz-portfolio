@@ -28,4 +28,18 @@ describe('mockWindowScrollY', () => {
     restore();
     expect(window.scrollY).toBe(originalScrollY);
   });
+
+  it('removes the mocked property when window had no own scrollY', () => {
+    const ownDescriptor = Object.getOwnPropertyDescriptor(window, 'scrollY');
+    Reflect.deleteProperty(window, 'scrollY');
+
+    try {
+      const restore = mockWindowScrollY(240);
+      restore();
+
+      expect(Object.getOwnPropertyDescriptor(window, 'scrollY')).toBeUndefined();
+    } finally {
+      if (ownDescriptor) Object.defineProperty(window, 'scrollY', ownDescriptor);
+    }
+  });
 });

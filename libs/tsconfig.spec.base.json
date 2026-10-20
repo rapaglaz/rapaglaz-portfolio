@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.lib.base.json",
+  "compilerOptions": {
+    // vitest.config.mts imports the shared factory with its .mts extension; specs are never emitted
+    "rewriteRelativeImportExtensions": true,
+    "types": ["vitest/globals", "vitest/importMeta", "vite/client", "node", "vitest"]
+  },
+  "include": ["${configDir}/vitest.config.mts", "${configDir}/src/**/*.spec.ts"],
+  "exclude": [],
+  "files": ["${configDir}/src/test-setup.ts"]
+}

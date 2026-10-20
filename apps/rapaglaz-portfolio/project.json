@@ -95,10 +95,7 @@
       }
     },
     "typecheck": {
-      "executor": "angular-typechecker:typecheck",
-      "options": {
-        "tsConfig": "apps/rapaglaz-portfolio/tsconfig.json"
-      }
+      "executor": "angular-typechecker:typecheck"
     },
     "deps-check": {
       "executor": "nx:run-commands",

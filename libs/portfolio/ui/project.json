@@ -7,10 +7,7 @@
   "tags": ["scope:portfolio", "type:ui"],
   "targets": {
     "typecheck": {
-      "executor": "angular-typechecker:typecheck",
-      "options": {
-        "tsConfig": "libs/portfolio/ui/tsconfig.json"
-      }
+      "executor": "angular-typechecker:typecheck"
     }
   }
 }

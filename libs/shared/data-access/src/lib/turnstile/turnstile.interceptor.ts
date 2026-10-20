@@ -1,5 +1,5 @@
 import { HttpInterceptorFn } from '@angular/common/http';
-import { TURNSTILE_TOKEN } from '../cv-download/cv-download.service';
+import { TURNSTILE_TOKEN } from './turnstile-context';
 
 export const turnstileInterceptor: HttpInterceptorFn = (req, next) => {
   const token = req.context.get(TURNSTILE_TOKEN);

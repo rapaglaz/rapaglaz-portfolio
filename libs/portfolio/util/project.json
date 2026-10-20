@@ -1,0 +1,13 @@
+{
+  "name": "portfolio-util",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "libs/portfolio/util/src",
+  "prefix": "app",
+  "tags": ["scope:portfolio", "type:util"],
+  "targets": {
+    "typecheck": {
+      "executor": "angular-typechecker:typecheck"
+    }
+  }
+}
