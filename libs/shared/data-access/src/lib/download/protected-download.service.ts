@@ -22,7 +22,7 @@ export function triggerBrowserDownload(document: Document, blob: Blob, filename:
   try {
     link.click();
   } finally {
-    document.body.removeChild(link);
+    link.remove();
     win.URL.revokeObjectURL(downloadUrl);
   }
 }
