@@ -1,3 +1,4 @@
+import { join } from 'node:path';
 import { workspaceRoot } from '@nx/devkit';
 import { nxE2EPreset } from '@nx/playwright/preset';
 import { defineConfig, devices } from '@playwright/test';
@@ -12,11 +13,17 @@ const webServerCommand =
     ? 'node node_modules/serve/build/main.js dist/apps/rapaglaz-portfolio/browser -l 4233'
     : 'pnpm exec nx run rapaglaz-portfolio:serve');
 const webServerUrl = process.env['PLAYWRIGHT_WEB_SERVER_URL'] ?? defaultBaseURL;
+const preset = nxE2EPreset(import.meta.dirname, { testDir: './src' });
 
 export default defineConfig({
-  ...nxE2EPreset(import.meta.dirname, { testDir: './src' }),
+  ...preset,
   // the preset runs a single worker on CI
   workers: isCI ? 2 : undefined,
+  // on CI the e2e action reads the flaky tests from the JSON report; test-output is an output of
+  // the e2e target, so a cache hit restores the report too
+  reporter: isCI
+    ? [...preset.reporter, ['json', { outputFile: join(preset.outputDir, 'results.json') }]]
+    : preset.reporter,
   use: {
     baseURL,
 

@@ -51,6 +51,35 @@ runs:
           pnpm exec nx e2e rapaglaz-portfolio-e2e --configuration=ci
         fi
 
+    # Retries on CI turn a test that fails and then passes into a green job; list those tests.
+    # Only reports, never fails the job.
+    - name: Report flaky tests
+      if: always()
+      continue-on-error: true
+      shell: bash
+      env:
+        # written by the json reporter in playwright.config.mts
+        REPORT_FILE: dist/.playwright/apps/rapaglaz-portfolio-e2e/test-output/results.json
+      run: |
+        {
+          echo '### Flaky E2E tests'
+          echo
+          if [ ! -f "$REPORT_FILE" ]; then
+            echo "No Playwright JSON report at \`$REPORT_FILE\`."
+          elif ! flaky=$(jq -er '.stats.flaky' "$REPORT_FILE"); then
+            echo "Cannot read \`stats.flaky\` from \`$REPORT_FILE\`."
+          else
+            echo "Flaky: $flaky"
+            jq -r '
+              def flaky($path):
+                ((.specs // [])[] | . as $spec | .tests[] | select(.status == "flaky")
+                  | "- \(($path + [$spec.title]) | join(" › ")) (\(.projectName))"),
+                ((.suites // [])[] | flaky($path + [.title]));
+              .suites[] | flaky([.title])
+            ' "$REPORT_FILE"
+          fi
+        } >> "$GITHUB_STEP_SUMMARY"
+
     - name: Check Playwright report
       if: failure()
       id: check-report
