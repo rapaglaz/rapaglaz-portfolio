@@ -15,6 +15,14 @@
       "languageSelection": "Sprachauswahl",
       "opensInNewTab": "öffnet in neuem Tab",
       "closeNotification": "Benachrichtigung schließen"
+    },
+    "turnstile": {
+      "title": "Sicherheitsüberprüfung",
+      "description": "Bitte schließen Sie die Sicherheitsprüfung ab, um den Lebenslauf herunterzuladen.",
+      "footer": "Geschützt durch Cloudflare Turnstile",
+      "loading": "Sicherheitsprüfung wird geladen...",
+      "cancel": "Abbrechen",
+      "close": "Schließen"
     }
   },
   "portfolio": {
@@ -114,15 +122,7 @@
       }
     },
     "cv": {
-      "error": "Download fehlgeschlagen. Bitte versuchen Sie es erneut.",
-      "turnstile": {
-        "title": "Sicherheitsüberprüfung",
-        "description": "Bitte schließen Sie die Sicherheitsprüfung ab, um den Lebenslauf herunterzuladen.",
-        "footer": "Geschützt durch Cloudflare Turnstile",
-        "loading": "Sicherheitsprüfung wird geladen...",
-        "cancel": "Abbrechen",
-        "close": "Schließen"
-      }
+      "error": "Download fehlgeschlagen. Bitte versuchen Sie es erneut."
     }
   }
 }

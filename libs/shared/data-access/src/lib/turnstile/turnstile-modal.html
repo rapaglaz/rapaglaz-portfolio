@@ -16,13 +16,13 @@
     <h2
       id="turnstile-modal-title"
       class="text-base-content min-w-0 flex-1 text-lg font-bold wrap-break-word hyphens-auto">
-      {{ 'portfolio.cv.turnstile.title' | transloco }}
+      {{ 'common.turnstile.title' | transloco }}
     </h2>
     <button
       data-turnstile-close
       cdkFocusRegionStart
       type="button"
-      [attr.aria-label]="'portfolio.cv.turnstile.close' | transloco"
+      [attr.aria-label]="'common.turnstile.close' | transloco"
       (click)="cancelled.emit()"
       class="btn btn-ghost btn-square focus-visible:outline-primary shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2">
       <svg
@@ -40,7 +40,7 @@
   <p
     id="turnstile-modal-description"
     class="mb-6 text-sm text-(--color-text-subtle)">
-    {{ 'portfolio.cv.turnstile.description' | transloco }}
+    {{ 'common.turnstile.description' | transloco }}
   </p>
 
   <div
@@ -56,14 +56,14 @@
           class="loading loading-spinner text-primary h-8 w-8"
           aria-hidden="true"></span>
         <span class="text-sm text-(--color-text-subtle)">{{
-          'portfolio.cv.turnstile.loading' | transloco
+          'common.turnstile.loading' | transloco
         }}</span>
       </div>
     }
   </div>
 
   <div class="mt-6 text-center text-xs text-(--color-text-subtle)">
-    {{ 'portfolio.cv.turnstile.footer' | transloco }}
+    {{ 'common.turnstile.footer' | transloco }}
   </div>
   <button
     data-turnstile-cancel
@@ -71,6 +71,6 @@
     type="button"
     (click)="cancelled.emit()"
     class="btn btn-outline btn-primary focus-visible:outline-primary mt-6 w-full focus-visible:outline-2 focus-visible:outline-offset-4">
-    {{ 'portfolio.cv.turnstile.cancel' | transloco }}
+    {{ 'common.turnstile.cancel' | transloco }}
   </button>
 </div>

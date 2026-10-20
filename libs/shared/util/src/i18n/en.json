@@ -15,6 +15,14 @@
       "languageSelection": "Language selection",
       "opensInNewTab": "opens in new tab",
       "closeNotification": "Close notification"
+    },
+    "turnstile": {
+      "title": "Security Verification",
+      "description": "Please complete the security check to download the CV.",
+      "footer": "Protected by Cloudflare Turnstile",
+      "loading": "Loading security check...",
+      "cancel": "Cancel",
+      "close": "Close"
     }
   },
   "portfolio": {
@@ -114,15 +122,7 @@
       }
     },
     "cv": {
-      "error": "Download failed. Please try again.",
-      "turnstile": {
-        "title": "Security Verification",
-        "description": "Please complete the security check to download the CV.",
-        "footer": "Protected by Cloudflare Turnstile",
-        "loading": "Loading security check...",
-        "cancel": "Cancel",
-        "close": "Close"
-      }
+      "error": "Download failed. Please try again."
     }
   }
 }
