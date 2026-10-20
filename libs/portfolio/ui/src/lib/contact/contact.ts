@@ -1,7 +1,8 @@
 import { Component, input, viewChild } from '@angular/core';
 import { translateObjectSignal, translateSignal, TranslocoModule } from '@jsverse/transloco';
+import type { ContactItem } from '@rapaglaz/portfolio/util';
 import { SectionWrapper } from '@rapaglaz/shared/ui';
-import { buildDelayGetter, type ContactItem } from '@rapaglaz/shared/util';
+import { buildDelayGetter } from '@rapaglaz/shared/util';
 
 @Component({
   selector: 'app-contact',

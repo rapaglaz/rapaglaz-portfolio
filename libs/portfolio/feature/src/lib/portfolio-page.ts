@@ -3,13 +3,9 @@ import { Component, DestroyRef, inject } from '@angular/core';
 import { Meta } from '@angular/platform-browser';
 import { TranslocoService } from '@jsverse/transloco';
 import { About, Certifications, Contact, Hero, Languages, Skills } from '@rapaglaz/portfolio/ui';
+import { CONTACT_ITEMS } from '@rapaglaz/portfolio/util';
 import { FeatureFlagService } from '@rapaglaz/shared/data-access';
-import {
-  AVAILABLE_LANGS,
-  CONTACT_ITEMS,
-  DEFAULT_LANG,
-  type AvailableLang,
-} from '@rapaglaz/shared/util';
+import { AVAILABLE_LANGS, DEFAULT_LANG, type AvailableLang } from '@rapaglaz/shared/util';
 import { CERTIFICATIONS } from './content/certifications.content';
 import { SKILL_CATEGORIES } from './content/skills.content';
 

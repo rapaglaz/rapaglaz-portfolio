@@ -23,6 +23,7 @@
       "@rapaglaz/portfolio/layout": ["./libs/portfolio/layout/src/index.ts"],
       "@rapaglaz/portfolio/feature": ["./libs/portfolio/feature/src/index.ts"],
       "@rapaglaz/portfolio/ui": ["./libs/portfolio/ui/src/index.ts"],
+      "@rapaglaz/portfolio/util": ["./libs/portfolio/util/src/index.ts"],
       "@rapaglaz/shared/data-access": ["./libs/shared/data-access/src/index.ts"],
       "@rapaglaz/shared/testing": ["./libs/shared/testing/src/index.ts"],
       "@rapaglaz/shared/ui": ["./libs/shared/ui/src/index.ts"],

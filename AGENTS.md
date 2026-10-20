@@ -25,11 +25,12 @@ libs/
 ├── portfolio/
 │   ├── feature/              # @rapaglaz/portfolio/feature: PortfolioPage (lazy-loaded by the router), skills and certifications content
 │   ├── layout/               # @rapaglaz/portfolio/layout: Portfolio (glues the page), navbar, language switcher, footer
-│   └── ui/                   # @rapaglaz/portfolio/ui: hero, about, certifications, skills, languages, contact (inputs only)
+│   ├── ui/                   # @rapaglaz/portfolio/ui: hero, about, certifications, skills, languages, contact (inputs only)
+│   └── util/                 # @rapaglaz/portfolio/util: contact links and the email opener
 └── shared/
     ├── data-access/          # @rapaglaz/shared/data-access: CV download (config, Turnstile), feature flag
     ├── ui/                   # @rapaglaz/shared/ui: badge, section wrapper, toast
-    ├── util/                 # @rapaglaz/shared/util: logger, API tokens, i18n + dictionaries, animation, contact
+    ├── util/                 # @rapaglaz/shared/util: logger, API tokens, i18n + dictionaries, animation
     │                         # @rapaglaz/shared/util/translations: server translation loader, keeps the
     │                         # dictionaries out of the browser bundle
     └── testing/              # @rapaglaz/shared/testing: Transloco test setup, window mocks
