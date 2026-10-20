@@ -6,6 +6,10 @@ inputs:
     description: 'Base href for the application'
     required: false
     default: ''
+  skip-nx-cache:
+    description: "'true' builds without reading the Nx cache"
+    required: false
+    default: 'false'
 
 runs:
   using: 'composite'
@@ -17,9 +21,13 @@ runs:
       shell: bash
       env:
         BASE_HREF: ${{ inputs.base-href }}
+        SKIP_NX_CACHE: ${{ inputs.skip-nx-cache }}
       run: |
+        set --
         if [ -n "$BASE_HREF" ]; then
-          pnpm run build "--base-href=$BASE_HREF"
-        else
-          pnpm run build
+          set -- "$@" "--base-href=$BASE_HREF"
         fi
+        if [ "$SKIP_NX_CACHE" = 'true' ]; then
+          set -- "$@" --skip-nx-cache
+        fi
+        pnpm run build "$@"
