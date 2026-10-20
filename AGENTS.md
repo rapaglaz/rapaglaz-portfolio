@@ -18,21 +18,21 @@ Exact versions live in `package.json` (dependencies, `packageManager` for pnpm),
 
 ```text
 apps/
-├── rapaglaz-portfolio/       # the Angular app (project.json, vite.config.mts, public/, src/)
+├── rapaglaz-portfolio/       # the Angular app (project.json, vitest.config.mts, public/, src/)
 ├── rapaglaz-portfolio-e2e/   # Playwright project (playwright.config.mts, src/)
 └── workers/                  # Cloudflare Workers: one Nx project per Worker (test, check, deploy)
 libs/
 ├── portfolio/
 │   ├── feature/              # @rapaglaz/portfolio/feature: PortfolioPage (lazy-loaded by the router), skills and certifications content
-│   ├── layout/               # @rapaglaz/portfolio/layout: Portfolio (glues the page), navbar, language switcher, footer
+│   ├── layout/               # @rapaglaz/portfolio/layout: Portfolio (the shell), navbar, language switcher, footer
 │   ├── ui/                   # @rapaglaz/portfolio/ui: hero, about, certifications, skills, languages, contact (inputs only)
-│   └── util/                 # @rapaglaz/portfolio/util: contact links and the email opener
+│   └── util/                 # @rapaglaz/portfolio/util: contact links, email opener, CV file name
 └── shared/
-    ├── data-access/          # @rapaglaz/shared/data-access: CV download (config, Turnstile), feature flag
+    ├── data-access/          # @rapaglaz/shared/data-access: protected download with Turnstile, feature flag, API URLs
     ├── ui/                   # @rapaglaz/shared/ui: badge, section wrapper with scroll reveal, toast
-    ├── util/                 # @rapaglaz/shared/util: logger, API tokens, i18n + dictionaries, animation
-    │                         # @rapaglaz/shared/util/translations: server translation loader, keeps the
-    │                         # dictionaries out of the browser bundle
+    ├── util/                 # @rapaglaz/shared/util: logger, i18n + dictionaries, stagger delay; two entry
+    │                         # points keep the dictionaries out of the browser main chunk:
+    │                         # /translations (server and test loader), /bootstrap-messages
     └── testing/              # @rapaglaz/shared/testing: Transloco test setup, window mocks
 ```
 
@@ -41,16 +41,24 @@ not (`portfolio/layout` is `type:feature`). Stores (NgRx SignalStore) go only to
 libraries.
 
 Libraries are not buildable; the app compiles them from source through the aliases in
-`tsconfig.base.json`. `@nx/angular:library` refuses Vitest 5, so a new library copies
-`project.json`, `eslint.config.mjs`, the tsconfigs, `vite.config.mts` and `src/test-setup.ts` from
-an existing one.
+`tsconfig.base.json`. Add a library only for a second consumer or for a boundary that lint must
+enforce. `@nx/angular:library` refuses Vitest 5, so a new library is a handful of short files that
+point to shared configs; copy them from `libs/shared/ui`:
+
+- `project.json`: name, paths, `scope:*` and `type:*` tags, `typecheck` with only the executor
+- `eslint.config.mjs`, `src/test-setup.ts`
+- `tsconfig.json` (references), `tsconfig.lib.json` and `tsconfig.spec.json` (one `extends` of
+  `libs/tsconfig.*.base.json` each)
+- `vitest.config.mts`: `angularVitestConfig(import.meta.dirname)` from `vitest.angular.mts`, which
+  holds the AnalogJS setup, the `forks` pool and the coverage thresholds
+- the alias in `tsconfig.base.json`; SonarCloud finds the coverage report by wildcard
 
 The app itself is only the bootstrap: `app.ts` (renders `<app-portfolio />`), `app.config*.ts` and
 `app.routes.ts`.
 
-The navbar uses the language switcher; otherwise layout pieces do not import each other. The portfolio sections are
-presentational: the page passes them content and the feature flag through inputs, and they do not
-import each other.
+The shell (`Portfolio`) composes the navbar and the footer, and the navbar uses the language
+switcher. The portfolio sections are presentational: the page passes them content and the feature
+flag through inputs, and they do not import each other.
 
 Imports between Nx projects are checked by `@nx/enforce-module-boundaries` through project tags
 (`type:*`, and `scope:*` on libraries) in `eslint.module-boundaries.mjs`, shared by the root and
@@ -102,7 +110,7 @@ Coverage thresholds: statements 80%, branches 70%, functions 80%, lines 80%.
 
 ```bash
 pnpm test                # unit (Vitest, single run) for the app and the libraries
-pnpm run test:watch      # unit in watch mode
+pnpm run test:watch      # unit in watch mode, all projects in one Vitest process
 pnpm run test:coverage   # unit with coverage report
 pnpm run e2e             # Playwright against dev server (port 4200)
 pnpm run e2e:ssg         # Playwright against static build (port 4233)
