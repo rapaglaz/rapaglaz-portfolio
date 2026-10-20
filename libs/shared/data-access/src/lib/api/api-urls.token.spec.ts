@@ -5,8 +5,8 @@ import { API_BASE_URL, API_FEATURE_FLAG_URL } from './api-urls.token';
 
 describe('API URL tokens', () => {
   it.each([
-    ['localhost', 'https://rapaglaz.de'],
-    ['127.0.0.1', 'https://rapaglaz.de'],
+    ['localhost', 'http://localhost:8787'],
+    ['127.0.0.1', 'http://localhost:8787'],
     ['rapaglaz.github.io', 'https://rapaglaz.de'],
     ['rapaglaz.de', ''],
     ['preview.example.com', ''],

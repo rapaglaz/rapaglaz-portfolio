@@ -21,6 +21,21 @@
       ]
     },
     "check": {},
-    "deploy": {}
+    "deploy": {},
+    "serve": {
+      "// serve": "the Worker for local dev on port 8787: a placeholder CV in the local R2 bucket and Turnstile's test secret, which accepts the test token; production gets no request",
+      "executor": "nx:run-commands",
+      "continuous": true,
+      "options": {
+        "cwd": "{projectRoot}",
+        "env": { "TURNSTILE_SECRET": "1x0000000000000000000000000000000AA" },
+        "commands": [
+          "npx --yes wrangler@4.151.1 r2 object put portfolio-files/cv/Radoslaw_Pawel_Glaz_CV-EN.pdf --local --file dev/placeholder-cv.pdf --content-type application/pdf",
+          "npx --yes wrangler@4.151.1 r2 object put portfolio-files/cv/Radoslaw_Pawel_Glaz_CV-DE.pdf --local --file dev/placeholder-cv.pdf --content-type application/pdf",
+          "npx --yes wrangler@4.151.1 dev --port 8787"
+        ],
+        "parallel": false
+      }
+    }
   }
 }
