@@ -1,6 +1,14 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test, type Locator } from '@playwright/test';
-import { mockInteractiveTurnstile, mockTurnstileAPI, visitPortfolio } from './utils';
+import { expect, test, type Locator, type Page } from '@playwright/test';
+import { mockInteractiveTurnstile, mockTurnstileAPI, tabKey, visitPortfolio } from './utils';
+
+// a mouse or a trackpad; a touch screen matches neither part
+const FINE_POINTER = '(hover: hover) and (pointer: fine)';
+const CAN_HOVER = '(hover: hover)';
+
+// duration of the loading dot animation for each motion preference
+const LOADING_DOT_DURATION = { 'no-preference': '1.05s', reduce: '3s' } as const;
+const OTHER_PREFERENCE = { 'no-preference': 'reduce', reduce: 'no-preference' } as const;
 
 async function readMotion(locator: Locator): Promise<{
   opacity: string;
@@ -27,42 +35,35 @@ async function readMotion(locator: Locator): Promise<{
   });
 }
 
+// opens /de with motion and waits until the first contact link has finished its entrance
+async function revealFirstContactLink(
+  page: Page,
+): Promise<{ links: Locator; first: Locator; surface: Locator }> {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await visitPortfolio(page, '/de');
+  const links = page.getByTestId('contact-link');
+  const first = links.first();
+  await first.scrollIntoViewIfNeeded();
+  await expect(first).toHaveClass(/visible/);
+  await first.evaluate(element =>
+    Promise.all(element.getAnimations().map(animation => animation.finished)),
+  );
+  return { links, first, surface: first.locator('.contact-card-surface') };
+}
+
+async function matchesMedia(page: Page, query: string): Promise<boolean> {
+  return page.evaluate(media => matchMedia(media).matches, query);
+}
+
 test.describe('Motion preferences', () => {
-  test('lifts contact links on hover and keyboard focus and keeps them still with reduced motion', async ({
+  test('lifts contact links on keyboard focus and keeps them still with reduced motion', async ({
     page,
     browserName,
   }) => {
-    await page.emulateMedia({ reducedMotion: 'no-preference' });
-    await visitPortfolio(page, '/de');
-    const links = page.getByTestId('contact-link');
-    const first = links.first();
-    const surface = first.locator('.contact-card-surface');
-    const readBounds = () =>
-      first.evaluate(element => {
-        const { x, y, width, height } = element.getBoundingClientRect();
-        return { x: x + scrollX, y: y + scrollY, width, height };
-      });
-    await first.scrollIntoViewIfNeeded();
-    await expect(first).toHaveClass(/visible/);
-    await first.evaluate(element =>
-      Promise.all(element.getAnimations().map(animation => animation.finished)),
-    );
-    const stableBounds = await readBounds();
-    await first.hover();
-    if (await page.evaluate(() => matchMedia('(hover: hover) and (pointer: fine)').matches)) {
-      await expect.poll(async () => (await readMotion(surface)).translate).toBe('0px -4px');
-      const bounds = await first.boundingBox();
-      if (!bounds) throw new Error('The contact link has no clickable bounds');
-      await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height - 1);
-      await expect.poll(() => first.evaluate(element => element.matches(':hover'))).toBe(true);
-      await expect.poll(async () => (await readMotion(surface)).translate).toBe('0px -4px');
-      expect(await readBounds()).toEqual(stableBounds);
-    } else {
-      expect((await readMotion(surface)).translate).toBe('none');
-    }
-    await page.mouse.move(0, 0);
+    const { links, first, surface } = await revealFirstContactLink(page);
+    const tab = tabKey(browserName);
     await page.locator('#main-content').focus();
-    await page.keyboard.press(browserName === 'webkit' ? 'Alt+Tab' : 'Tab');
+    await page.keyboard.press(tab);
     await expect(first).toBeFocused();
     await expect.poll(async () => (await readMotion(surface)).translate).toBe('0px -4px');
     await expect
@@ -71,7 +72,7 @@ test.describe('Motion preferences', () => {
     expect(
       await first.evaluate(element => Number.parseFloat(getComputedStyle(element).outlineWidth)),
     ).toBeGreaterThan(0);
-    await page.keyboard.press(browserName === 'webkit' ? 'Alt+Tab' : 'Tab');
+    await page.keyboard.press(tab);
     await expect(links.nth(1)).toBeFocused();
     await expect.poll(async () => (await readMotion(surface)).translate).toBe('none');
     const nextSurface = links.nth(1).locator('.contact-card-surface');
@@ -87,9 +88,34 @@ test.describe('Motion preferences', () => {
     expect((await readMotion(surface)).translate).toBe('none');
   });
 
-  test('preserves intentional entrance delays and hover decoration with no preference', async ({
-    page,
-  }) => {
+  test('lifts contact links on hover with a fine pointer', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'a touch screen has no fine pointer');
+    const { first, surface } = await revealFirstContactLink(page);
+    expect(await matchesMedia(page, FINE_POINTER)).toBe(true);
+    const readBounds = (): Promise<{ x: number; y: number; width: number; height: number }> =>
+      first.evaluate(element => {
+        const { x, y, width, height } = element.getBoundingClientRect();
+        return { x: x + scrollX, y: y + scrollY, width, height };
+      });
+    const stableBounds = await readBounds();
+    await first.hover();
+    await expect.poll(async () => (await readMotion(surface)).translate).toBe('0px -4px');
+    // the pointer stays on the bottom edge while the surface lifts, so the hover must not flicker
+    await first.hover({ position: { x: stableBounds.width / 2, y: stableBounds.height - 1 } });
+    await expect.poll(() => first.evaluate(element => element.matches(':hover'))).toBe(true);
+    await expect.poll(async () => (await readMotion(surface)).translate).toBe('0px -4px');
+    expect(await readBounds()).toEqual(stableBounds);
+  });
+
+  test('keeps contact links still on hover without a fine pointer', async ({ page, isMobile }) => {
+    test.skip(!isMobile, 'a desktop browser has a fine pointer');
+    const { first, surface } = await revealFirstContactLink(page);
+    expect(await matchesMedia(page, FINE_POINTER)).toBe(false);
+    await first.hover();
+    expect((await readMotion(surface)).translate).toBe('none');
+  });
+
+  test('preserves intentional entrance delays with no preference', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await visitPortfolio(page, '/de');
     expect(await readMotion(page.getByTestId('navbar'))).toMatchObject({
@@ -105,13 +131,29 @@ test.describe('Motion preferences', () => {
     expect(
       await page.locator('html').evaluate(element => getComputedStyle(element).scrollBehavior),
     ).toBe('smooth');
+  });
+
+  test('scales the CV button on hover where the device can hover', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'a touch screen cannot hover');
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await visitPortfolio(page, '/de');
+    expect(await matchesMedia(page, CAN_HOVER)).toBe(true);
     const cv = page.getByTestId('cv-download-btn');
     await cv.hover();
-    if (await page.evaluate(() => matchMedia('(hover: hover)').matches)) {
-      await expect.poll(async () => (await readMotion(cv)).scale).toMatch(/1\.15/);
-    } else {
-      expect((await readMotion(cv)).scale).toBe('none');
-    }
+    await expect.poll(async () => (await readMotion(cv)).scale).toMatch(/1\.15/);
+  });
+
+  test('keeps the CV button size on hover where the device cannot hover', async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(!isMobile, 'a desktop browser can hover');
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await visitPortfolio(page, '/de');
+    expect(await matchesMedia(page, CAN_HOVER)).toBe(false);
+    const cv = page.getByTestId('cv-download-btn');
+    await cv.hover();
+    expect((await readMotion(cv)).scale).toBe('none');
   });
 
   for (const locale of ['en', 'de']) {
@@ -178,7 +220,7 @@ test.describe('Motion preferences', () => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await visitPortfolio(page, '/de');
     await page.locator('#main-content').focus();
-    await page.keyboard.press(browserName === 'webkit' ? 'Alt+Tab' : 'Tab');
+    await page.keyboard.press(tabKey(browserName));
     const contact = page.getByTestId('section-contact').locator('a').first();
     await expect(contact).toBeFocused();
     const focused = await contact.evaluate(element => {
@@ -193,7 +235,7 @@ test.describe('Motion preferences', () => {
     });
     expect(focused.opacity).toBe(1);
     expect(Number.parseFloat(focused.outlineWidth)).toBeGreaterThan(0);
-    await page.keyboard.press(browserName === 'webkit' ? 'Alt+Tab' : 'Tab');
+    await page.keyboard.press(tabKey(browserName));
     await expect(page.getByTestId('section-contact').locator('a').nth(1)).toBeFocused();
     expect((await readMotion(contact)).opacity).toBe('1');
     await expect(page.getByTestId('section-contact').locator('a').nth(2)).not.toHaveClass(
@@ -215,7 +257,7 @@ test.describe('Motion preferences', () => {
       }
     });
     await page.getByRole('link', { name: 'Skip to main content' }).focus();
-    await page.keyboard.press(browserName === 'webkit' ? 'Alt+Tab' : 'Tab');
+    await page.keyboard.press(tabKey(browserName));
     await expect(page.getByTestId('cv-download-btn')).toBeFocused();
     // WebKit can report the paused animation value for a moment after focus; the animation
     // stays paused, so a navbar that never becomes visible still fails the poll
@@ -263,6 +305,12 @@ test.describe('Motion preferences', () => {
   });
 
   for (const reducedMotion of ['no-preference', 'reduce'] as const) {
+    // the indicator must follow a change of the preference while the dialog is open
+    const steps = [reducedMotion, OTHER_PREFERENCE[reducedMotion]].map(preference => ({
+      preference,
+      duration: LOADING_DOT_DURATION[preference],
+    }));
+
     test(`keeps the CV loading indicator readable with ${reducedMotion}`, async ({ page }) => {
       await page.emulateMedia({ reducedMotion });
       await mockInteractiveTurnstile(page);
@@ -274,17 +322,13 @@ test.describe('Motion preferences', () => {
       await expect(cv).toHaveAttribute('aria-busy', 'true');
       const dots = cv.locator('.loading-dots');
       await expect(dots).toBeVisible();
-      for (const preference of [
-        reducedMotion,
-        reducedMotion === 'reduce' ? 'no-preference' : 'reduce',
-      ] as const) {
+      for (const { preference, duration } of steps) {
         await page.emulateMedia({ reducedMotion: preference });
         const mask = await dots.evaluate(element =>
           decodeURIComponent(getComputedStyle(element).maskImage),
         );
         expect(mask).toContain('<animate');
         expect(mask).toContain('<circle');
-        const duration = preference === 'reduce' ? '3s' : '1.05s';
         expect([...mask.matchAll(/dur='([^']+)'/g)].map(match => match[1])).toEqual([
           duration,
           duration,

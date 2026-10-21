@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { switchLanguage, visitPortfolio } from './utils';
+import { switchLanguage, tabKey, visitPortfolio } from './utils';
 
 async function waitForHeroAnimations(page: Page): Promise<void> {
   // Measure contrast after fade-in animations reach their final opacity.
@@ -18,7 +18,7 @@ test.describe('Accessibility', () => {
     const skipLink = page.getByRole('link', { name: 'Zum Hauptinhalt springen' });
 
     // WebKit on macOS uses Option-Tab to include links in keyboard navigation.
-    await page.keyboard.press(browserName === 'webkit' ? 'Alt+Tab' : 'Tab');
+    await page.keyboard.press(tabKey(browserName));
 
     await expect(skipLink).toBeFocused();
     const isVisibleAboveNavbar = await skipLink.evaluate(link => {
@@ -63,7 +63,7 @@ test.describe('Accessibility', () => {
         .poll(() => main.evaluate(content => Math.round(content.getBoundingClientRect().top)))
         .toBe(0);
 
-      await page.keyboard.press(browserName === 'webkit' ? 'Alt+Tab' : 'Tab');
+      await page.keyboard.press(tabKey(browserName));
       await expect
         .poll(() => page.evaluate(() => document.activeElement?.closest('main')?.id))
         .toBe('main-content');

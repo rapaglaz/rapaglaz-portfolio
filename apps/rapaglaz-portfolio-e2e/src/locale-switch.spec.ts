@@ -1,5 +1,21 @@
 import { expect, test } from '@playwright/test';
-import { switchLanguage, visitPortfolio } from './utils';
+import { heroBadge, switchLanguage, tabKey, visitPortfolio } from './utils';
+
+// texts that a direct entry to a route shows in the language of the route
+const ROUTE_TEXTS = {
+  en: {
+    certificationDates: ['December 2022', 'March 2022', 'June 2019'],
+    newTab: 'opens in new tab',
+    email: 'Email',
+    downloadCv: 'Download CV',
+  },
+  de: {
+    certificationDates: ['Dezember 2022', 'März 2022', 'Juni 2019'],
+    newTab: 'öffnet in neuem Tab',
+    email: 'E-Mail',
+    downloadCv: 'CV herunterladen',
+  },
+};
 
 test.describe('Locale Switch Journey', () => {
   test('uses a horizontal keyboard sequence and preserves focus after changing language', async ({
@@ -15,11 +31,11 @@ test.describe('Locale Switch Journey', () => {
     await expect(english).toHaveAttribute('lang', 'en');
     await expect(german).toHaveAttribute('lang', 'de');
 
-    const tabKey = browserName === 'webkit' ? 'Alt+Tab' : 'Tab';
+    const tab = tabKey(browserName);
     await page.getByTestId('cv-download-btn').focus();
-    await page.keyboard.press(tabKey);
+    await page.keyboard.press(tab);
     await expect(page.getByRole('button', { name: 'Contact Me' })).toBeFocused();
-    await page.keyboard.press(tabKey);
+    await page.keyboard.press(tab);
     await expect(english).toBeFocused();
     await page.keyboard.press('ArrowLeft');
     await expect(german).toBeFocused();
@@ -45,8 +61,9 @@ test.describe('Locale Switch Journey', () => {
     ['/', 'en', 'About Me', 'English'],
     ['/en', 'en', 'About Me', 'English'],
     ['/de', 'de', 'Über mich', 'Deutsch'],
-  ]) {
+  ] as const) {
     test(`uses the route language on direct entry to ${path}`, async ({ page }) => {
+      const texts = ROUTE_TEXTS[lang];
       await visitPortfolio(page, path);
 
       await expect(page.locator('html')).toHaveAttribute('lang', lang);
@@ -56,24 +73,17 @@ test.describe('Locale Switch Journey', () => {
         'true',
       );
       await expect(page.getByTestId('certification-card').locator('time')).toHaveText(
-        lang === 'de'
-          ? ['Dezember 2022', 'März 2022', 'Juni 2019']
-          : ['December 2022', 'March 2022', 'June 2019'],
+        texts.certificationDates,
       );
       const footer = page.locator('app-footer');
-      const newTab = lang === 'de' ? 'öffnet in neuem Tab' : 'opens in new tab';
-      await expect(footer.getByRole('button')).toHaveAccessibleName(
-        lang === 'de' ? 'E-Mail' : 'Email',
-      );
+      await expect(footer.getByRole('button')).toHaveAccessibleName(texts.email);
       await expect(footer.getByRole('link', { name: 'LinkedIn' })).toHaveAccessibleName(
-        `LinkedIn (${newTab})`,
+        `LinkedIn (${texts.newTab})`,
       );
       await expect(footer.getByRole('link', { name: 'GitHub' })).toHaveAccessibleName(
-        `GitHub (${newTab})`,
+        `GitHub (${texts.newTab})`,
       );
-      await expect(page.getByTestId('cv-download-btn')).toHaveAccessibleName(
-        lang === 'de' ? 'CV herunterladen' : 'Download CV',
-      );
+      await expect(page.getByTestId('cv-download-btn')).toHaveAccessibleName(texts.downloadCv);
     });
   }
 
@@ -141,13 +151,10 @@ test.describe('Locale Switch Journey', () => {
     );
   });
 
-  test('switches language for core content', async ({ page }) => {
+  test('switches language for core content', async ({ page, isMobile }) => {
     await visitPortfolio(page);
 
-    const desktopBadge = page.getByTestId('hero-badge');
-    const mobileBadge = page.getByTestId('hero-badge-mobile');
-
-    const visibleBadge = (await desktopBadge.isVisible()) ? desktopBadge : mobileBadge;
+    const visibleBadge = heroBadge(page, isMobile);
 
     await expect(visibleBadge).toBeVisible();
     await expect(visibleBadge).toContainText('Open to Work');

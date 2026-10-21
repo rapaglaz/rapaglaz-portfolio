@@ -1,7 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { Component, PLATFORM_ID, signal } from '@angular/core';
+import { Component, PLATFORM_ID, signal, type Signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { FeatureFlagService } from '@rapaglaz/shared/data-access';
@@ -27,7 +27,10 @@ async function setup(platformId = 'browser'): Promise<ComponentFixture<Portfolio
       provideTranslocoTesting(),
       { provide: PLATFORM_ID, useValue: platformId },
       // the real flag starts an HTTP request that keeps the fixture unstable
-      { provide: FeatureFlagService, useValue: { getFlagValue: () => signal(false) } },
+      {
+        provide: FeatureFlagService,
+        useValue: { getFlagValue: (): Signal<boolean> => signal(false) },
+      },
     ],
   });
   const fixture = TestBed.createComponent(Portfolio);

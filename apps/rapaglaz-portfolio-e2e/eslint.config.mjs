@@ -6,7 +6,9 @@ export default [
   ...baseConfig,
   {
     files: ['**/*.ts', '**/*.js'],
-    // Override or add rules here
-    rules: {},
+    rules: {
+      // the two browser projects skip what they cannot run, always with a condition and a reason
+      'playwright/no-skipped-test': ['warn', { allowConditional: true }],
+    },
   },
 ];

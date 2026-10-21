@@ -1,7 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { signal } from '@angular/core';
+import { signal, type Signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslocoService } from '@jsverse/transloco';
 import { FeatureFlagService } from '@rapaglaz/shared/data-access';
@@ -100,7 +100,10 @@ describe('PortfolioPage', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         provideTranslocoTesting(),
-        { provide: FeatureFlagService, useValue: { getFlagValue: () => openToWork.asReadonly() } },
+        {
+          provide: FeatureFlagService,
+          useValue: { getFlagValue: (): Signal<boolean> => openToWork.asReadonly() },
+        },
       ],
     });
     await firstValueFrom(TestBed.inject(TranslocoService).load('en'));

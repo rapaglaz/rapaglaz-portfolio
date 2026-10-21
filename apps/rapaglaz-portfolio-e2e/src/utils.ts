@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 
 // Minimal valid PDF for testing downloads
 export const MOCK_PDF_CONTENT = `%PDF-1.4
@@ -29,6 +29,17 @@ export async function mockFeatureFlag(page: Page, openToWork = true): Promise<vo
       body: JSON.stringify({ [flagName]: value }),
     });
   });
+}
+
+// WebKit moves the focus to links and buttons only with Alt+Tab, like Safari without full keyboard
+// access
+export function tabKey(browserName: string): string {
+  return browserName === 'webkit' ? 'Alt+Tab' : 'Tab';
+}
+
+// the desktop layout and the phone layout show the open-to-work badge in different elements
+export function heroBadge(page: Page, isMobile: boolean): Locator {
+  return page.getByTestId(isMobile ? 'hero-badge-mobile' : 'hero-badge');
 }
 
 // waits for hero + navbar to ensure page fully loaded before tests

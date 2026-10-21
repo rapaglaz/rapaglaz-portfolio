@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
-import { mockInteractiveTurnstile, mockTurnstileAPI, visitPortfolio } from './utils';
+import { mockInteractiveTurnstile, mockTurnstileAPI, tabKey, visitPortfolio } from './utils';
 
 test.describe('Toast accessibility', () => {
   for (const [locale, colorScheme, closeLabel] of [
@@ -95,7 +95,7 @@ test.describe('Toast accessibility', () => {
     expect(emptySpaceBlocksPage).toBe(false);
     const previousAction = page.locator('app-footer').getByRole('link', { name: 'GitHub' });
     await previousAction.focus();
-    await page.keyboard.press(browserName === 'webkit' ? 'Alt+Tab' : 'Tab');
+    await page.keyboard.press(tabKey(browserName));
     await expect(close).toBeFocused();
     const fitsViewport = await close.evaluate(button => {
       const rect = button.getBoundingClientRect();

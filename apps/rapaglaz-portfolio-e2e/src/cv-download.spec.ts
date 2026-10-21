@@ -1,12 +1,23 @@
 import AxeBuilder from '@axe-core/playwright';
-import { devices, expect, test } from '@playwright/test';
+import { devices, expect, test, type Page } from '@playwright/test';
 import {
   mockCVDownload,
   mockInteractiveTurnstile,
   mockTurnstileAPI,
   switchLanguage,
+  tabKey,
   visitPortfolio,
 } from './utils';
+
+type CancelMethod = 'button' | 'close' | 'Escape' | 'backdrop';
+
+// every way to leave the German verification dialog without verifying
+const CANCEL_DIALOG: Record<CancelMethod, (page: Page) => Promise<void>> = {
+  button: page => page.getByRole('dialog').getByRole('button', { name: 'Abbrechen' }).click(),
+  close: page => page.getByRole('dialog').getByRole('button', { name: 'Schließen' }).click(),
+  Escape: page => page.keyboard.press('Escape'),
+  backdrop: page => page.locator('.cdk-overlay-backdrop').click({ position: { x: 5, y: 5 } }),
+};
 
 test.describe('CV Download', () => {
   test.beforeEach(async ({ page }) => {
@@ -79,7 +90,7 @@ test.describe('Interactive CV verification', () => {
       await expect(page.locator('app-root')).toHaveAttribute('aria-hidden', 'true');
       await expect(dialog.locator('iframe')).toHaveAttribute('data-mock-language', locale);
       const frame = dialog.frameLocator('iframe');
-      const tab = browserName === 'webkit' ? 'Alt+Tab' : 'Tab';
+      const tab = tabKey(browserName);
 
       await page.keyboard.press(tab);
       await expect(frame.getByRole('button', { name: 'Verify', exact: true })).toBeFocused();
@@ -138,10 +149,7 @@ test.describe('Interactive CV verification', () => {
       await cvButton.click();
       const dialog = page.getByRole('dialog');
       await expect(dialog.getByRole('button', { name: 'Schließen' })).toBeFocused();
-      if (method === 'button') await dialog.getByRole('button', { name: 'Abbrechen' }).click();
-      else if (method === 'close') await dialog.getByRole('button', { name: 'Schließen' }).click();
-      else if (method === 'Escape') await page.keyboard.press('Escape');
-      else await page.locator('.cdk-overlay-backdrop').click({ position: { x: 5, y: 5 } });
+      await CANCEL_DIALOG[method](page);
 
       await expect(dialog).toHaveCount(0);
       await expect(cvButton).toBeFocused();
