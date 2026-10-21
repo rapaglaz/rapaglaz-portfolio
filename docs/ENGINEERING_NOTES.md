@@ -10,8 +10,6 @@ Problems from this repo's history, oldest first, with the PRs that fixed them.
 - **Fix:** drop the cached observable on error so the next call fetches again, with a spec for it.
   [#500](https://github.com/rapaglaz/rapaglaz-portfolio/pull/500)
 
-<!-- TODO(Paul): What did you take away from this? -->
-
 ## E2E test took the wrong path (2026-07-05)
 
 - **Problem:** "handles Turnstile verification error" actually ran the script-load-failure path. It
@@ -20,8 +18,6 @@ Problems from this repo's history, oldest first, with the PRs that fixed them.
   the mock never ran.
 - **Fix:** install the mock before navigation, through a shared `mockTurnstileAPI(page, 'error')`
   instead of an inline copy. [#503](https://github.com/rapaglaz/rapaglaz-portfolio/pull/503)
-
-<!-- TODO(Paul): What did you take away from this? -->
 
 ## Deploy shipped a rebuild, not the tested build (2026-07-05 to 2026-09-06)
 
@@ -36,8 +32,6 @@ Problems from this repo's history, oldest first, with the PRs that fixed them.
   in `main-branch-ci-cd.yaml` that needs lint, test, build and e2e and uses the artifact directly
   ([#663](https://github.com/rapaglaz/rapaglaz-portfolio/pull/663)).
 
-<!-- TODO(Paul): What did you take away from this? -->
-
 ## Bundle budget warning on every build (2026-07-05)
 
 - **Problem:** every production build warned: the initial bundle was 539.5 kB raw against a 500 kB
@@ -46,8 +40,6 @@ Problems from this repo's history, oldest first, with the PRs that fixed them.
   overlay and portal) and 35 kB common. No simple cut got back under 500 kB.
 - **Fix:** raise the warning budget to 560 kB and keep the 700 kB error.
   [#512](https://github.com/rapaglaz/rapaglaz-portfolio/pull/512)
-
-<!-- TODO(Paul): What did you take away from this? -->
 
 ## A jsdom minor release broke unit tests (2026-09-23 to 2026-10-12)
 
@@ -62,8 +54,6 @@ Problems from this repo's history, oldest first, with the PRs that fixed them.
   ([#712](https://github.com/rapaglaz/rapaglaz-portfolio/pull/712)). Vitest went to 5.0.2 and the
   hold was removed in [#730](https://github.com/rapaglaz/rapaglaz-portfolio/pull/730); the jsdom
   pin moved to 30.1.2 in [#766](https://github.com/rapaglaz/rapaglaz-portfolio/pull/766).
-
-<!-- TODO(Paul): What did you take away from this? -->
 
 ## Playwright image and package drifted apart, three times (2026-07-05 to 2026-10-12)
 
@@ -84,8 +74,6 @@ Problems from this repo's history, oldest first, with the PRs that fixed them.
   ([#730](https://github.com/rapaglaz/rapaglaz-portfolio/pull/730)), and keep the image in the same
   Renovate PR as the package (#768).
 
-<!-- TODO(Paul): What did you take away from this? -->
-
 ## zizmor findings in the workflows (2026-10-08)
 
 - **Problem:** zizmor reported findings, so its CI job and pre-commit hook ran report-only
@@ -95,8 +83,6 @@ Problems from this repo's history, oldest first, with the PRs that fixed them.
 - **Fix:** pass the input through `env`, set `persist-credentials: false` on every checkout, add
   `.github/zizmor.yml` with one disabled rule and one ignored line, each with a reason, and drop
   both report-only switches. [#754](https://github.com/rapaglaz/rapaglaz-portfolio/pull/754)
-
-<!-- TODO(Paul): What did you take away from this? -->
 
 ## Layer rules were not enforced (2026-10-10)
 
@@ -109,8 +95,6 @@ Problems from this repo's history, oldest first, with the PRs that fixed them.
   cross-feature import and a cycle) confirmed exit code 1.
   [#756](https://github.com/rapaglaz/rapaglaz-portfolio/pull/756); the full report is in
   [the version of Dependency boundaries from #756](https://github.com/rapaglaz/rapaglaz-portfolio/blob/9a18c770e44f30c59ffd2c1734dc3a9bbbc1aa33/docs/DEPENDENCY_BOUNDARIES.md#initial-report-and-decisions)
-
-<!-- TODO(Paul): What did you take away from this? -->
 
 ## Initial bundle over the warning budget again (2026-10-17)
 

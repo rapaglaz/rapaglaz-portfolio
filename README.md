@@ -61,10 +61,6 @@ PRs: [#712](https://github.com/rapaglaz/rapaglaz-portfolio/pull/712),
 [#730](https://github.com/rapaglaz/rapaglaz-portfolio/pull/730) and
 [#768](https://github.com/rapaglaz/rapaglaz-portfolio/pull/768).
 
-## What I'd do differently
-
-<!-- TODO(Paul): 2–3 honest points -->
-
 ## Also inside
 
 - Transloco i18n with a runtime language switch and the locale routes `/en` and `/de`
