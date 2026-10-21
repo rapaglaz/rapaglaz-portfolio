@@ -1,0 +1,48 @@
+{
+  "name": "site-fallback",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/workers/site-fallback",
+  "tags": ["type:worker"],
+  "targets": {
+    "lint": {
+      "inputs": ["workerLint"]
+    },
+    "test": {
+      "inputs": [
+        "default",
+        "{workspaceRoot}/apps/workers/testing/**/*",
+        {
+          "env": "CI"
+        },
+        {
+          "externalDependencies": ["vitest"]
+        }
+      ]
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": [
+        "default",
+        "{workspaceRoot}/apps/workers/tsconfig.base.json",
+        "{workspaceRoot}/apps/workers/testing/**/*",
+        {
+          "externalDependencies": [
+            "typescript",
+            "@cloudflare/workers-types",
+            "@types/node",
+            "vitest"
+          ]
+        }
+      ],
+      "outputs": [],
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "tsc -p tsconfig.json --noEmit"
+      }
+    },
+    "check": {},
+    "deploy": {}
+  }
+}

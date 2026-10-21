@@ -1,6 +1,6 @@
 # Cloudflare Workers
 
-The three Workers behind `rapaglaz.de`. Each folder has the name of its Worker in Cloudflare, and
+The Workers behind `rapaglaz.de`. Each folder has the name of its Worker in Cloudflare, and
 its `wrangler.jsonc` is the source of truth for this Worker.
 
 | Worker                                        | Endpoint                       | Bindings and settings                                                                                                                                                       |
@@ -8,6 +8,36 @@ its `wrangler.jsonc` is the source of truth for this Worker.
 | [`cv-download`](./cv-download/)               | `GET /download?file=cv/<name>` | R2 `PORTFOLIO_FILES` (`portfolio-files`), secret `TURNSTILE_SECRET`, rate limiter `DOWNLOAD_RATE_LIMITER` (10 per 60 s per IP); optional and not set: var `ALLOWED_ORIGINS` |
 | [`feature-flag`](./feature-flag/)             | `GET /feature-flag/<name>`     | KV `KV` (namespace `PORTFOLIO_FLAGS`), values `true` or `false`                                                                                                             |
 | [`portfolio-settings`](./portfolio-settings/) | `GET` or `HEAD /config`        | none; the Turnstile site key is public by design                                                                                                                            |
+| [`site-fallback`](./site-fallback/)           | `GET` or `HEAD /en*`, `/de*`   | none; routes are added by hand, see [Offline page](#offline-page)                                                                                                           |
+
+## Offline page
+
+The portfolio pages come from a separate web host, not from Cloudflare. When this host is down,
+Cloudflare answers with its own error page (for example 521). `site-fallback` replaces such an error
+with a page of the portfolio, so that a visitor sees a clear message instead of a technical one.
+
+- The Worker passes every request to the origin. For a `GET` or `HEAD` request, an answer with
+  status 500 or higher (or a failed request) becomes the page in
+  [`site-fallback/offline.html`](./site-fallback/offline.html), with status 503, `Retry-After` and
+  `Cache-Control: no-store`, so that crawlers and caches do not keep it. Other answers and other
+  methods are not changed.
+- The page has only inline CSS and an inline font (Manrope 700, latin, as a data URI from
+  `@fontsource/manrope`), because nothing else is available during the outage. The language follows
+  the path (`/de`, otherwise English).
+- The one script is [`reload-script.ts`](./site-fallback/reload-script.ts). Every minute, and when the
+  tab becomes visible, it asks the same address with `HEAD` and reloads the page only when the answer
+  is no longer a server error, so a reader is not interrupted while the origin is down. The Worker
+  puts the text into the page and computes the SHA-256 hash for the Content-Security-Policy from the
+  same text, so `script-src` allows only this script and `connect-src` only the own address.
+- The texts are in [`index.ts`](./site-fallback/index.ts) and fill the `[[tokens]]` of the HTML file.
+  Transloco is not available in a Worker, so these two languages are kept by hand.
+- Routes are added in the dashboard (Workers Routes), only for the pages and not for the assets, so
+  that the daily request limit of the Free plan is not used for every image or script:
+  `rapaglaz.de/en*`, `rapaglaz.de/de*`, `www.rapaglaz.de/en*`, `www.rapaglaz.de/de*`. The routes of the
+  other Workers (`/config`, `/feature-flag/*`, `/download`) are more specific and stay unchanged.
+  Until the routes exist, a deploy of this Worker has no effect on the site.
+- Preview: open `offline.html` in a browser; the tokens stay visible there. The specs check the
+  finished page for both languages.
 
 The frontend validates `/config` and `/feature-flag` with Valibot and reads `/download` as a blob.
 The download flow is described in [Security notes](../../docs/SECURITY.md).
@@ -75,7 +105,7 @@ Steps before the first deploy:
    failed deploy, `wrangler rollback` in the Worker folder restores the previous version. Use the
    wrangler version from `nx.json`, the same version that the deploy target runs.
 
-All three Workers went through these steps before `DEPLOY_WORKERS` was set to `true` on
+`site-fallback` has no bindings, so steps 1 and 3 have nothing to compare. The other three Workers went through these steps before `DEPLOY_WORKERS` was set to `true` on
 2026-10-17. A new Worker goes through them before its first deploy from CI.
 
 ## Stopping deploys

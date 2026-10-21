@@ -9,7 +9,7 @@ workspace. Nx runs and caches build, lint and test, and it adds no runtime code.
 apps/
 ├── rapaglaz-portfolio/       # the Angular app, only the bootstrap
 ├── rapaglaz-portfolio-e2e/   # Playwright suite
-└── workers/                  # Cloudflare Workers: cv-download, feature-flag, portfolio-settings
+└── workers/                  # Cloudflare Workers: cv-download, feature-flag, portfolio-settings, site-fallback
 libs/
 ├── portfolio/
 │   ├── feature/              # the page: SEO tags, skills and certifications content, feature flag

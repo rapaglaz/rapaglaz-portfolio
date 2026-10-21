@@ -11,18 +11,18 @@ Two tools check the imports. Both fail the lint job in CI.
 
 Every project has a type tag, and every library also has a scope tag:
 
-| Tag                | Projects                                            | May depend on                                                              |
-| ------------------ | --------------------------------------------------- | -------------------------------------------------------------------------- |
-| `type:app`         | `rapaglaz-portfolio`                                | `type:feature`, `type:data-access`, `type:ui`, `type:util`, `type:testing` |
-| `type:feature`     | `portfolio-feature`, `portfolio-layout`             | `type:data-access`, `type:ui`, `type:util`, `type:testing`                 |
-| `type:e2e`         | `rapaglaz-portfolio-e2e`                            | `type:app`                                                                 |
-| `type:worker`      | `cv-download`, `feature-flag`, `portfolio-settings` | Nothing                                                                    |
-| `type:data-access` | `shared-data-access`                                | `type:data-access`, `type:util`, `type:testing`                            |
-| `type:ui`          | `shared-ui`, `portfolio-ui`                         | `type:ui`, `type:util`, `type:testing`                                     |
-| `type:util`        | `shared-util`, `portfolio-util`                     | `type:util`                                                                |
-| `type:testing`     | `shared-testing`                                    | `type:util`                                                                |
-| `scope:shared`     | all `libs/shared/*` libraries                       | `scope:shared`                                                             |
-| `scope:portfolio`  | all `libs/portfolio/*` libraries                    | `scope:portfolio`, `scope:shared`                                          |
+| Tag                | Projects                                                             | May depend on                                                              |
+| ------------------ | -------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `type:app`         | `rapaglaz-portfolio`                                                 | `type:feature`, `type:data-access`, `type:ui`, `type:util`, `type:testing` |
+| `type:feature`     | `portfolio-feature`, `portfolio-layout`                              | `type:data-access`, `type:ui`, `type:util`, `type:testing`                 |
+| `type:e2e`         | `rapaglaz-portfolio-e2e`                                             | `type:app`                                                                 |
+| `type:worker`      | `cv-download`, `feature-flag`, `portfolio-settings`, `site-fallback` | Nothing                                                                    |
+| `type:data-access` | `shared-data-access`                                                 | `type:data-access`, `type:util`, `type:testing`                            |
+| `type:ui`          | `shared-ui`, `portfolio-ui`                                          | `type:ui`, `type:util`, `type:testing`                                     |
+| `type:util`        | `shared-util`, `portfolio-util`                                      | `type:util`                                                                |
+| `type:testing`     | `shared-testing`                                                     | `type:util`                                                                |
+| `scope:shared`     | all `libs/shared/*` libraries                                        | `scope:shared`                                                             |
+| `scope:portfolio`  | all `libs/portfolio/*` libraries                                     | `scope:portfolio`, `scope:shared`                                          |
 
 Data access does not depend on UI. For this reason, the Turnstile modal is in `shared-data-access`,
 and the navbar, not the service, shows the toasts.
@@ -32,7 +32,7 @@ in specs too. The rule cannot distinguish specs from production files, so the ap
 `type:testing`. dependency-cruiser makes sure that only specs import `@rapaglaz/shared/testing`.
 
 The root ESLint config and the ESLint config of the Workers share the same block, so the
-constraints stay identical. A change of this block runs lint in every project and deploys all three
+constraints stay identical. A change of this block runs lint in every project and deploys all
 Workers again on the next `main` run.
 
 ## Inside projects (dependency-cruiser)
