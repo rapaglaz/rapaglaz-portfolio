@@ -47,6 +47,7 @@ describe('ErrorPage', () => {
     );
     expect(element.querySelector('[data-testid="error-home"]')?.getAttribute('href')).toBe('/en');
     expect(element.querySelector('[data-testid="error-reload"]')).toBeNull();
+    expect(element.querySelector('[data-testid="error-illustration-not-found"]')).not.toBeNull();
   });
 
   it('offers a reload next to the way home when something went wrong', async () => {
@@ -57,6 +58,7 @@ describe('ErrorPage', () => {
       element.querySelector<HTMLButtonElement>('[data-testid="error-reload"]')?.click();
 
       expect(element.querySelector('h1')?.textContent).toContain('Something went wrong');
+      expect(element.querySelector('[data-testid="error-illustration-failed"]')).not.toBeNull();
       expect(element.querySelector('[data-testid="error-home"]')?.getAttribute('href')).toBe('/en');
       expect(reloadMock).toHaveBeenCalledOnce();
     } finally {

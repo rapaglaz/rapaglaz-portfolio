@@ -4,20 +4,22 @@ import { Meta, Title } from '@angular/platform-browser';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { injectActiveLang } from '@rapaglaz/shared/util';
-
-type ErrorKind = 'notFound' | 'failed';
+import { ErrorIllustration, type ErrorKind } from '../error-illustration/error-illustration';
 
 const ROBOTS_SELECTOR = 'name="robots"';
 
 @Component({
   selector: 'app-error-page',
-  imports: [RouterLink, TranslocoPipe],
+  imports: [ErrorIllustration, RouterLink, TranslocoPipe],
   template: `
     <main
       id="main-content"
       class="focus-visible:outline-primary flex min-h-screen items-center justify-center px-6 py-24 text-center focus-visible:outline-2 focus-visible:-outline-offset-2"
       tabindex="-1">
       <div class="mx-auto w-full max-w-3xl animate-[fadeInUp_0.5s_ease-out_both]">
+        <app-error-illustration
+          class="mb-8"
+          [kind]="kind" />
         <h1
           data-testid="error-heading"
           class="error-title text-4xl tracking-[0.075em] wrap-break-word sm:text-5xl lg:text-6xl">
