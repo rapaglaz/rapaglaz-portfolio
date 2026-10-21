@@ -12,6 +12,6 @@ export default defineConfig({
     root: fileURLToPath(new URL('.', import.meta.url)),
     watch: false,
     environment: 'node',
-    include: ['**/*.spec.js'],
+    include: ['**/*.spec.ts'],
   },
 });

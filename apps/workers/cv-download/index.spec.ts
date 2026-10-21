@@ -1,36 +1,51 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from 'vitest';
+import type { Env } from './index';
 
 const ORIGIN = 'https://rapaglaz.de';
 const FILE = 'cv/Radoslaw_Pawel_Glaz_CV-EN.pdf';
 // the token Cloudflare's always-passing test site key produces
 const TEST_TOKEN = 'XXXX.DUMMY.TOKEN.XXXX';
 
-let worker;
+type RequestOptions = { file?: string; method?: string; headers?: Record<string, string> };
 
-function downloadRequest({ file = FILE, method = 'GET', headers = {} } = {}) {
+let worker: (typeof import('./index'))['default'];
+
+function downloadRequest({
+  file = FILE,
+  method = 'GET',
+  headers = {},
+}: RequestOptions = {}): Request {
   return new Request(`https://rapaglaz.de/download?file=${encodeURIComponent(file)}`, {
     method,
     headers: { Origin: ORIGIN, 'cf-turnstile-response': 'valid-token', ...headers },
   });
 }
 
-function createEnv(overrides = {}) {
+// The R2 stand-in covers only the plain get that the Worker calls, and its object has only the
+// body that the Worker reads, not the full R2ObjectBody.
+function createEnv(overrides: Partial<Env> = {}): Env {
+  const get = vi.fn(async (key: string) => (key === FILE ? { body: 'pdf-bytes' } : null));
   return {
     TURNSTILE_SECRET: 'turnstile-secret',
-    PORTFOLIO_FILES: { get: vi.fn(async key => (key === FILE ? { body: 'pdf-bytes' } : null)) },
+    PORTFOLIO_FILES: { get } as unknown as Env['PORTFOLIO_FILES'],
     ...overrides,
   };
 }
 
 // stand-in for the Workers Rate Limiting binding: allows `limit` calls, then rejects
-function createRateLimiter(limit) {
+function createRateLimiter(limit: number): NonNullable<Env['DOWNLOAD_RATE_LIMITER']> {
   let calls = 0;
   return { limit: vi.fn(async () => ({ success: ++calls <= limit })) };
 }
 
-function mockSiteverify(success) {
+function mockSiteverify(success: boolean): MockInstance<typeof fetch> {
   // a fresh Response per call: a body can be read only once
   return vi.spyOn(globalThis, 'fetch').mockImplementation(async () => Response.json({ success }));
+}
+
+// the JSON body of the first siteverify call
+function sentBody(siteverify: MockInstance<typeof fetch>): unknown {
+  return JSON.parse(String(siteverify.mock.calls[0][1]?.body));
 }
 
 describe('CV download worker', () => {
@@ -39,7 +54,7 @@ describe('CV download worker', () => {
     vi.resetModules();
     vi.spyOn(console, 'warn').mockImplementation(() => undefined);
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
-    ({ default: worker } = await import('./index.js'));
+    ({ default: worker } = await import('./index'));
   });
 
   afterEach(() => {
@@ -118,11 +133,12 @@ describe('CV download worker', () => {
     expect(response.status).toBe(403);
   });
 
-  for (const local of [
+  const localSources: Record<string, string>[] = [
     { Origin: 'http://localhost:4200' },
     { Origin: '', Referer: 'http://127.0.0.1:4233/en' },
-  ]) {
-    it(`sends the test token to siteverify from ${local.Origin || local.Referer}`, async () => {
+  ];
+  for (const local of localSources) {
+    it(`sends the test token to siteverify from ${local['Origin'] || local['Referer']}`, async () => {
       const siteverify = mockSiteverify(false);
 
       const response = await worker.fetch(
@@ -161,9 +177,10 @@ describe('CV download worker', () => {
     );
     expect(response.headers.get('Access-Control-Allow-Origin')).toBe(ORIGIN);
     expect(env.PORTFOLIO_FILES.get).toHaveBeenCalledWith(FILE);
-    const [url, init] = siteverify.mock.calls[0];
-    expect(url).toBe('https://challenges.cloudflare.com/turnstile/v0/siteverify');
-    expect(JSON.parse(init.body)).toEqual({ secret: 'turnstile-secret', response: 'valid-token' });
+    expect(siteverify.mock.calls[0][0]).toBe(
+      'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+    );
+    expect(sentBody(siteverify)).toEqual({ secret: 'turnstile-secret', response: 'valid-token' });
   });
 
   it('passes the client IP to siteverify as remoteip', async () => {
@@ -174,7 +191,7 @@ describe('CV download worker', () => {
       createEnv(),
     );
 
-    expect(JSON.parse(siteverify.mock.calls[0][1].body)).toEqual({
+    expect(sentBody(siteverify)).toEqual({
       secret: 'turnstile-secret',
       response: 'valid-token',
       remoteip: '203.0.113.7',
@@ -199,13 +216,14 @@ describe('CV download worker', () => {
     expect(siteverify).toHaveBeenCalledTimes(4);
   });
 
-  for (const [outage, mock] of [
+  const outages: [string, () => Promise<Response>][] = [
     ['a network error', async () => Promise.reject(new TypeError('fetch failed'))],
     [
       'internal-error',
       async () => Response.json({ success: false, 'error-codes': ['internal-error'] }),
     ],
-  ]) {
+  ];
+  for (const [outage, mock] of outages) {
     it(`pauses siteverify for five minutes after three outages (${outage})`, async () => {
       vi.useFakeTimers({ toFake: ['Date'] });
       vi.setSystemTime(new Date('2026-10-17T10:00:00Z'));
@@ -230,15 +248,16 @@ describe('CV download worker', () => {
 
     await worker.fetch(downloadRequest(), createEnv());
 
-    expect(siteverify.mock.calls[0][1].signal).toBeInstanceOf(AbortSignal);
+    expect(siteverify.mock.calls[0][1]?.signal).toBeInstanceOf(AbortSignal);
   });
 
   it('aborts siteverify after 5 seconds and treats it as an outage', async () => {
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
     const siteverify = vi.spyOn(globalThis, 'fetch').mockImplementation(
       (_url, init) =>
-        new Promise((_resolve, reject) => {
-          init.signal.addEventListener('abort', () => reject(init.signal.reason));
+        new Promise<Response>((_resolve, reject) => {
+          const signal = init?.signal;
+          signal?.addEventListener('abort', () => reject(signal.reason));
         }),
     );
 
@@ -247,7 +266,7 @@ describe('CV download worker', () => {
     const response = await pending;
 
     expect(response.status).toBe(403);
-    expect(siteverify.mock.calls[0][1].signal.aborted).toBe(true);
+    expect(siteverify.mock.calls[0][1]?.signal?.aborted).toBe(true);
   });
 
   it('keeps the CORS header for allowed origins on an internal error', async () => {
