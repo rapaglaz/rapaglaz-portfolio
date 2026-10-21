@@ -4,8 +4,9 @@
 
 - Node.js 24 (exact version in `.nvmrc`)
 - pnpm (exact version in the `packageManager` field of `package.json`)
-- [mise](https://mise.jdx.dev/), only for commits that change workflows: the pre-commit hook runs
-  actionlint and zizmor in the versions from `mise.toml`
+- [mise](https://mise.jdx.dev/), optional. It installs the tools from `mise.toml`: actionlint and
+  zizmor (the pre-commit hook runs them for commits that change workflows) and the
+  [SonarQube CLI](#sonarqube-cli-optional)
 
 Install the dependencies:
 
@@ -62,6 +63,38 @@ pnpm run i18n:check
 
 `pnpm run deps:graph` writes an HTML dependency matrix to `tmp/dependency-cruiser/dependencies.html`.
 The rules are described in [Dependency boundaries](./DEPENDENCY_BOUNDARIES.md).
+
+## SonarQube CLI (optional)
+
+The [SonarQube CLI](https://docs.sonarsource.com/sonarqube-cli) (`sonar`) shows the SonarCloud
+findings in the terminal before a push. It is not part of the quality gates, and CI does not use it
+(CI runs `sonarqube-scan-action`). The version is pinned in `mise.toml`.
+
+```bash
+mise install                          # installs the tools from mise.toml
+sonar auth login                      # browser flow, choose SonarQube Cloud and the organization rapaglaz
+sonar auth status
+```
+
+The login needs a SonarQube Cloud **user token**. Project and organization tokens do not work. The
+CLI reads the project key from `sonar-project.properties`, so `--project` is not needed. Every
+`sonar analyze` command needs the login, also `analyze secrets`, which scans the files locally.
+
+```bash
+sonar analyze --staged                # analyzes the staged files (git diff --cached)
+sonar analyze secrets <paths...>      # scan for hardcoded credentials, exit code 51 on a finding
+sonar list issues --format table      # open issues of the project
+```
+
+For a non-interactive shell, set the token and the organization together. These variables take
+precedence over a saved login:
+
+```bash
+export SONARQUBE_CLI_TOKEN=<user token>
+export SONARQUBE_CLI_ORG=rapaglaz
+```
+
+`DO_NOT_TRACK=1` disables the telemetry of the CLI.
 
 ## Unit tests
 
