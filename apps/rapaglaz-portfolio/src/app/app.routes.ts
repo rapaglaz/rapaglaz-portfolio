@@ -64,11 +64,11 @@ export const routes: Routes = [
   {
     path: ERROR_PATH,
     component: ErrorPage,
-    data: { kind: 'failed' },
+    data: { kind: 'failed', hideNavbar: true },
   },
   {
     path: '**',
     component: ErrorPage,
-    data: { kind: 'notFound' },
+    data: { kind: 'notFound', hideNavbar: true },
   },
 ];

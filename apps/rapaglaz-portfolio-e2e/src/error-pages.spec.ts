@@ -40,11 +40,13 @@ test.describe('Error pages', () => {
       await expect(page).toHaveTitle(`${heading} | Radek Glaz`);
       await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
       await expect(page.getByTestId('error-reload')).toHaveCount(0);
+      await expect(page.getByTestId('navbar')).toHaveCount(0);
 
       await page.getByRole('link', { name: home }).click();
 
       await expect(page).toHaveURL(new RegExp(`/${lang}$`));
       await expect(page.getByTestId('section-hero')).toBeVisible();
+      await expect(page.getByTestId('navbar')).toBeVisible();
       await expect(page.locator('meta[name="robots"]')).not.toHaveAttribute('content', 'noindex');
     });
   }
@@ -57,6 +59,7 @@ test.describe('Error pages', () => {
     await expect(page.getByTestId('error-heading')).toHaveText('Something went wrong');
     await expect(page.getByRole('button', { name: 'Reload' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Back to home' })).toHaveAttribute('href', '/en');
+    await expect(page.getByTestId('navbar')).toHaveCount(0);
   });
 
   for (const [path, lang, colorScheme] of [
