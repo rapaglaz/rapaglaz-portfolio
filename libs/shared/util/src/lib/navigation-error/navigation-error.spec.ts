@@ -8,8 +8,8 @@ import {
   withNavigationErrorHandler,
 } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
-import { LoggerService } from '@rapaglaz/shared/util';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { LoggerService } from '../logging/logger.service';
 import { handleNavigationError } from './navigation-error';
 
 @Component({ template: 'error page' })

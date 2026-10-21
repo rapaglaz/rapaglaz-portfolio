@@ -27,6 +27,7 @@ import { turnstileInterceptor } from '@rapaglaz/shared/data-access';
 import {
   AVAILABLE_LANGS,
   DEFAULT_LANG,
+  handleNavigationError,
   isAvailableLang,
   StrictTranslocoMissingHandler,
   TranslocoHttpLoader,
@@ -36,7 +37,6 @@ import { BOOTSTRAP_ERRORS } from '@rapaglaz/shared/util/bootstrap-messages';
 import { catchError, EMPTY, Observable } from 'rxjs';
 import { App } from './app';
 import { routes } from './app.routes';
-import { handleNavigationError } from './navigation-error';
 
 const DEFAULT_LANG_TOKEN = new InjectionToken<string>('DEFAULT_LANG');
 

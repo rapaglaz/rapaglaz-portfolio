@@ -10,3 +10,4 @@ export type { AvailableLang } from './lib/i18n/languages/languages';
 export { TranslocoHttpLoader } from './lib/i18n/transloco-loader/transloco-loader';
 export { StrictTranslocoMissingHandler } from './lib/i18n/transloco-missing-handler/transloco-missing-handler';
 export { LoggerService } from './lib/logging/logger.service';
+export { ERROR_PATH, handleNavigationError } from './lib/navigation-error/navigation-error';

@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { NavigationError, RedirectCommand, Router } from '@angular/router';
-import { LoggerService } from '@rapaglaz/shared/util';
+import { LoggerService } from '../logging/logger.service';
 
 export const ERROR_PATH = 'error';
 

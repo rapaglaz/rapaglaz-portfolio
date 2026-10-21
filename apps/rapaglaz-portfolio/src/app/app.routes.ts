@@ -6,12 +6,12 @@ import { ErrorPage } from '@rapaglaz/portfolio/layout';
 import {
   AVAILABLE_LANGS,
   DEFAULT_LANG,
+  ERROR_PATH,
   isAvailableLang,
   LoggerService,
   type AvailableLang,
 } from '@rapaglaz/shared/util';
 import { catchError, EMPTY, map, of, tap } from 'rxjs';
-import { ERROR_PATH } from './navigation-error';
 
 const resolvePortfolioLocale: ResolveFn<AvailableLang> = route => {
   const transloco = inject(TranslocoService);
@@ -60,7 +60,7 @@ export const routes: Routes = [
     loadComponent: loadPortfolio,
     resolve: { locale: resolvePortfolioLocale },
   })),
-  // the navigation error handler lands here, see navigation-error.ts
+  // the navigation error handler of shared-util lands here
   {
     path: ERROR_PATH,
     component: ErrorPage,
