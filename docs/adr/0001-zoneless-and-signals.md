@@ -3,19 +3,17 @@
 **Status:** Accepted, recorded on 2026-10-19 · **Date:** 2025-11-17 (initial commit `67a81f4`)
 
 **Context.** A small bilingual page: static content, a CV download, a toast and one feature flag.
-Most components are presentational.
+Most components only show their inputs.
 
 **Decision.** No `zone.js`; it was never a dependency. `app.config.ts` had
-`provideZonelessChangeDetection()` from the first commit until
-[#38](https://github.com/rapaglaz/rapaglaz-portfolio/pull/38) removed it on 2025-11-27, on Angular
-21, where zoneless is the default
-([angular.dev](https://angular.dev/guide/zoneless), checked 2026-10-19). Components are standalone
-and `OnPush`. Signals hold UI state, RxJS handles async work (HTTP, events, Turnstile). The feature
-flag is an `httpResource`, so its value arrives as a signal and nothing subscribes manually.
+`provideZonelessChangeDetection()` until [#38](https://github.com/rapaglaz/rapaglaz-portfolio/pull/38)
+removed it on 2025-11-27 (Angular 21, where zoneless is the default,
+[angular.dev](https://angular.dev/guide/zoneless), checked 2026-10-19). Components are standalone and
+`OnPush`. Signals hold UI state and RxJS handles async work. The feature flag is an `httpResource`.
 
-**Alternatives considered.**
-
-<!-- TODO(Paul): Which alternative did you consider, and why did you reject it? -->
+**Alternatives considered.** Change detection with zone.js, the Angular default until version 20.
+The first `ARCHITECTURE.md` (`67a81f4`) gave three reasons against it: no zone patching overhead, a
+clearer model of when the view updates, and zone.js "getting deprecated anyway".
 
 **Consequences.**
 
