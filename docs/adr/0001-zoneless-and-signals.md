@@ -5,10 +5,13 @@
 **Context.** A small bilingual page: static content, a CV download, a toast and one feature flag.
 Most components are presentational.
 
-**Decision.** `provideZonelessChangeDetection()` since the first commit; `zone.js` was never a
-dependency. Components are standalone and `OnPush`. Signals hold UI state, RxJS handles async work
-(HTTP, events, Turnstile). The feature flag is an `httpResource`, so its value arrives as a signal
-and nothing subscribes manually.
+**Decision.** No `zone.js`; it was never a dependency. `app.config.ts` had
+`provideZonelessChangeDetection()` from the first commit until
+[#38](https://github.com/rapaglaz/rapaglaz-portfolio/pull/38) removed it on 2025-11-27, on Angular
+21, where zoneless is the default
+([angular.dev](https://angular.dev/guide/zoneless), checked 2026-10-19). Components are standalone
+and `OnPush`. Signals hold UI state, RxJS handles async work (HTTP, events, Turnstile). The feature
+flag is an `httpResource`, so its value arrives as a signal and nothing subscribes manually.
 
 **Alternatives considered.**
 

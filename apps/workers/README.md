@@ -52,8 +52,8 @@ Before the first deploy:
    reads an `env` name the test does not know, or when `vars` sets `ALLOW_TEST_TOKEN`.
 3. Run `pnpm run workers:check` and compare the bindings it lists with the active version.
 4. Deploy with `pnpm nx deploy <worker>` and check that the output lists the same bindings. If
-   something breaks, `npx wrangler@4.151.1 rollback` in the Worker folder goes back to the previous
-   version.
+   something breaks, `wrangler rollback` in the Worker folder goes back to the previous version.
+   Use the wrangler version from `nx.json`, the same one the deploy target runs.
 
 All three Workers went through these steps before `DEPLOY_WORKERS` was set to `true` on 2026-10-17.
 A new Worker goes through them before its first deploy from CI.

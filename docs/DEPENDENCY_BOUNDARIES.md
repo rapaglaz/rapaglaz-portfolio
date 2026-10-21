@@ -62,5 +62,7 @@ but type-only layer violations are not reported either.
 Specs are exempt from the layer rules, because they build and mock collaborators, but not from the
 cycle check.
 
-There are no exceptions and no cycle allow-list. The first run, on 2026-10-08, found 11 warnings
-including one cycle; the story is in the [engineering notes](./ENGINEERING_NOTES.md).
+There are no exceptions and no cycle allow-list. The first version of the rules (#756) had five
+narrow file-level exceptions; they went away when the layers moved to Nx tags (#807 to #812). The
+first run, on 2026-10-08, found 11 warnings including one cycle; the story is in the
+[engineering notes](./ENGINEERING_NOTES.md).

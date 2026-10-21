@@ -90,7 +90,8 @@ Problems from this repo's history, oldest first, with the PRs that fixed them.
   across 81 modules, including one cycle.
 - **Cause:** `utils/i18n/transloco-missing-handler.ts` imported the services barrel, which led back
   through `cv-download.service.ts` into `utils/i18n`.
-- **Fix:** import the logger file directly, allow five narrow file-level exceptions, set all
+- **Fix:** import the logger file directly, allow five narrow file-level exceptions (gone since
+  the move to libs, #807 to #812), set all
   boundary and cycle rules to `error` and run `deps:check` in the lint job. Two temporary probes (a
   cross-feature import and a cycle) confirmed exit code 1.
   [#756](https://github.com/rapaglaz/rapaglaz-portfolio/pull/756); the full report is in
@@ -149,7 +150,8 @@ Problems from this repo's history, oldest first, with the PRs that fixed them.
 - **Cause:** the root component imported `Navbar` and `Footer` from the `features` barrel, which
   re-exports every section.
 - **Fix:** import both from their own files and let only the portfolio layer import the barrel
-  (dependency-cruiser rule `features-barrel-in-portfolio-only`). Initial bundle 503.94 kB →
+  (dependency-cruiser rule `features-barrel-in-portfolio-only`, now `portfolio-ui-in-feature-only`).
+  Initial bundle 503.94 kB →
   490.17 kB, `portfolio` chunk 2.61 kB → 17.04 kB
   ([#785](https://github.com/rapaglaz/rapaglaz-portfolio/pull/785)).
 
