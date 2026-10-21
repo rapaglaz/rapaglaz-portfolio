@@ -1,8 +1,8 @@
 # ADR 0003: CV download through Turnstile and a Worker
 
-**Status:** Accepted, recorded on 2026-10-19 · **Date:** 2025-11-17 (Turnstile client in `67a81f4`);
-Worker sources in this repository since [#777](https://github.com/rapaglaz/rapaglaz-portfolio/pull/777)
-(2026-10-17)
+**Status:** Accepted · **Decided:** 2025-11-17 (Turnstile client in `67a81f4`); Worker sources in
+this repository since [#777](https://github.com/rapaglaz/rapaglaz-portfolio/pull/777) (2026-10-17) ·
+**Recorded:** 2026-10-21, retroactively ([#826](https://github.com/rapaglaz/rapaglaz-portfolio/pull/826))
 
 **Context.** The CV must not be a public URL, because bots could download it without any limit.
 
