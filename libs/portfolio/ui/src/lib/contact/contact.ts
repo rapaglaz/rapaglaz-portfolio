@@ -1,8 +1,11 @@
-import { Component, computed, input, viewChild } from '@angular/core';
+import { Component, computed, inject, input, viewChild } from '@angular/core';
 import { translateObjectSignal, translateSignal, TranslocoModule } from '@jsverse/transloco';
 import type { ContactItem } from '@rapaglaz/portfolio/util';
 import { SectionWrapper } from '@rapaglaz/shared/ui';
-import { buildStaggerDelay } from '@rapaglaz/shared/util';
+import { buildStaggerDelay, LoggerService } from '@rapaglaz/shared/util';
+import * as v from 'valibot';
+
+const LabelsSchema = v.record(v.string(), v.string());
 
 @Component({
   selector: 'app-contact',
@@ -15,7 +18,16 @@ export class Contact {
 
   protected readonly sectionWrapper = viewChild.required(SectionWrapper);
   protected readonly getContactDelay = buildStaggerDelay({ base: 0.15, increment: 0.075 });
-  protected readonly contactLabels = translateObjectSignal('portfolio.contact.labels');
+  private readonly logger = inject(LoggerService);
+  private readonly rawContactLabels = translateObjectSignal('portfolio.contact.labels');
+  protected readonly contactLabels = computed(() => {
+    const result = v.safeParse(LabelsSchema, this.rawContactLabels());
+    if (!result.success) {
+      this.logger.warn('The contact labels do not have the expected shape.');
+      return {};
+    }
+    return result.output;
+  });
   protected readonly opensInNewTabLabel = translateSignal('common.a11y.opensInNewTab');
 
   protected readonly links = computed(() => {

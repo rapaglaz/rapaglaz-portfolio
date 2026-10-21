@@ -1,7 +1,10 @@
-import { Component, computed, viewChild } from '@angular/core';
+import { Component, computed, inject, viewChild } from '@angular/core';
 import { translateObjectSignal, TranslocoModule } from '@jsverse/transloco';
 import { SectionWrapper } from '@rapaglaz/shared/ui';
-import { buildStaggerDelay } from '@rapaglaz/shared/util';
+import { buildStaggerDelay, LoggerService } from '@rapaglaz/shared/util';
+import * as v from 'valibot';
+
+const LanguagesSchema = v.record(v.string(), v.object({ name: v.string(), level: v.string() }));
 
 @Component({
   selector: 'app-languages',
@@ -34,6 +37,8 @@ import { buildStaggerDelay } from '@rapaglaz/shared/util';
   `,
 })
 export class Languages {
+  private readonly logger = inject(LoggerService);
+
   protected readonly sectionWrapper = viewChild.required(SectionWrapper);
 
   // translateObjectSignal reads the whole object; the keys are listed for i18n:check
@@ -49,8 +54,12 @@ export class Languages {
   protected readonly languagesData = translateObjectSignal('portfolio.languages.items');
 
   protected readonly languages = computed(() => {
-    const items = this.languagesData();
-    return Object.entries(items).map(([key, value]) => ({
+    const result = v.safeParse(LanguagesSchema, this.languagesData());
+    if (!result.success) {
+      this.logger.warn('The language translations do not have the expected shape.');
+      return [];
+    }
+    return Object.entries(result.output).map(([key, value]) => ({
       key,
       name: value.name,
       level: value.level,

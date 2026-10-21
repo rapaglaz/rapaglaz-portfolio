@@ -1,8 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslocoService } from '@jsverse/transloco';
 import { provideTranslocoTesting } from '@rapaglaz/shared/testing';
+import { LoggerService } from '@rapaglaz/shared/util';
 import { firstValueFrom } from 'rxjs';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Languages } from './languages';
 
 describe('Languages', () => {
@@ -52,5 +53,25 @@ describe('Languages', () => {
       'Polnisch',
     ]);
     expect(cards[0].querySelector('p')?.textContent?.trim()).toBe('Verhandlungssicher (C2)');
+  });
+
+  it('shows no cards and logs a warning when the translations have the wrong shape', () => {
+    fixture.destroy();
+    const warn = vi
+      .spyOn(TestBed.inject(LoggerService), 'warn')
+      .mockImplementation(() => undefined);
+    TestBed.inject(TranslocoService).setTranslation(
+      { portfolio: { languages: { items: { german: { name: 5 } } } } },
+      'en',
+      { merge: true },
+    );
+
+    const broken = TestBed.createComponent(Languages);
+    broken.detectChanges();
+
+    expect(
+      (broken.nativeElement as HTMLElement).querySelectorAll('[data-testid="language-card"]'),
+    ).toHaveLength(0);
+    expect(warn).toHaveBeenCalledOnce();
   });
 });

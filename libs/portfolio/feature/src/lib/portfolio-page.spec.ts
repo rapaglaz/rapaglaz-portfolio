@@ -82,6 +82,19 @@ describe('PortfolioPage', () => {
     expect(byName('description')).toContain('Frontend Engineer');
   });
 
+  it('falls back to the default language for the meta tags when the active language is unknown', () => {
+    fixture.destroy();
+    TestBed.inject(TranslocoService).setActiveLang('fr');
+
+    TestBed.createComponent(PortfolioPage).detectChanges();
+
+    const head = TestBed.inject(DOCUMENT).head;
+    expect(head.querySelector('meta[property="og:url"]')?.getAttribute('content')).toBe(
+      'https://rapaglaz.de/en',
+    );
+    expect(head.querySelector('meta[property="og:locale"]')?.getAttribute('content')).toBe('en_US');
+  });
+
   it('removes social meta tags on destroy', () => {
     fixture.destroy();
 

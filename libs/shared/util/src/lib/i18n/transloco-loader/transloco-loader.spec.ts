@@ -88,4 +88,22 @@ describe('TranslocoHttpLoader', () => {
 
     expect(receivedError).toBeDefined();
   });
+
+  it.each([
+    ['an array', []],
+    ['null', null],
+    ['a string', 'not a dictionary'],
+  ])('rejects a response body that is %s', (_name, body) => {
+    let receivedError: unknown;
+
+    loader.getTranslation('en').subscribe({
+      error: error => {
+        receivedError = error;
+      },
+    });
+
+    httpMock.expectOne('./i18n/en.json').flush(body);
+
+    expect(receivedError).toBeInstanceOf(Error);
+  });
 });

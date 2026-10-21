@@ -2,8 +2,9 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslocoService } from '@jsverse/transloco';
 import { CONTACT_ITEMS } from '@rapaglaz/portfolio/util';
 import { provideTranslocoTesting } from '@rapaglaz/shared/testing';
+import { LoggerService } from '@rapaglaz/shared/util';
 import { firstValueFrom } from 'rxjs';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Contact } from './contact';
 
 describe('Contact', () => {
@@ -52,5 +53,24 @@ describe('Contact', () => {
     expect(linkedIn?.getAttribute('aria-label')).toBe(
       'LinkedIn: linkedin.com/in/radek-glaz (öffnet in neuem Tab)',
     );
+  });
+
+  it('falls back to the contact ids and logs a warning when the labels have the wrong shape', () => {
+    const warn = vi
+      .spyOn(TestBed.inject(LoggerService), 'warn')
+      .mockImplementation(() => undefined);
+    TestBed.inject(TranslocoService).setTranslation(
+      { portfolio: { contact: { labels: { email: 5 } } } },
+      'en',
+      { merge: true },
+    );
+
+    const broken = TestBed.createComponent(Contact);
+    broken.componentRef.setInput('items', CONTACT_ITEMS);
+    broken.detectChanges();
+
+    const email = (broken.nativeElement as HTMLElement).querySelector('a[href^="mailto:"]');
+    expect(email?.getAttribute('aria-label')).toBe('email: radek@rapaglaz.de');
+    expect(warn).toHaveBeenCalled();
   });
 });
