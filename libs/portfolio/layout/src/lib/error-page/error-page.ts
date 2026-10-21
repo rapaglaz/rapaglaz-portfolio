@@ -36,7 +36,9 @@ const ROBOTS_SELECTOR = 'name="robots"';
             {{ 'common.error.notFound.message' | transloco }}
           }
         </p>
-        <div class="mt-10 flex flex-wrap items-center justify-center gap-4">
+        <!-- DaisyUI 5 reads --radius-field and --border; the app only defines the DaisyUI 4 names -->
+        <div
+          class="mt-10 flex flex-wrap items-center justify-center gap-4 [--border:var(--border-btn)] [--radius-field:var(--rounded-btn)]">
           @if (kind === 'failed') {
             <button
               type="button"
