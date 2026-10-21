@@ -1,34 +1,29 @@
 # Local setup
 
-How to run this locally.
-
 ## Requirements
 
 - Node.js 24 (exact version in `.nvmrc`)
-- pnpm (exact version in `packageManager` in `package.json`)
-- [mise](https://mise.jdx.dev/), only when committing workflow changes: the pre-commit hook runs
-  actionlint and zizmor at the versions pinned in `mise.toml`
+- pnpm (exact version in the `packageManager` field of `package.json`)
+- [mise](https://mise.jdx.dev/), only for commits that change workflows: the pre-commit hook runs
+  actionlint and zizmor in the versions from `mise.toml`
 
-Playwright needs browsers installed once.
-
-## Install
+Install the dependencies:
 
 ```bash
 pnpm install
 ```
 
-## Git hooks (Lefthook)
+`pnpm install` also installs the Lefthook git hooks (`lefthook.yml`, through the `prepare` script):
 
-Hooks are installed by Lefthook during `pnpm install` (via the `prepare` script).
-Configuration lives in `lefthook.yml`.
+- `pre-commit`: lint-staged on the staged files (`.lintstagedrc.json`)
+- `commit-msg`: commitlint. Messages follow [Conventional Commits](https://www.conventionalcommits.org/)
+  (`<type>(<scope>): <subject>`).
 
-- `pre-commit`: Runs lint-staged on staged files using `.lintstagedrc.json`
-- `commit-msg`: Validates commit message format using commitlint (configured in `commitlint.config.cjs`)
+If the hooks do not run, install them again:
 
-If hooks do not run, try `pnpm run prepare` or `pnpm exec lefthook install`.
-
-Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/)
-(`<type>(<scope>): <subject>`); commitlint rejects anything else.
+```bash
+pnpm exec lefthook install
+```
 
 ## Dev server
 
@@ -36,82 +31,59 @@ Commit messages follow [Conventional Commits](https://www.conventionalcommits.or
 pnpm start
 ```
 
-It starts the app and a local copy of the download Worker. App is on <http://localhost:4200>.
-You can use `/en` or `/de` directly, and `/` defaults to English.
+The command starts the app on <http://localhost:4200> and a local copy of the download Worker. The
+routes `/en` and `/de` work directly, and `/` uses English.
 
-Note: the feature flag endpoint is on `https://rapaglaz.de`.
-If you see CORS errors locally, the Worker must allow `http://localhost:4200`.
+The feature flag comes from `https://rapaglaz.de`. If the browser reports CORS errors, the Worker
+must allow `http://localhost:4200`.
 
-The CV download goes to the local Worker on `http://localhost:8787` (`pnpm nx serve cv-download`
-starts it alone). It serves a placeholder PDF from a local R2 bucket and checks the token with
-Cloudflare's test secret, which accepts the token of the test site key that local dev uses.
-Production gets no request. Without this Worker, for example with
-`pnpm nx serve rapaglaz-portfolio`, the download ends in the error toast. The Worker calls
-Turnstile's `siteverify`, so an outbound firewall such as Little Snitch must let `workerd` connect.
-E2E mocks Turnstile and `/download` instead.
+The CV download goes to the local Worker on `http://localhost:8787`. To start this Worker alone:
 
-## Checks (format/lint/dependencies/i18n)
+```bash
+pnpm nx serve cv-download
+```
+
+The Worker serves a placeholder PDF from a local R2 bucket and checks the token with the test secret
+of Cloudflare. This secret accepts the token of the test site key that local development uses, so
+production gets no request. Without this Worker, for example with `pnpm nx serve rapaglaz-portfolio`,
+the download ends with the error toast. The Worker calls the Turnstile `siteverify` endpoint, so an
+outbound firewall such as Little Snitch must allow connections of `workerd`. E2E tests mock
+Turnstile and `/download` instead.
+
+## Checks
 
 ```bash
 pnpm run format:check
 pnpm run lint
 pnpm run typecheck
-pnpm run deps:check
+pnpm run deps:check   # forbidden imports and cycles
 pnpm run i18n:check
 ```
 
-`deps:check` exits non-zero for forbidden runtime dependencies or circular imports.
-Use `pnpm run deps:graph` to generate a local HTML dependency matrix in
-`tmp/dependency-cruiser/dependencies.html`; `tmp/` is already git-ignored.
-See [Dependency boundaries](./DEPENDENCY_BOUNDARIES.md) for the rules and exceptions.
+`pnpm run deps:graph` writes an HTML dependency matrix to `tmp/dependency-cruiser/dependencies.html`.
+The rules are described in [Dependency boundaries](./DEPENDENCY_BOUNDARIES.md).
 
 ## Unit tests
 
 ```bash
-pnpm test
+pnpm test                 # app and libraries, Vitest through Nx
+pnpm run test:coverage    # reports in coverage/
+pnpm run test:workers     # Workers, Vitest in Node
+pnpm run workers:check    # bundles each Worker with wrangler deploy --dry-run, no login needed
 ```
 
-This runs Vitest through Nx (`@nx/vitest`) with AnalogJS.
-For coverage:
+The deploy of the Workers is described in [Cloudflare Workers](../apps/workers/README.md).
+
+## E2E tests
 
 ```bash
-pnpm run test:coverage
+pnpm run e2e        # against the dev server
+pnpm run e2e:ssg    # builds, then tests the static output on port 4233
+pnpm run e2e:ui     # Playwright UI
 ```
 
-Coverage output goes to `coverage/apps/rapaglaz-portfolio/`.
-
-The Cloudflare Workers in `apps/workers/` are one Nx project each and run Vitest in a Node environment:
-
-```bash
-pnpm run test:workers
-```
-
-`pnpm run workers:check` bundles each Worker with `wrangler deploy --dry-run` and needs no Cloudflare
-login. Deploying is described in [Cloudflare Workers](../apps/workers/README.md).
-
-## E2E tests (Playwright)
-
-Normal mode uses the dev server:
-
-```bash
-pnpm run e2e
-```
-
-SSG mode builds first, then tests the static output served on port 4233:
-
-```bash
-pnpm run e2e:ssg
-```
-
-UI runner:
-
-```bash
-pnpm run e2e:ui
-```
-
-The HTML report goes to `dist/.playwright/apps/rapaglaz-portfolio-e2e/playwright-report/`.
-
-If browsers are missing:
+The HTML report is written to `dist/.playwright/apps/rapaglaz-portfolio-e2e/playwright-report/`.
+If browsers are missing, install them:
 
 ```bash
 pnpm exec playwright install --with-deps
@@ -119,51 +91,38 @@ pnpm exec playwright install --with-deps
 
 ## Nx
 
-The `pnpm run` scripts call Nx, so build, lint and test results come from the local cache in
-`.nx/` when nothing they depend on has changed.
+The scripts call Nx, so build, lint and test results come from the local cache when nothing they
+depend on has changed. Nx 23 keeps this cache in `~/.nx/<id>/cache`, shared by all checkouts and
+worktrees of the repository, so a new worktree can also get cache hits. To prove that a check
+passes, run it with `--skip-nx-cache`, for example:
 
-On the tailnet you can share the CI cache (see [CI strategy](./CI_STRATEGY.md#nx-remote-cache)) by
-exporting the cache variables before running Nx:
+```bash
+pnpm nx run-many -t lint --skip-nx-cache
+```
+
+If a result looks stale, run `pnpm nx reset` and then the task again.
+
+Inside the tailnet, the local Nx can use the remote cache of CI (see
+[CI/CD strategy](./CI_STRATEGY.md#nx-remote-cache)):
 
 ```bash
 export NX_SELF_HOSTED_REMOTE_CACHE_SERVER=<cache server URL>
 export NX_SELF_HOSTED_REMOTE_CACHE_ACCESS_TOKEN=<access token>
 ```
 
-```bash
-pnpm nx show projects                    # rapaglaz-portfolio, rapaglaz-portfolio-e2e
-pnpm nx show project rapaglaz-portfolio  # resolved targets, inputs and outputs
-pnpm nx graph                            # project graph in the browser
-pnpm nx reset                            # clear the cache and stop the daemon
-```
+`pnpm nx show projects` lists the apps, Workers and libraries, and `pnpm nx graph` opens the project
+graph.
 
-## Preview (static build)
+## Preview and Lighthouse
 
 ```bash
 pnpm run build
-pnpm run preview
-```
-
-Preview is on <http://localhost:4233>.
-
-## Lighthouse
-
-I run Lighthouse against the preview server.
-
-```bash
-pnpm run build
-pnpm run preview &
+pnpm run preview &   # static build on http://localhost:4233
 pnpm exec lighthouse http://localhost:4233 --preset=desktop --throttling-method=devtools
+kill %1              # stops the preview server
 ```
 
-`--throttling-method=devtools` matters here: on a bare local server the page
-paints fast enough that Chrome sometimes never records a Largest Contentful
-Paint candidate at all (`NO_LCP`), which the default `simulate` throttling
-can't work around since it needs a real candidate to extrapolate from. CI
-does 3 runs, desktop preset, and reports go to `.lighthouseci/`.
-
-## Common issues
-
-- Playwright is flaky locally: usually missing browsers or old cache. Reinstall and retry.
-- Translations break: run `pnpm run i18n:check`.
-- A task result looks stale: run `pnpm nx reset` and run the task again.
+Keep `--throttling-method=devtools`, because the default `simulate` mode needs a Largest
+Contentful Paint for its calculation. On a plain local server the page renders so fast that Chrome
+sometimes records none (`NO_LCP`). CI does three desktop runs and writes the reports to
+`.lighthouseci/`.
