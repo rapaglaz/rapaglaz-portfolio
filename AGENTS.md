@@ -5,7 +5,7 @@ Reference for AI agents working in this repo. For broader context see [docs/](./
 ## Stack
 
 Exact versions live in `package.json` (dependencies, `packageManager` for pnpm), `.nvmrc`
-(Node.js) and `mise.toml` (actionlint, zizmor, sonarqube-cli). Majors are listed only where they shape the code.
+(Node.js) and `mise.toml` (actionlint, zizmor). Majors are listed only where they shape the code.
 
 - **Angular 22** — zoneless, standalone, OnPush, SSG + hydration
 - **Nx 23** — workspace, task runner and local cache; no Nx Cloud
