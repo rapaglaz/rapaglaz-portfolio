@@ -1,228 +1,124 @@
 # Architecture
 
-This app is small, so I keep the structure boring and predictable.
-It is a plain Angular app inside an Nx workspace. Nx runs and caches the build, lint and test
-tasks; it adds no runtime code.
+The app is small, so I keep the structure boring. It is a plain Angular app in an Nx workspace. Nx
+runs and caches build, lint and test; it adds no runtime code.
 
 ## Folder layout
 
-The workspace has twelve projects:
-
 ```plaintext
 apps/
-├── rapaglaz-portfolio/       # the Angular app
-├── rapaglaz-portfolio-e2e/   # Playwright suite, depends on the app
-└── workers/                  # Cloudflare Workers, tag type:worker
-    ├── cv-download/
-    ├── feature-flag/
-    └── portfolio-settings/
+├── rapaglaz-portfolio/       # the Angular app, only the bootstrap
+├── rapaglaz-portfolio-e2e/   # Playwright suite
+└── workers/                  # Cloudflare Workers: cv-download, feature-flag, portfolio-settings
 libs/
 ├── portfolio/
-│   ├── feature/              # portfolio-feature, tags scope:portfolio type:feature
-│   ├── layout/               # portfolio-layout, tags scope:portfolio type:feature
-│   └── ui/                   # portfolio-ui, tags scope:portfolio type:ui
+│   ├── feature/              # the page: SEO tags, skills and certifications content, feature flag
+│   ├── layout/               # shell, navbar, language switcher, footer
+│   └── ui/                   # the sections; they only render their inputs
 └── shared/
-    ├── data-access/          # shared-data-access, tags scope:shared type:data-access
-    ├── ui/                   # shared-ui, tags scope:shared type:ui
-    ├── util/                 # shared-util, tags scope:shared type:util
-    └── testing/              # shared-testing, tags scope:shared type:testing
+    ├── data-access/          # CV download with config and Turnstile, feature flag
+    ├── ui/                   # badge, section wrapper, toasts
+    ├── util/                 # logger, API tokens, i18n and dictionaries, animation, contact links
+    └── testing/              # Transloco test setup, window mocks
 ```
 
-The libraries are not buildable. There is one app, so a build step per library would only add
-work; the app compiles them from source through the aliases in `tsconfig.base.json`.
-`shared-util` holds what every layer uses: logger, API URL tokens, i18n with the `en`/`de`
-dictionaries, the entrance animation helpers and the contact links. The server translation
-loader has its own entry point, `@rapaglaz/shared/util/translations`: it bundles both
-dictionaries, and from the main barrel they ended up in the browser main chunk (+5 kB) although
-only `app.config.server.ts` uses it.
+The libraries are not buildable. With one app, a build step per library would only add work, so the
+app compiles them from source through the aliases in `tsconfig.base.json`. Tags and import rules are
+in [Dependency boundaries](./DEPENDENCY_BOUNDARIES.md).
 
-`shared-ui` has the presentational pieces and the toast service, which renders its own container.
-`shared-data-access` has the services that talk to the backend: CV download with config and
-Turnstile, and the feature flag. The Turnstile modal and the interceptor live there too, so a
-service never reaches into another layer for its overlay. The libraries export only what the app
-uses: `ConfigService`, `TURNSTILE_TOKEN`, the modal and the toast container stay internal.
+A few placements that are not obvious:
 
-`portfolio-feature` is the page: SEO tags, the skills and certifications content and the feature
-flag. It passes them to the sections in `portfolio-ui` through inputs, so the sections only render;
-the input types (`SkillCategory`, `Certification`) live with the sections and the content imports
-them. The router loads the page with a dynamic import, which keeps the sections out of the initial
-bundle; Nx rejects a static import of the library anywhere, specs included.
+- The Turnstile modal and interceptor live in `shared-data-access`, so a service never reaches into
+  another layer for its overlay.
+- The server translation loader has its own entry point, `@rapaglaz/shared/util/translations`. From
+  the main barrel it put both dictionaries into the browser main chunk (+5 kB).
+- Each Worker is its own Nx project, so `nx affected` deploys only the Worker that changed. A deploy
+  replaces a Worker's bindings with its `wrangler.jsonc` (that is how `feature-flag` lost its KV
+  binding on 2026-10-17), so I want a deploy to touch as little as possible.
 
-Each Worker is its own Nx project, not one `workers` project. Cloudflare deploys every Worker on its
-own, and `nx affected` decides per project: with one project, a fix in `feature-flag` would also
-redeploy `cv-download` and `portfolio-settings`. A deploy replaces the bindings of a Worker with the
-ones in its `wrangler.jsonc` (that is how `feature-flag` lost its KV binding on 2026-10-17), so I want
-a deploy to touch only the Worker that changed. The test and check cache is per Worker as well.
-
-The cost is small: three short `project.json` files. `check`, `deploy` and the lint inputs
-(`workerLint`) are defined once in `nx.json`, and the lint config and the spec helpers are shared in
-`apps/workers/`. All three still deploy together when something they share changes: `nx.json`,
-`tsconfig.base.json`, `apps/workers/eslint.config.mjs`, `eslint.module-boundaries.mjs` or the Nx
-version.
-
-The app itself is only the bootstrap: `app.ts`, `app.config.ts`, `app.routes.ts`.
-
-`app.ts` renders only `<app-portfolio />`. `Portfolio` in `portfolio-layout` glues the page in its
-template: skip link, navbar, router outlet and footer. The navbar and footer stay outside the
-outlet: a language switch is a new route, so the router recreates only `PortfolioPage`, and the
-navbar keeps its focus and the CV download. The navbar uses the language
-switcher. It is fine, but it is a conscious choice. The switcher only navigates; its specs use stub
-routes, and `language-switch.spec.ts` in the app tests it with the real routes and resolver.
-
-Dependency-cruiser enforces the runtime layer boundaries and rejects circular imports.
-See [Dependency boundaries](./DEPENDENCY_BOUNDARIES.md) for the allowed dependencies,
-documented exceptions, commands, and the initial report-only rollout.
+`app.ts` renders `<app-portfolio />`, the shell in `portfolio-layout`: skip link, navbar, router
+outlet and footer. A language switch is a new route, so the router recreates only `PortfolioPage`,
+and the navbar keeps its focus and a running CV download.
 
 ## Angular style
 
-### Standalone + OnPush + signals + zoneless
+Everything is standalone and `OnPush`. Signals hold small UI state; RxJS handles async work (HTTP,
+events, Turnstile). The feature flag uses `httpResource`, so its value arrives as a signal and
+nothing subscribes by hand. `zone.js` is not a dependency, so updates are explicit.
 
-Everything is standalone. Most components are presentational, so `OnPush` is the default.
-If something needs state, I keep it close to the feature or in a service.
+DOM measuring lives in directives, not components: scroll reveal, and
+`MeasureNavbarHeightDirective`, which sets `--navbar-height` with a ResizeObserver.
 
-Signals are used for small UI state. RxJS stays for async work (HTTP, events, Turnstile).
-The feature flag is the one exception — it uses `httpResource`, so the value arrives
-as a signal already and there is no manual subscribe anywhere.
-`zone.js` is not in dependencies, so updates are explicit.
+### SSG and hydration
 
-DOM measuring lives in directives, not components. Scroll reveal was already a directive,
-and the navbar height (`--navbar-height` CSS variable via ResizeObserver) moved into
-`MeasureNavbarHeightDirective`, next to the navbar in `portfolio-layout`, to follow the same pattern.
-The navbar component keeps only state and actions.
+The build is static (`outputMode: static`). Angular prerenders `index.html`, `en/index.html` and
+`de/index.html`, and the client hydrates them. `/`, `/en` and `/de` all lazy-load `PortfolioPage`;
+the URL segment only sets the language.
 
-### SSG + hydration
+Which file a URL gets is decided by Cloudflare rules in the dashboard, not by this repo:
 
-Production build is static (`outputMode: static`). Angular pre-renders and outputs HTML.
-On the client side it hydrates, so it does not repaint the whole page.
+- Redirect Rules: `/` answers 302 to `/de` when `Accept-Language` starts with `de`, otherwise to
+  `/en`.
+- URL Rewrite Rules: `/en` and `/de` go to `/en/index.html` and `/de/index.html`.
+- Response Header Transform Rule `security-headers`: see [Security](./SECURITY.md#headers).
 
-The build writes `index.html`, `en/index.html` and `de/index.html`. Which file a URL gets is
-decided by Cloudflare rules in the dashboard, not by this repository:
+Until 2026-10-18 both rewrites pointed at the English prerender. A new locale or route needs its own
+rewrite rule; check `lang`, the canonical link and the text with `curl -sS https://rapaglaz.de/<path>`.
 
-- Redirect Rules: `/` answers 302 to `/de` when `Accept-Language` starts with `de`, otherwise 302
-  to `/en`.
-- URL Rewrite Rules: `/en` and `/de` are rewritten to `/en/index.html` and `/de/index.html`.
-- Response Header Transform Rule `security-headers`: see [Security notes](./SECURITY.md#headers).
+## Services
 
-Until 2026-10-18 both rewrites pointed to `/index.html`, the English prerender of `/`, so `/de`
-served `lang="en"`, English text and a canonical link to `/en` until the client switched the
-language. A new locale or route needs its own rewrite rule; afterwards check its `lang`, canonical
-link and text with `curl -sS https://rapaglaz.de/<path>`.
+- **CV download:** config → Turnstile token → backend → browser download.
+- **Turnstile:** loads the script once and renders the widget in the active language. An
+  interactive challenge opens in a CDK Dialog with a focus trap, and focus returns to the CV
+  button. Closing the dialog in any way ends verification without a download.
+- **Toasts:** one CDK overlay, updated in place. Errors use `role="alert"`, the rest
+  `role="status"`. Toasts stay until dismissed and do not take focus.
+- **Config:** fetched once with `shareReplay`. Network errors and 5xx are retried three times
+  (250 ms, 500 ms, 1 s); a 4xx or an invalid body fails at once, and the cache is dropped.
+- **Logger:** the only place that logs. Users never see internal details.
 
-### Routing + lazy loading
-
-All routes (`/`, `/en`, `/de`) use `loadComponent` to lazy-load `PortfolioPage`.
-There is one component entry point; the URL segment only determines the active language.
-
-## State and services
-
-Most sections have no real business logic. The interesting parts are in services
-(`shared-data-access`, `shared-ui` for toasts, `shared-util` for the logger):
-
-- CV download: get config → get Turnstile token → call backend endpoint → trigger browser download
-- Turnstile: load the script once and render the widget in the active `en` or `de` locale. An interactive challenge opens in a CDK Dialog with a focus trap and focus restored to the CV button. WebKit needs explicit focus-region boundaries around the iframe for keyboard navigation. Any way of closing the dialog ends verification without a token or download. The CDK Dialog chunk loads next to the Turnstile script after the CV click, and the widget renders once both are ready.
-- Toasts: a single CDK overlay updated in place. Errors use `role="alert"`, success and info `role="status"`; the close action stays outside the live region. Toasts stay until dismissed and do not move focus when they open. The CDK overlay and portal load with the first toast, so `show()` returns a promise that resolves once the toast is rendered.
-- Feature flag: read `openToWork` from a Cloudflare Worker + KV, exposed as `httpResource`
-- Config: fetched once per app life with `shareReplay`. Network errors and 5xx responses are retried up to 3 times (250 ms, 500 ms, 1 s apart); a 4xx or an invalid body fails at once. If the request fails, the cached observable is dropped so the next call fetches again
-- Logger: centralised logging service, does not expose internal details to users
-
-HTTP interceptors handle cross-cutting concerns:
-
-- `turnstile.interceptor`: injects the `cf-turnstile-response` header via `HttpContext`
+The CDK overlay and dialog load on demand, with the first toast or the CV click.
 
 ## Feature flag (Open to Work)
 
-Runtime toggle for the navbar badge. It is a single public flag, not a full system.
+One public flag for the navbar badge, not a flag system. `GET /feature-flag/openToWork` returns
+`{ "openToWork": true | false }`; a missing flag returns 404 and reads as `false`. I change the
+value by hand in Cloudflare KV.
 
-- `GET https://rapaglaz.de/feature-flag/openToWork` → `{ "openToWork": true | false }`
-- Missing flag returns `404`, frontend treats it as `false`
-- Storage is Cloudflare KV, updated manually
+On the frontend it is one `httpResource` per flag name, cached in a `Map`. The first version had an
+Observable and a Signal API with two LRU caches, far too much for one flag. Valibot validates the
+response in `parse`, and anything unexpected becomes `false`. On the server the URL is `undefined`,
+so prerender sends no request.
 
-On the frontend it is one `httpResource` per flag name, cached in a plain Map.
-The old version had a dual Observable + Signal API with two LRU caches — way too much
-machinery for a single flag, so it is gone. Validation happens in the resource `parse`
-option (Valibot), anything unexpected becomes `false`. On the server the resource URL
-is `undefined`, so no request fires during prerender.
+One gotcha: `value()` throws in the error state even with a `defaultValue`, so components read the
+flag through `hasValue()` inside a `computed`.
 
-One gotcha: `value()` throws in the error state even when `defaultValue` is set.
-Components read the flag through `hasValue()` inside a computed instead.
+## Testing
 
-## Testing approach
+Unit tests run on Vitest through `@nx/vitest`, with AnalogJS and a zoneless TestBed. Each project
+has its own config and coverage thresholds. AnalogJS does not type-check specs, so
+`pnpm run typecheck` checks them, templates included, as a separate cached task. Sections get smoke
+tests; services and interceptors get tests for behaviour and error paths.
 
-### Unit tests
-
-Unit tests run on Vitest through `@nx/vitest`, with AnalogJS compiling Angular and setting up a
-zoneless TestBed (`src/test-setup.ts` in every project). Every project has its own
-`vite.config.mts` with the same settings; the coverage thresholds apply per project. They use the
-`forks` pool: AnalogJS defaults to `vmThreads`, where jsdom's `window` is the global and
-`window.location` cannot be redefined, which the window mocks in `@rapaglaz/shared/testing` need.
-
-AnalogJS compiles the specs without type-checking them. `pnpm run typecheck` runs
-`angular-typechecker`, which checks the app and spec tsconfigs with the Angular compiler,
-including templates, as a separate cached task.
-
-For presentational sections I keep tests as smoke checks (renders, key elements exist).
-For services/interceptors I test behaviour and error paths.
-
-### E2E (Playwright)
-
-Playwright is used for user flows:
-
-- language switch
-- CV download (mocked backend)
-- Turnstile failure cases (script blocked / verification fails)
-- a11y checks with axe after EN/DE content is revealed in light and dark themes
-
-The contrast tests also read browser-computed theme pairs and interaction colors. Text requires
-4.5:1 contrast; icons and authored focus indicators require 3:1. Navbar and toast backgrounds
-are opaque so the content beneath them cannot lower contrast. Decorative borders and shadows
-are not treated as essential controls. These checks run after finite animations finish.
-
-With `prefers-reduced-motion: reduce`, CSS disables entrance animations, delays, transitions,
-smooth scrolling and hover scaling; `apps/rapaglaz-portfolio-e2e/src/motion.spec.ts` covers both
-preferences and a change after page load. Keyboard focus bypasses entrance effects in either mode.
-
-In CI (and in `e2e:ssg`) tests run against the static build served on port 4233.
-Locally `pnpm run e2e` uses the dev server on 4200.
-
-### Lighthouse CI
-
-Lighthouse is feedback only. It does not block merges.
-See [CI/CD strategy](./CI_STRATEGY.md#lighthouse) for how it runs and why it uses the CLI directly.
+Playwright covers the language switch, the CV download (also on a Pixel 7 profile), Turnstile
+failures, axe checks in EN/DE and light/dark, contrast (4.5:1 for text, 3:1 for icons and focus
+indicators) and reduced motion. CI tests the static build; `pnpm run e2e` uses the dev server.
 
 ## i18n
 
-Transloco with JSON under `libs/shared/util/src/i18n`, copied to `/i18n/` by the build.
-Runtime has a strict missing handler, so missing keys are loud.
-Routes are `/en` and `/de`. The URL segment decides the active language.
-Root `/` falls back to the default language (`en`).
+Transloco with JSON in `libs/shared/util/src/i18n`. A strict missing handler makes missing keys
+loud, and `/` falls back to `en`.
 
-The app initializer loads the initial translations for SSR and hydration. A route resolver
-then loads and activates the URL's language and updates `<html lang>` before creating the
-portfolio, including on Back/Forward navigation. The language switcher only navigates and
-preserves query parameters and the fragment; its selection follows the resolved language.
-If German translations fail to load, the resolver redirects to `/en` with the same URL extras
-and replaces the failed history entry. If English cannot be loaded, navigation is cancelled
-and the current route and language remain active.
+The app initializer loads the first translations for prerender and hydration. A route resolver then
+loads the URL's language and updates `<html lang>` before the page is created, also on Back/Forward.
+If German fails to load, it redirects to `/en`; if English fails, navigation is cancelled. Bootstrap
+error messages come from the bundled dictionaries, so they still show in the right language when
+loading fails.
 
-Bootstrap failure messages are bundled from the JSON dictionaries, so they still appear in the
-URL's language when Angular, Transloco, or translation requests fail.
-The server translation loader is imported directly by the server configuration, keeping
-full translation dictionaries out of the browser JavaScript bundle.
-Certification dates use `Intl.DateTimeFormat` with the active language.
-
-I validate translations with:
-
-```bash
-pnpm run i18n:check
-```
-
-It fails on missing keys and on keys that no code uses. transloco-keys-manager cannot see keys
-built at runtime (`'portfolio.skills.items.' + id`) or passed as an input (`titleKey`), so those
-are listed in `t(...)` comments next to their use.
+`pnpm run i18n:check` fails on missing and unused keys. Keys built at runtime or passed as inputs
+are listed in `t(...)` comments next to their use, because transloco-keys-manager cannot see them.
 
 ## Trade-offs
 
-- No NgRx yet; it is planned. SignalStore will go only where state is shared, in `data-access`
-  libraries: `FeatureFlagStore` and `CvDownloadStore` to `shared-data-access`, because the navbar
-  and the page both use them; a store only the portfolio uses would get `libs/portfolio/data-access`.
-  Features will inject stores, UI libraries get inputs, and the project tags keep it that way.
+- No NgRx yet; it is planned for state that more than one component shares. Stores will go to
+  `data-access` libraries, features will inject them, and UI libraries keep getting inputs.
