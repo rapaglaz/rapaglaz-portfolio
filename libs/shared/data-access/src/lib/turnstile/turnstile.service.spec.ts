@@ -235,7 +235,8 @@ describe('TurnstileService (integration)', () => {
 
     try {
       expect(widget.parentElement).toBe(document.body);
-      expect(widget.style.visibility).toBe('hidden');
+      expect(widget.style.visibility).toBe('');
+      expect(widget.style.left).toBe('-9999px');
 
       options['before-interactive-callback']();
       options['before-interactive-callback']();
@@ -244,7 +245,6 @@ describe('TurnstileService (integration)', () => {
       const dialog = document.querySelector('[role="dialog"]');
       expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(1);
       expect(dialog?.querySelector('#turnstile-widget-container')?.contains(widget)).toBe(true);
-      expect(widget.style.visibility).toBe('');
       expect(widget.style.left).toBe('');
       expect(widget.style.position).toBe('');
       expect(dialog?.querySelector('[role="status"]')).toBeNull();
