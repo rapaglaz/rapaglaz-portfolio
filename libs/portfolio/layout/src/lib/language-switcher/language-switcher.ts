@@ -9,6 +9,17 @@ import {
   LANG_LABELS,
 } from '@rapaglaz/shared/util';
 
+const BASE_CLASSES =
+  'btn btn-link text-shadow-primary-xs text-xl md:text-lg transition-all duration-400 no-underline px-1.5';
+const ACTIVE_CLASSES =
+  'text-primary dark:text-primary/80 font-extrabold dark:font-bold pointer-events-none cursor-default';
+const INACTIVE_CLASSES =
+  'text-primary/90 dark:text-base-content/80 hover:text-primary hover:scale-115 font-semibold hover:cursor-pointer hover:text-shadow-primary';
+
+function langClasses(active: boolean): string {
+  return `${BASE_CLASSES} ${active ? ACTIVE_CLASSES : INACTIVE_CLASSES}`;
+}
+
 @Component({
   selector: 'app-language-switcher',
   imports: [CdkListboxModule, TranslocoPipe],
@@ -20,14 +31,14 @@ import {
       [cdkListboxValue]="selectedLang()"
       (cdkListboxValueChange)="handleValueChange($event)"
       [attr.aria-label]="'common.a11y.languageSelection' | transloco">
-      @for (lang of availableLangs; track lang; let last = $last) {
+      @for (option of options(); track option.lang; let last = $last) {
         <button
           type="button"
-          [cdkOption]="lang"
-          [attr.lang]="lang"
-          [class]="getLangClasses(lang)"
-          [attr.aria-label]="getLangLabel(lang)">
-          {{ lang.toUpperCase() }}
+          [cdkOption]="option.lang"
+          [attr.lang]="option.lang"
+          [class]="option.classes"
+          [attr.aria-label]="option.label">
+          {{ option.code }}
         </button>
         @if (!last) {
           <span
@@ -43,11 +54,18 @@ import {
 export class LanguageSwitcher {
   private readonly router = inject(Router);
 
-  protected readonly availableLangs = AVAILABLE_LANGS;
-
   protected readonly currentLang = injectActiveLang();
 
   protected readonly selectedLang = computed<readonly string[]>(() => [this.currentLang()]);
+
+  protected readonly options = computed(() =>
+    AVAILABLE_LANGS.map(lang => ({
+      lang,
+      code: lang.toUpperCase(),
+      label: `${lang.toUpperCase()} ${LANG_LABELS[lang]}`,
+      classes: langClasses(lang === this.currentLang()),
+    })),
+  );
 
   protected handleValueChange(event: ListboxValueChangeEvent<string>): void {
     const next = event.value[0];
@@ -67,22 +85,5 @@ export class LanguageSwitcher {
       fragment: fragment ?? undefined,
       queryParamsHandling: 'preserve',
     });
-  }
-
-  protected getLangLabel(lang: string): string {
-    if (isAvailableLang(lang)) {
-      return `${lang.toUpperCase()} ${LANG_LABELS[lang]}`;
-    }
-    return lang;
-  }
-
-  protected getLangClasses(lang: string): string {
-    const baseClasses =
-      'btn btn-link text-shadow-primary-xs text-xl md:text-lg transition-all duration-400 no-underline px-1.5';
-    const isActive = this.currentLang() === lang;
-    const stateClasses = isActive
-      ? 'text-primary dark:text-primary/80 font-extrabold dark:font-bold pointer-events-none cursor-default'
-      : 'text-primary/90 dark:text-base-content/80 hover:text-primary hover:scale-115 font-semibold hover:cursor-pointer hover:text-shadow-primary';
-    return `${baseClasses} ${stateClasses}`;
   }
 }
