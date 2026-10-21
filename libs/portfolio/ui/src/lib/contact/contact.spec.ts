@@ -27,7 +27,7 @@ describe('Contact', () => {
     expect(links[0].getAttribute('target')).toBeNull();
     expect(links[0].getAttribute('rel')).toBeNull();
     expect(links[0].getAttribute('aria-label')).toBe('Email: radek@rapaglaz.de');
-    expect(links[1].href).toBe('https://www.linkedin.com/in/paul-glaz/');
+    expect(links[1].href).toBe('https://www.linkedin.com/in/radek-glaz/');
     expect(links[2].href).toBe('https://github.com/rapaglaz');
     for (const link of Array.from(links).slice(1)) {
       expect(link.target).toBe('_blank');
@@ -50,7 +50,7 @@ describe('Contact', () => {
 
     const linkedIn = (fixture.nativeElement as HTMLElement).querySelector('a[href*="linkedin"]');
     expect(linkedIn?.getAttribute('aria-label')).toBe(
-      'LinkedIn: linkedin.com/in/paul-glaz (öffnet in neuem Tab)',
+      'LinkedIn: linkedin.com/in/radek-glaz (öffnet in neuem Tab)',
     );
   });
 });
