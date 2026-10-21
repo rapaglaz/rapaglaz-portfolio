@@ -16,8 +16,9 @@ Referrer-Policy: strict-origin-when-cross-origin
 Permissions-Policy: geolocation=(), microphone=(), camera=()
 ```
 
-There is no Content-Security-Policy. Angular's `security.autoCsp` could make a hash-based one, but
-it is still experimental.
+There is no Content-Security-Policy. Angular's `security.autoCsp` option can create a hash-based
+policy for the scripts at build time. It covers only scripts, so `style-src` needs a header
+([angular.dev](https://angular.dev/best-practices/security), checked 2026-10-21).
 
 ## Subresource Integrity
 
@@ -58,7 +59,8 @@ Tokens, API keys and personal data are never logged.
 
 No secrets in the repo. They are in GitHub Secrets or in Cloudflare, and `TURNSTILE_SECRET` is a
 Worker secret. The Workers deploy from the main workflow with an API token that can only edit
-Workers. PR workflows never get it.
+Workers. The deploy secrets are in the `production` environment, which only `main` can use, so PR
+workflows never get them.
 
 Renovate updates the dependencies. OSV vulnerability alerts are on, and patch updates merge
 automatically.

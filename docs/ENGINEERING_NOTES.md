@@ -180,6 +180,7 @@ Problems from this repo's history, oldest first, with the PRs that fixed them.
 - **Cause:** AnalogJS sets the Vitest `pool` to `vmThreads` unless the config names one. In a VM pool
   the global is the `Window` of jsdom, where `location` and `document` cannot be redefined. The old
   runner used the default `forks` pool, where they can.
-- **Fix:** `pool: 'forks'` in `vite.config.mts`, with no change to the tests. The coverage numbers
+- **Fix:** `pool: 'forks'` in `vite.config.mts` (today in `vitest.angular.mts`), with no change to
+  the tests. The coverage numbers
   changed because the instrumentation changed, not the tests: branches went from 92.56% of 457 to
   86.69% of 233, and untested entry files now count.

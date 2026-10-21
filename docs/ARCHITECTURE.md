@@ -17,9 +17,9 @@ libs/
 │   ├── ui/                   # the sections; they only show their inputs
 │   └── util/                 # contact links, the email opener, CV file name
 └── shared/
-    ├── data-access/          # CV download with config and Turnstile, feature flag
+    ├── data-access/          # CV download with config and Turnstile, feature flag, API URLs
     ├── ui/                   # badge, section wrapper with scroll reveal, toasts
-    ├── util/                 # logger, API tokens, i18n and dictionaries, animation
+    ├── util/                 # logger, i18n and dictionaries, stagger delay
     └── testing/              # Transloco test setup, window mocks
 ```
 
@@ -96,8 +96,9 @@ the response in `parse`, and anything unexpected becomes `false`. On the server 
 
 ## Testing
 
-Unit tests run on Vitest through `@nx/vitest`, with AnalogJS and a zoneless TestBed. Each project
-has its own config and coverage thresholds. AnalogJS does not type-check specs, so
+Unit tests run on Vitest through `@nx/vitest`, with AnalogJS and a zoneless TestBed. The
+`vitest.config.mts` of each project calls `angularVitestConfig` from `vitest.angular.mts`, which
+holds the AnalogJS setup, the `forks` pool and the coverage thresholds for all projects. AnalogJS does not type-check specs, so
 `pnpm run typecheck` does it, templates included, as a separate cached task. Sections get smoke
 tests. Services and interceptors get tests for behavior and error paths.
 
@@ -121,5 +122,8 @@ are listed in `t(...)` comments next to their use, because transloco-keys-manage
 
 ## Trade-offs
 
-- No NgRx yet. It is planned for state that more than one component shares. Stores will go to
-  `data-access` libraries, features will inject them, and UI libraries keep getting inputs.
+- No NgRx. Today no state exists that a store would make simpler. A SignalStore (`@ngrx/signals`)
+  comes only with the first real feature whose state is synced with the URL, is shared by
+  components that are not parent and child, or is an async workflow with three or more states in
+  the UI. Stores then go to `data-access` libraries, features inject them, and UI libraries keep
+  getting inputs.

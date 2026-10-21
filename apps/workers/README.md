@@ -29,10 +29,11 @@ boundary rule.
 
 ## Deploy from CI
 
-`deploy-workers` in `.github/workflows/main-branch-ci-cd.yaml` deploys from `main` after lint and
-tests pass. It deploys only the Workers that `nx affected` reports since the last green run on
-`main`, so the changes of a canceled or failed run are not lost. It uses the secrets
-`CLOUDFLARE_API_TOKEN` (Edit Cloudflare Workers) and `CLOUDFLARE_ACCOUNT_ID`.
+`deploy-workers` in `.github/workflows/main-branch-ci-cd.yaml` deploys from `main` after lint,
+tests, the build and E2E pass. It deploys only the Workers that `nx affected` reports since the last
+green run on `main`, so the changes of a canceled or failed run are not lost. It uses the secrets
+`CLOUDFLARE_API_TOKEN` (Edit Cloudflare Workers) and `CLOUDFLARE_ACCOUNT_ID` of the `production`
+environment.
 
 Each deploy tags the Worker version with the short commit SHA and subject, so
 `wrangler deployments status` shows which commit is live.

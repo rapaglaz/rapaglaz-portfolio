@@ -19,7 +19,7 @@ Every project has a type tag, and libraries also have a scope tag:
 | `type:worker`      | `cv-download`, `feature-flag`, `portfolio-settings` | Nothing                                                                    |
 | `type:data-access` | `shared-data-access`                                | `type:data-access`, `type:util`, `type:testing`                            |
 | `type:ui`          | `shared-ui`, `portfolio-ui`                         | `type:ui`, `type:util`, `type:testing`                                     |
-| `type:util`        | `shared-util`                                       | `type:util`                                                                |
+| `type:util`        | `shared-util`, `portfolio-util`                     | `type:util`                                                                |
 | `type:testing`     | `shared-testing`                                    | `type:util`                                                                |
 | `scope:shared`     | all `libs/shared/*` libraries                       | `scope:shared`                                                             |
 | `scope:portfolio`  | all `libs/portfolio/*` libraries                    | `scope:portfolio`, `scope:shared`                                          |
@@ -60,5 +60,5 @@ cycle check.
 
 There are no exceptions and no cycle allow-list. The first version of the rules (#756) had five
 narrow file-level exceptions. They were removed when the layers moved to Nx tags (#807 to #812). The
-first run, on 2026-10-08, found 11 warnings including one cycle. The
+first run, on 2026-10-10, found 11 warnings including one cycle. The
 [engineering notes](./ENGINEERING_NOTES.md) tell that story.

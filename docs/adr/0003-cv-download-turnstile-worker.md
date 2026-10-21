@@ -20,6 +20,8 @@ reads the PDF through its R2 binding and streams it with `Cache-Control: private
 
 **Consequences.**
 
-- Locally the production Worker rejects the test token, so the download shows the error toast. E2E
-  mocks Turnstile and `/download`.
+- The production Worker rejects the test token. Since
+  [#819](https://github.com/rapaglaz/rapaglaz-portfolio/pull/819), `pnpm start` runs a local copy
+  of the Worker with Cloudflare's test secret and a placeholder PDF, so local development sends no
+  request to production. E2E mocks Turnstile and `/download`.
 - The rate limit works only since [#794](https://github.com/rapaglaz/rapaglaz-portfolio/pull/794).

@@ -39,8 +39,8 @@ the [engineering notes](./docs/ENGINEERING_NOTES.md).
 | `test:workers`, `workers:check` (Worker specs, `wrangler deploy --dry-run`)  | PR, main | yes                          |
 | SSG build with bundle budgets from `apps/rapaglaz-portfolio/project.json`    | PR, main | yes                          |
 | Playwright E2E against the build, Chromium and WebKit                        | PR, main | yes                          |
-| SonarCloud analysis (in the test job)                                        | PR, main | no, quality gate not awaited |
-| actionlint, zizmor (workflow linting and security)                           | PR       | yes                          |
+| SonarCloud analysis (`sonar` job, after `test`)                              | PR, main | no, quality gate not awaited |
+| actionlint, zizmor (workflow linting and security)                           | PR, main | on PRs (in the `lint` job)   |
 | Lighthouse, 3 desktop runs, median posted as a PR comment                    | PR       | no                           |
 
 On PRs, the `quality-check` gate needs everything except SonarCloud and Lighthouse. On `main`, the
