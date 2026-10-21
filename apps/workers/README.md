@@ -21,9 +21,13 @@ with a page of the portfolio, so that a visitor sees a clear message instead of 
   [`site-fallback/offline.html`](./site-fallback/offline.html), with status 503, `Retry-After` and
   `Cache-Control: no-store`, so that crawlers and caches do not keep it. Other answers and other
   methods are not changed.
-- The page has only inline CSS and no script, because nothing else is available during the outage.
-  The language follows the path (`/de`, otherwise English). The page reloads itself every minute, so
-  the real page appears as soon as the origin answers again.
+- The page has only inline CSS, because nothing else is available during the outage. The language
+  follows the path (`/de`, otherwise English).
+- The one script is [`reload-script.ts`](./site-fallback/reload-script.ts). Every minute, and when the
+  tab becomes visible, it asks the same address with `HEAD` and reloads the page only when the answer
+  is no longer a server error, so a reader is not interrupted while the origin is down. The Worker
+  puts the text into the page and computes the SHA-256 hash for the Content-Security-Policy from the
+  same text, so `script-src` allows only this script and `connect-src` only the own address.
 - The texts are in [`index.ts`](./site-fallback/index.ts) and fill the `[[tokens]]` of the HTML file.
   Transloco is not available in a Worker, so these two languages are kept by hand.
 - Routes are added in the dashboard (Workers Routes), only for the pages and not for the assets, so

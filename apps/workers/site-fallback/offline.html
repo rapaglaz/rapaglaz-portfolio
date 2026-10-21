@@ -1,7 +1,8 @@
 <!doctype html>
 <!--
   Offline page of the portfolio. The Worker fills the double-bracket tokens with the texts of index.ts.
-  Everything is inline and there is no script: the page must work while the web host is down.
+  Everything is inline: the page must work while the web host is down. The Worker replaces the
+  script comment before </body> with reload-script.ts, which opens the real page when the origin is back.
   The colors and the outlined heading come from apps/rapaglaz-portfolio/src/styles.css.
 -->
 <html lang="[[lang]]">
@@ -16,10 +17,6 @@
     <meta
       name="robots"
       content="noindex" />
-    <!-- when the origin is back, the reload shows the real page at the same address -->
-    <meta
-      http-equiv="refresh"
-      content="60" />
     <link
       rel="preconnect"
       href="https://fonts.googleapis.com" />
@@ -175,5 +172,6 @@
         >[[reload]]</a
       >
     </main>
+    <!--script-->
   </body>
 </html>

@@ -4,6 +4,7 @@
  * host is down. The Worker runs on Cloudflare and does not depend on it.
  */
 import offlinePage from './offline.html';
+import { RELOAD_SCRIPT } from './reload-script';
 
 type Language = 'en' | 'de';
 
@@ -12,11 +13,13 @@ type Copy = {
   heading: string;
   message: string;
   reload: string;
-  retry: string;
 };
 
 // Seconds that a client or crawler should wait before it asks again
 const RETRY_AFTER = '300';
+
+// The page has this comment where the script belongs; Prettier does not change a comment
+const SCRIPT_MARKER = '<!--script-->';
 
 const COPY: Record<Language, Copy> = {
   en: {
@@ -25,7 +28,6 @@ const COPY: Record<Language, Copy> = {
     message:
       'The server behind this page does not answer right now. This is a temporary problem on my side, not something you did.',
     reload: 'Try again',
-    retry: 'This page reloads itself every minute.',
   },
   de: {
     title: 'Vorübergehend nicht erreichbar | rapaglaz.de',
@@ -33,9 +35,11 @@ const COPY: Record<Language, Copy> = {
     message:
       'Der Server hinter dieser Seite antwortet gerade nicht. Das ist ein vorübergehendes Problem auf meiner Seite, du hast nichts falsch gemacht.',
     reload: 'Erneut versuchen',
-    retry: 'Diese Seite lädt sich jede Minute selbst neu.',
   },
 };
+
+// The hash is the same for every request, so it is computed once per Worker instance
+let scriptHash: Promise<string> | undefined;
 
 export default {
   async fetch(request: Request): Promise<Response> {
@@ -59,16 +63,35 @@ function languageOf(request: Request): Language {
   return /^\/de(\/|$)/.test(new URL(request.url).pathname) ? 'de' : 'en';
 }
 
-// The page uses only static text, never a value from the request, so nothing needs escaping
+// The page uses only static text, never a value from the request, so nothing needs escaping.
+// The replacer functions keep a "$" in a text or in the script from being read as a pattern.
 function renderPage(language: Language): string {
   const values: Record<string, string> = { lang: language, ...COPY[language] };
-  return offlinePage.replace(
-    /\[\[(\w+)\]\]/g,
-    (placeholder, key: string) => values[key] ?? placeholder,
-  );
+  return offlinePage
+    .replace(/\[\[(\w+)\]\]/g, (placeholder, key: string) => values[key] ?? placeholder)
+    .replace(SCRIPT_MARKER, () => `<script>${RELOAD_SCRIPT}</script>`);
 }
 
-function offlineResponse(request: Request): Response {
+async function sha256Base64(text: string): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return btoa(String.fromCodePoint(...new Uint8Array(digest)));
+}
+
+// Only the script of the Worker may run, and it may only ask the own address
+async function contentSecurityPolicy(): Promise<string> {
+  scriptHash ??= sha256Base64(RELOAD_SCRIPT);
+  return [
+    "default-src 'none'",
+    "style-src 'unsafe-inline'",
+    `script-src 'sha256-${await scriptHash}'`,
+    "connect-src 'self'",
+    "base-uri 'none'",
+    "form-action 'none'",
+    "frame-ancestors 'none'",
+  ].join('; ');
+}
+
+async function offlineResponse(request: Request): Promise<Response> {
   return new Response(request.method === 'HEAD' ? null : renderPage(languageOf(request)), {
     status: 503,
     headers: {
@@ -77,8 +100,7 @@ function offlineResponse(request: Request): Response {
       'Retry-After': RETRY_AFTER,
       'X-Robots-Tag': 'noindex',
       'X-Content-Type-Options': 'nosniff',
-      'Content-Security-Policy':
-        "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+      'Content-Security-Policy': await contentSecurityPolicy(),
     },
   });
 }

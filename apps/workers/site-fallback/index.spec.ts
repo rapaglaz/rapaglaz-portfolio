@@ -1,5 +1,7 @@
+import { createHash } from 'node:crypto';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import worker from './index';
+import { RELOAD_SCRIPT } from './reload-script';
 
 const SITE = 'https://rapaglaz.de';
 
@@ -81,15 +83,38 @@ describe('site-fallback worker', () => {
     expect(lookalike).toContain('<html lang="en">');
   });
 
-  it('leaves no placeholder in the page and refreshes it every minute', async () => {
+  it('leaves no placeholder or marker in the page', async () => {
     origin.mockImplementation(() => Promise.resolve(new Response('', { status: 521 })));
 
     for (const path of ['/en', '/de']) {
       const html = await (await worker.fetch(pageRequest({ path }))).text();
 
       expect(html).not.toMatch(/\[\[\w+\]\]/);
-      expect(html).toMatch(/http-equiv="refresh"\s+content="60"/);
+      expect(html).not.toContain('<!--script-->');
     }
+  });
+
+  it('does not refresh the page by itself with a meta tag', async () => {
+    origin.mockResolvedValue(new Response('', { status: 521 }));
+
+    const html = await (await worker.fetch(pageRequest())).text();
+
+    expect(html).not.toContain('http-equiv="refresh"');
+  });
+
+  it('puts the reload script into the page and allows exactly that script in the CSP', async () => {
+    origin.mockResolvedValue(new Response('', { status: 521 }));
+
+    const response = await worker.fetch(pageRequest());
+    const html = await response.text();
+    const csp = response.headers.get('Content-Security-Policy') ?? '';
+    const hash = createHash('sha256').update(RELOAD_SCRIPT).digest('base64');
+
+    expect(html.match(/<script>([\s\S]*?)<\/script>/)?.[1]).toBe(RELOAD_SCRIPT);
+    expect(csp).toContain(`script-src 'sha256-${hash}'`);
+    expect(csp).not.toMatch(/script-src[^;]*unsafe-inline/);
+    expect(csp).toContain("connect-src 'self'");
+    expect(csp).toContain("default-src 'none'");
   });
 
   it('answers HEAD with the status and without a body', async () => {
