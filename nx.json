@@ -45,7 +45,6 @@
     ],
     "workerSource": [
       "{projectRoot}/**/*",
-      "!{projectRoot}/**/*.spec.js",
       "!{projectRoot}/**/*.spec.ts",
       "!{projectRoot}/vitest.config.mjs",
       "!{projectRoot}/tsconfig.json"

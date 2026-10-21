@@ -41,9 +41,8 @@ function declaredNames(config: WranglerConfig): Set<string> {
   ]);
 }
 
-// entry is the main file from wrangler.jsonc, index.js while a Worker is still JavaScript
-function envNamesReadByCode(workerDir: URL, entry: string): Set<string> {
-  const code = readWorkerFile(workerDir, entry);
+function envNamesReadByCode(workerDir: URL): Set<string> {
+  const code = readWorkerFile(workerDir, 'index.ts');
   return new Set([...code.matchAll(/\benv\.([A-Z][A-Z0-9_]*)/g)].map(([, name]) => name));
 }
 
@@ -59,8 +58,7 @@ export function describeWranglerConfig(
 
     it('targets the Cloudflare Worker of the same name and leaves routes to the dashboard', () => {
       expect(config.name).toBe(worker);
-      // index.js stays allowed while some Workers are still JavaScript
-      expect(['index.js', 'index.ts']).toContain(config.main);
+      expect(config.main).toBe('index.ts');
       expect(config.workers_dev).toBe(false);
       expect(config).not.toHaveProperty('route');
       expect(config).not.toHaveProperty('routes');
@@ -73,9 +71,7 @@ export function describeWranglerConfig(
 
     it('accounts for every env name the code reads', () => {
       const known = new Set([...required, ...optional]);
-      for (const name of envNamesReadByCode(workerDir, config.main ?? 'index.ts')) {
-        expect(known).toContain(name);
-      }
+      for (const name of envNamesReadByCode(workerDir)) expect(known).toContain(name);
     });
 
     it('never lets production skip siteverify for the test token', () => {

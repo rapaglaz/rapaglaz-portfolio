@@ -20,6 +20,28 @@
         }
       ]
     },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "inputs": [
+        "default",
+        "{workspaceRoot}/apps/workers/tsconfig.base.json",
+        "{workspaceRoot}/apps/workers/testing/**/*",
+        {
+          "externalDependencies": [
+            "typescript",
+            "@cloudflare/workers-types",
+            "@types/node",
+            "vitest"
+          ]
+        }
+      ],
+      "outputs": [],
+      "options": {
+        "cwd": "{projectRoot}",
+        "command": "tsc -p tsconfig.json --noEmit"
+      }
+    },
     "check": {},
     "deploy": {}
   }

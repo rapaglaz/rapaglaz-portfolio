@@ -27,28 +27,13 @@ export default defineConfig(
     },
   },
   {
-    // the Vitest config of each Worker, and the Workers that are still JavaScript
+    // the Vitest config of each Worker
     files: ['**/*.{js,mjs}'],
     extends: [eslint.configs.recommended, eslintConfigPrettier],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
-      // Workers runtime (Fetch API) globals the JavaScript sources use
-      globals: {
-        AbortController: 'readonly',
-        AbortSignal: 'readonly',
-        Headers: 'readonly',
-        Request: 'readonly',
-        Response: 'readonly',
-        TextEncoder: 'readonly',
-        URL: 'readonly',
-        URLSearchParams: 'readonly',
-        clearTimeout: 'readonly',
-        console: 'readonly',
-        crypto: 'readonly',
-        fetch: 'readonly',
-        setTimeout: 'readonly',
-      },
+      globals: { URL: 'readonly' },
     },
   },
 );
