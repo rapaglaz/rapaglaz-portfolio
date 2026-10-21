@@ -3,7 +3,7 @@
 // and observability match the active version on 2026-10-17 (wrangler versions view).
 {
   "name": "feature-flag",
-  "main": "index.js",
+  "main": "index.ts",
   "compatibility_date": "2025-02-04",
   "workers_dev": false,
   "preview_urls": false,

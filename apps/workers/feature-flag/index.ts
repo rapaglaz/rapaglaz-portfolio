@@ -1,3 +1,10 @@
+// The KV namespace bound as KV in wrangler.jsonc; the Worker only reads from it
+export type Env = {
+  KV: Pick<KVNamespace, 'get'>;
+};
+
+type HeaderMap = Record<string, string>;
+
 const ALLOWED_ORIGINS = [
   'https://rapaglaz.de',
   'https://www.rapaglaz.de',
@@ -13,7 +20,7 @@ const JSON_HEADERS = {
   'cache-control': 'no-store',
 };
 
-function corsHeaders(origin) {
+function corsHeaders(origin: string): HeaderMap {
   if (origin && ALLOWED_ORIGINS.includes(origin)) {
     return {
       'Access-Control-Allow-Origin': origin,
@@ -23,7 +30,7 @@ function corsHeaders(origin) {
   return {};
 }
 
-function jsonResponse(body, status = 200, headers = {}) {
+function jsonResponse(body: unknown, status = 200, headers: HeaderMap = {}): Response {
   return new Response(JSON.stringify(body), {
     status,
     headers: { ...JSON_HEADERS, ...headers },
@@ -31,7 +38,7 @@ function jsonResponse(body, status = 200, headers = {}) {
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
     const origin = request.headers.get('Origin') || '';
     const cors = corsHeaders(origin);
@@ -67,7 +74,7 @@ export default {
     }
 
     // a malformed escape such as %E0%A4%A makes decodeURIComponent throw a URIError
-    let flagName;
+    let flagName: string;
     try {
       flagName = decodeURIComponent(parts[1]).trim();
     } catch {
