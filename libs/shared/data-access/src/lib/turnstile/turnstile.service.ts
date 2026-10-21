@@ -186,7 +186,7 @@ export class TurnstileService {
     const container = this.document.createElement('div');
     container.style.position = 'absolute';
     container.style.left = '-9999px';
-    container.style.visibility = 'hidden';
+    // not visibility:hidden: api.js then logs postMessage origin errors while the iframe starts
     body.appendChild(container);
     return container;
   }
@@ -240,7 +240,6 @@ export class TurnstileService {
   private moveWidgetToModal(widgetContainer: HTMLElement, modalContainer: HTMLElement): void {
     widgetContainer.style.position = '';
     widgetContainer.style.left = '';
-    widgetContainer.style.visibility = '';
     modalContainer.appendChild(widgetContainer);
   }
 
