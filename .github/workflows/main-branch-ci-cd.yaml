@@ -320,13 +320,19 @@ jobs:
           name: build-artifact-main
           path: dist/apps/rapaglaz-portfolio/browser
 
+      # Cloudflare challenges GitHub-hosted runners. SMOKE_TOKEN goes out as X-Smoke-Token, which a WAF
+      # custom rule with the Skip action lets through. Without the secret both scripts skip with a
+      # warning.
       - name: Check the site
         env:
           # the live pages must load the main bundle of the artifact that was deployed
           EXPECTED_DIR: dist/apps/rapaglaz-portfolio/browser
+          SMOKE_TOKEN: ${{ secrets.SMOKE_TOKEN }}
         run: sh scripts/site-smoke.sh
 
       # runs even when the site check failed, so one run shows every problem
       - name: Check the Workers
         if: ${{ !cancelled() }}
+        env:
+          SMOKE_TOKEN: ${{ secrets.SMOKE_TOKEN }}
         run: bash apps/workers/scripts/workers-smoke.sh
