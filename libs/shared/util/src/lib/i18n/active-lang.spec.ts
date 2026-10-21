@@ -12,7 +12,7 @@ describe('injectActiveLang', () => {
       providers: [
         {
           provide: TranslocoService,
-          useValue: { langChanges$, getActiveLang: () => langChanges$.value },
+          useValue: { langChanges$, getActiveLang: (): string => langChanges$.value },
         },
       ],
     });

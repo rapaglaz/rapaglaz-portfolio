@@ -37,7 +37,7 @@ test.describe('Motion preferences', () => {
     const links = page.getByTestId('contact-link');
     const first = links.first();
     const surface = first.locator('.contact-card-surface');
-    const readBounds = () =>
+    const readBounds = (): Promise<{ x: number; y: number; width: number; height: number }> =>
       first.evaluate(element => {
         const { x, y, width, height } = element.getBoundingClientRect();
         return { x: x + scrollX, y: y + scrollY, width, height };
