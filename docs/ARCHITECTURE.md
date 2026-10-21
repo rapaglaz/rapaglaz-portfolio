@@ -135,8 +135,10 @@ shows "Page not found" instead of a redirect to the home page, and the route `er
 a title while they are visible, and give the previous values back when the router leaves them.
 
 A failed navigation, for example a lazy chunk that a new deploy removed, goes to `/error` through
-`withNavigationErrorHandler`. The address does not change, so a reload retries the page that the
-visitor asked for. The handler logs the path without the query string. An error on `/error` itself
+`withNavigationErrorHandler`. The address bar does not change: after a failed first load it still
+shows the page that the visitor asked for, so a reload retries it. When someone opens `/error`
+directly, the reload button leads to the home page, because a reload would only show the error
+page again. The handler logs the path without the query string. An error on `/error` itself
 is not redirected again, so there is no loop. The prerender does not use the handler, so a failing
 route still fails the build.
 

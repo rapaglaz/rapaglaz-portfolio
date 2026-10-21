@@ -71,8 +71,9 @@ const ROBOTS_SELECTOR = 'name="robots"';
 // which one through the route data, so both share one layout and the navbar and footer stay.
 export class ErrorPage {
   protected readonly lang = injectActiveLang();
+  private readonly route = inject(ActivatedRoute);
   protected readonly kind: ErrorKind =
-    inject(ActivatedRoute).snapshot.data['kind'] === 'failed' ? 'failed' : 'notFound';
+    this.route.snapshot.data['kind'] === 'failed' ? 'failed' : 'notFound';
 
   private readonly document = inject(DOCUMENT);
   private readonly platformId = inject(PLATFORM_ID);
@@ -106,8 +107,19 @@ export class ErrorPage {
   }
 
   protected reload(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      this.document.defaultView?.location.reload();
+    const location = this.document.defaultView?.location;
+    if (!isPlatformBrowser(this.platformId) || !location) {
+      return;
+    }
+
+    // After a failed first load the address bar still shows the page that the visitor asked for, so
+    // a reload retries it. When the bar shows the error page itself, a reload would only load this
+    // page again, so the way home is the retry.
+    const shownPath = `/${this.route.snapshot.url.map(segment => segment.path).join('/')}`;
+    if (location.pathname === shownPath) {
+      location.assign(`/${this.lang()}`);
+    } else {
+      location.reload();
     }
   }
 }

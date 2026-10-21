@@ -1,6 +1,6 @@
 import { vi } from 'vitest';
 
-export function mockWindowLocation(): {
+export function mockWindowLocation(pathname = '/'): {
   assignMock: ReturnType<typeof vi.fn>;
   reloadMock: ReturnType<typeof vi.fn>;
   cleanup: () => void;
@@ -10,7 +10,7 @@ export function mockWindowLocation(): {
   const reloadMock = vi.fn();
 
   Object.defineProperty(window, 'location', {
-    value: { assign: assignMock, reload: reloadMock },
+    value: { assign: assignMock, reload: reloadMock, pathname },
     writable: true,
     configurable: true,
   });

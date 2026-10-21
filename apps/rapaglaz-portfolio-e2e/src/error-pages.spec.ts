@@ -51,7 +51,9 @@ test.describe('Error pages', () => {
     });
   }
 
-  test('shows the failed page with a reload that returns to the portfolio', async ({ page }) => {
+  test('leaves the failed page for the portfolio when the visitor presses reload', async ({
+    page,
+  }) => {
     await visitPortfolio(page, '/en');
 
     await navigateInApp(page, '/error');
@@ -60,6 +62,12 @@ test.describe('Error pages', () => {
     await expect(page.getByRole('button', { name: 'Reload' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Back to home' })).toHaveAttribute('href', '/en');
     await expect(page.getByTestId('navbar')).toHaveCount(0);
+
+    // the address bar shows /error, so a reload would only show this page again
+    await page.getByRole('button', { name: 'Reload' }).click();
+
+    await expect(page).toHaveURL(/\/en$/);
+    await expect(page.getByTestId('section-hero')).toBeVisible();
   });
 
   for (const [path, lang, colorScheme] of [

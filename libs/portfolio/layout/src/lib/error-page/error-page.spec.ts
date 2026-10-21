@@ -64,6 +64,34 @@ describe('ErrorPage', () => {
     }
   });
 
+  it('goes home instead of reloading when the address bar shows the error page itself', async () => {
+    const element = await show('failed');
+    // the route of the harness is /anything, so a bar with that path means a direct visit
+    const { assignMock, reloadMock, cleanup } = mockWindowLocation('/anything');
+
+    try {
+      element.querySelector<HTMLButtonElement>('[data-testid="error-reload"]')?.click();
+
+      expect(assignMock).toHaveBeenCalledExactlyOnceWith('/en');
+      expect(reloadMock).not.toHaveBeenCalled();
+    } finally {
+      cleanup();
+    }
+  });
+
+  it('goes to the German home page from the error page in German', async () => {
+    const element = await show('failed', 'de');
+    const { assignMock, cleanup } = mockWindowLocation('/anything');
+
+    try {
+      element.querySelector<HTMLButtonElement>('[data-testid="error-reload"]')?.click();
+
+      expect(assignMock).toHaveBeenCalledExactlyOnceWith('/de');
+    } finally {
+      cleanup();
+    }
+  });
+
   it('does not reload on the server', async () => {
     const element = await show('failed', 'en', 'server');
     const { reloadMock, cleanup } = mockWindowLocation();
