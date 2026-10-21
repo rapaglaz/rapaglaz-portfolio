@@ -145,7 +145,8 @@ jobs:
           ts-oauth-client-id: ${{ secrets.NX_SELF_HOSTED_TS_OAUTH_CLIENT_ID }}
           ts-oauth-secret: ${{ secrets.NX_SELF_HOSTED_TS_OAUTH_SECRET }}
 
-      # main builds the artifact it deploys itself; a cache hit could replay a pull request build
+      # main builds the artifact it deploys itself, so no cached build of a pull request can ship.
+      # E2E may come from the cache: a planted result could only hide a failing test.
       - name: Build application
         uses: ./.github/actions/build
         with:
@@ -189,8 +190,6 @@ jobs:
           build-artifact-name: build-artifact-main
           report-artifact-name: playwright-report-main-${{ matrix.browser }}
           report-retention-days: 7
-          # the deployed artifact is tested in this run, never replayed from the cache
-          skip-nx-cache: 'true'
 
   deploy:
     needs: [lint, test, build, e2e-tests]
