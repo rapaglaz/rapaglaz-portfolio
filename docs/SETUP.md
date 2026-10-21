@@ -5,7 +5,7 @@
 - Node.js 24 (exact version in `.nvmrc`)
 - pnpm (exact version in `packageManager` in `package.json`)
 - [mise](https://mise.jdx.dev/), only if you commit workflow changes: the pre-commit hook runs
-  actionlint and zizmor at the versions pinned in `mise.toml`
+  actionlint and zizmor at the versions in `mise.toml`
 
 ```bash
 pnpm install
@@ -49,9 +49,8 @@ pnpm run deps:check   # forbidden imports and cycles
 pnpm run i18n:check
 ```
 
-`pnpm run deps:graph` writes an HTML dependency matrix to
-`tmp/dependency-cruiser/dependencies.html`. The rules are in
-[Dependency boundaries](./DEPENDENCY_BOUNDARIES.md).
+`pnpm run deps:graph` writes an HTML dependency matrix to `tmp/dependency-cruiser/dependencies.html`.
+The rules are in [Dependency boundaries](./DEPENDENCY_BOUNDARIES.md).
 
 ## Unit tests
 
@@ -78,20 +77,16 @@ browsers are missing, run `pnpm exec playwright install --with-deps`.
 ## Nx
 
 The scripts call Nx, so build, lint and test results come from the local cache in `.nx/` when
-nothing they depend on has changed. On the tailnet you can share the CI cache (see
-[CI strategy](./CI_STRATEGY.md#nx-remote-cache)):
+nothing they depend on has changed. If a result looks stale, run `pnpm nx reset` and the task again.
+On the tailnet you can share the cache of CI (see [CI strategy](./CI_STRATEGY.md#nx-remote-cache)):
 
 ```bash
 export NX_SELF_HOSTED_REMOTE_CACHE_SERVER=<cache server URL>
 export NX_SELF_HOSTED_REMOTE_CACHE_ACCESS_TOKEN=<access token>
 ```
 
-```bash
-pnpm nx show projects                    # apps, Workers and libraries
-pnpm nx show project rapaglaz-portfolio  # resolved targets, inputs and outputs
-pnpm nx graph                            # project graph in the browser
-pnpm nx reset                            # clear the cache and stop the daemon
-```
+`pnpm nx show projects` lists the apps, Workers and libraries, and `pnpm nx graph` opens the project
+graph.
 
 ## Preview and Lighthouse
 
@@ -104,9 +99,3 @@ pnpm exec lighthouse http://localhost:4233 --preset=desktop --throttling-method=
 Keep `--throttling-method=devtools`. On a bare local server the page paints so fast that Chrome
 sometimes records no Largest Contentful Paint (`NO_LCP`), and the default `simulate` mode needs one
 to extrapolate from. CI does three desktop runs and writes the reports to `.lighthouseci/`.
-
-## Common issues
-
-- Playwright is flaky locally: usually missing browsers or an old cache. Reinstall and retry.
-- Translations break: run `pnpm run i18n:check`.
-- A task result looks stale: run `pnpm nx reset`, then the task again.

@@ -1,6 +1,6 @@
 # Security
 
-No login, no stored user data, no payments. Mostly static content plus a CV download endpoint.
+No login, no stored user data, no payments. Mostly static content and a CV download endpoint.
 
 ## Headers
 
@@ -16,20 +16,20 @@ Referrer-Policy: strict-origin-when-cross-origin
 Permissions-Policy: geolocation=(), microphone=(), camera=()
 ```
 
-There is no Content-Security-Policy. Angular's `security.autoCsp` could generate a hash-based one,
-but it is still experimental.
+There is no Content-Security-Policy. Angular's `security.autoCsp` could make a hash-based one, but
+it is still experimental.
 
 ## Subresource Integrity
 
 The production build has `subresourceIntegrity: true`. Angular adds `integrity` and `crossorigin`
 to every script and style tag, and lists the hashes of lazy chunks in an import map in the same
 HTML. The browser refuses a file that does not match. It does not help if the HTML itself is
-replaced, because the hashes live there.
+replaced, because the hashes are in it.
 
 ## CV download
 
 I don't want the CV to be a public URL that bots can scrape forever, so downloads go through
-Cloudflare Turnstile and a Worker:
+Cloudflare Turnstile and a Worker ([ADR 0003](./adr/0003-cv-download-turnstile-worker.md)):
 
 1. The user clicks "CV".
 2. Turnstile runs, usually invisibly, sometimes with a challenge.
@@ -39,45 +39,42 @@ Cloudflare Turnstile and a Worker:
    consistent, so this limits abuse but is not an exact count. Clients behind one NAT share the
    limit.
 5. The Worker validates the token with Cloudflare (`siteverify`).
-6. If the token is valid, the Worker streams the PDF from R2 with
-   `Cache-Control: private, no-store` and `X-Robots-Tag: noindex, noarchive, nofollow`.
+6. If the token is valid, the Worker streams the PDF from R2 with `Cache-Control: private, no-store`
+   and `X-Robots-Tag: noindex, noarchive, nofollow`.
 
-The code is in [`apps/workers/cv-download`](../apps/workers/cv-download/). Cloudflare's test token
-skips `siteverify` only on a Worker with `ALLOW_TEST_TOKEN=true`, which is meant for development.
-Origin and Referer never decide that, because the client sets them.
+The code is in [`apps/workers/cv-download`](../apps/workers/cv-download/). The test token of
+Cloudflare skips `siteverify` only on a Worker with `ALLOW_TEST_TOKEN=true`, which is meant for
+development. Origin and Referer never decide that, because the client sets them.
 
-## Input validation
+## Input, errors and logging
 
 JSON from the Workers (`/config`, `/feature-flag`) is validated with Valibot before use, and
-unexpected shapes are rejected. `/download` returns a blob that goes straight to the browser
-download.
-
-## Errors and logging
+unexpected shapes are rejected. `/download` returns a blob that goes straight to the browser.
 
 `LoggerService` is the only place that logs. Users see generic messages, never internal details.
-Tokens, API keys and PII are never logged.
+Tokens, API keys and personal data are never logged.
 
 ## Secrets and dependencies
 
-No secrets in the repo; they live in GitHub Secrets or in Cloudflare. `TURNSTILE_SECRET` is a Worker
-secret. The Workers deploy from the main workflow with an API token that can only edit Workers, and
-PR workflows never get it.
+No secrets in the repo. They are in GitHub Secrets or in Cloudflare, and `TURNSTILE_SECRET` is a
+Worker secret. The Workers deploy from the main workflow with an API token that can only edit
+Workers. PR workflows never get it.
 
 Renovate updates the dependencies. OSV vulnerability alerts are on, and patch updates merge
 automatically.
 
-## Threat model (simple)
+## Threat model
 
-| Threat          | What I do                  | Risk |
-| --------------- | -------------------------- | ---- |
-| XSS             | Angular sanitisation       | Low  |
-| Clickjacking    | `X-Frame-Options: DENY`    | Low  |
-| MITM            | HSTS + Cloudflare SSL      | Low  |
-| Tampered assets | SRI on all scripts/styles  | Low  |
-| CV scraping     | Turnstile                  | Low  |
-| Bad API data    | Valibot schema validation  | Low  |
-| DDoS            | Cloudflare edge protection | Low  |
-| Leaked secrets  | none in repo               | Low  |
+| Threat          | What I do                  |
+| --------------- | -------------------------- |
+| XSS             | Angular sanitisation       |
+| Clickjacking    | `X-Frame-Options: DENY`    |
+| MITM            | HSTS + Cloudflare SSL      |
+| Tampered assets | SRI on all scripts/styles  |
+| CV scraping     | Turnstile                  |
+| Bad API data    | Valibot schema validation  |
+| DDoS            | Cloudflare edge protection |
+| Leaked secrets  | none in repo               |
 
 ## If something breaks
 

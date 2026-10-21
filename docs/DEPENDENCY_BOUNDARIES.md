@@ -1,13 +1,11 @@
 # Dependency boundaries
 
-Two tools check imports:
+Two tools check imports. Both fail the lint job in CI.
 
 - `@nx/enforce-module-boundaries` (ESLint) checks imports **between projects** through tags. The
   rule is in [`eslint.module-boundaries.mjs`](../eslint.module-boundaries.mjs).
 - dependency-cruiser checks rules **inside projects** and cycles. The rules are in
   [`.dependency-cruiser.cjs`](../.dependency-cruiser.cjs).
-
-Both fail the lint job in CI.
 
 ## Between projects (Nx)
 
@@ -26,17 +24,15 @@ Every project has a type tag, and libraries also have a scope tag:
 | `scope:shared`     | all `libs/shared/*` libraries                       | `scope:shared`                                                             |
 | `scope:portfolio`  | all `libs/portfolio/*` libraries                    | `scope:portfolio`, `scope:shared`                                          |
 
-Data access does not depend on UI. That is why the Turnstile modal lives in `shared-data-access`,
-and why the navbar, not the service, shows the toasts.
+Data access does not depend on UI. That is why the Turnstile modal is in `shared-data-access`, and
+why the navbar, not the service, shows the toasts.
 
-The router loads `portfolio-feature` with a dynamic import, so Nx rejects any static import of it,
-specs included.
-
-The rule cannot tell specs from production files, so the app may use `type:testing`.
-dependency-cruiser makes sure only specs import `@rapaglaz/shared/testing`.
+The router loads `portfolio-feature` with a dynamic import, so Nx rejects every static import of it,
+specs included. The rule cannot tell specs from production files, so the app may use `type:testing`.
+dependency-cruiser makes sure that only specs import `@rapaglaz/shared/testing`.
 
 The root and the Workers ESLint configs share the same block, so the constraints cannot drift apart.
-Changing it reruns lint everywhere and redeploys all three Workers on the next `main` run.
+A change to it runs lint everywhere and redeploys all three Workers on the next `main` run.
 
 ## Inside projects (dependency-cruiser)
 
@@ -46,13 +42,13 @@ pnpm run deps:graph   # HTML matrix in tmp/dependency-cruiser/dependencies.html
 ```
 
 It scans `apps/rapaglaz-portfolio/src/app` and `libs/*/*/src`, specs and barrels included.
-Type-only imports are ignored (`tsPreCompilationDeps: false`): they cannot create runtime cycles,
-but type-only layer violations are not reported either.
+Type-only imports are ignored (`tsPreCompilationDeps: false`). They cannot make runtime cycles, but
+type-only layer violations are not reported either.
 
 - `no-circular`: no runtime cycles, also through barrels.
 - `layout-peer-boundary`: the footer and the language switcher import no other layout piece. The
   navbar may use the switcher.
-- `no-cross-section`: a section cannot import another section; the page composes them.
+- `no-cross-section`: a section cannot import another section. The page composes them.
 - `portfolio-ui-in-feature-only`: only the page imports the section barrel. Imported from the shell,
   it would put every section into the initial bundle.
 - `content-is-independent`: the page content imports nothing at runtime.
@@ -63,6 +59,6 @@ Specs are exempt from the layer rules, because they build and mock collaborators
 cycle check.
 
 There are no exceptions and no cycle allow-list. The first version of the rules (#756) had five
-narrow file-level exceptions; they went away when the layers moved to Nx tags (#807 to #812). The
-first run, on 2026-10-08, found 11 warnings including one cycle; the story is in the
-[engineering notes](./ENGINEERING_NOTES.md).
+narrow file-level exceptions. They went away when the layers moved to Nx tags (#807 to #812). The
+first run, on 2026-10-08, found 11 warnings including one cycle. The
+[engineering notes](./ENGINEERING_NOTES.md) tell that story.

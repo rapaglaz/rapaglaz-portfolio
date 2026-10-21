@@ -10,13 +10,13 @@ The three Workers behind `rapaglaz.de`. Each folder is named after its Worker in
 | [`portfolio-settings`](./portfolio-settings/) | `GET` or `HEAD /config`        | none; the Turnstile site key is public by design                                                                                                                            |
 
 The frontend validates `/config` and `/feature-flag` with Valibot and reads `/download` as a blob.
-The download flow is described in [Security notes](../../docs/SECURITY.md).
+The download flow is in [Security notes](../../docs/SECURITY.md).
 
 ## Configuration
 
 - Routes stay in the Cloudflare dashboard. The configs have no route keys and set `workers_dev` to
   `false`, so `wrangler deploy` leaves the routes alone.
-- Bindings and vars live in `wrangler.jsonc`, and a deploy replaces what the dashboard has.
+- Bindings and vars are in `wrangler.jsonc`, and a deploy replaces what the dashboard has.
 - Secrets are set with `wrangler secret put` and survive deploys. `cv-download` marks
   `TURNSTILE_SECRET` as required, so its deploy fails without it.
 
@@ -24,7 +24,7 @@ The download flow is described in [Security notes](../../docs/SECURITY.md).
 
 Each Worker is an Nx project with `test`, `check` (`wrangler deploy --dry-run`, no login needed),
 `deploy` and `lint`. `check` and `deploy` are defined once in `nx.json`. The lint config
-[`eslint.config.mjs`](./eslint.config.mjs) does not extend the root config; it shares only the
+[`eslint.config.mjs`](./eslint.config.mjs) does not extend the root config. It shares only the
 boundary rule.
 
 ## Deploy from CI
@@ -39,7 +39,7 @@ Each deploy tags the Worker version with the short commit SHA and subject, so
 
 ## First deploy of a Worker
 
-`wrangler deploy` replaces a Worker's bindings and vars with the ones in its `wrangler.jsonc`; it
+`wrangler deploy` replaces the bindings and vars of a Worker with those in its `wrangler.jsonc`. It
 does not merge them with the dashboard. On 2026-10-17 a deploy of `feature-flag` from a config
 without bindings dropped its KV binding, and the endpoint returned 500 until a rollback.
 
@@ -52,8 +52,8 @@ Before the first deploy:
    reads an `env` name the test does not know, or when `vars` sets `ALLOW_TEST_TOKEN`.
 3. Run `pnpm run workers:check` and compare the bindings it lists with the active version.
 4. Deploy with `pnpm nx deploy <worker>` and check that the output lists the same bindings. If
-   something breaks, `wrangler rollback` in the Worker folder goes back to the previous version.
-   Use the wrangler version from `nx.json`, the same one the deploy target runs.
+   something breaks, `wrangler rollback` in the Worker folder goes back to the previous version. Use
+   the wrangler version from `nx.json`, the same one that the deploy target runs.
 
 All three Workers went through these steps before `DEPLOY_WORKERS` was set to `true` on 2026-10-17.
 A new Worker goes through them before its first deploy from CI.
@@ -63,5 +63,5 @@ A new Worker goes through them before its first deploy from CI.
 The repository variable `DEPLOY_WORKERS` is a kill switch. While it is anything but `true`,
 `deploy-workers` is skipped, for example during an incident or while a binding is changed in the
 dashboard. A run with the job skipped is still green and becomes the base for the next comparison.
-So Worker changes merged while the switch is off are not deployed when it goes back on; deploy them
+So Worker changes merged while the switch is off are not deployed when it goes back on. Deploy them
 by hand with `pnpm nx deploy <worker>`.

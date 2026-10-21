@@ -22,5 +22,4 @@ reads the PDF through its R2 binding and streams it with `Cache-Control: private
 
 - Locally the production Worker rejects the test token, so the download ends in the error toast.
   E2E mocks Turnstile and `/download`.
-- The documented rate limit applied only from
-  [#794](https://github.com/rapaglaz/rapaglaz-portfolio/pull/794).
+- The rate limit works only since [#794](https://github.com/rapaglaz/rapaglaz-portfolio/pull/794).
