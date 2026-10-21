@@ -2,5 +2,9 @@
     "cSpell.words": [
         "jsverse",
         "transloco"
-    ]
+    ],
+    "sonarlint.connectedMode.project": {
+        "connectionId": "rapaglaz",
+        "projectKey": "rapaglaz_rapaglaz-portfolio"
+    }
 }
