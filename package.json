@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "nx serve rapaglaz-portfolio",
+    "start": "nx run-many -t serve -p rapaglaz-portfolio cv-download",
     "build": "nx build rapaglaz-portfolio",
     "watch": "nx build rapaglaz-portfolio --watch --configuration development",
     "test": "nx run-many -t test --exclude='tag:type:worker'",
