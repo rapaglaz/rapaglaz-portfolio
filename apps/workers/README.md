@@ -14,10 +14,10 @@ The download flow is in [Security notes](../../docs/SECURITY.md).
 
 ## Configuration
 
-- Routes stay in the Cloudflare dashboard. The configs have no route keys and set `workers_dev` to
-  `false`, so `wrangler deploy` leaves the routes alone.
+- Routes are managed in the Cloudflare dashboard. The configs have no route keys and set
+  `workers_dev` to `false`, so `wrangler deploy` leaves the routes alone.
 - Bindings and vars are in `wrangler.jsonc`, and a deploy replaces what the dashboard has.
-- Secrets are set with `wrangler secret put` and survive deploys. `cv-download` marks
+- Secrets are set with `wrangler secret put` and a deploy does not change them. `cv-download` marks
   `TURNSTILE_SECRET` as required, so its deploy fails without it.
 
 ## Nx targets
@@ -31,7 +31,7 @@ boundary rule.
 
 `deploy-workers` in `.github/workflows/main-branch-ci-cd.yaml` deploys from `main` after lint and
 tests pass. It deploys only the Workers that `nx affected` reports since the last green run on
-`main`, so a cancelled or failed run does not lose its changes. It uses the secrets
+`main`, so the changes of a canceled or failed run are not lost. It uses the secrets
 `CLOUDFLARE_API_TOKEN` (Edit Cloudflare Workers) and `CLOUDFLARE_ACCOUNT_ID`.
 
 Each deploy tags the Worker version with the short commit SHA and subject, so
@@ -41,7 +41,7 @@ Each deploy tags the Worker version with the short commit SHA and subject, so
 
 `wrangler deploy` replaces the bindings and vars of a Worker with those in its `wrangler.jsonc`. It
 does not merge them with the dashboard. On 2026-10-17 a deploy of `feature-flag` from a config
-without bindings dropped its KV binding, and the endpoint returned 500 until a rollback.
+without bindings lost its KV binding, and the endpoint returned 500 until a rollback.
 
 Before the first deploy:
 
@@ -52,16 +52,16 @@ Before the first deploy:
    reads an `env` name the test does not know, or when `vars` sets `ALLOW_TEST_TOKEN`.
 3. Run `pnpm run workers:check` and compare the bindings it lists with the active version.
 4. Deploy with `pnpm nx deploy <worker>` and check that the output lists the same bindings. If
-   something breaks, `wrangler rollback` in the Worker folder goes back to the previous version. Use
-   the wrangler version from `nx.json`, the same one that the deploy target runs.
+   something breaks, `wrangler rollback` in the Worker folder restores the previous version. Use the
+   wrangler version from `nx.json`, the same one that the deploy target runs.
 
 All three Workers went through these steps before `DEPLOY_WORKERS` was set to `true` on 2026-10-17.
 A new Worker goes through them before its first deploy from CI.
 
 ## Stopping deploys
 
-The repository variable `DEPLOY_WORKERS` is a kill switch. While it is anything but `true`,
-`deploy-workers` is skipped, for example during an incident or while a binding is changed in the
-dashboard. A run with the job skipped is still green and becomes the base for the next comparison.
-So Worker changes merged while the switch is off are not deployed when it goes back on. Deploy them
-by hand with `pnpm nx deploy <worker>`.
+The repository variable `DEPLOY_WORKERS` is a switch to stop deploys. While it is anything but
+`true`, `deploy-workers` is skipped, for example during an incident or while a binding is changed in
+the dashboard. A run with the job skipped is still green and becomes the base for the next
+comparison. So Worker changes merged while the switch is off are not deployed when it is turned on
+again. Deploy them manually with `pnpm nx deploy <worker>`.

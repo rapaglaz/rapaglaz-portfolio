@@ -16,10 +16,10 @@ reads the PDF through its R2 binding and streams it with `Cache-Control: private
   docs (`67a81f4`) kept the files in a private R2 bucket.
 - reCAPTCHA. The first docs chose Turnstile: no Google tracking, no cookies, faster for the user.
 - A signed R2 URL with a 5-minute expiry, as the first docs described. The Worker never returned
-  one. It streams the file itself, so there is no link to pass on.
+  one. It streams the file itself, so there is no link that someone could share.
 
 **Consequences.**
 
-- Locally the production Worker rejects the test token, so the download ends in the error toast.
-  E2E mocks Turnstile and `/download`.
+- Locally the production Worker rejects the test token, so the download shows the error toast. E2E
+  mocks Turnstile and `/download`.
 - The rate limit works only since [#794](https://github.com/rapaglaz/rapaglaz-portfolio/pull/794).

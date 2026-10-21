@@ -7,14 +7,14 @@ a deploy only when `main` is green.
 
 - `pull-request-checks.yaml` runs on every PR.
 - `main-branch-ci-cd.yaml` runs on push to `main` and deploys when the checks pass. Pushes that only
-  touch `docs/**` or `*.md` are ignored. You can also start it by hand.
+  touch `docs/**` or `*.md` are ignored. It can also be started manually.
 
 In both, a new push cancels the running workflow for the same branch. Both use
 `.github/actions/quality-check`. Its `lint` mode runs format, lint, type check and `deps:check`. Its
 `test` mode runs i18n, unit tests with coverage, the Worker tests and config check, and SonarCloud.
 
-The scripts call Nx. CI runs every target in full, without `nx affected`, and a remote cache shares
-the results between runs.
+The scripts call Nx. CI runs every target, not only the affected ones, and a remote cache shares the
+results between runs.
 
 ## Nx remote cache
 
@@ -28,7 +28,7 @@ lint, test and build results of the PR, including `coverage/` for SonarCloud. Wi
 `lint`, `test`, `actionlint`, `zizmor` and `build` run in parallel. `e2e-tests` and `lighthouse`
 use the build artifact.
 
-`quality-check` is the gate. It needs everything except Lighthouse, and a failed, cancelled or
+`quality-check` is the gate. It needs everything except Lighthouse, and a failed, canceled or
 skipped job fails it. Branch protection requires it. Renovate PRs run the same checks, because
 dependency updates can break things that lint and build do not catch (see the
 [engineering notes](./ENGINEERING_NOTES.md)).
@@ -48,17 +48,17 @@ Playwright version, and Nx caches only successful runs.
 
 ## Lighthouse
 
-Feedback only. Three desktop runs on every PR. The median goes into a PR comment, and the full
-report is uploaded as an artifact.
+Lighthouse does not block a PR. On every PR it runs three times with the desktop preset. The median
+goes into a PR comment, and the full report is uploaded as an artifact.
 
 It calls the `lighthouse` CLI directly, because `@lhci/cli` and `treosh/lighthouse-ci-action` use an
-older Lighthouse that fails with `NO_LCP` on a bare local server. A `LanternError: NO_LCP` line can
+older Lighthouse that fails with `NO_LCP` on a plain local server. A `LanternError: NO_LCP` line can
 still appear in the log. It comes from the "Insights" analysis and does not change the scores.
 
 ## Cloudflare Workers
 
 `deploy-workers` runs on `main` after `lint` and `test`. It deploys the Workers that `nx affected`
-reports since the last green run, so a cancelled or failed run does not lose its changes. The
+reports since the last green run, so the changes of a canceled or failed run are not lost. The
 repository variable `DEPLOY_WORKERS` switches it off. Pull requests never get the Cloudflare
 secrets. They only run `wrangler deploy --dry-run`. Details:
 [Cloudflare Workers](../apps/workers/README.md).

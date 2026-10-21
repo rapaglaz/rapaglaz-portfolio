@@ -96,6 +96,6 @@ pnpm run preview &   # static build on http://localhost:4233
 pnpm exec lighthouse http://localhost:4233 --preset=desktop --throttling-method=devtools
 ```
 
-Keep `--throttling-method=devtools`. On a bare local server the page paints so fast that Chrome
+Keep `--throttling-method=devtools`. On a plain local server the page renders so fast that Chrome
 sometimes records no Largest Contentful Paint (`NO_LCP`), and the default `simulate` mode needs one
-to extrapolate from. CI does three desktop runs and writes the reports to `.lighthouseci/`.
+for its calculation. CI does three desktop runs and writes the reports to `.lighthouseci/`.

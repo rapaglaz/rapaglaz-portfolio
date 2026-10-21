@@ -69,16 +69,16 @@ A new locale or route needs its own rewrite rule. Check `lang`, the canonical li
 
 - **CV download:** gets the config and a Turnstile token, calls the Worker and starts the download
   in the browser.
-- **Turnstile:** loads the script once and renders the widget in the active language. An
-  interactive challenge opens in a CDK Dialog with a focus trap, and focus goes back to the CV
-  button. Closing the dialog in any way ends the verification without a download.
-- **Toasts:** one CDK overlay, updated in place. Errors use `role="alert"`, the rest
-  `role="status"`. Toasts stay until dismissed and do not take focus.
+- **Turnstile:** loads the script once and renders the widget in the active language. An interactive
+  challenge opens in a CDK Dialog with a focus trap, and focus returns to the CV button. Closing the
+  dialog in any way stops the verification, and no download starts.
+- **Toasts:** one CDK overlay that is reused for every toast. Errors use `role="alert"`, the rest
+  `role="status"`. A toast stays until the user closes it. It does not take focus.
 - **Config:** fetched once with `shareReplay`. Network errors and 5xx are retried three times
   (250 ms, 500 ms, 1 s). A 4xx or an invalid body fails at once, and the cache is dropped.
 - **Logger:** the only place that logs. Users never see internal details.
 
-The CDK overlay and dialog load on demand, with the first toast or the CV click.
+The CDK overlay and dialog load only when needed, with the first toast or the CV click.
 
 ## Feature flag (Open to Work)
 
@@ -87,17 +87,17 @@ One public flag for the navbar badge, not a flag system. `GET /feature-flag/open
 by hand in Cloudflare KV.
 
 On the frontend it is one `httpResource` per flag name, cached in a `Map`. The first version had an
-Observable and a Signal API with two LRU caches, far too much for one flag. Valibot validates the
-response in `parse`, and anything unexpected becomes `false`. On the server the URL is `undefined`,
-so prerender sends no request. Components read the flag with `hasValue()` in a `computed`, because
-`value()` throws in the error state.
+Observable and a Signal API with two LRU caches, which was too much for one flag. Valibot validates
+the response in `parse`, and anything unexpected becomes `false`. On the server the URL is
+`undefined`, so prerender sends no request. Components read the flag with `hasValue()` in a
+`computed`, because `value()` throws in the error state.
 
 ## Testing
 
 Unit tests run on Vitest through `@nx/vitest`, with AnalogJS and a zoneless TestBed. Each project
 has its own config and coverage thresholds. AnalogJS does not type-check specs, so
 `pnpm run typecheck` does it, templates included, as a separate cached task. Sections get smoke
-tests. Services and interceptors get tests for behaviour and error paths.
+tests. Services and interceptors get tests for behavior and error paths.
 
 Playwright covers the language switch, the CV download (also on a Pixel 7 profile), Turnstile
 failures, axe checks in EN/DE and light/dark, contrast (4.5:1 for text, 3:1 for icons and focus
@@ -111,7 +111,7 @@ and `/` falls back to `en`.
 The app initializer loads the first translations for prerender and hydration. A route resolver then
 loads the language of the URL and updates `<html lang>` before the page is created, also on
 Back/Forward. If German fails to load, it redirects to `/en`. If English fails, navigation is
-cancelled. Bootstrap error messages come from the bundled dictionaries, so they show in the right
+canceled. Bootstrap error messages come from the bundled dictionaries, so they show in the right
 language even when loading fails.
 
 `pnpm run i18n:check` fails on missing and unused keys. Keys built at runtime or passed as inputs

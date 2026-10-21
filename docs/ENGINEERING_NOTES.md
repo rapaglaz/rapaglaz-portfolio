@@ -10,7 +10,7 @@ Problems from this repo's history, oldest first, with the PRs that fixed them.
 - **Fix:** drop the cached observable on error, so the next call fetches again.
   [#500](https://github.com/rapaglaz/rapaglaz-portfolio/pull/500)
 
-## E2E test took the wrong path (2026-07-05)
+## E2E test ran the wrong path (2026-07-05)
 
 - **Problem:** "handles Turnstile verification error" ran the script-load-failure path, the same as
   the next test. The error callback was never tested.
@@ -41,11 +41,11 @@ Problems from this repo's history, oldest first, with the PRs that fixed them.
   toast or the CV verification needs them.
 - **Fix:** in July the warning budget went to 560 kB
   ([#512](https://github.com/rapaglaz/rapaglaz-portfolio/pull/512)). In October Tailwind was limited
-  to `src/`, which took the stylesheet from 98.50 kB to 86.28 kB
+  to `src/`, which reduced the stylesheet from 98.50 kB to 86.28 kB
   ([#773](https://github.com/rapaglaz/rapaglaz-portfolio/pull/773)), and the CDK packages load on
   demand through local re-export modules: initial 503.94 kB
-  ([#776](https://github.com/rapaglaz/rapaglaz-portfolio/pull/776)). A first try with
-  `import('@angular/cdk/overlay')` kept the whole CDK namespaces and pushed all scripts to
+  ([#776](https://github.com/rapaglaz/rapaglaz-portfolio/pull/776)). A first attempt with
+  `import('@angular/cdk/overlay')` kept the whole CDK namespaces and raised all scripts to
   540.43 kB, over the error budget of 500 kB.
 
 ## A jsdom minor release broke unit tests (2026-09-23 to 2026-10-12)
@@ -72,7 +72,7 @@ Problems from this repo's history, oldest first, with the PRs that fixed them.
     `browserType.launch` failed with "Executable doesn't exist". Nobody noticed, because `e2e-tests`
     was skipped for `renovate/*` PRs ([#713](https://github.com/rapaglaz/rapaglaz-portfolio/pull/713)).
   - The image has no release timestamp, so `minimumReleaseAge` with `internalChecksFilter: strict`
-    removed it from the Playwright group and left PRs with the npm package only
+    removed it from the Playwright group, so the PRs contained only the npm package
     ([#768](https://github.com/rapaglaz/rapaglaz-portfolio/pull/768)).
 - **Fix:** widen the manager to all workflow files (#501), move the image to `v1.62.0-noble` (#713),
   run unit and E2E tests on every PR and fail the gate on skipped jobs
@@ -95,9 +95,9 @@ Problems from this repo's history, oldest first, with the PRs that fixed them.
   81 modules, including one cycle.
 - **Cause:** `utils/i18n/transloco-missing-handler.ts` imported the services barrel, which led back
   through `cv-download.service.ts` to `utils/i18n`.
-- **Fix:** import the logger file directly, allow five narrow file-level exceptions (gone since the
-  move to libs, #807 to #812), set all boundary and cycle rules to `error` and run `deps:check` in
-  the lint job. Two temporary probes, a cross-feature import and a cycle, gave exit code 1.
+- **Fix:** import the logger file directly, allow five narrow file-level exceptions (removed with
+  the move to libs, #807 to #812), set all boundary and cycle rules to `error` and run `deps:check`
+  in the lint job. Two temporary probes, a cross-feature import and a cycle, gave exit code 1.
   [#756](https://github.com/rapaglaz/rapaglaz-portfolio/pull/756)
 
 ## Origin and token checks in the Workers (2026-10-17 to 2026-10-18)
@@ -107,7 +107,7 @@ Problems from this repo's history, oldest first, with the PRs that fixed them.
   substring, so `https://evil-localhost.example` got an `Access-Control-Allow-Origin` header.
   `feature-flag` threw an unhandled `URIError` on a malformed escape such as `%E0%A4%A`.
 - **Cause:** local dev calls the production Worker with the test site key, so the bypass depended on
-  headers that the client controls. The other two Workers had no behaviour tests.
+  headers that the client controls. The other two Workers had no behavior tests.
 - **Fix:** only `ALLOW_TEST_TOKEN` on a development Worker skips `siteverify`, and local origins are
   compared by hostname. I found it while adding the Worker sources to this repo, and
   `apps/workers/cv-download/index.spec.js` reproduces each case
@@ -116,12 +116,12 @@ Problems from this repo's history, oldest first, with the PRs that fixed them.
   (`portfolio-settings`) and [#782](https://github.com/rapaglaz/rapaglaz-portfolio/pull/782)
   (`feature-flag`, answers 400 for a malformed flag name).
 
-## Worker changes lost when a newer push cancelled the run (2026-10-18)
+## Worker changes lost when a newer push canceled the run (2026-10-18)
 
-- **Problem:** a Worker change could stay undeployed while CI was green.
+- **Problem:** a Worker change could remain undeployed while CI was green.
 - **Cause:** `deploy-workers` compared each Worker folder with `github.event.before`. If a newer
-  push cancelled a run before that job, or the run failed, the next run compared only its own push.
-  Before the fix, 20 of the last 100 Main Branch CI/CD runs had been cancelled by a newer push.
+  push canceled a run before that job, or the run failed, the next run compared only its own push.
+  Before the fix, 20 of the last 100 Main Branch CI/CD runs had been canceled by a newer push.
 - **Fix:** compare with the head SHA of the last successful run on `main`, read with `gh run list`
   ([#784](https://github.com/rapaglaz/rapaglaz-portfolio/pull/784)).
 

@@ -7,7 +7,7 @@ app, prerendered to static HTML and hydrated in the browser.
 
 - **Zoneless, signals for UI state, RxJS for async.** There is no `zone.js`, so updates are
   explicit. Components are standalone and `OnPush`. The feature flag is an `httpResource`: its value
-  arrives as a signal, and nothing subscribes by hand.
+  arrives as a signal, and nothing subscribes manually.
 - **Static prerendering and hydration.** The build prerenders `/`, `/en` and `/de`, and the client
   hydrates that HTML instead of repainting the page. Browser APIs are guarded with
   `isPlatformBrowser`, and prerender sends no feature flag request.
@@ -21,7 +21,7 @@ app, prerendered to static HTML and hydrated in the browser.
   forever. An interceptor sends the Turnstile token in a header; the
   [Worker](./apps/workers/cv-download/) validates it with Cloudflare and streams the PDF from R2 with
   `Cache-Control: private, no-store`.
-- **Tests aimed at what ships.** Vitest covers behaviour and error paths in services and
+- **Tests aimed at what ships.** Vitest covers behavior and error paths in services and
   interceptors, and the sections get smoke tests. Playwright covers user flows, Turnstile failures,
   axe and contrast checks in EN/DE and light/dark, and reduced motion. It runs on Desktop Chrome and
   an iPhone 12 WebKit profile, plus the CV download on a Pixel 7 profile. CI tests the static build,
@@ -78,6 +78,6 @@ PRs: [#712](https://github.com/rapaglaz/rapaglaz-portfolio/pull/712),
 - [Cloudflare Workers](./apps/workers/README.md)
 - [Local setup](./docs/SETUP.md)
 
-## Licence
+## License
 
 MIT. See [LICENCE.md](./LICENCE.md).

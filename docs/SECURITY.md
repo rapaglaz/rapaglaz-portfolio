@@ -67,7 +67,7 @@ automatically.
 
 | Threat          | What I do                  |
 | --------------- | -------------------------- |
-| XSS             | Angular sanitisation       |
+| XSS             | Angular sanitization       |
 | Clickjacking    | `X-Frame-Options: DENY`    |
 | MITM            | HSTS + Cloudflare SSL      |
 | Tampered assets | SRI on all scripts/styles  |

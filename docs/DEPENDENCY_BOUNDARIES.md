@@ -49,8 +49,8 @@ type-only layer violations are not reported either.
 - `layout-peer-boundary`: the footer and the language switcher import no other layout piece. The
   navbar may use the switcher.
 - `no-cross-section`: a section cannot import another section. The page composes them.
-- `portfolio-ui-in-feature-only`: only the page imports the section barrel. Imported from the shell,
-  it would put every section into the initial bundle.
+- `portfolio-ui-in-feature-only`: only the page imports the section barrel. If the shell imported
+  it, every section would be in the initial bundle.
 - `content-is-independent`: the page content imports nothing at runtime.
 - `no-production-to-testing`, `no-production-to-specs`: production code imports no test code.
 - `no-orphans` (warning): modules without any import in or out. It is not an unused-code check.
@@ -59,6 +59,6 @@ Specs are exempt from the layer rules, because they build and mock collaborators
 cycle check.
 
 There are no exceptions and no cycle allow-list. The first version of the rules (#756) had five
-narrow file-level exceptions. They went away when the layers moved to Nx tags (#807 to #812). The
+narrow file-level exceptions. They were removed when the layers moved to Nx tags (#807 to #812). The
 first run, on 2026-10-08, found 11 warnings including one cycle. The
 [engineering notes](./ENGINEERING_NOTES.md) tell that story.
