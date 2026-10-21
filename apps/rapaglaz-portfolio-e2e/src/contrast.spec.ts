@@ -77,6 +77,13 @@ function expectContrastOnUnderlays(
   }
 }
 
+// states in which an action must keep its contrast
+type InteractionState = { name: string; enter: (locator: Locator) => Promise<void> };
+
+const NORMAL: InteractionState = { name: 'normal', enter: () => Promise.resolve() };
+const HOVER: InteractionState = { name: 'hover', enter: locator => locator.hover() };
+const FOCUS: InteractionState = { name: 'focus', enter: locator => locator.focus() };
+
 test.describe('Theme contrast', () => {
   for (const colorScheme of ['light', 'dark'] as const) {
     test(`keeps ${colorScheme} theme content pairs above the normal-text minimum`, async ({
@@ -123,40 +130,38 @@ test.describe('Theme contrast', () => {
       const actions = [
         {
           locator: page.getByTestId('cv-download-btn'),
-          states: ['normal', 'hover', 'focus'],
+          states: [NORMAL, HOVER, FOCUS],
           minimum: 4.5,
         },
         {
           locator: page.getByRole('option', { name: 'Deutsch' }),
-          states: ['normal', 'hover', 'focus'],
+          states: [NORMAL, HOVER, FOCUS],
           minimum: 4.5,
         },
         {
           locator: page.getByRole('option', { name: 'English' }),
-          states: ['normal', 'focus'],
+          states: [NORMAL, FOCUS],
           minimum: 4.5,
         },
         {
           locator: page.getByRole('button', { name: 'Contact Me' }),
-          states: ['normal', 'hover', 'focus'],
+          states: [NORMAL, HOVER, FOCUS],
           minimum: 3,
         },
       ];
       for (const action of actions) {
         for (const state of action.states) {
-          if (state === 'hover') await action.locator.hover();
-          if (state === 'focus') await action.locator.focus();
+          await state.enter(action.locator);
           await waitForAnimations(action.locator);
-          const [text, outline] = await readColors(action.locator, [
-            { foreground: 'color' },
-            { foreground: 'outline-color' },
-          ]);
-          expectContrastOnUnderlays(text, action.minimum, `${state} action`);
-          if (state === 'focus') {
-            expect(outline.outlineWidth).toBeGreaterThan(0);
-            expectContrastOnUnderlays(outline, 3, 'focus indicator');
-          }
+          const [text] = await readColors(action.locator, [{ foreground: 'color' }]);
+          expectContrastOnUnderlays(text, action.minimum, `${state.name} action`);
         }
+        // every action ends in the focus state, where its focus indicator must stand out
+        await FOCUS.enter(action.locator);
+        await waitForAnimations(action.locator);
+        const [outline] = await readColors(action.locator, [{ foreground: 'outline-color' }]);
+        expect(outline.outlineWidth).toBeGreaterThan(0);
+        expectContrastOnUnderlays(outline, 3, 'focus indicator');
         await page.mouse.move(0, 0);
       }
     });
@@ -171,20 +176,17 @@ test.describe('Theme contrast', () => {
         footer.getByRole('link', { name: 'GitHub' }),
       ];
       for (const action of actions) {
-        for (const state of ['normal', 'hover', 'focus']) {
-          if (state === 'hover') await action.hover();
-          if (state === 'focus') await action.focus();
+        for (const state of [NORMAL, HOVER, FOCUS]) {
+          await state.enter(action);
           await waitForAnimations(action);
-          const [icon, outline] = await readColors(action, [
-            { foreground: 'color' },
-            { foreground: 'outline-color' },
-          ]);
-          expectContrastOnUnderlays(icon, 3, `${state} footer icon`);
-          if (state === 'focus') {
-            expect(outline.outlineWidth).toBeGreaterThan(0);
-            expectContrastOnUnderlays(outline, 3, 'footer focus indicator');
-          }
+          const [icon] = await readColors(action, [{ foreground: 'color' }]);
+          expectContrastOnUnderlays(icon, 3, `${state.name} footer icon`);
         }
+        await FOCUS.enter(action);
+        await waitForAnimations(action);
+        const [outline] = await readColors(action, [{ foreground: 'outline-color' }]);
+        expect(outline.outlineWidth).toBeGreaterThan(0);
+        expectContrastOnUnderlays(outline, 3, 'footer focus indicator');
         await page.mouse.move(0, 0);
       }
     });
