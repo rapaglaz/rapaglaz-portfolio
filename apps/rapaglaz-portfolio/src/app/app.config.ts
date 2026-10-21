@@ -16,7 +16,7 @@ import {
   provideClientHydration,
   withEventReplay,
 } from '@angular/platform-browser';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withNavigationErrorHandler } from '@angular/router';
 import {
   provideTransloco,
   TRANSLOCO_MISSING_HANDLER,
@@ -36,6 +36,7 @@ import { BOOTSTRAP_ERRORS } from '@rapaglaz/shared/util/bootstrap-messages';
 import { catchError, EMPTY, Observable } from 'rxjs';
 import { App } from './app';
 import { routes } from './app.routes';
+import { handleNavigationError } from './navigation-error';
 
 const DEFAULT_LANG_TOKEN = new InjectionToken<string>('DEFAULT_LANG');
 
@@ -104,7 +105,10 @@ export const appConfigBase: ApplicationConfig = {
 };
 
 export const appConfig: ApplicationConfig = {
-  providers: [provideRouter(routes), ...baseProviders],
+  providers: [
+    provideRouter(routes, withNavigationErrorHandler(handleNavigationError)),
+    ...baseProviders,
+  ],
 };
 
 export function bootstrap(): Promise<ApplicationRef> {

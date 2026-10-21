@@ -2,13 +2,15 @@ import { vi } from 'vitest';
 
 export function mockWindowLocation(): {
   assignMock: ReturnType<typeof vi.fn>;
+  reloadMock: ReturnType<typeof vi.fn>;
   cleanup: () => void;
 } {
   const originalLocation = window.location;
   const assignMock = vi.fn();
+  const reloadMock = vi.fn();
 
   Object.defineProperty(window, 'location', {
-    value: { assign: assignMock },
+    value: { assign: assignMock, reload: reloadMock },
     writable: true,
     configurable: true,
   });
@@ -21,7 +23,7 @@ export function mockWindowLocation(): {
     });
   };
 
-  return { assignMock, cleanup };
+  return { assignMock, reloadMock, cleanup };
 }
 
 export function mockWindowScrollY(scrollY: number): () => void {

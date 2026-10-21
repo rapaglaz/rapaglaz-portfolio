@@ -2,6 +2,7 @@ import { DOCUMENT } from '@angular/common';
 import { inject, Type } from '@angular/core';
 import { RedirectCommand, ResolveFn, Router, Routes } from '@angular/router';
 import { TranslocoService } from '@jsverse/transloco';
+import { ErrorPage } from '@rapaglaz/portfolio/layout';
 import {
   AVAILABLE_LANGS,
   DEFAULT_LANG,
@@ -10,6 +11,7 @@ import {
   type AvailableLang,
 } from '@rapaglaz/shared/util';
 import { catchError, EMPTY, map, of, tap } from 'rxjs';
+import { ERROR_PATH } from './navigation-error';
 
 const resolvePortfolioLocale: ResolveFn<AvailableLang> = route => {
   const transloco = inject(TranslocoService);
@@ -58,8 +60,15 @@ export const routes: Routes = [
     loadComponent: loadPortfolio,
     resolve: { locale: resolvePortfolioLocale },
   })),
+  // the navigation error handler lands here, see navigation-error.ts
+  {
+    path: ERROR_PATH,
+    component: ErrorPage,
+    data: { kind: 'failed' },
+  },
   {
     path: '**',
-    redirectTo: '',
+    component: ErrorPage,
+    data: { kind: 'notFound' },
   },
 ];
