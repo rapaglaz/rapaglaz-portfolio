@@ -1,21 +1,19 @@
-import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { TranslocoService } from '@jsverse/transloco';
-import { mockWindowLocation, provideTranslocoTesting } from '@rapaglaz/shared/testing';
+import { provideTranslocoTesting } from '@rapaglaz/shared/testing';
 import { firstValueFrom } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ErrorPage } from './error-page';
 
 type Kind = 'notFound' | 'failed';
 
-async function show(kind: Kind, lang = 'en', platformId = 'browser'): Promise<HTMLElement> {
+async function show(kind: Kind, lang = 'en'): Promise<HTMLElement> {
   TestBed.configureTestingModule({
     providers: [
       provideRouter([{ path: '**', component: ErrorPage, data: { kind } }]),
       provideTranslocoTesting(),
-      { provide: PLATFORM_ID, useValue: platformId },
     ],
   });
   const transloco = TestBed.inject(TranslocoService);
@@ -46,65 +44,16 @@ describe('ErrorPage', () => {
       'does not exist',
     );
     expect(element.querySelector('[data-testid="error-home"]')?.getAttribute('href')).toBe('/en');
-    expect(element.querySelector('[data-testid="error-reload"]')).toBeNull();
     expect(element.querySelector('[data-testid="error-illustration-not-found"]')).not.toBeNull();
   });
 
-  it('offers a reload next to the way home when something went wrong', async () => {
+  it('tells the visitor that something went wrong and links back to the portfolio', async () => {
     const element = await show('failed');
-    const { reloadMock, cleanup } = mockWindowLocation();
 
-    try {
-      element.querySelector<HTMLButtonElement>('[data-testid="error-reload"]')?.click();
-
-      expect(element.querySelector('h1')?.textContent).toContain('Something went wrong');
-      expect(element.querySelector('[data-testid="error-illustration-failed"]')).not.toBeNull();
-      expect(element.querySelector('[data-testid="error-home"]')?.getAttribute('href')).toBe('/en');
-      expect(reloadMock).toHaveBeenCalledOnce();
-    } finally {
-      cleanup();
-    }
-  });
-
-  it('goes home instead of reloading when the address bar shows the error page itself', async () => {
-    const element = await show('failed');
-    // the route of the harness is /anything, so a bar with that path means a direct visit
-    const { assignMock, reloadMock, cleanup } = mockWindowLocation('/anything');
-
-    try {
-      element.querySelector<HTMLButtonElement>('[data-testid="error-reload"]')?.click();
-
-      expect(assignMock).toHaveBeenCalledExactlyOnceWith('/en');
-      expect(reloadMock).not.toHaveBeenCalled();
-    } finally {
-      cleanup();
-    }
-  });
-
-  it('goes to the German home page from the error page in German', async () => {
-    const element = await show('failed', 'de');
-    const { assignMock, cleanup } = mockWindowLocation('/anything');
-
-    try {
-      element.querySelector<HTMLButtonElement>('[data-testid="error-reload"]')?.click();
-
-      expect(assignMock).toHaveBeenCalledExactlyOnceWith('/de');
-    } finally {
-      cleanup();
-    }
-  });
-
-  it('does not reload on the server', async () => {
-    const element = await show('failed', 'en', 'server');
-    const { reloadMock, cleanup } = mockWindowLocation();
-
-    try {
-      element.querySelector<HTMLButtonElement>('[data-testid="error-reload"]')?.click();
-
-      expect(reloadMock).not.toHaveBeenCalled();
-    } finally {
-      cleanup();
-    }
+    expect(element.querySelector('h1')?.textContent).toContain('Something went wrong');
+    expect(element.querySelector('[data-testid="error-illustration-failed"]')).not.toBeNull();
+    expect(element.querySelector('[data-testid="error-home"]')?.getAttribute('href')).toBe('/en');
+    expect(element.querySelector('button')).toBeNull();
   });
 
   it('writes the page and the link in German when German is active', async () => {

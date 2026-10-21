@@ -127,7 +127,7 @@ describe('portfolio routes', () => {
       'Something went wrong',
     );
     expect(
-      harness.routeNativeElement?.querySelector('[data-testid="error-reload"]'),
+      harness.routeNativeElement?.querySelector('[data-testid="error-illustration-failed"]'),
     ).not.toBeNull();
   });
 });

@@ -31,10 +31,9 @@
       },
       "failed": {
         "title": "Etwas ist schiefgelaufen",
-        "message": "Die Seite konnte nicht geladen werden. Bitte laden Sie sie neu oder versuchen Sie es in einigen Minuten erneut."
+        "message": "Die Seite konnte nicht geladen werden. Bitte versuchen Sie es in einigen Minuten erneut."
       },
-      "home": "Zurück zur Startseite",
-      "reload": "Neu laden"
+      "home": "Zurück zur Startseite"
     }
   },
   "portfolio": {

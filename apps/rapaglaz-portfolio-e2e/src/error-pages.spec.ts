@@ -39,7 +39,6 @@ test.describe('Error pages', () => {
       await expect(page).toHaveURL(new RegExp(`${path}$`));
       await expect(page).toHaveTitle(`${heading} | Radek Glaz`);
       await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
-      await expect(page.getByTestId('error-reload')).toHaveCount(0);
       await expect(page.getByTestId('navbar')).toHaveCount(0);
 
       await page.getByRole('link', { name: home }).click();
@@ -51,20 +50,17 @@ test.describe('Error pages', () => {
     });
   }
 
-  test('leaves the failed page for the portfolio when the visitor presses reload', async ({
-    page,
-  }) => {
+  test('leaves the failed page for the portfolio through the home link', async ({ page }) => {
     await visitPortfolio(page, '/en');
 
     await navigateInApp(page, '/error');
 
     await expect(page.getByTestId('error-heading')).toHaveText('Something went wrong');
-    await expect(page.getByRole('button', { name: 'Reload' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Reload' })).toHaveCount(0);
     await expect(page.getByRole('link', { name: 'Back to home' })).toHaveAttribute('href', '/en');
     await expect(page.getByTestId('navbar')).toHaveCount(0);
 
-    // the address bar shows /error, so a reload would only show this page again
-    await page.getByRole('button', { name: 'Reload' }).click();
+    await page.getByRole('link', { name: 'Back to home' }).click();
 
     await expect(page).toHaveURL(/\/en$/);
     await expect(page.getByTestId('section-hero')).toBeVisible();

@@ -1,5 +1,4 @@
-import { DOCUMENT, isPlatformBrowser } from '@angular/common';
-import { Component, DestroyRef, inject, PLATFORM_ID } from '@angular/core';
+import { Component, DestroyRef, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
@@ -22,7 +21,7 @@ const ROBOTS_SELECTOR = 'name="robots"';
           [kind]="kind" />
         <h1
           data-testid="error-heading"
-          class="error-title text-4xl tracking-[0.075em] wrap-break-word sm:text-5xl lg:text-6xl">
+          class="error-title text-4xl tracking-[0.075em] wrap-break-word sm:text-5xl">
           @if (kind === 'failed') {
             {{ 'common.error.failed.title' | transloco }}
           } @else {
@@ -40,28 +39,12 @@ const ROBOTS_SELECTOR = 'name="robots"';
         </p>
         <div
           class="mt-10 flex flex-wrap items-center justify-center gap-4 [--border:var(--border-btn)] [--radius-field:var(--rounded-btn)]">
-          @if (kind === 'failed') {
-            <button
-              type="button"
-              data-testid="error-reload"
-              class="btn btn-primary focus-visible:outline-primary focus-visible:outline-2 focus-visible:outline-offset-4"
-              (click)="reload()">
-              {{ 'common.error.reload' | transloco }}
-            </button>
-            <a
-              data-testid="error-home"
-              class="btn btn-outline btn-primary focus-visible:outline-primary focus-visible:outline-2 focus-visible:outline-offset-4"
-              [routerLink]="['/', lang()]">
-              {{ 'common.error.home' | transloco }}
-            </a>
-          } @else {
-            <a
-              data-testid="error-home"
-              class="btn btn-primary focus-visible:outline-primary focus-visible:outline-2 focus-visible:outline-offset-4"
-              [routerLink]="['/', lang()]">
-              {{ 'common.error.home' | transloco }}
-            </a>
-          }
+          <a
+            data-testid="error-home"
+            class="btn btn-primary focus-visible:outline-primary focus-visible:outline-2 focus-visible:outline-offset-4"
+            [routerLink]="['/', lang()]">
+            {{ 'common.error.home' | transloco }}
+          </a>
         </div>
       </div>
     </main>
@@ -76,8 +59,6 @@ export class ErrorPage {
   protected readonly kind: ErrorKind =
     this.route.snapshot.data['kind'] === 'failed' ? 'failed' : 'notFound';
 
-  private readonly document = inject(DOCUMENT);
-  private readonly platformId = inject(PLATFORM_ID);
   private readonly transloco = inject(TranslocoService);
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
@@ -105,22 +86,5 @@ export class ErrorPage {
         this.meta.updateTag({ name: 'robots', content: previousRobots });
       }
     });
-  }
-
-  protected reload(): void {
-    const location = this.document.defaultView?.location;
-    if (!isPlatformBrowser(this.platformId) || !location) {
-      return;
-    }
-
-    // After a failed first load the address bar still shows the page that the visitor asked for, so
-    // a reload retries it. When the bar shows the error page itself, a reload would only load this
-    // page again, so the way home is the retry.
-    const shownPath = `/${this.route.snapshot.url.map(segment => segment.path).join('/')}`;
-    if (location.pathname === shownPath) {
-      location.assign(`/${this.lang()}`);
-    } else {
-      location.reload();
-    }
   }
 }

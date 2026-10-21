@@ -31,10 +31,9 @@
       },
       "failed": {
         "title": "Something went wrong",
-        "message": "The page could not be loaded. Please reload it, or try again in a few minutes."
+        "message": "The page could not be loaded. Please try again in a few minutes."
       },
-      "home": "Back to home",
-      "reload": "Reload"
+      "home": "Back to home"
     }
   },
   "portfolio": {
