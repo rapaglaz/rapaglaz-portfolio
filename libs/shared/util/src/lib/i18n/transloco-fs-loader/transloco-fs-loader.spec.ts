@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
 import { beforeEach, describe, expect, it } from 'vitest';
-import deJson from '../../i18n/de.json';
-import enJson from '../../i18n/en.json';
+import deJson from '../translations/de.json';
+import enJson from '../translations/en.json';
 import { TranslocoFsLoader } from './transloco-fs-loader';
 
 describe('TranslocoFsLoader', () => {

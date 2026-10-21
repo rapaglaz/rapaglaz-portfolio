@@ -1,6 +1,6 @@
 import { inject, isDevMode } from '@angular/core';
 import { TranslocoMissingHandler } from '@jsverse/transloco';
-import { LoggerService } from '../logging/logger.service';
+import { LoggerService } from '../../logging/logger.service';
 
 export class StrictTranslocoMissingHandler implements TranslocoMissingHandler {
   private readonly loggerService = inject(LoggerService);

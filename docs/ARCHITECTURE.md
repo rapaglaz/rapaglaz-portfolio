@@ -115,7 +115,7 @@ focus indicators) and reduced motion. CI tests the static build. `pnpm run e2e` 
 
 ## i18n
 
-Transloco with JSON files in `libs/shared/util/src/i18n`. A strict missing handler reports missing
+Transloco with JSON files in `libs/shared/util/src/lib/i18n/translations`. A strict missing handler reports missing
 keys, and `/` falls back to `en`.
 
 The app initializer loads the first translations for the prerender and the hydration. A route

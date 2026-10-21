@@ -18,7 +18,7 @@
     "deps:graph": "nx deps-graph rapaglaz-portfolio",
     "format:check": "prettier --check .",
     "format:write": "prettier --write .",
-    "i18n:validate": "transloco-validator libs/shared/util/src/i18n/*.json",
+    "i18n:validate": "transloco-validator libs/shared/util/src/lib/i18n/translations/*.json",
     "i18n:find": "transloco-keys-manager find -c apps/rapaglaz-portfolio/transloco.config.ts",
     "i18n:check": "pnpm run i18n:validate && pnpm run i18n:find",
     "preview": "serve dist/apps/rapaglaz-portfolio/browser -l 4233",

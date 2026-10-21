@@ -131,7 +131,7 @@ The warnings (600KB initial, 575KB all scripts) leave room for NgRx.
 
 ## i18n
 
-Languages: `en` (default), `de`. Translations in `libs/shared/util/src/i18n/{lang}.json`, copied to `/i18n/` by the build.
+Languages: `en` (default), `de`. Translations in `libs/shared/util/src/lib/i18n/translations/{lang}.json`, copied to `/i18n/` by the build.
 Routes: `/en`, `/de`, root `/` falls back to `en`.
 Never hardcode user-facing strings — use Transloco keys.
 A key built at runtime or passed as an input must also appear in a `/** t(key) */` (TS) or
