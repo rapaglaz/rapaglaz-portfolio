@@ -27,7 +27,7 @@ jobs:
         uses: ./.github/actions/nx-remote-cache
         with:
           server: ${{ secrets.NX_SELF_HOSTED_REMOTE_CACHE_SERVER }}
-          access-token: ${{ secrets.NX_SELF_HOSTED_REMOTE_CACHE_ACCESS_TOKEN }}
+          access-token: ${{ secrets.NX_CACHE_READONLY_TOKEN }}
           ts-oauth-client-id: ${{ secrets.NX_SELF_HOSTED_TS_OAUTH_CLIENT_ID }}
           ts-oauth-secret: ${{ secrets.NX_SELF_HOSTED_TS_OAUTH_SECRET }}
 
@@ -69,7 +69,7 @@ jobs:
         uses: ./.github/actions/nx-remote-cache
         with:
           server: ${{ secrets.NX_SELF_HOSTED_REMOTE_CACHE_SERVER }}
-          access-token: ${{ secrets.NX_SELF_HOSTED_REMOTE_CACHE_ACCESS_TOKEN }}
+          access-token: ${{ secrets.NX_CACHE_READONLY_TOKEN }}
           ts-oauth-client-id: ${{ secrets.NX_SELF_HOSTED_TS_OAUTH_CLIENT_ID }}
           ts-oauth-secret: ${{ secrets.NX_SELF_HOSTED_TS_OAUTH_SECRET }}
 
@@ -134,7 +134,7 @@ jobs:
         uses: ./.github/actions/nx-remote-cache
         with:
           server: ${{ secrets.NX_SELF_HOSTED_REMOTE_CACHE_SERVER }}
-          access-token: ${{ secrets.NX_SELF_HOSTED_REMOTE_CACHE_ACCESS_TOKEN }}
+          access-token: ${{ secrets.NX_CACHE_READONLY_TOKEN }}
           ts-oauth-client-id: ${{ secrets.NX_SELF_HOSTED_TS_OAUTH_CLIENT_ID }}
           ts-oauth-secret: ${{ secrets.NX_SELF_HOSTED_TS_OAUTH_SECRET }}
 
@@ -169,7 +169,7 @@ jobs:
         uses: ./.github/actions/nx-remote-cache
         with:
           server: ${{ secrets.NX_SELF_HOSTED_REMOTE_CACHE_SERVER }}
-          access-token: ${{ secrets.NX_SELF_HOSTED_REMOTE_CACHE_ACCESS_TOKEN }}
+          access-token: ${{ secrets.NX_CACHE_READONLY_TOKEN }}
           ts-oauth-client-id: ${{ secrets.NX_SELF_HOSTED_TS_OAUTH_CLIENT_ID }}
           ts-oauth-secret: ${{ secrets.NX_SELF_HOSTED_TS_OAUTH_SECRET }}
 
