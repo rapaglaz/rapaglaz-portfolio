@@ -16,10 +16,6 @@ inputs:
     description: 'Days to retain the Playwright report artifact.'
     required: false
     default: '3'
-  skip-nx-cache:
-    description: "'true' builds and runs the tests without reading the Nx cache"
-    required: false
-    default: 'false'
 
 runs:
   using: composite
@@ -38,8 +34,6 @@ runs:
     - name: Build application
       if: ${{ inputs.build-artifact-name == '' }}
       uses: ./.github/actions/build
-      with:
-        skip-nx-cache: ${{ inputs.skip-nx-cache }}
 
     # The ci-* configurations install their browser and its system dependencies inside the
     # Nx task, so a remote cache hit skips both the install and the tests.
@@ -47,13 +41,7 @@ runs:
       shell: bash
       env:
         CONFIGURATION: ${{ inputs.configuration }}
-        SKIP_NX_CACHE: ${{ inputs.skip-nx-cache }}
-      run: |
-        if [ "$SKIP_NX_CACHE" = 'true' ]; then
-          pnpm exec nx e2e rapaglaz-portfolio-e2e "--configuration=$CONFIGURATION" --skip-nx-cache
-        else
-          pnpm exec nx e2e rapaglaz-portfolio-e2e "--configuration=$CONFIGURATION"
-        fi
+      run: pnpm exec nx e2e rapaglaz-portfolio-e2e "--configuration=$CONFIGURATION"
 
     # Retries on CI turn a test that fails and then passes into a green job; list those tests.
     # Only reports, never fails the job.

@@ -3,7 +3,8 @@
 # that Cloudflare rules in the dashboard decide, and the lang and canonical link of the prerender.
 # Read-only: GET requests only. Run it with BASE=<url> to check another host, and with
 # EXPECTED_DIR=<build output> to also check that /en and /de load the main bundle of that build.
-# SMOKE_TOKEN is sent as X-Smoke-Token, so a Cloudflare WAF skip rule can let CI runners through.
+# A manual check after a deploy: Cloudflare's Bot Fight Mode challenges GitHub-hosted runners, so it
+# cannot run in CI.
 set -u
 
 BASE="${BASE:-https://rapaglaz.de}"
@@ -18,10 +19,7 @@ check() { # description, expected, actual
   fi
 }
 
-fetch() { # curl with retries; adds X-Smoke-Token when SMOKE_TOKEN is set
-  if [ -n "${SMOKE_TOKEN:-}" ]; then set -- -H "X-Smoke-Token: $SMOKE_TOKEN" "$@"; fi
-  curl -sS --max-time 20 --retry 3 --retry-delay 5 "$@"
-}
+fetch() { curl -sS --max-time 20 --retry 3 --retry-delay 5 "$@"; }
 
 status() { fetch -o /dev/null -w '%{http_code}' "$@"; }
 
@@ -35,22 +33,13 @@ header() { # header name, then curl arguments
 }
 
 # Cloudflare answers a client it takes for a bot with a challenge page instead of the site, so every
-# check would test that page. Without SMOKE_TOKEN that is expected on CI runners: skip with a
-# warning. With SMOKE_TOKEN the skip rule should have let the request through: fail.
+# check would test that page. Bot Fight Mode does that for datacenter IPs such as CI runners.
 stop_if_challenged() { # URLs
   for url in "$@"; do
     [ "$(header cf-mitigated "$url")" = challenge ] || continue
-    if [ -n "${SMOKE_TOKEN:-}" ]; then
-      echo "FAIL  Cloudflare challenged $url although X-Smoke-Token was sent. Check the WAF skip"
-      echo "      rule; Bot Fight Mode cannot be skipped by a rule."
-      exit 1
-    fi
-    echo "SKIP  Cloudflare challenged $url, so no check would reach the site. Set SMOKE_TOKEN and a"
-    echo "      WAF skip rule for the X-Smoke-Token header to run the checks from this host."
-    if [ -n "${GITHUB_ACTIONS:-}" ]; then
-      echo "::warning::Site smoke checks skipped: Cloudflare challenged the runner"
-    fi
-    exit 0
+    echo "FAIL  Cloudflare challenged $url (Bot Fight Mode blocks datacenter IPs), so no check"
+    echo "      would reach the site. Run this from a home connection."
+    exit 1
   done
 }
 
