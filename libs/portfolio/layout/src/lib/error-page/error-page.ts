@@ -20,7 +20,7 @@ const ROBOTS_SELECTOR = 'name="robots"';
       <div class="mx-auto w-full max-w-3xl animate-[fadeInUp_0.5s_ease-out_both]">
         <h1
           data-testid="error-heading"
-          class="error-title text-4xl tracking-[0.075em] break-words sm:text-5xl lg:text-6xl">
+          class="error-title text-4xl tracking-[0.075em] wrap-break-word sm:text-5xl lg:text-6xl">
           @if (kind === 'failed') {
             {{ 'common.error.failed.title' | transloco }}
           } @else {
@@ -36,7 +36,6 @@ const ROBOTS_SELECTOR = 'name="robots"';
             {{ 'common.error.notFound.message' | transloco }}
           }
         </p>
-        <!-- DaisyUI 5 reads --radius-field and --border; the app only defines the DaisyUI 4 names -->
         <div
           class="mt-10 flex flex-wrap items-center justify-center gap-4 [--border:var(--border-btn)] [--radius-field:var(--rounded-btn)]">
           @if (kind === 'failed') {
