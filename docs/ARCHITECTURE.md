@@ -31,6 +31,8 @@ Some placements are not obvious:
 
 - The Turnstile modal and interceptor are in `shared-data-access`, so a service does not reach into
   another layer for its overlay.
+- `portfolio-util` holds the contact links and the email opener. Three libraries need them
+  (`portfolio-ui`, `portfolio-layout` and `portfolio-feature`), and none of them may import another.
 - The server translation loader has its own entry point, `@rapaglaz/shared/util/translations`. From
   the main barrel it put both dictionaries into the main chunk of the browser (+5 kB).
 - Each Worker is its own Nx project, so `nx affected` deploys only the Worker that changed. A deploy
