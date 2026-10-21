@@ -17,13 +17,6 @@ Referrer-Policy: strict-origin-when-cross-origin
 Permissions-Policy: geolocation=(), microphone=(), camera=()
 ```
 
-Short version:
-
-- force HTTPS
-- stop iframe embedding
-- reduce referrer leakage
-- disable browser APIs I don't need
-
 There is no Content-Security-Policy header. Angular's `security.autoCsp` build option could generate
 a hash-based one, but it is still experimental.
 

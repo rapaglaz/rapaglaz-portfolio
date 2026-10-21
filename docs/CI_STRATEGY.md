@@ -97,21 +97,13 @@ median performance score is used for reporting.
 Results are posted as a PR comment via the GitHub token; the full HTML
 report is uploaded as a workflow artifact (`lighthouse-report`).
 
-Runs the `lighthouse` CLI directly (`.github/actions/lighthouse/report`)
-rather than `treosh/lighthouse-ci-action`/`@lhci/cli` - the latter pins an
-older Lighthouse version that reliably fails with `NO_LCP` on a bare local
-server (the page paints too fast for Chrome to ever record a Largest
-Contentful Paint candidate), even with `throttlingMethod: devtools` and
-aggressive throttling values. The `lighthouse` CLI's current release
-doesn't have this problem for the scored categories with plain
-`--throttling-method=devtools`.
+It runs the `lighthouse` CLI directly (`.github/actions/lighthouse/report`), not
+`treosh/lighthouse-ci-action`/`@lhci/cli`: those pin an older Lighthouse that fails with `NO_LCP`
+on a bare local server, even with `throttlingMethod: devtools`. The current CLI with
+`--throttling-method=devtools` scores normally.
 
-The job log can still show `LanternError: NO_LCP` (up to once per run, so
-up to 3 times) - that comes from Lighthouse's separate trace-engine "Insights"
-analysis (`@paulirish/trace_engine`), not from the scored audits, and
-doesn't affect the reported category scores. It's cosmetic log noise, and
-the `lighthouse` job also runs with `continue-on-error: true`, so it never
-blocks the PR either way.
+The log can still show `LanternError: NO_LCP`, up to once per run. It comes from the trace-engine
+"Insights" analysis, not from the scored audits, so it does not change the scores.
 
 ## Concurrency
 

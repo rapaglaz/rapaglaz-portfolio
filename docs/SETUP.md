@@ -131,7 +131,7 @@ export NX_SELF_HOSTED_REMOTE_CACHE_ACCESS_TOKEN=<access token>
 ```
 
 ```bash
-pnpm nx show projects                    # rapaglaz-portfolio, rapaglaz-portfolio-e2e
+pnpm nx show projects                    # apps, Workers and libraries
 pnpm nx show project rapaglaz-portfolio  # resolved targets, inputs and outputs
 pnpm nx graph                            # project graph in the browser
 pnpm nx reset                            # clear the cache and stop the daemon

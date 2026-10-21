@@ -222,7 +222,7 @@ are listed in `t(...)` comments next to their use.
 
 ## Trade-offs
 
-- NgRx SignalStore only where state is shared. Stores go to `data-access` libraries:
-  `FeatureFlagStore` and `CvDownloadStore` to `shared-data-access`, because the navbar and the page
-  both use them; a store only the portfolio uses would get `libs/portfolio/data-access`. Features
-  inject stores, UI libraries get inputs, and the project tags keep it that way.
+- No NgRx yet; it is planned. SignalStore will go only where state is shared, in `data-access`
+  libraries: `FeatureFlagStore` and `CvDownloadStore` to `shared-data-access`, because the navbar
+  and the page both use them; a store only the portfolio uses would get `libs/portfolio/data-access`.
+  Features will inject stores, UI libraries get inputs, and the project tags keep it that way.
