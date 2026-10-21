@@ -1,13 +1,13 @@
 # Security
 
-There is no login, no user data storage, no payments.
-It's mostly static content + a CV download endpoint.
+The site has no login, no stored user data and no payments. It serves mostly static content and one
+CV download endpoint.
 
 ## Headers
 
-I set basic security headers at the Cloudflare edge, not in this repository. A Response Header
-Transform Rule (`security-headers`) sets the last four with "Set static" on all requests; the
-Workers in [`apps/workers/`](../apps/workers/) set only their own response headers.
+The security headers are set at the Cloudflare edge, not in this repository. A Response Header
+Transform Rule (`security-headers`) sets the last four headers with "Set static" on all requests.
+The Workers in [`apps/workers/`](../apps/workers/) set only the headers of their own responses.
 
 ```http
 Strict-Transport-Security: max-age=15768000
@@ -17,82 +17,75 @@ Referrer-Policy: strict-origin-when-cross-origin
 Permissions-Policy: geolocation=(), microphone=(), camera=()
 ```
 
-Short version:
+To check the headers that production sends:
 
-- force HTTPS
-- stop iframe embedding
-- reduce referrer leakage
-- disable browser APIs I don't need
+```bash
+curl -sSI https://rapaglaz.de/en
+```
 
-There is no Content-Security-Policy header. Angular's `security.autoCsp` build option could generate
-a hash-based one, but it is still experimental.
+There is no Content-Security-Policy. Angular's `security.autoCsp` option can create a hash-based
+policy for the scripts at build time. It covers only scripts, so `style-src` needs a header
+([angular.dev](https://angular.dev/best-practices/security), checked 2026-10-21).
 
-## Subresource Integrity (SRI)
+## Subresource Integrity
 
-The production build has `subresourceIntegrity: true` in `apps/rapaglaz-portfolio/project.json`.
-Angular injects `integrity` and `crossorigin` attributes on all script and style tags, and lists
-the hashes of lazy-loaded chunks in an import map (`<script type="importmap">`) in the same HTML.
-The browser refuses a script or stylesheet that does not match the hash in the HTML.
-It does not help if the HTML itself is replaced, because the hashes live there.
+The production build has `subresourceIntegrity: true`. Angular adds `integrity` and `crossorigin`
+to every script and style tag, and lists the hashes of the lazy chunks in an import map in the same
+HTML. The browser refuses a file that does not match its hash. This does not protect against a
+replaced HTML file, because the hashes are part of it.
 
-## CV download protection
+## CV download
 
-I don't want the CV to be a public URL that bots can scrape forever.
-Downloads go through Cloudflare Turnstile + a Worker.
+The CV is not a public URL, because bots could download it without any limit. For this reason, the
+download goes through Cloudflare Turnstile and a Worker
+([ADR 0003](./adr/0003-cv-download-turnstile-worker.md)):
 
-Flow:
+1. The user clicks "CV".
+2. Turnstile runs, usually invisibly, sometimes with a challenge.
+3. `turnstile.interceptor` sends the token to the Worker in the `cf-turnstile-response` header.
+4. The Worker checks the origin allow-list, then a per-IP rate limit of 10 requests per minute
+   (`DOWNLOAD_RATE_LIMITER`). The counters are kept per Cloudflare location and are eventually
+   consistent, so the limit reduces abuse but is not an exact count. Clients behind one NAT share
+   the limit.
+5. The Worker validates the token with Cloudflare (`siteverify`).
+6. For a valid token, the Worker streams the PDF from R2 with `Cache-Control: private, no-store` and
+   `X-Robots-Tag: noindex, noarchive, nofollow`.
 
-1. User clicks "CV"
-2. Turnstile runs (sometimes invisible, sometimes it asks)
-3. Frontend sends the token to the Worker (via `cf-turnstile-response` header, injected by `turnstile.interceptor`)
-4. Worker checks the origin allow-list, then applies a per-IP rate limit of 10 requests per minute
-   through the Workers Rate Limiting binding `DOWNLOAD_RATE_LIMITER`. Counters are kept per
-   Cloudflare location and are eventually consistent, so this limits abuse but is not an exact
-   count. Clients behind one NAT share the limit
-5. Worker validates the token against Cloudflare (`siteverify`)
-6. If ok, Worker streams the PDF from R2 with `Cache-Control: private, no-store` and
-   `X-Robots-Tag: noindex, noarchive, nofollow`
+The code is in [`apps/workers/cv-download`](../apps/workers/cv-download/). The Cloudflare test
+token skips `siteverify` only on a Worker with `ALLOW_TEST_TOKEN=true`, which is meant for
+development. Origin and Referer never decide this, because the client sets them.
 
-The code is in [`apps/workers/cv-download`](../apps/workers/cv-download/). Cloudflare's test token skips
-`siteverify` only on a Worker with `ALLOW_TEST_TOKEN=true`, which is meant for development.
-Origin and Referer never decide that, because the client sets them.
+## Input, errors and logging
 
-## Input validation
+JSON from the Workers (`/config`, `/feature-flag`) is validated with Valibot before use, and
+unexpected shapes are rejected. `/download` returns a blob that goes directly to the browser.
 
-JSON responses from Cloudflare Workers (`/config`, `/feature-flag`) are validated with Valibot before use.
-`/download` returns the PDF as a blob, which is handed straight to the browser download.
-Invalid or unexpected shapes are rejected rather than passed into the app.
+`LoggerService` is the only place that logs. Users see generic messages, never internal details.
+Tokens, API keys and personal data are never logged.
 
-## Error handling and logging
+## Secrets and dependencies
 
-`LoggerService` is the single place for logging.
-Internal error details are never exposed to the user — only generic messages are shown.
-Tokens, API keys, and PII are never logged.
+The repository contains no secrets. They are in GitHub Secrets or in Cloudflare, and
+`TURNSTILE_SECRET` is a Worker secret. The Workers deploy from the main workflow with an API token
+that can only edit Workers. The deploy secrets are in the `production` environment, which only
+`main` can use, so PR workflows never get them.
 
-## Dependencies and secrets
+Renovate updates the dependencies. OSV vulnerability alerts are on, and patch updates merge
+automatically.
 
-No secrets in the repo.
-Sensitive values live in GitHub Secrets or Cloudflare config.
-`TURNSTILE_SECRET` is a Worker secret in Cloudflare. The Workers deploy from the main branch
-workflow with a Cloudflare API token limited to editing Workers; pull request workflows never get it.
+## Threat model
 
-Renovate handles dependency updates.
-OSV vulnerability alerts are enabled with automatic patch automerge.
+| Threat          | Mitigation                 |
+| --------------- | -------------------------- |
+| XSS             | Angular sanitization       |
+| Clickjacking    | `X-Frame-Options: DENY`    |
+| MITM            | HSTS + Cloudflare SSL      |
+| Tampered assets | SRI on all scripts/styles  |
+| CV scraping     | Turnstile                  |
+| Bad API data    | Valibot schema validation  |
+| DDoS            | Cloudflare edge protection |
+| Leaked secrets  | none in the repository     |
 
-## Threat model (simple)
+## Incident response
 
-| Threat          | What I do                  | Risk |
-| --------------- | -------------------------- | ---- |
-| XSS             | Angular sanitisation       | Low  |
-| Clickjacking    | `X-Frame-Options: DENY`    | Low  |
-| MITM            | HSTS + Cloudflare SSL      | Low  |
-| Tampered assets | SRI on all scripts/styles  | Low  |
-| CV scraping     | Turnstile                  | Low  |
-| Bad API data    | Valibot schema validation  | Low  |
-| DDoS            | Cloudflare edge protection | Low  |
-| Leaked secrets  | none in repo               | Low  |
-
-## If something breaks
-
-The Worker can be patched fast.
-Then I fix the code in the repo and run checks.
+I fix the running Worker first. Then I fix the code in the repository and run the checks.

@@ -1,75 +1,79 @@
 # My Portfolio
 
-Source of [rapaglaz.de](https://rapaglaz.de), my personal site: a small bilingual (EN/DE) Angular 22
-app, prerendered to static HTML and hydrated in the browser.
+Source code of [rapaglaz.de](https://rapaglaz.de), my personal site. It is a small bilingual
+(EN/DE) Angular 22 application, prerendered to static HTML and hydrated in the browser.
 
 ## Engineering decisions
 
-- **Zoneless, signals for UI state, RxJS for async.** `zone.js` is not a dependency, so updates
-  are explicit. Components are standalone and `OnPush`. The feature flag is an `httpResource`, so
-  its value arrives as a signal and nothing subscribes manually.
-- **Static prerendering + hydration.** `outputMode: static` prerenders `/`, `/en` and `/de` at
-  build time. The client hydrates that HTML, so it does not repaint the whole page. Browser APIs
-  are guarded with `isPlatformBrowser`, and the feature flag fires no request during prerender.
-- **Nx workspace.** The app and its Playwright suite are separate Nx projects in `apps/`. Build,
-  lint and unit tests run through Nx with a local cache. Nx adds no runtime code; the layer rules
-  inside the app stay with dependency-cruiser.
-- **Layer boundaries enforced by dependency-cruiser.** It checks runtime imports across seven
-  layers, rejects feature-to-feature imports and cycles, and fails the CI lint job.
-  The first report-only run found 11 warnings, including one cycle. The five remaining exceptions
-  are file-level, because removing them would have turned the change into a production refactor.
-- **External data is validated before use.** JSON from the `/config` and `/feature-flag` Workers
-  goes through Valibot schemas. Invalid shapes are rejected instead of passed into the app; an
-  unexpected flag value becomes `false`.
-- **CV behind Turnstile and a Worker.** I don't want the CV to be a public URL that bots can scrape
-  forever. The token travels in a `cf-turnstile-response` header set by an interceptor; the
-  [Worker](./apps/workers/cv-download/) validates it with Cloudflare and streams the PDF from R2 with
-  `Cache-Control: private, no-store`.
-- **Tests aimed at the shipped artifact.** Vitest covers behaviour and error paths in services and
-  interceptors, presentational sections get smoke checks. Playwright covers user flows, Turnstile
-  failures, axe and contrast checks in EN/DE and light/dark, and reduced motion, on Desktop Chrome
-  and an iPhone 12 WebKit profile. CI runs E2E against the static build, and main deploys exactly
-  that artifact, without a rebuild.
+- **Zoneless, signals for UI state, RxJS for async work.** There is no `zone.js`, so every update is
+  explicit. Components are standalone and `OnPush`. The feature flag is an `httpResource`: its value
+  comes as a signal, and no code subscribes manually.
+- **Static prerendering and hydration.** The build prerenders `/`, `/en` and `/de`, and the client
+  hydrates this HTML instead of rendering the page again. Access to browser APIs is guarded with
+  `isPlatformBrowser`, and the prerender sends no feature flag request.
+- **Nx workspace with enforced boundaries.** The application contains only the bootstrap. The page,
+  the layout, the sections and the shared code are libraries in `libs/<scope>/<type>`. Two checks
+  fail the lint job: `@nx/enforce-module-boundaries` for imports between projects (`type:*` and
+  `scope:*` tags), and dependency-cruiser for cycles, imports between sections and imports of test
+  code in production code.
+- **Validation of external data.** JSON from the `/config` and `/feature-flag` Workers goes through
+  Valibot schemas. An invalid shape is rejected, and an unexpected flag value becomes `false`.
+- **CV behind Turnstile and a Worker.** The CV is not a public URL, because bots could download it
+  without any limit. An interceptor sends the Turnstile token in a request header. The
+  [Worker](./apps/workers/cv-download/) validates the token with Cloudflare and streams the PDF from
+  R2 with `Cache-Control: private, no-store`.
+- **Tests for the deployed build.** Vitest covers the behavior and the error paths of services and
+  interceptors, and the sections have smoke tests. Playwright covers user flows, Turnstile errors,
+  axe and contrast checks in EN/DE and in light and dark mode, and reduced motion. It runs on a
+  Desktop Chrome profile and an iPhone 12 WebKit profile, plus the CV download on a Pixel 7 profile.
+  CI tests the static build, and `main` deploys exactly this build.
 
-Details: [engineering notes](./docs/ENGINEERING_NOTES.md) from the PR history.
+The decisions are recorded in [docs/adr](./docs/adr/). Problems from the PR history and their fixes
+are in the [engineering notes](./docs/ENGINEERING_NOTES.md).
 
 ## Quality gates
 
-| Check                                                                        | Runs on  | Blocks                       |
-| ---------------------------------------------------------------------------- | -------- | ---------------------------- |
-| `format:check`, `lint`, `typecheck`, `deps:check` (dependency-cruiser)       | PR, main | yes                          |
-| `i18n:check`, `test:coverage` (80% statements/functions/lines, 70% branches) | PR, main | yes                          |
-| SSG build with bundle budgets from `apps/rapaglaz-portfolio/project.json`    | PR, main | yes                          |
-| Playwright E2E in the official Playwright container, against the build       | PR, main | yes                          |
-| SonarCloud analysis (in the test job)                                        | PR, main | no, quality gate not awaited |
-| actionlint, zizmor (workflow linting and security)                           | PR       | yes                          |
-| Lighthouse, 3 desktop runs, median posted as a PR comment                    | PR       | no                           |
+| Check                                                                         | Runs on  | Blocks                              |
+| ----------------------------------------------------------------------------- | -------- | ----------------------------------- |
+| `format:check`, `lint`, `typecheck`, `deps:check` (dependency-cruiser)        | PR, main | yes                                 |
+| `i18n:check`, `test:coverage` (80% statements/functions/lines, 70% branches)  | PR, main | yes                                 |
+| `test:workers`, `workers:check` (Worker specs, `wrangler deploy --dry-run`)   | PR, main | yes                                 |
+| SSG build with the bundle budgets from `apps/rapaglaz-portfolio/project.json` | PR, main | yes                                 |
+| Playwright E2E against the build, Chromium and WebKit                         | PR, main | yes                                 |
+| SonarCloud analysis (`sonar` job, after `test`)                               | PR, main | no, the quality gate is not awaited |
+| actionlint, zizmor (linting and security of the workflows)                    | PR, main | on PRs (in the `lint` job)          |
+| Lighthouse, 3 desktop runs, median as a PR comment                            | PR       | no                                  |
 
-On PRs, the `quality-check` gate needs all of these except SonarCloud and Lighthouse. On main,
-deploy needs lint, test, build and E2E; workflow linting runs only on PRs. Locally, Lefthook runs lint-staged before a commit (plus actionlint and zizmor
-when workflows change) and commitlint on the message. Details: [CI/CD strategy](./docs/CI_STRATEGY.md).
+On PRs, the `quality-check` gate needs every check except SonarCloud and Lighthouse. On `main`, the
+deploy needs lint, test, build and E2E. Locally, Lefthook runs lint-staged before each commit (plus
+actionlint and zizmor when a workflow changes) and commitlint on the commit message. Details:
+[CI/CD strategy](./docs/CI_STRATEGY.md).
 
 ## How I work with AI
 
-Architecture, boundaries and code reviews are mine. I use Claude Code and Codex for implementation
-speed and refactoring; `AGENTS.md` holds the rules I give them, and `.claude/` installs the pinned
-toolchain in cloud sessions. Every change, human or AI-assisted, goes through a pull request whose
-required `quality-check` gate runs lint, dependency-cruiser, unit and E2E tests. The repository
-admin can bypass that gate; between July and October 2026 that happened for four PRs:
-[#712](https://github.com/rapaglaz/rapaglaz-portfolio/pull/712),
+I own the architecture, the boundaries and the code reviews. I use Claude Code and Codex for
+implementation speed and for refactoring, and `AGENTS.md` and `.claude/` define the rules for these
+tools. Pull requests, written by me or with AI assistance, are merged only after the required
+`quality-check` gate (lint, dependency-cruiser, unit and E2E tests). Every push to `main` outside
+the docs runs the same checks before the deploy.
+
+Not every change went through a pull request. I committed some changes directly to `main`,
+including the Nx migration on 2026-10-19. As repository admin, I also bypassed the gate for four
+PRs: [#712](https://github.com/rapaglaz/rapaglaz-portfolio/pull/712),
 [#713](https://github.com/rapaglaz/rapaglaz-portfolio/pull/713),
 [#730](https://github.com/rapaglaz/rapaglaz-portfolio/pull/730) and
 [#768](https://github.com/rapaglaz/rapaglaz-portfolio/pull/768).
 
-## Also inside
+## Other features
 
-- Transloco i18n with a runtime switch; JSON in `libs/shared/util/src/i18n`, locale routes `/en` and `/de`
-- "Open to Work" feature flag from a Cloudflare Worker + KV
-- Tailwind CSS 4 + DaisyUI + small custom CSS
+- Transloco i18n with a language switch at runtime and the locale routes `/en` and `/de`
+- an "Open to Work" feature flag from a Cloudflare Worker and KV
+- Tailwind CSS 4, DaisyUI and a small amount of custom CSS
 
 ## Docs
 
 - [Architecture](./docs/ARCHITECTURE.md)
+- [Decision records](./docs/adr/)
 - [Engineering notes](./docs/ENGINEERING_NOTES.md)
 - [Dependency boundaries](./docs/DEPENDENCY_BOUNDARIES.md)
 - [CI/CD strategy](./docs/CI_STRATEGY.md)
@@ -77,6 +81,6 @@ admin can bypass that gate; between July and October 2026 that happened for four
 - [Cloudflare Workers](./apps/workers/README.md)
 - [Local setup](./docs/SETUP.md)
 
-## Licence
+## License
 
 MIT. See [LICENCE.md](./LICENCE.md).

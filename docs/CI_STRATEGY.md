@@ -1,134 +1,104 @@
 # CI/CD strategy
 
-CI/CD runs on GitHub Actions with GitHub-hosted runners.
-Workflows are in `.github/workflows/`.
-
-## Goals
-
-- fast feedback on normal changes
-- don't merge broken stuff
-- deploy only when main is green
+GitHub Actions on GitHub-hosted runners. The goals are fast feedback, no broken merges and a deploy
+only from a green `main`.
 
 ## Workflows
 
-There are two workflows:
+| Workflow                   | Runs on                                                                          | When a new push comes                                      |
+| -------------------------- | -------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| `pull-request-checks.yaml` | every PR                                                                         | it cancels the active run of the same PR                   |
+| `main-branch-ci-cd.yaml`   | push to `main`, except pushes that change only `docs/**` or `*.md`; manual start | runs queue, so a newer push cannot cancel a running deploy |
 
-- `pull-request-checks.yaml` — runs on every PR
-- `main-branch-ci-cd.yaml` (Main Branch CI/CD) — runs on push to main (skips docs/markdown changes), and deploys to production when checks pass
+On `main`, GitHub keeps only the newest pending run, so a series of pushes still ends in one run of
+the latest commit. Both workflows start with `permissions: {}`, and each job gets only the
+permissions it needs.
 
-Both workflows use `.github/actions/quality-check/action.yaml`. Its `lint` mode runs
-format, lint, type check, and `pnpm run deps:check`; its `test` mode runs i18n, coverage tests, the Worker
-tests and config check, and SonarCloud analysis. The dependency check fails the lint job for forbidden runtime imports
-or cycles, so it also blocks the PR quality gate and main deployment.
-See [Dependency boundaries](./DEPENDENCY_BOUNDARIES.md) for the architecture policy.
+Both workflows use `.github/actions/quality-check`:
 
-The scripts behind these steps call Nx. Apart from the Worker deploy, CI runs every target in full
-(no `nx affected`), but results are shared between runs through the remote cache below.
+- `lint` mode: format check, lint, type check and `deps:check`;
+- `test` mode: i18n check, unit tests with coverage, Worker tests and `workers:check`. The coverage
+  reports go to an artifact for the `sonar` job.
+
+The scripts call Nx. CI runs every target with `run-many`, not only the affected projects. The
+remote cache skips the tasks whose inputs did not change.
 
 ## Nx remote cache
 
-Every job that runs Nx (`lint`, `test`, `build`, `deploy-workers`) calls
-`.github/actions/nx-remote-cache` right after checkout. The action joins the tailnet with Tailscale
-(tag `tag:ci`) and sets `NX_SELF_HOSTED_REMOTE_CACHE_SERVER` and
-`NX_SELF_HOSTED_REMOTE_CACHE_ACCESS_TOKEN`, so Nx reads and writes the self-hosted cache server. A
-`main` run after a merge then reuses the lint, test and build results of the pull request. Cached
-`test` results restore `coverage/`, so SonarCloud still gets the lcov report.
+Every job that runs Nx first calls `.github/actions/nx-remote-cache`. The action joins my tailnet
+with Tailscale, checks the `/health` endpoint of the self-hosted cache server and only then points
+Nx at it. Without the secrets (fork PRs) or without a connection, Nx uses the local cache, so the
+cache never fails a job.
 
-Repository secrets: `NX_SELF_HOSTED_REMOTE_CACHE_SERVER`, `NX_SELF_HOSTED_REMOTE_CACHE_ACCESS_TOKEN`,
-`NX_SELF_HOSTED_TS_OAUTH_CLIENT_ID`, `NX_SELF_HOSTED_TS_OAUTH_SECRET`. Without them (fork pull requests) or when Tailscale fails
-to connect, the action posts a notice and Nx uses only the local cache; the cache never fails a job.
+The cache has two spaces, one per access token:
 
-## Pull request workflow
+- **Shared space** (`NX_CACHE_PR_TOKEN`): all PR jobs, and `lint`, `test`, `e2e-tests` and
+  `deploy-workers` on `main`. A `main` run after a merge reuses the lint, test and E2E results of
+  the PR, including `coverage/` for SonarCloud.
+- **Main space** (`NX_CACHE_MAIN_TOKEN`): only the `build` job on `main`. The token is a secret of
+  the `production` environment, which only `main` can use, so no PR can write a build that is
+  deployed later.
 
-Jobs: `lint`, `test`, `actionlint`, `zizmor`, `build`, `e2e-tests`, `lighthouse`, `quality-check`.
+E2E on `main` may come from the shared space on purpose. A planted E2E result could only hide a
+failing test. It cannot change the deployed files, because the build comes from the main space.
 
-- `lint`, `test`, `actionlint`, `zizmor`, `build` run in parallel.
-- `e2e-tests` and `lighthouse` depend on `build` (reuse the build artifact).
-- `quality-check` is a gate job — requires `lint`, `test`, `actionlint`, `zizmor`, `build`, and `e2e-tests` to succeed. Failed, cancelled, or skipped jobs fail the gate. Branch protection requires it to pass.
+## Pull requests
 
-Renovate PRs run the same checks as other PRs, including `actionlint`. Dependency updates can introduce runtime regressions even when lint and build pass (see [Engineering notes](./ENGINEERING_NOTES.md)).
+`lint`, `test` and `build` run in parallel. The `lint` job also runs actionlint and zizmor in the
+versions from `mise.toml`. They run even when lint failed, so one run shows every finding.
+`e2e-tests` and `lighthouse` start after `build`, and `sonar` starts after `test`.
 
-SonarQube analysis runs inside the `test` job on both PR and main, using `sonar-token` from GitHub Secrets.
+`quality-check` is the gate. It needs `lint`, `test`, `build` and `e2e-tests`, and every result other
+than success fails it, also a canceled or skipped job. A repository ruleset on `main` requires
+`quality-check` and `build`. `sonar` and `lighthouse` do not block. Renovate PRs run the same
+checks, because dependency updates can break things that lint and build do not catch (see the
+[engineering notes](./ENGINEERING_NOTES.md)).
 
-## Main branch CI/CD
+## Main branch and deploy
 
-Jobs: `lint`, `test`, `build`, `e2e-tests`, `deploy` — all run on every push to main — and the
-`deploy-workers`, which the variable `DEPLOY_WORKERS` can switch off (see [Cloudflare Workers](#cloudflare-workers)).
+`lint`, `test`, `build` and `workflow-lint` run in parallel. `sonar` starts after `test`, and
+`e2e-tests` after `build`. `workflow-lint` runs actionlint and zizmor, because a direct push to
+`main` skips the PR checks. `sonar` and `workflow-lint` do not block the deploy.
 
-`lint`, `test`, `build` are parallel. `e2e-tests` depends on `build`. `deploy` depends on all four.
+`deploy` needs `lint`, `test`, `build` and `e2e-tests`. It downloads the build artifact of the same
+run, which is the build that E2E tested, and uploads it over FTPS. There is no second build. The FTP
+secrets are in the `production` environment.
 
-Pushes that only touch `docs/**` or `*.md` are ignored via `paths-ignore`.
+The repository variable `DEPLOY_SITE` stops site deploys without a commit, for example during an
+incident: the job is skipped while the variable is `false`. A missing variable deploys, so Renovate
+merges deploy too.
 
-Can also be triggered manually via `workflow_dispatch` (runs the full pipeline, including deploy).
+## E2E
 
-## Deploy
+E2E runs against the static build on port 4233, in one job per browser: `chromium` and `webkit`,
+with the Nx configurations `ci-chromium` and `ci-webkit`. `fail-fast: false` keeps one browser
+running when the other fails, so one run shows both results.
 
-The `deploy` job runs only if `lint`, `test`, `build`, and `e2e-tests` all succeeded, and the push actor is not `renovate[bot]` (dependency bumps don't deploy).
+The jobs run on `ubuntu-latest`, not in the Playwright container, because Tailscale needs `sudo`
+and a TUN device. Each configuration installs its browser inside the Nx task, so a cache hit skips
+the install together with the tests. The cache inputs include the versions of `@playwright/test`
+and `@axe-core/playwright`, and Nx caches only successful runs.
 
-Flow:
-
-1. Download the `build-artifact-main` artifact produced by the `build` job in the same run — the exact build that e2e ran against. No rebuild.
-2. Deploy via FTPS to the production server (`SamKirkland/FTP-Deploy-Action`).
-
-Credentials (`SERVER`, `USER`, `PASS`) live in GitHub Secrets.
-
-## E2E target
-
-E2E runs against the static build served on port 4233.
-The e2e action runs `pnpm exec nx e2e rapaglaz-portfolio-e2e`; with `CI` set, the Playwright
-config serves `dist/apps/rapaglaz-portfolio/browser` itself. On failure the action uploads the
-HTML report from `dist/.playwright/apps/rapaglaz-portfolio-e2e/playwright-report`.
-The e2e jobs run on `ubuntu-latest`, not in the Playwright container: Tailscale needs `sudo` and
-a TUN device, which the container lacks, so the job could not reach the remote cache. The action
-runs `nx e2e rapaglaz-portfolio-e2e --configuration=ci`, whose command runs
-`playwright install --with-deps chromium webkit` before the tests. The install is part of the
-Nx task, so a cache hit skips it together with the tests.
-
-The `e2e` target is cacheable. Its inputs are the e2e sources, the production inputs of the app,
-`E2E_MODE`, `CI`, and the Playwright version, so `main` reuses the result of the pull request run
-for the same code. Nx caches only successful runs, so a rerun after a failure runs the tests again.
-Locally `pnpm run e2e` uses the dev server on 4200.
+Retries on CI can turn a failing test into a green job. After every run, a step writes the flaky
+tests from the Playwright JSON report into the job summary. This step only reports and never fails
+the job. When the tests fail, the HTML report is uploaded as an artifact.
 
 ## Lighthouse
 
-Lighthouse is feedback only. It does not block merges.
-Runs on PRs only (not on main). 3 runs, desktop preset, the run with the
-median performance score is used for reporting.
-Results are posted as a PR comment via the GitHub token; the full HTML
-report is uploaded as a workflow artifact (`lighthouse-report`).
+Lighthouse does not block a PR. On every PR it runs three times with the desktop preset. The run
+with the median performance score goes into a PR comment, and its HTML report is uploaded as an
+artifact.
 
-Runs the `lighthouse` CLI directly (`.github/actions/lighthouse/report`)
-rather than `treosh/lighthouse-ci-action`/`@lhci/cli` - the latter pins an
-older Lighthouse version that reliably fails with `NO_LCP` on a bare local
-server (the page paints too fast for Chrome to ever record a Largest
-Contentful Paint candidate), even with `throttlingMethod: devtools` and
-aggressive throttling values. The `lighthouse` CLI's current release
-doesn't have this problem for the scored categories with plain
-`--throttling-method=devtools`.
-
-The job log can still show `LanternError: NO_LCP` (up to once per run, so
-up to 3 times) - that comes from Lighthouse's separate trace-engine "Insights"
-analysis (`@paulirish/trace_engine`), not from the scored audits, and
-doesn't affect the reported category scores. It's cosmetic log noise, and
-the `lighthouse` job also runs with `continue-on-error: true`, so it never
-blocks the PR either way.
-
-## Concurrency
-
-All workflows use `cancel-in-progress: true` scoped to `workflow + ref`.
-Redundant runs are cancelled when a new commit is pushed to the same branch.
+The job calls the `lighthouse` CLI directly, because `@lhci/cli` and `treosh/lighthouse-ci-action`
+use an older Lighthouse that fails with `NO_LCP` on a plain local server. A `LanternError: NO_LCP`
+line can still appear in the log. It comes from the "Insights" analysis and does not change the
+scores.
 
 ## Cloudflare Workers
 
-`deploy-workers` in Main Branch CI/CD deploys the Workers that `nx affected` reports since the last
-green run on `main`, after `lint` and `test`. Comparing with the previous push instead would lose
-the changes of a run that was cancelled by a newer push or failed. Each Worker is its own Nx
-project, so a change in one Worker deploys only that Worker; a change to `nx.json`,
-`tsconfig.base.json`, the Workers' own `apps/workers/eslint.config.mjs` or an Nx plugin version
-deploys all of them. With `projectsAffectedByDependencyUpdates: "auto"` other dependency updates
-deploy no Worker, because the Workers import no npm package. The job runs `test` and `check` before
-it passes the Cloudflare secrets to the `deploy` step. The repository variable `DEPLOY_WORKERS` is a
-kill switch: the job runs only while it is `true`. It runs `wrangler deploy` with the
-`CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets.
-Pull requests never get these secrets; they only bundle the Workers with `wrangler deploy --dry-run`.
-See [Cloudflare Workers](../apps/workers/README.md) for the configuration and the first deploy.
+`deploy-workers` runs on `main` after `lint`, `test`, `build` and `e2e-tests`. It deploys the
+Workers that `nx affected` reports since the head SHA of the last successful `main` run, so the
+changes of a canceled or failed run are not lost. Without a known base, every Worker deploys. The
+job runs only while the repository variable `DEPLOY_WORKERS` is `true`. Pull requests never get the
+Cloudflare secrets. They only run `wrangler deploy --dry-run`. Details:
+[Cloudflare Workers](../apps/workers/README.md).
