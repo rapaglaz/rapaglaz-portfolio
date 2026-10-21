@@ -1,0 +1,13 @@
+// Source of truth for this Worker. Routes stay in the Cloudflare dashboard: with no route keys
+// and workers_dev set to false, wrangler deploy leaves them unchanged. The Worker has no bindings.
+// Routes to add by hand (Free plan: only page views, so assets do not use the daily request limit):
+// rapaglaz.de/en*, rapaglaz.de/de*, www.rapaglaz.de/en*, www.rapaglaz.de/de*
+{
+  "name": "site-fallback",
+  "main": "index.ts",
+  "compatibility_date": "2025-10-31",
+  "workers_dev": false,
+  "preview_urls": false,
+  // logs would record every page view
+  "observability": { "logs": { "enabled": false }, "traces": { "enabled": false } },
+}
