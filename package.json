@@ -61,6 +61,7 @@
     "@angular/compiler-cli": "22.2.3",
     "@angular/language-service": "22.2.3",
     "@axe-core/playwright": "4.14.0",
+    "@cloudflare/workers-types": "5.20261016.1",
     "@commitlint/cli": "21.2.3",
     "@commitlint/config-conventional": "21.2.3",
     "@eslint/js": "10.0.1",
