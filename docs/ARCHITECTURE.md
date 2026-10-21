@@ -115,7 +115,7 @@ focus indicators) and reduced motion. CI tests the static build. `pnpm run e2e` 
 
 ## i18n
 
-Transloco with JSON files in `libs/shared/util/src/i18n`. A strict missing handler reports missing
+Transloco with JSON files in `libs/shared/util/src/lib/i18n/translations`. A strict missing handler reports missing
 keys, and `/` falls back to `en`.
 
 The app initializer loads the first translations for the prerender and the hydration. A route
@@ -126,6 +126,25 @@ dictionaries, so they appear in the right language even when the loading fails.
 
 `pnpm run i18n:check` fails on missing and unused keys. Keys built at runtime or passed as inputs
 are listed in `t(...)` comments next to their use, because transloco-keys-manager cannot find them.
+
+## Error pages
+
+`ErrorPage` in `portfolio-layout` has two variants, which the route data selects. The route `**`
+shows "Page not found" instead of a redirect to the home page, and the route `error` shows
+"Something went wrong". Both show a small bot, keep the footer, set `noindex` and a title while
+they are visible, and give the previous values back when the router leaves them.
+
+A failed navigation, for example a lazy chunk that a new deploy removed, goes to `/error` through
+`withNavigationErrorHandler`. The address bar does not change: after a failed first load it still
+shows the page that the visitor asked for, so a reload of the browser retries it. The handler logs
+the path without the query string. An error on `/error` itself is not redirected again, so there is
+no loop. The prerender does not use the handler, so a failing
+route still fails the build.
+
+The pages cannot cover an address that a visitor types in: the site is static, so the web host
+answers an unknown path with its own 404 before the app starts. The pages appear for links inside
+the app, in `ng serve` and on a host that falls back to `index.html`. For this reason the E2E tests
+start on a real page and move on with the history API, so they also pass against the static server.
 
 ## Trade-offs
 

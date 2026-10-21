@@ -22,7 +22,7 @@
           },
           {
             "glob": "*.json",
-            "input": "libs/shared/util/src/i18n",
+            "input": "libs/shared/util/src/lib/i18n/translations",
             "output": "i18n"
           }
         ],

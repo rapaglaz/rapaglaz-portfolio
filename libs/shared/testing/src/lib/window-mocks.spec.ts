@@ -17,6 +17,15 @@ describe('mockWindowLocation', () => {
     expect(window.location).not.toBe(originalLocation);
     cleanup();
   });
+
+  it('records a reload', () => {
+    const { reloadMock, cleanup } = mockWindowLocation();
+
+    window.location.reload();
+
+    expect(reloadMock).toHaveBeenCalledOnce();
+    cleanup();
+  });
 });
 
 describe('mockWindowScrollY', () => {

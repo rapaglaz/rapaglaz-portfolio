@@ -16,7 +16,7 @@ import {
   provideClientHydration,
   withEventReplay,
 } from '@angular/platform-browser';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withNavigationErrorHandler } from '@angular/router';
 import {
   provideTransloco,
   TRANSLOCO_MISSING_HANDLER,
@@ -27,6 +27,7 @@ import { turnstileInterceptor } from '@rapaglaz/shared/data-access';
 import {
   AVAILABLE_LANGS,
   DEFAULT_LANG,
+  handleNavigationError,
   isAvailableLang,
   StrictTranslocoMissingHandler,
   TranslocoHttpLoader,
@@ -104,7 +105,10 @@ export const appConfigBase: ApplicationConfig = {
 };
 
 export const appConfig: ApplicationConfig = {
-  providers: [provideRouter(routes), ...baseProviders],
+  providers: [
+    provideRouter(routes, withNavigationErrorHandler(handleNavigationError)),
+    ...baseProviders,
+  ],
 };
 
 export function bootstrap(): Promise<ApplicationRef> {

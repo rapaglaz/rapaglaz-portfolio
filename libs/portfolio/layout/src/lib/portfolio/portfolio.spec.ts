@@ -17,11 +17,14 @@ import { Portfolio } from './portfolio';
 })
 class Page {}
 
-async function setup(platformId = 'browser'): Promise<ComponentFixture<Portfolio>> {
+async function setup(platformId = 'browser', url = '/'): Promise<ComponentFixture<Portfolio>> {
   TestBed.configureTestingModule({
     imports: [Portfolio],
     providers: [
-      provideRouter([{ path: '**', component: Page }]),
+      provideRouter([
+        { path: 'error', component: Page, data: { hideNavbar: true } },
+        { path: '**', component: Page },
+      ]),
       provideHttpClient(),
       provideHttpClientTesting(),
       provideTranslocoTesting(),
@@ -34,7 +37,7 @@ async function setup(platformId = 'browser'): Promise<ComponentFixture<Portfolio
     ],
   });
   const fixture = TestBed.createComponent(Portfolio);
-  await TestBed.inject(Router).navigateByUrl('/');
+  await TestBed.inject(Router).navigateByUrl(url);
   fixture.detectChanges();
   return fixture;
 }
@@ -48,6 +51,27 @@ describe('Portfolio', () => {
     expect(
       element.querySelector('div > router-outlet + *')?.querySelector('#main-content'),
     ).not.toBeNull();
+  });
+
+  it('hides the navbar on a route that asks for it and keeps the rest of the shell', async () => {
+    const element = (await setup('browser', '/error')).nativeElement as HTMLElement;
+
+    expect(element.querySelector('app-navbar')).toBeNull();
+    expect(Array.from(element.children, child => child.tagName.toLowerCase())).toEqual([
+      'a',
+      'div',
+      'app-footer',
+    ]);
+  });
+
+  it('shows the navbar again when the visitor leaves such a route', async () => {
+    const fixture = await setup('browser', '/error');
+    const element = fixture.nativeElement as HTMLElement;
+
+    await TestBed.inject(Router).navigateByUrl('/');
+    fixture.detectChanges();
+
+    expect(element.querySelector('app-navbar')).not.toBeNull();
   });
 
   it('moves focus to the main content on a plain click', async () => {

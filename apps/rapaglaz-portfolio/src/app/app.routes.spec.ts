@@ -6,6 +6,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
 import { TranslocoService } from '@jsverse/transloco';
+import { ErrorPage } from '@rapaglaz/portfolio/layout';
 import { provideTranslocoTesting } from '@rapaglaz/shared/testing';
 import { firstValueFrom, throwError } from 'rxjs';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -106,12 +107,27 @@ describe('portfolio routes', () => {
     expect(TestBed.inject(DOCUMENT).documentElement.lang).toBe('de');
   });
 
-  it('redirects an unknown path to the root portfolio', async () => {
+  it('shows the not-found page for an unknown path and keeps the address', async () => {
     const harness = await RouterTestingHarness.create();
 
-    await harness.navigateByUrl('/unknown/page', PortfolioPage);
+    await harness.navigateByUrl('/unknown/page', ErrorPage);
 
-    expect(TestBed.inject(Router).url).toBe('/');
-    expect(harness.routeNativeElement?.querySelector('main')).toBeInstanceOf(HTMLElement);
+    expect(TestBed.inject(Router).url).toBe('/unknown/page');
+    expect(harness.routeNativeElement?.querySelector('h1')?.textContent).toContain(
+      'Page not found',
+    );
+  });
+
+  it('shows the failed page at /error', async () => {
+    const harness = await RouterTestingHarness.create();
+
+    await harness.navigateByUrl('/error', ErrorPage);
+
+    expect(harness.routeNativeElement?.querySelector('h1')?.textContent).toContain(
+      'Something went wrong',
+    );
+    expect(
+      harness.routeNativeElement?.querySelector('[data-testid="error-illustration-failed"]'),
+    ).not.toBeNull();
   });
 });

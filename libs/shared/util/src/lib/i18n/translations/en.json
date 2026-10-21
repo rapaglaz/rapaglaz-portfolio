@@ -23,6 +23,17 @@
       "loading": "Loading security check...",
       "cancel": "Cancel",
       "close": "Close"
+    },
+    "error": {
+      "notFound": {
+        "title": "Page not found",
+        "message": "The page you are looking for does not exist or has moved."
+      },
+      "failed": {
+        "title": "Something went wrong",
+        "message": "The page could not be loaded. Please try again in a few minutes."
+      },
+      "home": "Back to home"
     }
   },
   "portfolio": {

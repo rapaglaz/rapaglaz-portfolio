@@ -3,7 +3,7 @@ import { TranslocoGlobalConfig } from '@jsverse/transloco-utils';
 const AVAILABLE_LANGS = ['en', 'de'] as const;
 
 const config: TranslocoGlobalConfig = {
-  rootTranslationsPath: 'libs/shared/util/src/i18n/',
+  rootTranslationsPath: 'libs/shared/util/src/lib/i18n/translations/',
   langs: [...AVAILABLE_LANGS],
   keysManager: {
     input: ['apps/rapaglaz-portfolio/src', 'libs'],

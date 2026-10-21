@@ -2,9 +2,11 @@ import { DOCUMENT } from '@angular/common';
 import { inject, Type } from '@angular/core';
 import { RedirectCommand, ResolveFn, Router, Routes } from '@angular/router';
 import { TranslocoService } from '@jsverse/transloco';
+import { ErrorPage } from '@rapaglaz/portfolio/layout';
 import {
   AVAILABLE_LANGS,
   DEFAULT_LANG,
+  ERROR_PATH,
   isAvailableLang,
   LoggerService,
   type AvailableLang,
@@ -58,8 +60,15 @@ export const routes: Routes = [
     loadComponent: loadPortfolio,
     resolve: { locale: resolvePortfolioLocale },
   })),
+  // the navigation error handler of shared-util lands here
+  {
+    path: ERROR_PATH,
+    component: ErrorPage,
+    data: { kind: 'failed', hideNavbar: true },
+  },
   {
     path: '**',
-    redirectTo: '',
+    component: ErrorPage,
+    data: { kind: 'notFound', hideNavbar: true },
   },
 ];

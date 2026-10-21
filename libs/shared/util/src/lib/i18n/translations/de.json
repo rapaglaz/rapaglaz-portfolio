@@ -23,6 +23,17 @@
       "loading": "Sicherheitsprüfung wird geladen...",
       "cancel": "Abbrechen",
       "close": "Schließen"
+    },
+    "error": {
+      "notFound": {
+        "title": "Seite nicht gefunden",
+        "message": "Die gesuchte Seite existiert nicht oder wurde verschoben."
+      },
+      "failed": {
+        "title": "Etwas ist schiefgelaufen",
+        "message": "Die Seite konnte nicht geladen werden. Bitte versuchen Sie es in einigen Minuten erneut."
+      },
+      "home": "Zurück zur Startseite"
     }
   },
   "portfolio": {
