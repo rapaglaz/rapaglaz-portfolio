@@ -77,12 +77,14 @@ async function sha256Base64(text: string): Promise<string> {
   return btoa(String.fromCodePoint(...new Uint8Array(digest)));
 }
 
-// Only the script of the Worker may run, and it may only ask the own address
+// Only the script of the Worker may run, and it may only ask the own address.
+// The font is inline as a data URI, so no other source is allowed.
 async function contentSecurityPolicy(): Promise<string> {
   scriptHash ??= sha256Base64(RELOAD_SCRIPT);
   return [
     "default-src 'none'",
     "style-src 'unsafe-inline'",
+    'font-src data:',
     `script-src 'sha256-${await scriptHash}'`,
     "connect-src 'self'",
     "base-uri 'none'",

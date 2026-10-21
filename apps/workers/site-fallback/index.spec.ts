@@ -117,6 +117,18 @@ describe('site-fallback worker', () => {
     expect(csp).toContain("default-src 'none'");
   });
 
+  it('carries its font inline and loads nothing from another host', async () => {
+    origin.mockResolvedValue(new Response('', { status: 521 }));
+
+    const response = await worker.fetch(pageRequest());
+    const html = await response.text();
+    const csp = response.headers.get('Content-Security-Policy') ?? '';
+
+    expect(html).toMatch(/@font-face[^}]*src: url\(data:font\/woff2;base64,/);
+    expect(html).not.toMatch(/(?:href|src)=["']?https?:/);
+    expect(csp).toContain('font-src data:');
+  });
+
   it('answers HEAD with the status and without a body', async () => {
     origin.mockResolvedValue(new Response('', { status: 521 }));
 

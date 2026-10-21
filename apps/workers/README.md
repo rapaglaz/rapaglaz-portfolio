@@ -21,8 +21,9 @@ with a page of the portfolio, so that a visitor sees a clear message instead of 
   [`site-fallback/offline.html`](./site-fallback/offline.html), with status 503, `Retry-After` and
   `Cache-Control: no-store`, so that crawlers and caches do not keep it. Other answers and other
   methods are not changed.
-- The page has only inline CSS, because nothing else is available during the outage. The language
-  follows the path (`/de`, otherwise English).
+- The page has only inline CSS and an inline font (Manrope 700, latin, as a data URI from
+  `@fontsource/manrope`), because nothing else is available during the outage. The language follows
+  the path (`/de`, otherwise English).
 - The one script is [`reload-script.ts`](./site-fallback/reload-script.ts). Every minute, and when the
   tab becomes visible, it asks the same address with `HEAD` and reloads the page only when the answer
   is no longer a server error, so a reader is not interrupted while the origin is down. The Worker
