@@ -1,13 +1,37 @@
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
-// The configs only use whole-line comments and trailing commas, which is all this strips.
-function readConfig(workerDir) {
-  const text = readFileSync(new URL('wrangler.jsonc', workerDir), 'utf8');
-  return JSON.parse(text.replace(/^\s*\/\/.*$/gm, '').replace(/,(\s*[}\]])/g, '$1'));
+type WranglerConfig = {
+  name?: string;
+  main?: string;
+  workers_dev?: boolean;
+  kv_namespaces?: { binding: string }[];
+  r2_buckets?: { binding: string }[];
+  ratelimits?: { name: string }[];
+  vars?: Record<string, string>;
+  secrets?: { required?: string[] };
+};
+
+type ExpectedEnv = {
+  required: string[];
+  optional: string[];
+};
+
+// URL is the Workers runtime type here, so Node's fs gets a path, not the URL object
+function readWorkerFile(workerDir: URL, file: string): string {
+  return readFileSync(fileURLToPath(new URL(file, workerDir).href), 'utf8');
 }
 
-function declaredNames(config) {
+// The configs only use whole-line comments and trailing commas, which is all this strips.
+function readConfig(workerDir: URL): WranglerConfig {
+  const text = readWorkerFile(workerDir, 'wrangler.jsonc');
+  return JSON.parse(
+    text.replace(/^\s*\/\/.*$/gm, '').replace(/,(\s*[}\]])/g, '$1'),
+  ) as WranglerConfig;
+}
+
+function declaredNames(config: WranglerConfig): Set<string> {
   return new Set([
     ...(config.kv_namespaces ?? []).map(({ binding }) => binding),
     ...(config.r2_buckets ?? []).map(({ binding }) => binding),
@@ -17,20 +41,24 @@ function declaredNames(config) {
   ]);
 }
 
-function envNamesReadByCode(workerDir) {
-  const code = readFileSync(new URL('index.js', workerDir), 'utf8');
+function envNamesReadByCode(workerDir: URL): Set<string> {
+  const code = readWorkerFile(workerDir, 'index.ts');
   return new Set([...code.matchAll(/\benv\.([A-Z][A-Z0-9_]*)/g)].map(([, name]) => name));
 }
 
 // workerDir is the Worker folder URL, e.g. new URL('.', import.meta.url) from its spec.
 // required: bindings the Worker needs in production; optional: other env names the code may read.
-export function describeWranglerConfig(worker, workerDir, { required, optional }) {
+export function describeWranglerConfig(
+  worker: string,
+  workerDir: URL,
+  { required, optional }: ExpectedEnv,
+): void {
   describe(`${worker} wrangler.jsonc`, () => {
     const config = readConfig(workerDir);
 
     it('targets the Cloudflare Worker of the same name and leaves routes to the dashboard', () => {
       expect(config.name).toBe(worker);
-      expect(config.main).toBe('index.js');
+      expect(config.main).toBe('index.ts');
       expect(config.workers_dev).toBe(false);
       expect(config).not.toHaveProperty('route');
       expect(config).not.toHaveProperty('routes');

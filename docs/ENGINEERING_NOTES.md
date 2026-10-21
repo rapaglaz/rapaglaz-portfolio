@@ -112,7 +112,7 @@ Problems from the history of this repository, oldest first, with the PRs that fi
   headers that the client controls. The other two Workers had no behavior tests.
 - **Fix:** only `ALLOW_TEST_TOKEN` on a development Worker skips `siteverify`, and local origins are
   compared by hostname. I found it while adding the Worker sources to this repo, and
-  `apps/workers/cv-download/index.spec.js` reproduces each case
+  `apps/workers/cv-download/index.spec.ts` reproduces each case
   ([#777](https://github.com/rapaglaz/rapaglaz-portfolio/pull/777)). The other two Workers got
   their fixes and specs in [#781](https://github.com/rapaglaz/rapaglaz-portfolio/pull/781)
   (`portfolio-settings`) and [#782](https://github.com/rapaglaz/rapaglaz-portfolio/pull/782)

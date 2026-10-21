@@ -3,7 +3,7 @@
 // matches the active version on 2026-10-17 (wrangler versions view); it has no bindings.
 {
   "name": "portfolio-settings",
-  "main": "index.js",
+  "main": "index.ts",
   "compatibility_date": "2025-10-31",
   "workers_dev": false,
   "preview_urls": false,

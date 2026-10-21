@@ -37,14 +37,17 @@
           "eslint",
           "@eslint/js",
           "eslint-config-prettier",
-          "@nx/eslint-plugin"
+          "@nx/eslint-plugin",
+          "typescript-eslint",
+          "typescript"
         ]
       }
     ],
     "workerSource": [
       "{projectRoot}/**/*",
-      "!{projectRoot}/**/*.spec.js",
-      "!{projectRoot}/vitest.config.mjs"
+      "!{projectRoot}/**/*.spec.ts",
+      "!{projectRoot}/vitest.config.mjs",
+      "!{projectRoot}/tsconfig.json"
     ]
   },
   "plugins": [

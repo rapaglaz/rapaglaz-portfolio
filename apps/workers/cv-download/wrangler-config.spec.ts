@@ -1,4 +1,4 @@
-import { describeWranglerConfig } from '../testing/wrangler-config.js';
+import { describeWranglerConfig } from '../testing/wrangler-config';
 
 // Bindings this Worker needs in production. Other env names the code reads must be listed as optional.
 describeWranglerConfig('cv-download', new URL('.', import.meta.url), {

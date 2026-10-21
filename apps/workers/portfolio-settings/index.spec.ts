@@ -1,9 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import worker from './index.js';
+import worker from './index';
 
 const ORIGIN = 'https://rapaglaz.de';
 
-function configRequest({ url = `${ORIGIN}/config`, method = 'GET', headers = {} } = {}) {
+type RequestOptions = { url?: string; method?: string; headers?: Record<string, string> };
+
+function configRequest({
+  url = `${ORIGIN}/config`,
+  method = 'GET',
+  headers = {},
+}: RequestOptions = {}): Request {
   return new Request(url, { method, headers: { Origin: ORIGIN, ...headers } });
 }
 

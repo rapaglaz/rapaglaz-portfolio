@@ -22,10 +22,27 @@ The download flow is described in [Security notes](../../docs/SECURITY.md).
 
 ## Nx targets
 
-Each Worker is an Nx project with `test`, `check` (`wrangler deploy --dry-run`, no login needed),
-`deploy` and `lint`. `check` and `deploy` are defined once in `nx.json`. The lint config
-[`eslint.config.mjs`](./eslint.config.mjs) does not extend the root config. It shares only the
-boundary rule.
+Each Worker is an Nx project with `test`, `typecheck`, `check` (`wrangler deploy --dry-run`, no
+login needed), `deploy` and `lint`. `check` and `deploy` are defined once in `nx.json`. The lint
+config [`eslint.config.mjs`](./eslint.config.mjs) does not extend the root config. It uses the same
+TypeScript presets and shares the boundary rule.
+
+## TypeScript
+
+The Workers are written in TypeScript. Wrangler bundles `index.ts` itself, so the Workers need no
+separate build step.
+
+[`tsconfig.base.json`](./tsconfig.base.json) replaces the browser types of the root config with the
+runtime types from `@cloudflare/workers-types` (`lib: es2022`, no DOM), so that `Request`,
+`Response` and the bindings have the types of the Workers runtime. The package describes the latest
+runtime, not the `compatibility_date` of a Worker. The `Env` type in each `index.ts` is written by
+hand from the binding types of the package (`KVNamespace`, `R2Bucket`, `RateLimit`). Cloudflare
+recommends `wrangler types` instead, but it writes about 600 kB of runtime types per Worker into the
+repository.
+
+The code can read only the names that `Env` lists. The wrangler-config spec checks that the spec
+knows every `env` name that the code reads, and that `wrangler.jsonc` declares the bindings that the
+Worker needs. `pnpm run typecheck` checks the sources and the specs.
 
 ## Deploy from CI
 

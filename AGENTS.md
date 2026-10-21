@@ -20,7 +20,7 @@ Exact versions live in `package.json` (dependencies, `packageManager` for pnpm),
 apps/
 ├── rapaglaz-portfolio/       # the Angular app (project.json, vitest.config.mts, public/, src/)
 ├── rapaglaz-portfolio-e2e/   # Playwright project (playwright.config.mts, src/)
-└── workers/                  # Cloudflare Workers: one Nx project per Worker (test, check, deploy)
+└── workers/                  # Cloudflare Workers in TypeScript: one Nx project per Worker
 libs/
 ├── portfolio/
 │   ├── feature/              # @rapaglaz/portfolio/feature: PortfolioPage (lazy-loaded by the router), skills and certifications content

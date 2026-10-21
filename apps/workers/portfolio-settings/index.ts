@@ -2,6 +2,8 @@
  * Config Worker: serves the public Turnstile site key on GET or HEAD /config.
  */
 
+type LogContext = Record<string, unknown>;
+
 // --- Constants ---
 const CONFIG = {
   TURNSTILE_SITE_KEY: '0x4AAAAAAB98Vx1r87KQ9OmN',
@@ -18,7 +20,7 @@ const ALLOWED_ORIGINS = [
 ];
 
 export default {
-  async fetch(request) {
+  async fetch(request: Request): Promise<Response> {
     const requestId = crypto.randomUUID();
     const startTime = Date.now();
 
@@ -51,11 +53,13 @@ export default {
 
       // --- CORS: allow localhost + whitelisted origins ---
       const isOriginAllowed =
-        Boolean(origin) && (ALLOWED_ORIGINS.includes(origin) || isLocalOrigin(origin));
+        origin !== null &&
+        origin !== '' &&
+        (ALLOWED_ORIGINS.includes(origin) || isLocalOrigin(origin));
 
       // --- Preflight (OPTIONS) ---
       if (method === 'OPTIONS') {
-        const headers = {
+        const headers: Record<string, string> = {
           'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type',
           'Access-Control-Max-Age': CONFIG.CORS_MAX_AGE,
@@ -94,7 +98,7 @@ export default {
 
       // Handle 304 Not Modified; If-None-Match may list several ETags
       if (inm.split(',').some(tag => tag.trim() === etag)) {
-        const headers = {
+        const headers: Record<string, string> = {
           ETag: etag,
           'Cache-Control': `public, max-age=${CONFIG.CACHE_MAX_AGE}`,
           Vary: 'Origin',
@@ -118,7 +122,7 @@ export default {
       }
 
       // --- Build response headers ---
-      const headers = {
+      const headers: Record<string, string> = {
         'Content-Type': 'application/json; charset=utf-8',
         'Cache-Control': `public, max-age=${CONFIG.CACHE_MAX_AGE}`,
         ETag: etag,
@@ -148,8 +152,8 @@ export default {
       const duration = Date.now() - startTime;
       logError('Config error', {
         requestId,
-        error: error.message,
-        stack: error.stack,
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
         durationMs: duration,
       });
       return new Response('Internal Server Error', { status: 500 });
@@ -159,7 +163,7 @@ export default {
 
 // Compare the hostname, so https://evil-localhost.example is not treated as local.
 // Same check as in cv-download; each Worker is deployed on its own, so it is not shared.
-function isLocalOrigin(origin) {
+function isLocalOrigin(origin: string): boolean {
   try {
     const { hostname } = new URL(origin);
     return hostname === 'localhost' || hostname === '127.0.0.1';
@@ -169,7 +173,7 @@ function isLocalOrigin(origin) {
 }
 
 // --- Helper: deterministic weak ETag (W/ belongs outside the quotes) ---
-async function sha256Etag(text) {
+async function sha256Etag(text: string): Promise<string> {
   const enc = new TextEncoder().encode(text);
   const buf = await crypto.subtle.digest('SHA-256', enc);
   const hex = [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
@@ -177,19 +181,19 @@ async function sha256Etag(text) {
 }
 
 // --- Structured Logging ---
-function logInfo(message, context = {}) {
+function logInfo(message: string, context: LogContext = {}): void {
   console.log(
     JSON.stringify({ level: 'INFO', message, ...context, timestamp: new Date().toISOString() }),
   );
 }
 
-function logWarn(message, context = {}) {
+function logWarn(message: string, context: LogContext = {}): void {
   console.warn(
     JSON.stringify({ level: 'WARN', message, ...context, timestamp: new Date().toISOString() }),
   );
 }
 
-function logError(message, context = {}) {
+function logError(message: string, context: LogContext = {}): void {
   console.error(
     JSON.stringify({ level: 'ERROR', message, ...context, timestamp: new Date().toISOString() }),
   );

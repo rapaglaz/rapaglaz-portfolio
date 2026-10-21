@@ -2,6 +2,19 @@
  * Worker for secure CV download via Turnstile verification
  */
 
+// Bindings and variables of this Worker. wrangler.jsonc declares the bindings and the secret;
+// ALLOWED_ORIGINS and ALLOW_TEST_TOKEN are variables that are not set in production.
+export type Env = {
+  // the Worker only reads objects; R2 returns the body as a stream that goes on to the Response
+  PORTFOLIO_FILES: Pick<R2Bucket, 'get'>;
+  TURNSTILE_SECRET: string;
+  DOWNLOAD_RATE_LIMITER?: RateLimit;
+  ALLOWED_ORIGINS?: string;
+  ALLOW_TEST_TOKEN?: string;
+};
+
+type TurnstileResult = { valid: boolean; outage: boolean };
+
 // --- Configuration ---
 const CONFIG = {
   ALLOWED_FILE_PREFIX: 'cv/',
@@ -26,7 +39,7 @@ let turnstileFailures = 0;
 let turnstileLastFailureTime = 0;
 
 export default {
-  async fetch(request, env) {
+  async fetch(request: Request, env: Env): Promise<Response> {
     const sourceOrigin =
       request.headers.get('Origin') || extractOriginFromReferer(request.headers.get('Referer'));
     // replaced from the environment below; the catch block keeps the defaults if that fails
@@ -41,7 +54,11 @@ export default {
       allowedOrigins = parseAllowedOrigins(env.ALLOWED_ORIGINS);
 
       // Helper function to build responses with CORS support
-      const buildResponse = (body, status, extraHeaders = {}) => {
+      const buildResponse = (
+        body: BodyInit | null,
+        status: number,
+        extraHeaders: Record<string, string> = {},
+      ): Response => {
         const headers = new Headers(extraHeaders);
 
         // Always add CORS headers if origin is allowed (even for errors)
@@ -125,7 +142,7 @@ export default {
 
       return buildResponse(object.body, 200, successHeaders);
     } catch (error) {
-      console.error('Internal error:', error.message);
+      console.error('Internal error:', error instanceof Error ? error.message : String(error));
       // CORS headers only for allowed origins, as on every other response
       const headers = new Headers({ 'Content-Type': 'text/plain; charset=utf-8' });
       if (isOriginAllowed(sourceOrigin, allowedOrigins)) {
@@ -139,7 +156,7 @@ export default {
 
 // --- Helper Functions ---
 
-function parseAllowedOrigins(originsString) {
+function parseAllowedOrigins(originsString: string | undefined): string[] {
   if (!originsString) return CONFIG.DEFAULT_ALLOWED_ORIGINS;
   return originsString
     .split(',')
@@ -147,7 +164,7 @@ function parseAllowedOrigins(originsString) {
     .filter(Boolean);
 }
 
-function extractOriginFromReferer(referer) {
+function extractOriginFromReferer(referer: string | null): string {
   if (!referer) return '';
   try {
     const url = new URL(referer);
@@ -157,7 +174,7 @@ function extractOriginFromReferer(referer) {
   }
 }
 
-function isValidFilePath(filePath) {
+function isValidFilePath(filePath: string): boolean {
   return (
     filePath.startsWith(CONFIG.ALLOWED_FILE_PREFIX) &&
     !filePath.includes('..') &&
@@ -167,7 +184,7 @@ function isValidFilePath(filePath) {
   );
 }
 
-function isOriginAllowed(sourceOrigin, allowedOrigins) {
+function isOriginAllowed(sourceOrigin: string, allowedOrigins: string[]): boolean {
   if (!sourceOrigin) return false;
   const cleanOrigin = sourceOrigin.trim().replace(/\/$/, '');
 
@@ -180,7 +197,7 @@ function isOriginAllowed(sourceOrigin, allowedOrigins) {
 }
 
 // Compare the hostname, so https://localhost.attacker.example is not treated as local
-function isLocalOrigin(origin) {
+function isLocalOrigin(origin: string): boolean {
   try {
     const { hostname } = new URL(origin);
     return hostname === 'localhost' || hostname === '127.0.0.1';
@@ -189,7 +206,11 @@ function isLocalOrigin(origin) {
   }
 }
 
-async function verifyTurnstileWithCircuitBreaker(token, env, remoteIp) {
+async function verifyTurnstileWithCircuitBreaker(
+  token: string,
+  env: Env,
+  remoteIp: string | null,
+): Promise<boolean> {
   const now = Date.now();
 
   // Check circuit breaker state
@@ -215,11 +236,15 @@ async function verifyTurnstileWithCircuitBreaker(token, env, remoteIp) {
 
 // Origin and Referer are set by the client, so only Worker configuration may skip siteverify.
 // ALLOW_TEST_TOKEN belongs on a development Worker, never on production.
-function isTestToken(token, env) {
+function isTestToken(token: string, env: Env): boolean {
   return env.ALLOW_TEST_TOKEN === 'true' && token === CONFIG.TEST_TOKEN;
 }
 
-async function verifyTurnstile(token, env, remoteIp) {
+async function verifyTurnstile(
+  token: string,
+  env: Env,
+  remoteIp: string | null,
+): Promise<TurnstileResult> {
   if (isTestToken(token, env)) return { valid: true, outage: false };
 
   // AbortController + setTimeout, as in Cloudflare's own Turnstile example
@@ -233,11 +258,11 @@ async function verifyTurnstile(token, env, remoteIp) {
       body: JSON.stringify({
         secret: env.TURNSTILE_SECRET,
         response: token,
-        ...(remoteIp && { remoteip: remoteIp }),
+        ...(remoteIp ? { remoteip: remoteIp } : {}),
       }),
       signal: controller.signal,
     });
-    const result = await res.json();
+    const result = (await res.json()) as { success?: boolean; 'error-codes'?: string[] };
     // any parsed answer means siteverify is up; only internal-error counts as an outage
     const outage = result['error-codes']?.includes('internal-error') === true;
     return { valid: result.success === true, outage };
