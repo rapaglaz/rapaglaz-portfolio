@@ -3,9 +3,11 @@
 ## Requirements
 
 - Node.js 24 (exact version in `.nvmrc`)
-- pnpm (exact version in `packageManager` in `package.json`)
-- [mise](https://mise.jdx.dev/), only if you commit workflow changes: the pre-commit hook runs
-  actionlint and zizmor at the versions in `mise.toml`
+- pnpm (exact version in the `packageManager` field of `package.json`)
+- [mise](https://mise.jdx.dev/), only for commits that change workflows: the pre-commit hook runs
+  actionlint and zizmor in the versions from `mise.toml`
+
+Install the dependencies:
 
 ```bash
 pnpm install
@@ -13,11 +15,15 @@ pnpm install
 
 `pnpm install` also installs the Lefthook git hooks (`lefthook.yml`, through the `prepare` script):
 
-- `pre-commit`: lint-staged on staged files (`.lintstagedrc.json`)
+- `pre-commit`: lint-staged on the staged files (`.lintstagedrc.json`)
 - `commit-msg`: commitlint. Messages follow [Conventional Commits](https://www.conventionalcommits.org/)
   (`<type>(<scope>): <subject>`).
 
-If the hooks do not run, try `pnpm exec lefthook install`.
+If the hooks do not run, install them again:
+
+```bash
+pnpm exec lefthook install
+```
 
 ## Dev server
 
@@ -25,19 +31,24 @@ If the hooks do not run, try `pnpm exec lefthook install`.
 pnpm start
 ```
 
-It starts the app and a local copy of the download Worker. App is on <http://localhost:4200>.
-You can use `/en` or `/de` directly, and `/` defaults to English.
+The command starts the app on <http://localhost:4200> and a local copy of the download Worker. The
+routes `/en` and `/de` work directly, and `/` uses English.
 
-The feature flag comes from `https://rapaglaz.de`. If you see CORS errors, the Worker must allow
-`http://localhost:4200`.
+The feature flag comes from `https://rapaglaz.de`. If the browser reports CORS errors, the Worker
+must allow `http://localhost:4200`.
 
-The CV download goes to the local Worker on `http://localhost:8787` (`pnpm nx serve cv-download`
-starts it alone). It serves a placeholder PDF from a local R2 bucket and checks the token with
-Cloudflare's test secret, which accepts the token of the test site key that local dev uses.
-Production gets no request. Without this Worker, for example with
-`pnpm nx serve rapaglaz-portfolio`, the download ends in the error toast. The Worker calls
-Turnstile's `siteverify`, so an outbound firewall such as Little Snitch must let `workerd` connect.
-E2E mocks Turnstile and `/download` instead.
+The CV download goes to the local Worker on `http://localhost:8787`. To start this Worker alone:
+
+```bash
+pnpm nx serve cv-download
+```
+
+The Worker serves a placeholder PDF from a local R2 bucket and checks the token with the test secret
+of Cloudflare. This secret accepts the token of the test site key that local development uses, so
+production gets no request. Without this Worker, for example with `pnpm nx serve rapaglaz-portfolio`,
+the download ends with the error toast. The Worker calls the Turnstile `siteverify` endpoint, so an
+outbound firewall such as Little Snitch must allow connections of `workerd`. E2E tests mock
+Turnstile and `/download` instead.
 
 ## Checks
 
@@ -50,7 +61,7 @@ pnpm run i18n:check
 ```
 
 `pnpm run deps:graph` writes an HTML dependency matrix to `tmp/dependency-cruiser/dependencies.html`.
-The rules are in [Dependency boundaries](./DEPENDENCY_BOUNDARIES.md).
+The rules are described in [Dependency boundaries](./DEPENDENCY_BOUNDARIES.md).
 
 ## Unit tests
 
@@ -61,7 +72,7 @@ pnpm run test:workers     # Workers, Vitest in Node
 pnpm run workers:check    # bundles each Worker with wrangler deploy --dry-run, no login needed
 ```
 
-Deploying the Workers is described in [Cloudflare Workers](../apps/workers/README.md).
+The deploy of the Workers is described in [Cloudflare Workers](../apps/workers/README.md).
 
 ## E2E tests
 
@@ -71,17 +82,28 @@ pnpm run e2e:ssg    # builds, then tests the static output on port 4233
 pnpm run e2e:ui     # Playwright UI
 ```
 
-The HTML report goes to `dist/.playwright/apps/rapaglaz-portfolio-e2e/playwright-report/`. If
-browsers are missing, run `pnpm exec playwright install --with-deps`.
+The HTML report is written to `dist/.playwright/apps/rapaglaz-portfolio-e2e/playwright-report/`.
+If browsers are missing, install them:
+
+```bash
+pnpm exec playwright install --with-deps
+```
 
 ## Nx
 
 The scripts call Nx, so build, lint and test results come from the local cache when nothing they
 depend on has changed. Nx 23 keeps this cache in `~/.nx/<id>/cache`, shared by all checkouts and
 worktrees of the repository, so a new worktree can also get cache hits. To prove that a check
-passes, run it with `--skip-nx-cache`. If a result looks stale, run `pnpm nx reset` and the task
-again.
-On the tailnet you can share the cache of CI (see [CI strategy](./CI_STRATEGY.md#nx-remote-cache)):
+passes, run it with `--skip-nx-cache`, for example:
+
+```bash
+pnpm nx run-many -t lint --skip-nx-cache
+```
+
+If a result looks stale, run `pnpm nx reset` and then the task again.
+
+Inside the tailnet, the local Nx can use the remote cache of CI (see
+[CI/CD strategy](./CI_STRATEGY.md#nx-remote-cache)):
 
 ```bash
 export NX_SELF_HOSTED_REMOTE_CACHE_SERVER=<cache server URL>
@@ -97,8 +119,10 @@ graph.
 pnpm run build
 pnpm run preview &   # static build on http://localhost:4233
 pnpm exec lighthouse http://localhost:4233 --preset=desktop --throttling-method=devtools
+kill %1              # stops the preview server
 ```
 
-Keep `--throttling-method=devtools`. On a plain local server the page renders so fast that Chrome
-sometimes records no Largest Contentful Paint (`NO_LCP`), and the default `simulate` mode needs one
-for its calculation. CI does three desktop runs and writes the reports to `.lighthouseci/`.
+Keep `--throttling-method=devtools`, because the default `simulate` mode needs a Largest
+Contentful Paint for its calculation. On a plain local server the page renders so fast that Chrome
+sometimes records none (`NO_LCP`). CI does three desktop runs and writes the reports to
+`.lighthouseci/`.

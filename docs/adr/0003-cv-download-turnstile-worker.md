@@ -1,9 +1,10 @@
 # ADR 0003: CV download through Turnstile and a Worker
 
 **Status:** Accepted, recorded on 2026-10-19 · **Date:** 2025-11-17 (Turnstile client in `67a81f4`);
-Worker sources here since [#777](https://github.com/rapaglaz/rapaglaz-portfolio/pull/777) (2026-10-17)
+Worker sources in this repository since [#777](https://github.com/rapaglaz/rapaglaz-portfolio/pull/777)
+(2026-10-17)
 
-**Context.** I don't want the CV to be a public URL that bots can scrape forever.
+**Context.** The CV must not be a public URL, because bots could download it without any limit.
 
 **Decision.** A click on "CV" runs Cloudflare Turnstile. `turnstile.interceptor` sends the token in
 a `cf-turnstile-response` header to the `cv-download` Worker. The Worker checks the origin
@@ -12,11 +13,11 @@ reads the PDF through its R2 binding and streams it with `Cache-Control: private
 
 **Alternatives considered.**
 
-- A public PDF in the static build: anyone can fetch it and search engines can index it. The first
-  docs (`67a81f4`) kept the files in a private R2 bucket.
+- A public PDF in the static build: everybody can fetch it, and search engines can index it. The
+  first docs (`67a81f4`) kept the files in a private R2 bucket.
 - reCAPTCHA. The first docs chose Turnstile: no Google tracking, no cookies, faster for the user.
-- A signed R2 URL with a 5-minute expiry, as the first docs described. The Worker never returned
-  one. It streams the file itself, so there is no link that someone could share.
+- A signed R2 URL with an expiry of 5 minutes, as described in the first docs. The Worker never
+  returned such a URL. It streams the file itself, so there is no link that someone could share.
 
 **Consequences.**
 

@@ -7,7 +7,7 @@ only from a green `main`.
 
 | Workflow                   | Runs on                                                                          | When a new push comes                                      |
 | -------------------------- | -------------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| `pull-request-checks.yaml` | every PR                                                                         | it cancels the running run of the same PR                  |
+| `pull-request-checks.yaml` | every PR                                                                         | it cancels the active run of the same PR                   |
 | `main-branch-ci-cd.yaml`   | push to `main`, except pushes that change only `docs/**` or `*.md`; manual start | runs queue, so a newer push cannot cancel a running deploy |
 
 On `main`, GitHub keeps only the newest pending run, so a series of pushes still ends in one run of

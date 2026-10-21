@@ -1,12 +1,13 @@
 # Security
 
-No login, no stored user data, no payments. Mostly static content and a CV download endpoint.
+The site has no login, no stored user data and no payments. It serves mostly static content and one
+CV download endpoint.
 
 ## Headers
 
-Security headers are set at the Cloudflare edge, not in this repo. A Response Header Transform Rule
-(`security-headers`) sets the last four with "Set static" on all requests. The Workers in
-[`apps/workers/`](../apps/workers/) set only their own response headers.
+The security headers are set at the Cloudflare edge, not in this repository. A Response Header
+Transform Rule (`security-headers`) sets the last four headers with "Set static" on all requests.
+The Workers in [`apps/workers/`](../apps/workers/) set only the headers of their own responses.
 
 ```http
 Strict-Transport-Security: max-age=15768000
@@ -16,6 +17,12 @@ Referrer-Policy: strict-origin-when-cross-origin
 Permissions-Policy: geolocation=(), microphone=(), camera=()
 ```
 
+To check the headers that production sends:
+
+```bash
+curl -sSI https://rapaglaz.de/en
+```
+
 There is no Content-Security-Policy. Angular's `security.autoCsp` option can create a hash-based
 policy for the scripts at build time. It covers only scripts, so `style-src` needs a header
 ([angular.dev](https://angular.dev/best-practices/security), checked 2026-10-21).
@@ -23,51 +30,52 @@ policy for the scripts at build time. It covers only scripts, so `style-src` nee
 ## Subresource Integrity
 
 The production build has `subresourceIntegrity: true`. Angular adds `integrity` and `crossorigin`
-to every script and style tag, and lists the hashes of lazy chunks in an import map in the same
-HTML. The browser refuses a file that does not match. It does not help if the HTML itself is
-replaced, because the hashes are in it.
+to every script and style tag, and lists the hashes of the lazy chunks in an import map in the same
+HTML. The browser refuses a file that does not match its hash. This does not protect against a
+replaced HTML file, because the hashes are part of it.
 
 ## CV download
 
-I don't want the CV to be a public URL that bots can scrape forever, so downloads go through
-Cloudflare Turnstile and a Worker ([ADR 0003](./adr/0003-cv-download-turnstile-worker.md)):
+The CV is not a public URL, because bots could download it without any limit. For this reason, the
+download goes through Cloudflare Turnstile and a Worker
+([ADR 0003](./adr/0003-cv-download-turnstile-worker.md)):
 
 1. The user clicks "CV".
 2. Turnstile runs, usually invisibly, sometimes with a challenge.
 3. `turnstile.interceptor` sends the token to the Worker in the `cf-turnstile-response` header.
 4. The Worker checks the origin allow-list, then a per-IP rate limit of 10 requests per minute
-   (`DOWNLOAD_RATE_LIMITER`). Counters are kept per Cloudflare location and are eventually
-   consistent, so this limits abuse but is not an exact count. Clients behind one NAT share the
-   limit.
+   (`DOWNLOAD_RATE_LIMITER`). The counters are kept per Cloudflare location and are eventually
+   consistent, so the limit reduces abuse but is not an exact count. Clients behind one NAT share
+   the limit.
 5. The Worker validates the token with Cloudflare (`siteverify`).
-6. If the token is valid, the Worker streams the PDF from R2 with `Cache-Control: private, no-store`
-   and `X-Robots-Tag: noindex, noarchive, nofollow`.
+6. For a valid token, the Worker streams the PDF from R2 with `Cache-Control: private, no-store` and
+   `X-Robots-Tag: noindex, noarchive, nofollow`.
 
-The code is in [`apps/workers/cv-download`](../apps/workers/cv-download/). The test token of
-Cloudflare skips `siteverify` only on a Worker with `ALLOW_TEST_TOKEN=true`, which is meant for
-development. Origin and Referer never decide that, because the client sets them.
+The code is in [`apps/workers/cv-download`](../apps/workers/cv-download/). The Cloudflare test
+token skips `siteverify` only on a Worker with `ALLOW_TEST_TOKEN=true`, which is meant for
+development. Origin and Referer never decide this, because the client sets them.
 
 ## Input, errors and logging
 
 JSON from the Workers (`/config`, `/feature-flag`) is validated with Valibot before use, and
-unexpected shapes are rejected. `/download` returns a blob that goes straight to the browser.
+unexpected shapes are rejected. `/download` returns a blob that goes directly to the browser.
 
 `LoggerService` is the only place that logs. Users see generic messages, never internal details.
 Tokens, API keys and personal data are never logged.
 
 ## Secrets and dependencies
 
-No secrets in the repo. They are in GitHub Secrets or in Cloudflare, and `TURNSTILE_SECRET` is a
-Worker secret. The Workers deploy from the main workflow with an API token that can only edit
-Workers. The deploy secrets are in the `production` environment, which only `main` can use, so PR
-workflows never get them.
+The repository contains no secrets. They are in GitHub Secrets or in Cloudflare, and
+`TURNSTILE_SECRET` is a Worker secret. The Workers deploy from the main workflow with an API token
+that can only edit Workers. The deploy secrets are in the `production` environment, which only
+`main` can use, so PR workflows never get them.
 
 Renovate updates the dependencies. OSV vulnerability alerts are on, and patch updates merge
 automatically.
 
 ## Threat model
 
-| Threat          | What I do                  |
+| Threat          | Mitigation                 |
 | --------------- | -------------------------- |
 | XSS             | Angular sanitization       |
 | Clickjacking    | `X-Frame-Options: DENY`    |
@@ -76,8 +84,8 @@ automatically.
 | CV scraping     | Turnstile                  |
 | Bad API data    | Valibot schema validation  |
 | DDoS            | Cloudflare edge protection |
-| Leaked secrets  | none in repo               |
+| Leaked secrets  | none in the repository     |
 
-## If something breaks
+## Incident response
 
-I patch the Worker first, then fix the code in the repo and run the checks.
+I fix the running Worker first. Then I fix the code in the repository and run the checks.
