@@ -17,10 +17,10 @@ const ROBOTS_SELECTOR = 'name="robots"';
       id="main-content"
       class="focus-visible:outline-primary flex min-h-screen items-center justify-center px-6 py-24 text-center focus-visible:outline-2 focus-visible:-outline-offset-2"
       tabindex="-1">
-      <div class="mx-auto max-w-xl animate-[fadeInUp_0.5s_ease-out_both]">
+      <div class="mx-auto w-full max-w-3xl animate-[fadeInUp_0.5s_ease-out_both]">
         <h1
           data-testid="error-heading"
-          class="text-ocean-outline font-section-title text-4xl tracking-[0.075em] sm:text-5xl">
+          class="error-title text-4xl tracking-[0.075em] break-words sm:text-5xl lg:text-6xl">
           @if (kind === 'failed') {
             {{ 'common.error.failed.title' | transloco }}
           } @else {
@@ -29,7 +29,7 @@ const ROBOTS_SELECTOR = 'name="robots"';
         </h1>
         <p
           data-testid="error-message"
-          class="mt-6 text-xl leading-relaxed font-medium text-(--color-text-muted)">
+          class="mx-auto mt-6 max-w-xl text-xl leading-relaxed font-medium text-(--color-text-muted)">
           @if (kind === 'failed') {
             {{ 'common.error.failed.message' | transloco }}
           } @else {
@@ -65,6 +65,7 @@ const ROBOTS_SELECTOR = 'name="robots"';
       </div>
     </main>
   `,
+  styleUrl: './error-page.css',
 })
 // Shown instead of the portfolio page for an unknown URL or a failed navigation. The router tells
 // which one through the route data, so both share one layout and the navbar and footer stay.

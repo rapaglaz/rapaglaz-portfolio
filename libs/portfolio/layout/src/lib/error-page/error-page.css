@@ -1,0 +1,19 @@
+/* The heading of the hero name. The rules live in hero.css, where Angular scopes them to the hero,
+   so the page needs its own copy of them. */
+.error-title {
+  font-family: 'Manrope', 'Inter', sans-serif;
+  color: color-mix(in srgb, var(--color-base-content) 170%, var(--color-base-100));
+  paint-order: stroke fill;
+  -webkit-text-stroke: 3px #4e696b;
+  filter: drop-shadow(0 0 5px color-mix(in srgb, #59a2ad 55%, transparent))
+    drop-shadow(0 4px 14px color-mix(in srgb, #59a2ad 35%, transparent));
+}
+
+@media (prefers-color-scheme: dark) {
+  .error-title {
+    color: color-mix(in srgb, var(--color-base-content) 90%, var(--color-base-100));
+    -webkit-text-stroke: 3px #59a2ad;
+    filter: drop-shadow(0 0 4px color-mix(in srgb, #59a2ad 28%, transparent))
+      drop-shadow(0 3px 12px color-mix(in srgb, #59a2ad 18%, transparent));
+  }
+}
