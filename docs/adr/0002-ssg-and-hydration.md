@@ -1,7 +1,8 @@
 # ADR 0002: Static prerendering and hydration instead of SSR
 
-**Status:** Accepted, recorded on 2026-10-19 · **Date:** 2025-12-19
-([#91](https://github.com/rapaglaz/rapaglaz-portfolio/pull/91); `outputMode: static` since `67a81f4`)
+**Status:** Accepted · **Decided:** 2025-12-19
+([#91](https://github.com/rapaglaz/rapaglaz-portfolio/pull/91); `outputMode: static` since `67a81f4`) ·
+**Recorded:** 2026-10-21, retroactively ([#826](https://github.com/rapaglaz/rapaglaz-portfolio/pull/826))
 
 **Context.** The content is part of the repository (translations, skills, certifications). The only
 runtime data are the feature flag, the config and the CV download, all from Cloudflare Workers.

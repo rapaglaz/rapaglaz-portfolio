@@ -1,6 +1,7 @@
 # ADR 0001: Zoneless change detection and signals
 
-**Status:** Accepted, recorded on 2026-10-19 · **Date:** 2025-11-17 (initial commit `67a81f4`)
+**Status:** Accepted · **Decided:** 2025-11-17 (initial commit `67a81f4`) · **Recorded:** 2026-10-21,
+retroactively ([#826](https://github.com/rapaglaz/rapaglaz-portfolio/pull/826))
 
 **Context.** A small bilingual page: static content, a CV download, a toast and one feature flag.
 Most components only show their inputs.
