@@ -86,7 +86,6 @@
       h1 {
         margin: 0 0 20px;
         font-size: clamp(1.75rem, 7vw, 2.5rem);
-        font-weight: 600;
         line-height: 1.15;
         letter-spacing: 0.075em;
         color: var(--text);
@@ -156,11 +155,12 @@
 
       /* same rule as in the portfolio: no motion when the visitor asks for none */
       @media (prefers-reduced-motion: reduce) {
-        *,
-        *::before,
-        *::after {
-          animation: none !important;
-          transition: none !important;
+        main {
+          animation: none;
+        }
+
+        .button {
+          transition: none;
         }
       }
     </style>

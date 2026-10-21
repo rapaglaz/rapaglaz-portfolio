@@ -11,6 +11,7 @@ type WranglerConfig = {
   ratelimits?: { name: string }[];
   vars?: Record<string, string>;
   secrets?: { required?: string[] };
+  observability?: { logs?: { enabled?: boolean }; traces?: { enabled?: boolean } };
 };
 
 type ExpectedEnv = {
@@ -24,7 +25,7 @@ function readWorkerFile(workerDir: URL, file: string): string {
 }
 
 // The configs only use whole-line comments and trailing commas, which is all this strips.
-function readConfig(workerDir: URL): WranglerConfig {
+export function readWranglerConfig(workerDir: URL): WranglerConfig {
   const text = readWorkerFile(workerDir, 'wrangler.jsonc');
   return JSON.parse(
     text.replace(/^\s*\/\/.*$/gm, '').replace(/,(\s*[}\]])/g, '$1'),
@@ -54,7 +55,7 @@ export function describeWranglerConfig(
   { required, optional }: ExpectedEnv,
 ): void {
   describe(`${worker} wrangler.jsonc`, () => {
-    const config = readConfig(workerDir);
+    const config = readWranglerConfig(workerDir);
 
     it('targets the Cloudflare Worker of the same name and leaves routes to the dashboard', () => {
       expect(config.name).toBe(worker);
