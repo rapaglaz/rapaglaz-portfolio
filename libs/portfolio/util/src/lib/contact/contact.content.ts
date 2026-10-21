@@ -16,8 +16,8 @@ export const CONTACT_ITEMS: readonly ContactItem[] = [
   },
   {
     id: 'linkedin',
-    href: 'https://www.linkedin.com/in/paul-glaz/',
-    value: 'linkedin.com/in/paul-glaz',
+    href: 'https://www.linkedin.com/in/radek-glaz/',
+    value: 'linkedin.com/in/radek-glaz',
     isExternal: true,
   },
   {

@@ -42,7 +42,7 @@ describe('Footer', () => {
     );
 
     expect(hrefs).toEqual([
-      'https://www.linkedin.com/in/paul-glaz/',
+      'https://www.linkedin.com/in/radek-glaz/',
       'https://github.com/rapaglaz',
     ]);
   });
