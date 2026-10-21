@@ -55,6 +55,28 @@ The code is in [`apps/workers/cv-download`](../apps/workers/cv-download/). The C
 token skips `siteverify` only on a Worker with `ALLOW_TEST_TOKEN=true`, which is meant for
 development. Origin and Referer never decide this, because the client sets them.
 
+### Known Turnstile messages in the console
+
+Every CV download shows messages from the Cloudflare iframe (`compact?lang=en` or
+`compact?lang=de`) in the browser console. They come from the iframe document on
+`challenges.cloudflare.com`. Neither the code nor a CSP header of this site can remove them,
+because the same-origin policy isolates the iframe.
+
+The messages are:
+
+- `No available adapters`: Turnstile checks which challenge types are available.
+- `Connecting to 'data:,' violates the following Content Security Policy directive: "connect-src ..."`:
+  Cloudflare tests `fetch('data:,')` under its own CSP. The widget uses a fallback and works
+  normally.
+- `Fetch API cannot load data:,' ... violates the document's Content Security Policy`: the same
+  test in another form.
+- `OTS parsing error: Size of decompressed WOFF 2.0 ...`: a font that Cloudflare serves; the
+  message is only cosmetic.
+
+None of them is an error of this code or an unauthorized request. They appear on every download
+and can be ignored. To hide them in DevTools, filter the console with `-url:challenges.cloudflare.com`
+or `-compact`.
+
 ## Input, errors and logging
 
 JSON from the Workers (`/config`, `/feature-flag`) is validated with Valibot before use, and
