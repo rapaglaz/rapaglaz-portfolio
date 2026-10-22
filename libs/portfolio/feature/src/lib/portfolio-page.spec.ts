@@ -3,6 +3,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { signal, type Signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Title } from '@angular/platform-browser';
 import { TranslocoService } from '@jsverse/transloco';
 import { FeatureFlagService } from '@rapaglaz/shared/data-access';
 import { provideTranslocoTesting } from '@rapaglaz/shared/testing';
@@ -93,6 +94,27 @@ describe('PortfolioPage', () => {
       'https://rapaglaz.de/en',
     );
     expect(head.querySelector('meta[property="og:locale"]')?.getAttribute('content')).toBe('en_US');
+  });
+
+  it('sets the document title and og:title from the role key in both languages', async () => {
+    const transloco = TestBed.inject(TranslocoService);
+    const title = TestBed.inject(Title);
+    const ogTitle = (): string | null | undefined =>
+      TestBed.inject(DOCUMENT)
+        .head.querySelector('meta[property="og:title"]')
+        ?.getAttribute('content');
+
+    expect(title.getTitle()).toBe('Radek Glaz - Senior Frontend Engineer (Angular)');
+    expect(ogTitle()).toBe(title.getTitle());
+
+    await firstValueFrom(transloco.load('de'));
+    transloco.setActiveLang('de');
+    transloco.setTranslation({ common: { role: 'Test role' } }, 'de', { merge: true });
+    fixture.destroy();
+    TestBed.createComponent(PortfolioPage).detectChanges();
+
+    expect(title.getTitle()).toBe('Radek Glaz - Test role');
+    expect(ogTitle()).toBe('Radek Glaz - Test role');
   });
 
   it('removes social meta tags on destroy', () => {

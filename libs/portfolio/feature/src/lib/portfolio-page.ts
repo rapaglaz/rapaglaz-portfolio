@@ -1,6 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import { Component, DestroyRef, inject } from '@angular/core';
-import { Meta } from '@angular/platform-browser';
+import { Meta, Title } from '@angular/platform-browser';
 import { TranslocoService } from '@jsverse/transloco';
 import { About, Certifications, Contact, Hero, Languages, Skills } from '@rapaglaz/portfolio/ui';
 import { CONTACT_ITEMS } from '@rapaglaz/portfolio/util';
@@ -17,7 +17,6 @@ import { SKILL_CATEGORIES } from './content/skills.content';
 const SITE_ORIGIN = 'https://rapaglaz.de';
 const OG_LOCALE: Record<AvailableLang, string> = { de: 'de_DE', en: 'en_US' };
 const SEO_LINK_ATTR = 'data-seo-id';
-const SEO_ROLE = 'Senior Frontend Engineer (Angular)';
 const SEO_IMAGE = `${SITE_ORIGIN}/images/IMG_2290-384.webp`;
 
 function toAvailableLang(lang: string): AvailableLang {
@@ -49,6 +48,7 @@ export class PortfolioPage {
   protected readonly contactItems = CONTACT_ITEMS;
 
   private readonly meta = inject(Meta);
+  private readonly titleService = inject(Title);
   private readonly document = inject(DOCUMENT);
   private readonly destroyRef = inject(DestroyRef);
   private readonly transloco = inject(TranslocoService);
@@ -64,10 +64,11 @@ export class PortfolioPage {
     // the app initializer loads the active language before anything
     // renders, so synchronous translate() is safe here
     const name = `${this.transloco.translate('common.firstName')} ${this.transloco.translate('common.lastName')}`;
-    const title = `${name} - ${SEO_ROLE}`;
+    const title = `${name} - ${this.transloco.translate('common.role')}`;
     const description = this.transloco.translate<string>('portfolio.hero.description');
     const pageUrl = `${SITE_ORIGIN}/${this.activeLang}`;
 
+    this.titleService.setTitle(title);
     this.meta.updateTag({ name: 'description', content: description });
     this.meta.updateTag({ property: 'og:title', content: title });
     this.meta.updateTag({ property: 'og:description', content: description });
