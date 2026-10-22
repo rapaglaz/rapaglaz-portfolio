@@ -4,7 +4,7 @@ import { Meta, Title } from '@angular/platform-browser';
 import { TranslocoService } from '@jsverse/transloco';
 import { About, Certifications, Contact, Hero, Languages, Skills } from '@rapaglaz/portfolio/ui';
 import { CONTACT_ITEMS } from '@rapaglaz/portfolio/util';
-import { FeatureFlagService } from '@rapaglaz/shared/data-access';
+import { FeatureFlagService, SITE_ORIGIN } from '@rapaglaz/shared/data-access';
 import {
   AVAILABLE_LANGS,
   DEFAULT_LANG,
@@ -14,7 +14,6 @@ import {
 import { CERTIFICATIONS } from './content/certifications.content';
 import { SKILL_CATEGORIES } from './content/skills.content';
 
-const SITE_ORIGIN = 'https://rapaglaz.de';
 const OG_LOCALE: Record<AvailableLang, string> = { de: 'de_DE', en: 'en_US' };
 const SEO_LINK_ATTR = 'data-seo-id';
 const SEO_IMAGE = `${SITE_ORIGIN}/images/IMG_2290-384.webp`;
