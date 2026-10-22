@@ -118,16 +118,14 @@ describe('portfolio routes', () => {
     );
   });
 
-  it('shows the failed page at /error', async () => {
+  it.each(['/error', '/en/error', '/de/error'])('shows the failed page at %s', async url => {
     const harness = await RouterTestingHarness.create();
 
-    await harness.navigateByUrl('/error', ErrorPage);
+    await harness.navigateByUrl(url, ErrorPage);
 
-    expect(harness.routeNativeElement?.querySelector('h1')?.textContent).toContain(
-      'Something went wrong',
-    );
     expect(
       harness.routeNativeElement?.querySelector('[data-testid="error-illustration-failed"]'),
     ).not.toBeNull();
+    expect(TestBed.inject(Router).url).toBe(url);
   });
 });

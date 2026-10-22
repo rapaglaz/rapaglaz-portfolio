@@ -49,6 +49,8 @@ const resolvePortfolioLocale: ResolveFn<AvailableLang> = route => {
 const loadPortfolio = (): Promise<Type<unknown>> =>
   import('@rapaglaz/portfolio/feature').then(m => m.PortfolioPage);
 
+const failedPage = { component: ErrorPage, data: { kind: 'failed', hideNavbar: true } };
+
 export const routes: Routes = [
   {
     path: '',
@@ -61,11 +63,9 @@ export const routes: Routes = [
     resolve: { locale: resolvePortfolioLocale },
   })),
   // the navigation error handler of shared-util lands here
-  {
-    path: ERROR_PATH,
-    component: ErrorPage,
-    data: { kind: 'failed', hideNavbar: true },
-  },
+  { path: ERROR_PATH, ...failedPage },
+  // the same page behind a language, so that /de/error is not an unknown route
+  ...AVAILABLE_LANGS.map(lang => ({ path: `${lang}/${ERROR_PATH}`, ...failedPage })),
   {
     path: '**',
     component: ErrorPage,

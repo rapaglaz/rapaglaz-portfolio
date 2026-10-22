@@ -52,13 +52,24 @@ describe('handleNavigationError', () => {
     expect(logError).toHaveBeenCalledWith('Navigation to /en failed', expect.any(Error));
   });
 
-  it('does not start a loop when the error page itself fails', () => {
+  it.each(['/error', '/en/error', '/de/error', '/de/error?from=home'])(
+    'does not start a loop when the error page %s itself fails',
+    url => {
+      const result = TestBed.runInInjectionContext(() =>
+        handleNavigationError(new NavigationError(1, url, new Error('x'))),
+      );
+
+      expect(result).toBeUndefined();
+      expect(logError).not.toHaveBeenCalled();
+    },
+  );
+
+  it('still handles a page whose name only starts like the error page', () => {
     const result = TestBed.runInInjectionContext(() =>
-      handleNavigationError(new NavigationError(1, '/error', new Error('x'))),
+      handleNavigationError(new NavigationError(1, '/errors', new Error('x'))),
     );
 
-    expect(result).toBeUndefined();
-    expect(logError).not.toHaveBeenCalled();
+    expect(result).toBeInstanceOf(RedirectCommand);
   });
 
   it('turns a lazy route that cannot load into the error page', async () => {

@@ -50,27 +50,33 @@ test.describe('Error pages', () => {
     });
   }
 
-  test('leaves the failed page for the portfolio through the home link', async ({ page }) => {
-    await visitPortfolio(page, '/en');
+  for (const [start, path, lang, heading, home] of [
+    ['/en', '/error', 'en', 'Something went wrong', 'Back to home'],
+    ['/de', '/de/error', 'de', 'Etwas ist schiefgelaufen', 'Zurück zur Startseite'],
+  ]) {
+    test(`shows the failed page at ${path} and leads back to the portfolio`, async ({ page }) => {
+      await visitPortfolio(page, start);
 
-    await navigateInApp(page, '/error');
+      await navigateInApp(page, path);
 
-    await expect(page.getByTestId('error-heading')).toHaveText('Something went wrong');
-    await expect(page.getByRole('button', { name: 'Reload' })).toHaveCount(0);
-    await expect(page.getByRole('link', { name: 'Back to home' })).toHaveAttribute('href', '/en');
-    await expect(page.getByTestId('navbar')).toHaveCount(0);
+      await expect(page.getByTestId('error-heading')).toHaveText(heading);
+      await expect(page.getByRole('button', { name: /reload|neu laden/i })).toHaveCount(0);
+      await expect(page.getByRole('link', { name: home })).toHaveAttribute('href', `/${lang}`);
+      await expect(page.getByTestId('navbar')).toHaveCount(0);
 
-    await page.getByRole('link', { name: 'Back to home' }).click();
+      await page.getByRole('link', { name: home }).click();
 
-    await expect(page).toHaveURL(/\/en$/);
-    await expect(page.getByTestId('section-hero')).toBeVisible();
-  });
+      await expect(page).toHaveURL(new RegExp(`/${lang}$`));
+      await expect(page.getByTestId('section-hero')).toBeVisible();
+    });
+  }
 
   for (const [path, lang, colorScheme] of [
     ['/en/does-not-exist', 'en', 'light'],
     ['/de/does-not-exist', 'de', 'dark'],
     ['/error', 'en', 'dark'],
     ['/error', 'en', 'light'],
+    ['/de/error', 'de', 'light'],
   ] as const) {
     test(`has no WCAG violations at ${path} in ${lang} with the ${colorScheme} theme`, async ({
       page,
