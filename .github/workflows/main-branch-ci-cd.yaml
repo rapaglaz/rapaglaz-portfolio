@@ -160,6 +160,7 @@ jobs:
         with:
           name: build-artifact-main
           path: dist/apps/rapaglaz-portfolio/browser
+          include-hidden-files: true
           retention-days: 1
 
   e2e-tests:

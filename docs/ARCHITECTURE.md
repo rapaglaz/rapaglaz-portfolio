@@ -141,10 +141,14 @@ the path without the query string. An error on `/error` itself is not redirected
 no loop. The prerender does not use the handler, so a failing
 route still fails the build.
 
-The pages cannot cover an address that a visitor types in: the site is static, so the web host
-answers an unknown path with its own 404 before the app starts. The pages appear for links inside
-the app, in `ng serve` and on a host that falls back to `index.html`. For this reason the E2E tests
-start on a real page and move on with the history API, so they also pass against the static server.
+An address that a visitor types in is answered by the web host before the app starts, because the
+site is static. `public/.htaccess` tells the host (Apache at netcup) to answer a 404 with
+`index.csr.html`, the shell of the app. The visitor gets the status 404, the address stays, and the
+router shows "Page not found". The upload of the build artifact in the main workflow sets
+`include-hidden-files`, because the action would drop `.htaccess` otherwise.
+
+The static server of the E2E run has no such rule and answers an unknown path with its own 404. For
+this reason the E2E tests start on a real page and move on with the history API.
 
 ## Trade-offs
 
