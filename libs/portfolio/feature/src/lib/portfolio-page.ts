@@ -5,7 +5,12 @@ import { TranslocoService } from '@jsverse/transloco';
 import { About, Certifications, Contact, Hero, Languages, Skills } from '@rapaglaz/portfolio/ui';
 import { CONTACT_ITEMS } from '@rapaglaz/portfolio/util';
 import { FeatureFlagService } from '@rapaglaz/shared/data-access';
-import { AVAILABLE_LANGS, DEFAULT_LANG, type AvailableLang } from '@rapaglaz/shared/util';
+import {
+  AVAILABLE_LANGS,
+  DEFAULT_LANG,
+  isAvailableLang,
+  type AvailableLang,
+} from '@rapaglaz/shared/util';
 import { CERTIFICATIONS } from './content/certifications.content';
 import { SKILL_CATEGORIES } from './content/skills.content';
 
@@ -14,6 +19,10 @@ const OG_LOCALE: Record<AvailableLang, string> = { de: 'de_DE', en: 'en_US' };
 const SEO_LINK_ATTR = 'data-seo-id';
 const SEO_ROLE = 'Senior Frontend Engineer (Angular)';
 const SEO_IMAGE = `${SITE_ORIGIN}/images/IMG_2290-384.webp`;
+
+function toAvailableLang(lang: string): AvailableLang {
+  return isAvailableLang(lang) ? lang : DEFAULT_LANG;
+}
 
 @Component({
   selector: 'app-portfolio-page',
@@ -43,7 +52,7 @@ export class PortfolioPage {
   private readonly document = inject(DOCUMENT);
   private readonly destroyRef = inject(DestroyRef);
   private readonly transloco = inject(TranslocoService);
-  private readonly activeLang = this.transloco.getActiveLang() as AvailableLang;
+  private readonly activeLang = toAvailableLang(this.transloco.getActiveLang());
 
   constructor() {
     this.initSeoTags();
@@ -51,7 +60,7 @@ export class PortfolioPage {
   }
 
   private initSeoTags(): void {
-    const locale = OG_LOCALE[this.activeLang] ?? OG_LOCALE[DEFAULT_LANG];
+    const locale = OG_LOCALE[this.activeLang];
     // the app initializer loads the active language before anything
     // renders, so synchronous translate() is safe here
     const name = `${this.transloco.translate('common.firstName')} ${this.transloco.translate('common.lastName')}`;
