@@ -17,6 +17,9 @@ const ROUTE_TEXTS = {
   },
 };
 
+// the role is English in both languages on purpose; it comes from the key common.role
+const PAGE_TITLE = 'Radek Glaz - Senior Frontend Engineer';
+
 test.describe('Locale Switch Journey', () => {
   test('uses a horizontal keyboard sequence and preserves focus after changing language', async ({
     page,
@@ -67,6 +70,7 @@ test.describe('Locale Switch Journey', () => {
       await visitPortfolio(page, path);
 
       await expect(page.locator('html')).toHaveAttribute('lang', lang);
+      await expect(page).toHaveTitle(PAGE_TITLE);
       await expect(page.getByTestId('section-about').locator('h2')).toHaveText(heading);
       await expect(page.getByRole('option', { name: label })).toHaveAttribute(
         'aria-selected',
@@ -96,6 +100,7 @@ test.describe('Locale Switch Journey', () => {
 
     await expect(page).toHaveURL(/\/de\?source=locale-test#skills$/);
     await expect(page.locator('html')).toHaveAttribute('lang', 'de');
+    await expect(page).toHaveTitle(PAGE_TITLE);
     await expect(page.getByRole('option', { name: 'Deutsch' })).toHaveAttribute(
       'aria-selected',
       'true',

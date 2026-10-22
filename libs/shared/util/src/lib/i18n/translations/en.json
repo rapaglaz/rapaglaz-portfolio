@@ -2,6 +2,7 @@
   "common": {
     "firstName": "Radek",
     "lastName": "Glaz",
+    "role": "Senior Frontend Engineer",
     "bootstrapError": "Failed to load the application. Please refresh the page.",
     "navbar": {
       "openToWork": "Open to Work",

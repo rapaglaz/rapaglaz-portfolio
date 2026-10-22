@@ -2,6 +2,7 @@
   "common": {
     "firstName": "Radek",
     "lastName": "Glaz",
+    "role": "Senior Frontend Engineer",
     "bootstrapError": "Die Anwendung konnte nicht geladen werden. Bitte laden Sie die Seite neu.",
     "navbar": {
       "openToWork": "Offen für Jobangebote",
