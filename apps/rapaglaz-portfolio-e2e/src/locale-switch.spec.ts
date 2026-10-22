@@ -18,7 +18,7 @@ const ROUTE_TEXTS = {
 };
 
 // the role is English in both languages on purpose; it comes from the key common.role
-const PAGE_TITLE = 'Radek Glaz - Senior Frontend Engineer (Angular)';
+const PAGE_TITLE = 'Radek Glaz - Senior Frontend Engineer';
 
 test.describe('Locale Switch Journey', () => {
   test('uses a horizontal keyboard sequence and preserves focus after changing language', async ({

@@ -74,7 +74,7 @@ describe('PortfolioPage', () => {
     const byName = (name: string): string | null | undefined =>
       head.querySelector(`meta[name="${name}"]`)?.getAttribute('content');
 
-    expect(byProperty('og:title')).toBe('Radek Glaz - Senior Frontend Engineer (Angular)');
+    expect(byProperty('og:title')).toBe('Radek Glaz - Senior Frontend Engineer');
     expect(byProperty('og:site_name')).toBe('Radek Glaz');
     expect(byProperty('og:type')).toBe('website');
     expect(byProperty('og:url')).toBe('https://rapaglaz.de/en');
@@ -104,7 +104,7 @@ describe('PortfolioPage', () => {
         .head.querySelector('meta[property="og:title"]')
         ?.getAttribute('content');
 
-    expect(title.getTitle()).toBe('Radek Glaz - Senior Frontend Engineer (Angular)');
+    expect(title.getTitle()).toBe('Radek Glaz - Senior Frontend Engineer');
     expect(ogTitle()).toBe(title.getTitle());
 
     await firstValueFrom(transloco.load('de'));
