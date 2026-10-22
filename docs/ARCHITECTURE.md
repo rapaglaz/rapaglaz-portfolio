@@ -130,16 +130,15 @@ are listed in `t(...)` comments next to their use, because transloco-keys-manage
 ## Error pages
 
 `ErrorPage` in `portfolio-layout` has two variants, which the route data selects. The route `**`
-shows "Page not found" instead of a redirect to the home page, and the route `error` shows
-"Something went wrong". Both show a small bot, keep the footer, set `noindex` and a title while
-they are visible, and give the previous values back when the router leaves them.
+shows "Page not found" instead of a redirect to the home page, and the routes `error`, `en/error`
+and `de/error` show "Something went wrong". Both show a small bot, keep the footer, set `noindex`
+and a title while they are visible, and give the previous values back when the router leaves them.
 
 A failed navigation, for example a lazy chunk that a new deploy removed, goes to `/error` through
 `withNavigationErrorHandler`. The address bar does not change: after a failed first load it still
 shows the page that the visitor asked for, so a reload of the browser retries it. The handler logs
-the path without the query string. An error on `/error` itself is not redirected again, so there is
-no loop. The prerender does not use the handler, so a failing
-route still fails the build.
+the path without the query string. An error on an error page itself is not redirected again, so
+there is no loop. The prerender does not use the handler, so a failing route still fails the build.
 
 An address that a visitor types in is answered by the web host before the app starts, because the
 site is static. `public/.htaccess` tells the host (Apache at netcup) to answer a 404 with
