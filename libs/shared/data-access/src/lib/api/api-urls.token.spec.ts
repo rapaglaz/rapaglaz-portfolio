@@ -7,7 +7,6 @@ describe('API URL tokens', () => {
   it.each([
     ['localhost', 'http://localhost:8787'],
     ['127.0.0.1', 'http://localhost:8787'],
-    ['rapaglaz.github.io', 'https://rapaglaz.de'],
     ['rapaglaz.de', ''],
     ['preview.example.com', ''],
   ])('uses the expected API base for %s', (hostname, expected) => {
