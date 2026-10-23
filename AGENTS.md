@@ -151,7 +151,7 @@ A key built at runtime or passed as an input must also appear in a `/** t(key) *
 ## AI tooling
 
 - Do not run `nx configure-ai-agents` for Claude: it copies the block below into `CLAUDE.md` and adds
-  the Nx marketplace plugin, which duplicates `.mcp.json` and the skills in `.agents/skills`.
+  the Nx marketplace plugin, which duplicates the skills in `.agents/skills`.
 
 <!-- nx configuration start-->
 <!-- Leave the start & end comments to automatically receive updates. -->
