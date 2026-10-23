@@ -16,13 +16,7 @@ export default defineConfig(
   // The project Vitest configs import the shared factory from the repository root
   moduleBoundaries(['^(\\.\\./)+vitest\\.angular\\.mts$']),
   {
-    ignores: [
-      '**/dist',
-      '**/out-tsc',
-      '**/vitest.config.*.timestamp*',
-      '**/coverage',
-      'scripts/**',
-    ],
+    ignores: ['**/dist', '**/out-tsc', '**/vitest.config.*.timestamp*', '**/coverage'],
   },
   {
     files: ['**/*.{ts,mts}'],
