@@ -152,6 +152,11 @@ A key built at runtime or passed as an input must also appear in a `/** t(key) *
 
 - Do not run `nx configure-ai-agents` for Claude: it copies the block below into `CLAUDE.md` and adds
   the Nx marketplace plugin, which duplicates the skills in `.agents/skills`.
+- To open a page in a browser (check the layout, take a screenshot, read a snapshot or find a
+  selector), use [`playwright-cli`](https://github.com/microsoft/playwright-cli) and not a throwaway
+  script. Run `playwright-cli --help` for the commands. It is installed globally
+  (`npm install -g @playwright/cli@latest`) and is not a dependency of the project. The E2E specs
+  stay on `@playwright/test`, see [Tests](#tests).
 
 <!-- nx configuration start-->
 <!-- Leave the start & end comments to automatically receive updates. -->
