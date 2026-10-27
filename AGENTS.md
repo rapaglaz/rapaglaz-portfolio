@@ -8,7 +8,7 @@ Exact versions live in `package.json` (dependencies, `packageManager` for pnpm),
 (Node.js) and `mise.toml` (actionlint, zizmor). Majors are listed only where they shape the code.
 
 - **Angular 22** — zoneless, standalone, OnPush, SSG + hydration
-- **Nx 23** — workspace, task runner and local cache; no Nx Cloud
+- **Nx 24** — workspace, task runner and local cache; no Nx Cloud
 - **TypeScript**, **Node.js 24**, **pnpm**
 - **Tailwind CSS 4** + **DaisyUI 5** (CSS-first config in `apps/rapaglaz-portfolio/src/styles.css`)
 - **Transloco** (i18n), **Valibot 1** (schema validation, `v.pipe` API), **RxJS**

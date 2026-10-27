@@ -92,6 +92,9 @@
         "development": {
           "buildTarget": "rapaglaz-portfolio:build:development"
         }
+      },
+      "readyWhen": {
+        "signal": true
       }
     },
     "typecheck": {
