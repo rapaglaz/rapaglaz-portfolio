@@ -35,7 +35,8 @@ Reasons for some placements:
   (`portfolio-ui`, `portfolio-layout` and `portfolio-feature`), and none of them may import another.
 - The server translation loader has its own entry point, `@rapaglaz/shared/util/translations`. As
   part of the main barrel, it added both dictionaries to the main browser chunk (+5 kB).
-- Each Worker is its own Nx project, so `nx affected` deploys only the Worker that changed. A deploy
+- Each Worker is its own Nx project, so `nx affected` deploys only the Worker that changed. Nx selects the tasks by their inputs
+  (`workerSource`), so a change of a spec file alone deploys nothing. A deploy
   replaces the bindings of a Worker with the bindings in its `wrangler.jsonc` (this is how
   `feature-flag` lost its KV binding on 2026-10-17), so a deploy should change as little as
   possible.

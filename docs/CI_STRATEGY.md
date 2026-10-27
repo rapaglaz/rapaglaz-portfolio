@@ -98,7 +98,8 @@ scores.
 
 `deploy-workers` runs on `main` after `lint`, `test`, `build` and `e2e-tests`. It deploys the
 Workers that `nx affected` reports since the head SHA of the last successful `main` run, so the
-changes of a canceled or failed run are not lost. Without a known base, every Worker deploys. The
+changes of a canceled or failed run are not lost. Nx selects them by the `workerSource` inputs of
+the `deploy` target, so a change of a spec file alone deploys nothing. Without a known base, every Worker deploys. The
 job runs only while the repository variable `DEPLOY_WORKERS` is `true`. Pull requests never get the
 Cloudflare secrets. They only run `wrangler deploy --dry-run`. Details:
 [Cloudflare Workers](../apps/workers/README.md).
