@@ -79,7 +79,14 @@
       "inputs": ["production", "^production", "{workspaceRoot}/.postcssrc.json"]
     },
     "test": {
-      "inputs": ["default", "{workspaceRoot}/vitest.angular.mts", "^production", { "env": "CI" }]
+      "inputs": [
+        "default",
+        "{workspaceRoot}/vitest.angular.mts",
+        "^production",
+        {
+          "env": "CI"
+        }
+      ]
     },
     "check": {
       "executor": "nx:run-commands",
@@ -104,7 +111,9 @@
     "lint": {
       "cache": true,
       "inputs": ["default", "^default", "lintGlobals"],
-      "options": { "max-warnings": 0 }
+      "options": {
+        "max-warnings": 0
+      }
     },
     "angular-typechecker:typecheck": {
       "cache": true,
@@ -148,5 +157,8 @@
     "@nx/js": {
       "projectsAffectedByDependencyUpdates": "auto"
     }
+  },
+  "affected": {
+    "legacy": true
   }
 }
