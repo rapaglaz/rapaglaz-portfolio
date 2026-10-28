@@ -31,7 +31,6 @@
   --ocean-secondary: 78, 105, 107;
   --ocean-accent: 142, 188, 192;
   --ocean-base-dark: 17, 24, 39;
-  --ocean-outline: 89, 162, 173; /* Text outline variant */
 }
 
 /* Light mode as default */
@@ -178,17 +177,6 @@ html {
   }
 }
 
-/* Section wrapper shadow - using ocean primary color */
-.section-shadow {
-  box-shadow: 0 1px 5px -1px rgba(78, 105, 107, 0.2);
-}
-
-@media (min-width: 1024px) {
-  .section-shadow {
-    box-shadow: 1px 1px 5px -1px rgba(78, 105, 107, 0.3);
-  }
-}
-
 /* ========================================
    CORE ANIMATION KEYFRAMES
    Used by .animate-* utility classes
@@ -310,28 +298,6 @@ html {
 
 @utility icon-shadow-primary-xs {
   filter: drop-shadow(0 1px 4px color-mix(in srgb, var(--color-primary) 55%, transparent));
-}
-
-/* Base ocean text outline effect - used for hero names and section titles */
-.text-ocean-outline {
-  --text-outline-color: rgba(var(--ocean-outline) / 0.3);
-  color: var(--color-base-content);
-  text-shadow:
-    -1px -1px 0 var(--text-outline-color),
-    1px -1px 0 var(--text-outline-color),
-    -1px 1px 0 var(--text-outline-color),
-    1px 1px 0 var(--text-outline-color),
-    0 -1px 0 var(--text-outline-color),
-    0 1px 0 var(--text-outline-color),
-    -1px 0 0 var(--text-outline-color),
-    1px 0 0 var(--text-outline-color);
-}
-
-/* Dark theme variant - stronger outline */
-@media (prefers-color-scheme: dark) {
-  .text-ocean-outline {
-    --text-outline-color: #59a2add2;
-  }
 }
 
 .font-section-title {

@@ -11,22 +11,24 @@ import { ScrollRevealDirective } from '../scroll-reveal/scroll-reveal.directive'
       [id]="sectionId()"
       [attr.data-testid]="'section-' + sectionId()"
       [attr.aria-labelledby]="sectionId() + '-heading'"
-      class="bg-base-100 px-4 py-12"
+      class="bg-base-100 px-4 py-4"
       appScrollReveal
       (visibilityChange)="scrollReveal.onVisibilityChange($event)">
       <div class="container mx-auto max-w-5xl">
         <div
-          class="border-primary/20 bg-base-200/30 section-shadow grid grid-cols-1 gap-4 rounded-lg border pr-4 pl-4 sm:pr-8 lg:grid-cols-[300px_1fr] lg:gap-30 lg:border-l-0 lg:pl-0">
-          <div class="lg:border-primary/50 pt-8 pb-3 sm:py-8 lg:rounded-l-lg lg:border-l-4 lg:pl-4">
+          class="border-primary/20 flex flex-col gap-4 border-t py-12 lg:grid lg:grid-cols-[14rem_1fr] lg:gap-12">
+          <!-- Flex on mobile, so that the sticky title is bound to the whole section and not to its own grid row. -->
+          <div
+            class="bg-base-100 sticky top-(--navbar-height) z-10 py-3 lg:top-[calc(var(--navbar-height,7rem)+1.5rem)] lg:self-start lg:bg-transparent lg:py-0">
             <h2
               [id]="sectionId() + '-heading'"
-              class="font-section-title text-ocean-outline animate-title mb-2 text-3xl uppercase"
+              class="font-section-title text-primary animate-title text-base tracking-[0.12em] uppercase"
               [class.visible]="scrollReveal.isVisible()">
               {{ titleKey() | transloco }}
             </h2>
           </div>
 
-          <div class="pb-8 sm:py-8">
+          <div class="min-w-0">
             <ng-content />
           </div>
         </div>
