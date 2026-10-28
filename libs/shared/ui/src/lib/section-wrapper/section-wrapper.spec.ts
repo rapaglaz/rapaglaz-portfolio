@@ -34,13 +34,14 @@ describe('SectionWrapper', () => {
     expect(heading?.classList.contains('uppercase')).toBe(true);
   });
 
-  it('separates the section with a divider and keeps the title column sticky', () => {
+  it('separates the section with a divider on desktop only and keeps the title column sticky', () => {
     setup('about', 'portfolio.about.title');
 
     const grid = element.querySelector('section > div > div');
     const titleColumn = element.querySelector('h2')?.parentElement;
 
-    expect(grid?.classList.contains('border-t')).toBe(true);
+    expect(grid?.classList.contains('lg:border-t')).toBe(true);
+    expect(grid?.classList.contains('border-t')).toBe(false);
     expect(grid?.classList.contains('rounded-lg')).toBe(false);
     expect(titleColumn?.classList.contains('sticky')).toBe(true);
     expect(titleColumn?.classList.contains('lg:top-[calc(var(--navbar-height,7rem)+1.5rem)]')).toBe(
