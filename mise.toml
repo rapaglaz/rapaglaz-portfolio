@@ -1,7 +1,5 @@
 [env]
 _.path = ["{{config_root}}/node_modules/.bin"]
-# The env variable takes precedence over nx.json, so the daemon setting lives only here.
-NX_DAEMON = "true"
 
 [tools]
 actionlint = "1.7.12"
