@@ -39,17 +39,17 @@
   },
   "portfolio": {
     "hero": {
-      "description": "Senior Frontend Engineer mit über 6 Jahren Erfahrung in Angular, TypeScript und Nx. Fokus auf skalierbare Architekturen, Modernisierung gewachsener Anwendungen und Testautomatisierung."
+      "description": "Senior Frontend Engineer für Angular, TypeScript, RxJS und Nx, mit Schwerpunkt auf wartbarem Code, Testautomatisierung und CI/CD."
     },
     "about": {
       "title": "Über mich",
-      "description": "Senior Frontend Engineer mit über 6 Jahren Berufserfahrung in Angular, TypeScript, RxJS und Nx. Schwerpunkte: skalierbare Frontend-Architektur, Modernisierung gewachsener Anwendungen und Testautomatisierung. Erfahrung im Aufbau von Test-Infrastruktur in ungetesteten Codebasen, in der Optimierung von CI/CD-Pipelines sowie in der Einarbeitung neuer Entwickler."
+      "description": "Senior Frontend Engineer mit über 6 Jahren Berufserfahrung in Angular, TypeScript, RxJS und Nx. Ich habe die Frontend-Architektur einer neu aufgebauten Logistikplattform entwickelt, komplexe Bestellprozesse umgesetzt und eine bis dahin ungetestete Codebasis mit Tests abgesichert. Schwerpunkte: wartbarer Angular-Code, Testautomatisierung und CI/CD."
     },
     "certifications": {
       "title": "Zertifikate",
       "items": {
         "angular-architecture": {
-          "title": "Angular Architecture Workshop",
+          "title": "Angular Architektur Workshop",
           "issuer": "Angular Architects"
         },
         "angular-testing": {
@@ -57,7 +57,7 @@
           "issuer": "Angular Architects"
         },
         "angular-spa-typescript": {
-          "title": "Angular und TypeScript - Single Page Apps entwickeln",
+          "title": "Angular und TypeScript – Single Page Apps entwickeln",
           "issuer": "ppedv AG (Microsoft Gold Partner)"
         }
       },
@@ -83,7 +83,8 @@
         "typescript": "TypeScript",
         "rxjs": "RxJS",
         "nx": "Nx",
-        "javascript": "JavaScript/ES6+",
+        "angular-material": "Angular Material",
+        "javascript": "JavaScript (ES2015+)",
         "tailwind": "Tailwind CSS",
         "html-css": "HTML5/CSS3",
         "signals": "Angular Signals",
@@ -92,18 +93,20 @@
         "jest": "Jest",
         "cypress": "Cypress",
         "storybook": "Storybook & Chromatic",
+        "accessibility": "Barrierefreiheit (WCAG)",
         "github-actions": "GitHub Actions",
         "git": "Git",
         "docker": "Docker",
+        "build-tools": "Webpack, esbuild, Vite",
         "microfrontends": "Microfrontends",
         "module-federation": "Module Federation",
         "state-management": "State Management (NgRx, Signals)",
         "design-systems": "Design Systems",
         "performance": "Performance-Optimierung",
         "nodejs": "Node.js",
-        "rest-api": "REST-APIs",
+        "rest-api": "REST/OpenAPI",
         "agile": "Agile/Scrum",
-        "mentoring": "Mentoring",
+        "mentoring": "Mentoring & Onboarding",
         "react": "React",
         "vue": "Vue"
       }
