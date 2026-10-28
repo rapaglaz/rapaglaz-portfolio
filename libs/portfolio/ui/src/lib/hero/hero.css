@@ -1,6 +1,30 @@
 .hero-section {
+  position: relative;
+  isolation: isolate;
   min-height: 100svh;
   padding-top: var(--navbar-height, 7rem);
+  padding-bottom: 2rem;
+}
+
+/* Static depth effect (soft glow and dot grid). It has no animation, so reduced motion needs no override. */
+.hero-section::before {
+  content: '';
+  position: absolute;
+  inset: var(--navbar-height, 7rem) 0 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      circle at 50% 30%,
+      color-mix(in srgb, var(--color-primary) 16%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+        color-mix(in srgb, var(--color-primary) 28%, transparent) 1px,
+        transparent 1.5px
+      )
+      0 0 / 22px 22px;
+  mask-image: radial-gradient(ellipse 55% 42% at 50% 42%, #000 0%, transparent 100%);
 }
 
 .hero-avatar {
@@ -19,23 +43,7 @@
 
 .hero-name {
   font-family: 'Manrope', 'Inter', sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.02em;
   @apply animate-[fadeInUp_1s_cubic-bezier(0.4,0,0.2,1)_0.5s_both];
-}
-
-.hero-name .text-ocean-outline {
-  color: color-mix(in srgb, var(--color-base-content) 170%, var(--color-base-100));
-  paint-order: stroke fill;
-  -webkit-text-stroke: 3px #4e696b;
-  text-shadow: none;
-  filter: drop-shadow(0 0 5px color-mix(in srgb, #59a2ad 55%, transparent))
-    drop-shadow(0 4px 14px color-mix(in srgb, #59a2ad 35%, transparent));
-}
-
-@media (prefers-color-scheme: dark) {
-  .hero-name .text-ocean-outline {
-    color: color-mix(in srgb, var(--color-base-content) 90%, var(--color-base-100));
-    -webkit-text-stroke: 3px #59a2ad;
-    filter: drop-shadow(0 0 4px color-mix(in srgb, #59a2ad 28%, transparent))
-      drop-shadow(0 3px 12px color-mix(in srgb, #59a2ad 18%, transparent));
-  }
 }

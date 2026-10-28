@@ -12,6 +12,17 @@ describe('Hero', () => {
     fixture.detectChanges();
   });
 
+  it('renders the name in two parts and sets the first name in a lighter weight', () => {
+    const element = fixture.nativeElement as HTMLElement;
+    const firstName = element.querySelector('[data-testid="hero-firstname"]');
+    const lastName = element.querySelector('[data-testid="hero-lastname"]');
+
+    expect(firstName?.textContent?.trim()).toBe('Radek');
+    expect(lastName?.textContent?.trim()).toBe('Glaz');
+    expect(firstName?.classList.contains('font-medium')).toBe(true);
+    expect(lastName?.classList.contains('font-medium')).toBe(false);
+  });
+
   it('renders the availability badge only while openToWork is set', () => {
     const element = fixture.nativeElement as HTMLElement;
     expect(element.querySelector('[data-testid="hero-badge-mobile"]')).toBeNull();
