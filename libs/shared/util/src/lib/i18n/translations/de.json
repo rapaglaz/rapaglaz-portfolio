@@ -39,7 +39,7 @@
   },
   "portfolio": {
     "hero": {
-      "description": "Senior Frontend Engineer für Angular, TypeScript, RxJS und Nx, mit Schwerpunkt auf wartbarem Code, Testautomatisierung und CI/CD."
+      "description": "Senior Frontend Engineer für Angular, TypeScript, RxJS und Nx. Ich bringe komplexe Fachlogik ins Frontend, nachvollziehbar für das Team und abgesichert durch Unit- und E2E-Tests."
     },
     "about": {
       "title": "Über mich",
