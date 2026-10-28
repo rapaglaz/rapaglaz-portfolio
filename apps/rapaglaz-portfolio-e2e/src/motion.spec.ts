@@ -62,7 +62,10 @@ test.describe('Motion preferences', () => {
   }) => {
     const { links, first, surface } = await revealFirstContactLink(page);
     const tab = tabKey(browserName);
-    await page.locator('#main-content').focus();
+    // every section title is a button and comes first in the tab order, so start at the one before contact
+    await page.getByTestId('section-languages').getByRole('button').focus();
+    await page.keyboard.press(tab);
+    await expect(page.getByTestId('section-contact').getByRole('button')).toBeFocused();
     await page.keyboard.press(tab);
     await expect(first).toBeFocused();
     await expect.poll(async () => (await readMotion(surface)).translate).toBe('0px -4px');
@@ -219,7 +222,10 @@ test.describe('Motion preferences', () => {
   }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await visitPortfolio(page, '/de');
-    await page.locator('#main-content').focus();
+    // every section title is a button and comes first in the tab order, so start at the one before contact
+    await page.getByTestId('section-languages').getByRole('button').focus();
+    await page.keyboard.press(tabKey(browserName));
+    await expect(page.getByTestId('section-contact').getByRole('button')).toBeFocused();
     await page.keyboard.press(tabKey(browserName));
     const contact = page.getByTestId('section-contact').locator('a').first();
     await expect(contact).toBeFocused();

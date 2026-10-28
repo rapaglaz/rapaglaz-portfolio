@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideTranslocoTesting } from '@rapaglaz/shared/testing';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SectionWrapper } from './section-wrapper';
 
 describe('SectionWrapper', () => {
@@ -32,6 +32,18 @@ describe('SectionWrapper', () => {
     expect(section?.id).toBe('about');
     expect(heading?.textContent?.trim()).toBe('About Me');
     expect(heading?.classList.contains('uppercase')).toBe(true);
+  });
+
+  it('scrolls to the start of the section when the title is clicked', () => {
+    setup('about', 'portfolio.about.title');
+    const section = element.querySelector('section') as HTMLElement;
+    const scrollIntoView = vi.fn();
+    section.scrollIntoView = scrollIntoView;
+
+    element.querySelector<HTMLButtonElement>('h2 button')?.click();
+
+    expect(scrollIntoView).toHaveBeenCalledTimes(1);
+    expect(scrollIntoView).toHaveBeenCalledWith({ behavior: expect.any(String), block: 'start' });
   });
 
   it('separates the section with a divider on desktop only and keeps the title column sticky', () => {
