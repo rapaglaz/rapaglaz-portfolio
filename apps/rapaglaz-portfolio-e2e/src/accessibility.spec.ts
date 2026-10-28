@@ -99,11 +99,19 @@ test.describe('Accessibility', () => {
           await section.scrollIntoViewIfNeeded();
           await expect(section.locator('h2')).toHaveClass(/visible/);
           await section.evaluate(async element => {
+            // Scroll-driven animations (the title fade) never finish while in range, so wait for entrance animations only.
             await Promise.all(
-              element.getAnimations({ subtree: true }).map(animation => animation.finished),
+              element
+                .getAnimations({ subtree: true })
+                .filter(animation => animation.timeline === document.timeline)
+                .map(animation => animation.finished),
             );
           });
         }
+
+        // axe scrolls elements into view while it checks them. A title caught in its scroll-driven fade
+        // would fail the contrast check by design, so the fade is switched off for this check.
+        await page.addStyleTag({ content: '.title-band { animation: none !important; }' });
 
         const results = await new AxeBuilder({ page })
           .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
