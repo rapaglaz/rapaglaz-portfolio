@@ -39,11 +39,11 @@
   },
   "portfolio": {
     "hero": {
-      "description": "Senior Frontend Engineer with 6+ years of experience in Angular, TypeScript and Nx - focus on scalable architectures, modernizing legacy applications and test automation."
+      "description": "Senior Frontend Engineer working with Angular, TypeScript, RxJS and Nx. I bring complex domain logic into the frontend, easy for the team to follow and covered by unit and end-to-end tests."
     },
     "about": {
       "title": "About Me",
-      "description": "Senior Frontend Engineer with 6+ years of professional experience in Angular, TypeScript, RxJS and Nx. Focus on scalable frontend architecture, modernizing legacy applications and test automation. Experience building test infrastructure in untested codebases, optimizing CI/CD pipelines and onboarding new developers."
+      "description": "Senior Frontend Engineer with 6+ years of professional experience in Angular, TypeScript, RxJS and Nx, on new builds as well as grown codebases. I work closely with backend, product and UX, and help new colleagues get up to speed."
     },
     "certifications": {
       "title": "Certifications",
@@ -57,7 +57,7 @@
           "issuer": "Angular Architects"
         },
         "angular-spa-typescript": {
-          "title": "Angular und TypeScript - Single Page Apps entwickeln",
+          "title": "Angular und TypeScript – Single Page Apps entwickeln",
           "issuer": "ppedv AG (Microsoft Gold Partner)"
         }
       },
@@ -83,7 +83,8 @@
         "typescript": "TypeScript",
         "rxjs": "RxJS",
         "nx": "Nx",
-        "javascript": "JavaScript/ES6+",
+        "angular-material": "Angular Material",
+        "javascript": "JavaScript (ES2015+)",
         "tailwind": "Tailwind CSS",
         "html-css": "HTML5/CSS3",
         "signals": "Angular Signals",
@@ -92,18 +93,20 @@
         "jest": "Jest",
         "cypress": "Cypress",
         "storybook": "Storybook & Chromatic",
+        "accessibility": "Accessibility (WCAG)",
         "github-actions": "GitHub Actions",
         "git": "Git",
         "docker": "Docker",
+        "build-tools": "Webpack, esbuild, Vite",
         "microfrontends": "Microfrontends",
         "module-federation": "Module Federation",
         "state-management": "State Management (NgRx, Signals)",
         "design-systems": "Design Systems",
         "performance": "Performance Optimization",
         "nodejs": "Node.js",
-        "rest-api": "REST APIs",
+        "rest-api": "REST/OpenAPI",
         "agile": "Agile/Scrum",
-        "mentoring": "Mentoring",
+        "mentoring": "Mentoring & Onboarding",
         "react": "React",
         "vue": "Vue"
       }

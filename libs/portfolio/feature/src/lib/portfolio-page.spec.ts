@@ -148,7 +148,7 @@ describe('PortfolioPage', () => {
     const count = (testId: string): number =>
       host.querySelectorAll(`[data-testid="${testId}"]`).length;
 
-    expect(count('skill-badge')).toBe(25);
+    expect(count('skill-badge')).toBe(28);
     expect(count('skill-badge-secondary')).toBe(2);
     expect(count('certification-card')).toBe(3);
     expect(count('contact-link')).toBe(3);
