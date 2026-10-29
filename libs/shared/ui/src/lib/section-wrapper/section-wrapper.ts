@@ -6,9 +6,21 @@ import { ScrollRevealDirective } from '../scroll-reveal/scroll-reveal.directive'
 @Component({
   selector: 'app-section-wrapper',
   imports: [TranslocoModule, ScrollRevealDirective],
-  // Scroll-driven fade: while the sticky band is pushed under the navbar at the end of a section it fades
-  // out, and it fades back in on the way up. Browsers without view timelines keep the band fully visible.
+  // Scroll-driven exit: while the sticky band is pushed under the navbar at the end of a section it
+  // disappears. On small screens the band is clipped at the navbar edge, so the pill stays opaque and the
+  // content never shows through it (an opacity fade would). From lg the bare title fades out instead.
+  // Browsers without view timelines keep the band fully visible.
   styles: `
+    /* 20px is pt-5 of the band, 54px adds the 34px pill: the clip edge follows the navbar's lower edge. */
+    @keyframes title-band-clip {
+      from {
+        clip-path: inset(20px 0 0 0);
+      }
+      to {
+        clip-path: inset(54px 0 0 0);
+      }
+    }
+
     @keyframes title-band-fade {
       to {
         opacity: 0;
@@ -19,18 +31,23 @@ import { ScrollRevealDirective } from '../scroll-reveal/scroll-reveal.directive'
       @media (prefers-reduced-motion: no-preference) {
         .title-band {
           timeline-scope: --title-pill;
-          animation: title-band-fade linear both;
+          animation: title-band-clip linear forwards;
           animation-timeline: --title-pill;
           animation-range: exit 0% exit 100%;
         }
 
-        /* The inset moves the timeline edge to where the pill sticks (navbar + pt-5, or 1.5rem on desktop). */
+        /* The inset moves the timeline edge to the lower edge of the navbar (below lg) or to where the title sticks. */
         .title-pill {
           view-timeline: --title-pill block;
-          view-timeline-inset: calc(var(--navbar-height, 7rem) + 1.25rem) 0;
+          view-timeline-inset: var(--navbar-height, 7rem) 0;
         }
 
         @media (min-width: 1024px) {
+          .title-band {
+            animation-name: title-band-fade;
+            animation-fill-mode: both;
+          }
+
           .title-pill {
             view-timeline-inset: calc(var(--navbar-height, 7rem) + 1.5rem) 0;
           }
@@ -63,7 +80,7 @@ import { ScrollRevealDirective } from '../scroll-reveal/scroll-reveal.directive'
               [class.visible]="scrollReveal.isVisible()">
               <button
                 type="button"
-                class="title-pill bg-base-200/90 border-primary/35 focus-visible:outline-primary inline-block cursor-pointer rounded-full border px-3.5 py-1 uppercase shadow-[0_2px_10px_color-mix(in_srgb,var(--color-primary)_18%,transparent)] focus-visible:outline-2 focus-visible:outline-offset-2 lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none"
+                class="title-pill bg-base-200 border-primary/35 focus-visible:outline-primary inline-block cursor-pointer rounded-full border px-3.5 py-1 uppercase shadow-[0_2px_10px_color-mix(in_srgb,var(--color-primary)_18%,transparent)] focus-visible:outline-2 focus-visible:outline-offset-2 lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none"
                 (click)="scrollToStart(section)">
                 {{ titleKey() | transloco }}
               </button>
