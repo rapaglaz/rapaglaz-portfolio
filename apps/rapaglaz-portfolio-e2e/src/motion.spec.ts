@@ -232,8 +232,13 @@ test.describe('Motion preferences', () => {
     const focused = await contact.evaluate(element => {
       const ancestors = [];
       let current: Element | null = element;
-      while (current && current.tagName !== 'MAIN') {
+      // Stop at the section: above it, small screens fade the page by scroll position, which is
+      // still changing while the browser scrolls the focused link into view.
+      while (current) {
         ancestors.push(Number(getComputedStyle(current).opacity));
+        if (current.tagName === 'SECTION') {
+          break;
+        }
         current = current.parentElement;
       }
       const style = getComputedStyle(element);
