@@ -92,7 +92,7 @@ pnpm exec playwright install --with-deps
 ## Nx
 
 The scripts call Nx, so build, lint and test results come from the local cache when nothing they
-depend on has changed. Nx 23 keeps this cache in `~/.nx/<id>/cache`, shared by all checkouts and
+depend on has changed. Nx 24 keeps this cache in `~/.nx/<id>/cache`, shared by all checkouts and
 worktrees of the repository, so a new worktree can also get cache hits. To prove that a check
 passes, run it with `--skip-nx-cache`, for example:
 
