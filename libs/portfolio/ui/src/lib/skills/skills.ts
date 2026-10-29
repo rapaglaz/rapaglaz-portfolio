@@ -8,6 +8,8 @@ export type SkillCategoryId =
 
 export type Skill = {
   readonly id: string;
+  // Core stack: rendered as a filled, accent-tinted badge.
+  readonly core?: boolean;
 };
 
 export type SkillCategory = {
@@ -18,15 +20,32 @@ export type SkillCategory = {
 // Skills without production experience; shown in a separate, labelled group.
 const SECONDARY_CATEGORY: SkillCategoryId = 'familiar';
 
-type SkillBadge = { readonly categoryId: SkillCategoryId; readonly skillId: string };
+// A single [class] binding carries the whole list, because a static class next to it trips lint.
+const BADGE_BASE_CLASS = 'animate-pill cursor-default rounded-lg border px-3 py-1.5 text-sm';
 
-const toBadges = (categories: readonly SkillCategory[]): SkillBadge[] =>
-  categories.flatMap(category =>
-    category.skills.map(skill => ({
-      categoryId: category.id,
-      skillId: skill.id,
+type SkillBadge = {
+  readonly id: string;
+  readonly core: boolean;
+  // Position over all badges, so that the stagger delay runs through the groups.
+  readonly index: number;
+};
+
+type SkillGroup = {
+  readonly categoryId: SkillCategoryId;
+  readonly skills: readonly SkillBadge[];
+};
+
+const toGroups = (categories: readonly SkillCategory[], startIndex = 0): SkillGroup[] => {
+  let index = startIndex;
+  return categories.map(category => ({
+    categoryId: category.id,
+    skills: category.skills.map(skill => ({
+      id: skill.id,
+      core: skill.core === true,
+      index: index++,
     })),
-  );
+  }));
+};
 
 // section-wrapper translates titleKey; listed for i18n:check
 /** t(portfolio.skills.title) */
@@ -39,40 +58,53 @@ const toBadges = (categories: readonly SkillCategory[]): SkillBadge[] =>
       sectionId="skills"
       titleKey="portfolio.skills.title">
       @let wrapper = sectionWrapper();
-      <div
-        class="animate-container flex flex-wrap gap-3"
-        [class.visible]="wrapper.scrollReveal.isVisible()">
-        @for (skill of allSkills(); track skill.skillId; let i = $index) {
-          <span
-            data-testid="skill-badge"
-            class="card-ocean text-base-content animate-pill cursor-default px-4 py-2 text-sm font-medium"
-            [class.visible]="wrapper.scrollReveal.isVisible()"
-            [style.animation-delay]="getSkillDelay(i)">
-            {{ 'portfolio.skills.items.' + skill.skillId | transloco }}
-          </span>
+      <div class="space-y-6">
+        @for (group of groups(); track group.categoryId) {
+          <div data-testid="skill-group">
+            <h3
+              class="mb-2 text-sm font-semibold text-(--color-text-muted)"
+              data-testid="skill-group-title">
+              {{ 'portfolio.skills.categoryTitles.' + group.categoryId | transloco }}
+            </h3>
+            <div
+              class="animate-container flex flex-wrap gap-2"
+              [class.visible]="wrapper.scrollReveal.isVisible()">
+              @for (skill of group.skills; track skill.id) {
+                <span
+                  data-testid="skill-badge"
+                  [class]="skill.core ? coreBadgeClass : plainBadgeClass"
+                  [class.visible]="wrapper.scrollReveal.isVisible()"
+                  [style.animation-delay]="getSkillDelay(skill.index)">
+                  {{ 'portfolio.skills.items.' + skill.id | transloco }}
+                </span>
+              }
+            </div>
+          </div>
+        }
+
+        @if (secondaryGroup(); as secondary) {
+          <div class="pt-2">
+            <p
+              data-testid="skills-secondary-title"
+              class="mb-2 text-sm text-(--color-text-subtle)">
+              {{ 'portfolio.skills.categoryTitles.' + secondary.categoryId | transloco }}
+            </p>
+            <div
+              class="animate-container flex flex-wrap gap-2"
+              [class.visible]="wrapper.scrollReveal.isVisible()">
+              @for (skill of secondary.skills; track skill.id) {
+                <span
+                  data-testid="skill-badge-secondary"
+                  class="animate-pill border-base-content/20 text-base-content/75 cursor-default rounded-lg border border-dashed px-3 py-1.5 text-sm"
+                  [class.visible]="wrapper.scrollReveal.isVisible()"
+                  [style.animation-delay]="getSkillDelay(skill.index)">
+                  {{ 'portfolio.skills.items.' + skill.id | transloco }}
+                </span>
+              }
+            </div>
+          </div>
         }
       </div>
-
-      @if (secondarySkills().length) {
-        <p
-          data-testid="skills-secondary-title"
-          class="mt-6 mb-3 text-sm text-(--color-text-subtle)">
-          {{ 'portfolio.skills.categoryTitles.' + secondaryCategory | transloco }}
-        </p>
-        <div
-          class="animate-container flex flex-wrap gap-3"
-          [class.visible]="wrapper.scrollReveal.isVisible()">
-          @for (skill of secondarySkills(); track skill.skillId; let i = $index) {
-            <span
-              data-testid="skill-badge-secondary"
-              class="card-ocean text-base-content/80 animate-pill cursor-default px-4 py-2 text-sm"
-              [class.visible]="wrapper.scrollReveal.isVisible()"
-              [style.animation-delay]="getSkillDelay(allSkills().length + i)">
-              {{ 'portfolio.skills.items.' + skill.skillId | transloco }}
-            </span>
-          }
-        </div>
-      }
     </app-section-wrapper>
   `,
 })
@@ -81,15 +113,20 @@ export class Skills {
 
   protected readonly sectionWrapper = viewChild.required(SectionWrapper);
 
-  protected readonly secondaryCategory = SECONDARY_CATEGORY;
+  protected readonly coreBadgeClass = `${BADGE_BASE_CLASS} border-primary/43 bg-primary/11 text-base-content font-semibold dark:border-primary/38 dark:bg-primary/13`;
+  protected readonly plainBadgeClass = `${BADGE_BASE_CLASS} border-base-content/25 text-base-content/90 font-medium`;
 
-  protected readonly allSkills = computed(() =>
-    toBadges(this.categories().filter(category => category.id !== SECONDARY_CATEGORY)),
+  protected readonly groups = computed(() =>
+    toGroups(this.categories().filter(category => category.id !== SECONDARY_CATEGORY)),
   );
 
-  protected readonly secondarySkills = computed(() =>
-    toBadges(this.categories().filter(category => category.id === SECONDARY_CATEGORY)),
-  );
+  protected readonly secondaryGroup = computed(() => {
+    const [group] = toGroups(
+      this.categories().filter(category => category.id === SECONDARY_CATEGORY),
+      this.groups().reduce((count, { skills }) => count + skills.length, 0),
+    );
+    return group?.skills.length ? group : null;
+  });
 
   protected readonly getSkillDelay = buildStaggerDelay({ base: 0.15, increment: 0.015 });
 }

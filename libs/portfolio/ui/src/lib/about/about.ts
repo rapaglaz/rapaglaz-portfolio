@@ -15,7 +15,7 @@ import { SectionWrapper } from '@rapaglaz/shared/ui';
       <div
         class="animate-content"
         [class.visible]="wrapper.scrollReveal.isVisible()">
-        <p class="text-base-content/90 text-lg leading-relaxed">
+        <p class="text-base-content/90 max-w-[65ch] text-[1.0625rem] leading-[1.6]">
           {{ 'portfolio.about.description' | transloco }}
         </p>
       </div>
