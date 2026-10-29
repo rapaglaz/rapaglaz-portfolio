@@ -102,6 +102,7 @@
         "module-federation": "Module Federation",
         "state-management": "State Management (NgRx, Signals)",
         "design-systems": "Design Systems",
+        "figma": "Figma (Design-Handoff)",
         "performance": "Performance-Optimierung",
         "nodejs": "Node.js",
         "rest-api": "REST/OpenAPI",
