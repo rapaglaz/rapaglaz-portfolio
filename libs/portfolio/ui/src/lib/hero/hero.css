@@ -57,6 +57,9 @@
 .hero-name {
   font-family: 'Manrope', 'Inter', sans-serif;
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.02em;
   @apply animate-[fadeInUp_1s_cubic-bezier(0.4,0,0.2,1)_0.5s_both];
+  @media (min-width: 1024px) {
+    letter-spacing: -0.02em;
+  }
 }
