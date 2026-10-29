@@ -5,7 +5,7 @@ import * as v from 'valibot';
 import { API_FEATURE_FLAG_URL } from '../api/api-urls.token';
 
 // The Worker answers { "<name>": true | false }; any other shape reads as false
-export function readFlagValue(raw: unknown, flagName: string): boolean {
+function readFlagValue(raw: unknown, flagName: string): boolean {
   const result = v.safeParse(v.object({ [flagName]: v.boolean() }), raw);
   return result.success && result.output[flagName];
 }

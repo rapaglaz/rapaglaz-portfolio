@@ -104,7 +104,7 @@ export const appConfigBase: ApplicationConfig = {
   providers: baseProviders,
 };
 
-export const appConfig: ApplicationConfig = {
+const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes, withNavigationErrorHandler(handleNavigationError)),
     ...baseProviders,

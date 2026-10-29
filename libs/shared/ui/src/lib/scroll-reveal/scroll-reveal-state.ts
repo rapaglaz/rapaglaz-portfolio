@@ -1,6 +1,6 @@
 import { signal, Signal } from '@angular/core';
 
-export type ScrollRevealState = {
+type ScrollRevealState = {
   readonly isVisible: Signal<boolean>;
   readonly onVisibilityChange: (isVisible: boolean) => void;
 };

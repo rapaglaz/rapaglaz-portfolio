@@ -3,7 +3,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 
 export type ToastType = 'success' | 'error' | 'info';
 
-export type ToastData = {
+type ToastData = {
   message: string;
   type: ToastType;
 };

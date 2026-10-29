@@ -1,4 +1,4 @@
-export type ContactItemId = 'email' | 'linkedin' | 'github';
+type ContactItemId = 'email' | 'linkedin' | 'github';
 
 export type ContactItem = {
   readonly id: ContactItemId;
