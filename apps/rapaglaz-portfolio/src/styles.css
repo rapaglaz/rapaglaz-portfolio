@@ -15,22 +15,9 @@
 
 /* DaisyUI base variables, shared across light and dark themes */
 :root {
-  --rounded-box: 1rem;
   --rounded-btn: 0.5rem;
-  --rounded-badge: 1.9rem;
-  --animation-btn: 0.25s;
-  --animation-input: 0.2s;
-  --btn-focus-scale: 0.95;
   --border-btn: 1px;
-  --tab-border: 1px;
-  --tab-radius: 0.5rem;
   --navbar-height: 5rem;
-
-  /* Ocean palette RGB values for rgba() usage */
-  --ocean-primary: 134, 227, 235;
-  --ocean-secondary: 78, 105, 107;
-  --ocean-accent: 142, 188, 192;
-  --ocean-base-dark: 17, 24, 39;
 }
 
 /* Light mode as default */
@@ -109,39 +96,9 @@
 }
 
 @theme {
-  /* Font families */
-  --font-family-sans: 'Inter', system-ui, -apple-system, sans-serif;
-
-  /* Ocean palette from Adobe Color: #86E3EB #8EBCC0 #869496 #4E696B #243E41 #143033 */
-
-  /* Ocean Scale - Primary Brand Colors */
-  --color-ocean-50: #f0f9fa;
-  --color-ocean-100: #d9f0f2;
-  --color-ocean-200: #86e3eb;
-  --color-ocean-300: #8ebcc0;
-  --color-ocean-400: #78a5a9;
-  --color-ocean-500: #4e696b;
-  --color-ocean-600: #3d5456;
-  --color-ocean-700: #243e41;
-  --color-ocean-800: #1a2f32;
-  --color-ocean-900: #143033;
-  --color-ocean-950: #0a1819;
-
-  /* Section Title Color - Warm Brown */
-  --color-section-title: #80350e;
-
-  /* Slate Scale - Neutral Gray */
-  --color-slate-50: #f8f9f9;
-  --color-slate-100: #eef0f1;
-  --color-slate-200: #dde1e2;
-  --color-slate-300: #c5cacc;
-  --color-slate-400: #a8afb1;
-  --color-slate-500: #869496;
-  --color-slate-600: #6d7678;
+  /* Slate shades used by the badge, tinted to match the ocean palette */
   --color-slate-700: #585f61;
-  --color-slate-800: #4a5052;
   --color-slate-900: #3f4446;
-  --color-slate-950: #2d3133;
 }
 
 html,
@@ -164,17 +121,6 @@ body {
 /* smooth scrolling for anchor links */
 html {
   scroll-behavior: smooth;
-}
-
-/* Override section background opacity in light theme */
-.bg-base-200\/30 {
-  background-color: rgba(from var(--color-base-200) r g b / 0.15);
-}
-
-@media (prefers-color-scheme: dark) {
-  .bg-base-200\/30 {
-    background-color: rgba(from var(--color-base-200) r g b / 0.3);
-  }
 }
 
 /* ========================================
@@ -272,28 +218,12 @@ html {
   @apply bg-base-100 dark:border-accent/30 border-primary/20 rounded-lg border;
 }
 
-.card-ocean.hover {
-  @apply transition-colors duration-500;
-}
-
-.card-ocean.hover:hover {
-  @apply dark:border-primary/50 border-primary;
-}
-
 /* ========================================
    TEXT EFFECTS - OCEAN THEME
    ======================================== */
 
-@utility text-shadow-xs {
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
-}
-
 @utility text-shadow-primary {
   text-shadow: 0 1px 4px color-mix(in srgb, var(--color-primary) 70%, transparent);
-}
-
-@utility icon-shadow-primary {
-  filter: drop-shadow(0 2px 6px color-mix(in srgb, var(--color-primary) 55%, transparent));
 }
 
 @utility icon-shadow-primary-xs {
