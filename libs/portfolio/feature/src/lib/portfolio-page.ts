@@ -25,7 +25,49 @@ function toAvailableLang(lang: string): AvailableLang {
 @Component({
   selector: 'app-portfolio-page',
   imports: [Hero, About, Skills, Languages, Certifications, Contact],
+  // Small screens: the sections are invisible while the hero fills the screen, so the first one can sit closer
+  // to the hero. The hero content is centered, so the first section is pulled up by half of the free space
+  // below it (50svh minus 22rem, which assumes a content height of about 44rem), but by 3rem at least. This
+  // keeps the gap the same on every screen height; it still changes with the height of the hero content. The
+  // hero fades out while all sections fade in together (a crossfade, one shared scroll range), and both fade
+  // back on the way up. Without scroll-driven animations nothing changes.
+  styles: `
+    @keyframes hero-fade {
+      to {
+        opacity: 0;
+      }
+    }
 
+    @keyframes sections-reveal {
+      from {
+        opacity: 0;
+      }
+    }
+
+    @supports (animation-timeline: scroll()) {
+      @media (max-width: 1023px) and (prefers-reduced-motion: no-preference) {
+        main > * {
+          display: block;
+          animation-timeline: scroll(root block);
+          animation-range: 30svh 70svh;
+          animation-timing-function: linear;
+          animation-fill-mode: both;
+        }
+
+        app-hero {
+          animation-name: hero-fade;
+        }
+
+        main > :not(app-hero) {
+          animation-name: sections-reveal;
+        }
+
+        app-about {
+          margin-top: var(--hero-pull-up, min(calc(22rem - 50svh), -3rem));
+        }
+      }
+    }
+  `,
   template: `
     <main
       id="main-content"
