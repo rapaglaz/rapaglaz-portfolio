@@ -1,4 +1,4 @@
-export type StaggerDelay = {
+type StaggerDelay = {
   // seconds before the first item
   readonly base: number;
   // seconds added for each following item

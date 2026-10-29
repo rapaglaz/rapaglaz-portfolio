@@ -10,7 +10,7 @@ import {
 } from '@rapaglaz/shared/util';
 
 const BASE_CLASSES =
-  'btn btn-link text-shadow-primary-xs text-xl md:text-lg transition-all duration-400 no-underline px-1.5';
+  'btn btn-link text-xl md:text-lg transition-all duration-400 no-underline px-1.5';
 const ACTIVE_CLASSES =
   'text-primary dark:text-primary/80 font-extrabold dark:font-bold pointer-events-none cursor-default';
 const INACTIVE_CLASSES =

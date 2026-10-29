@@ -42,7 +42,7 @@ pnpm run deps:check   # fails on any error-level rule
 pnpm run deps:graph   # HTML matrix in tmp/dependency-cruiser/dependencies.html
 ```
 
-The check scans `apps/rapaglaz-portfolio/src/app` and `libs/*/*/src`, specs and barrels included.
+The check scans `apps/rapaglaz-portfolio/src/app` and `libs`, specs and barrels included.
 Type-only imports are ignored (`tsPreCompilationDeps: false`). They cannot create runtime cycles,
 but layer violations through type-only imports are not reported either.
 

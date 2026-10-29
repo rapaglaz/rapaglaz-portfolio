@@ -1,7 +1,7 @@
 import type { Locator, Page } from '@playwright/test';
 
 // Minimal valid PDF for testing downloads
-export const MOCK_PDF_CONTENT = `%PDF-1.4
+const MOCK_PDF_CONTENT = `%PDF-1.4
 1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj
 2 0 obj<</Type/Pages/Count 1/Kids[3 0 R]>>endobj
 3 0 obj<</Type/Page/MediaBox[0 0 612 792]/Parent 2 0 R/Resources<<>>>>endobj

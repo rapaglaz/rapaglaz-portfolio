@@ -1,6 +1,6 @@
 import { Component, computed, input } from '@angular/core';
 
-export type BadgeSize = 'sm' | 'md' | 'lg' | 'xl';
+type BadgeSize = 'sm' | 'md' | 'lg' | 'xl';
 
 // Utilities on the host instead of @apply: a library stylesheet cannot @reference the app styles
 const BASE_CLASSES = [

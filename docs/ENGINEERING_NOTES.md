@@ -80,6 +80,8 @@ Problems from the history of this repository, oldest first, with the PRs that fi
   (#713), run unit and E2E tests on every PR and fail the gate on skipped jobs
   ([#730](https://github.com/rapaglaz/rapaglaz-portfolio/pull/730)), and keep the image in the same
   Renovate PR as the package (#768).
+- **Today:** the E2E jobs no longer use the image. They run on `ubuntu-latest` and install the
+  browsers themselves, see [CI strategy](./CI_STRATEGY.md).
 
 ## zizmor findings in the workflows (2026-10-08)
 
