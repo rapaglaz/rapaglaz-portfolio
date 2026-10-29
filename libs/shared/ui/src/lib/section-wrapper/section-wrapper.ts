@@ -56,7 +56,7 @@ import { ScrollRevealDirective } from '../scroll-reveal/scroll-reveal.directive'
             pill (pt-5 + 34px pill + 6px = 60px) and fades out over the rest, so no text reaches the pill.
           -->
           <div
-            class="title-band bg-base-100/85 sticky top-(--navbar-height) z-10 -mx-4 -mb-6 mask-[linear-gradient(to_bottom,#000_60px,transparent)] px-4 pt-5 pb-14 backdrop-blur-md lg:top-[calc(var(--navbar-height,7rem)+1.5rem)] lg:mx-0 lg:mb-0 lg:self-start lg:bg-transparent lg:mask-none lg:p-0 lg:backdrop-blur-none">
+            class="title-band bg-base-100/85 sticky top-(--navbar-height) z-10 -mx-4 -mb-6 mask-[linear-gradient(to_bottom,#000_60px,transparent)] px-4 pt-5 pb-11 backdrop-blur-md lg:top-[calc(var(--navbar-height,7rem)+1.5rem)] lg:mx-0 lg:mb-0 lg:self-start lg:bg-transparent lg:mask-none lg:p-0 lg:backdrop-blur-none">
             <h2
               [id]="sectionId() + '-heading'"
               class="font-section-title text-primary animate-title text-base tracking-[0.12em] uppercase"
