@@ -24,7 +24,7 @@ const LanguagesSchema = v.record(v.string(), v.object({ name: v.string(), level:
             class="card-ocean animate-item px-6 py-4"
             [class.visible]="wrapper.scrollReveal.isVisible()"
             [style.animation-delay]="getLanguageDelay(i)">
-            <h3 class="text-base-content mb-1 text-xl font-bold">
+            <h3 class="text-base-content/90 mb-1 text-xl font-bold">
               {{ language.name }}
             </h3>
             <p class="text-sm text-(--color-text-subtle)">

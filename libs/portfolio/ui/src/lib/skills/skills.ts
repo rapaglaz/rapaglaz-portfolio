@@ -113,7 +113,7 @@ export class Skills {
 
   protected readonly sectionWrapper = viewChild.required(SectionWrapper);
 
-  protected readonly coreBadgeClass = `${BADGE_BASE_CLASS} border-primary/43 bg-primary/11 text-base-content font-semibold dark:border-primary/38 dark:bg-primary/13`;
+  protected readonly coreBadgeClass = `${BADGE_BASE_CLASS} border-primary/43 bg-primary/11 text-base-content/90 font-semibold dark:border-primary/38 dark:bg-primary/13`;
   protected readonly plainBadgeClass = `${BADGE_BASE_CLASS} border-base-content/25 text-base-content/90 font-medium`;
 
   protected readonly groups = computed(() =>
