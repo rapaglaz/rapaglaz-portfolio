@@ -25,7 +25,7 @@ function toAvailableLang(lang: string): AvailableLang {
 @Component({
   selector: 'app-portfolio-page',
   imports: [Hero, About, Skills, Languages, Certifications, Contact],
-  // Small screens: the sections are invisible while the hero fills the screen, so the first one can sit closer
+  // The sections are invisible while the hero fills the screen, so the first one can sit closer
   // to the hero. The hero content is centered, so the first section is pulled up by half of the free space
   // below it (50svh minus 22rem, which assumes a content height of about 44rem), but by 3rem at least. This
   // keeps the gap the same on every screen height; it still changes with the height of the hero content. The
@@ -45,7 +45,7 @@ function toAvailableLang(lang: string): AvailableLang {
     }
 
     @supports (animation-timeline: scroll()) {
-      @media (max-width: 1023px) and (prefers-reduced-motion: no-preference) {
+      @media (prefers-reduced-motion: no-preference) {
         main > * {
           display: block;
           animation-timeline: scroll(root block);
