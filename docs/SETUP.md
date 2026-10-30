@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- Node.js 24 (exact version in `.nvmrc`)
+- Node.js 26 (exact version in `.nvmrc`)
 - pnpm (exact version in the `packageManager` field of `package.json`)
 - [mise](https://mise.jdx.dev/), optional. It installs the tools from `mise.toml`: actionlint and
   zizmor (the pre-commit hook runs them for commits that change workflows)

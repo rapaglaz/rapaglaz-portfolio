@@ -9,7 +9,7 @@ Exact versions live in `package.json` (dependencies, `packageManager` for pnpm),
 
 - **Angular 22** — zoneless, standalone, OnPush, SSG + hydration
 - **Nx 24** — workspace, task runner and local cache; no Nx Cloud
-- **TypeScript**, **Node.js 24**, **pnpm**
+- **TypeScript**, **Node.js 26**, **pnpm**
 - **Tailwind CSS 4** + **DaisyUI 5** (CSS-first config in `apps/rapaglaz-portfolio/src/styles.css`)
 - **Transloco** (i18n), **Valibot 1** (schema validation, `v.pipe` API), **RxJS**
 - **Vitest** (unit, through `@nx/vitest` and AnalogJS), **Playwright** (E2E, through `@nx/playwright`)
