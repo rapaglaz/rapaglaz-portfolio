@@ -63,3 +63,77 @@
     letter-spacing: -0.02em;
   }
 }
+
+/* Anchored to the content and not to the screen edge, so it stays close to the text on tall screens. */
+.hero-content {
+  position: relative;
+}
+
+/* Hint that the page goes on below the hero. It appears after the intro (the description ends at 2s), pulses lightly and fades out with the first scroll. */
+.hero-scroll-cue {
+  position: absolute;
+  top: calc(100% - 1rem);
+  left: 50%;
+  translate: -50% 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  /* 70% is the lightest mix with a 3:1 contrast on the light theme (WCAG 1.4.11); the dark theme has more. */
+  color: color-mix(in srgb, var(--color-primary) 70%, transparent);
+  transition: color 0.2s;
+
+  &:hover {
+    color: var(--color-primary);
+  }
+
+  /* Three quarters of the way from the text to the screen edge; the centered content is assumed to be about 40rem high. */
+  @media (min-width: 768px) {
+    top: calc(
+      100% - 1rem + max(0px, (100svh - var(--navbar-height, 7rem) - 42rem) * 0.375 - 0.5625rem)
+    );
+  }
+}
+
+.hero-scroll-cue svg {
+  animation:
+    fadeIn 0.7s ease-out 2s both,
+    scroll-cue-pulse 2.8s ease-in-out 2.7s infinite;
+}
+
+/* Reached with Tab during the intro: show it at once, so the focus ring never surrounds an empty spot. */
+.hero-scroll-cue:focus-visible svg {
+  animation: none;
+}
+
+/* The pulse only darkens and grows, so the contrast never drops below the resting state. */
+@keyframes scroll-cue-pulse {
+  50% {
+    color: var(--color-primary);
+    scale: 1.08;
+  }
+}
+
+/* Hidden at the end, so the faded button leaves the Tab order; on large screens the pinned hero stays under the sections. */
+@keyframes scroll-cue-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* Hidden where the hero content fills the screen; the cut text already shows that the page goes on. */
+@media (max-width: 767px) and (max-height: 839px), (max-height: 789px) {
+  .hero-scroll-cue {
+    display: none;
+  }
+}
+
+@supports (animation-timeline: scroll()) {
+  .hero-scroll-cue {
+    animation: scroll-cue-out linear both;
+    animation-timeline: scroll(root block);
+    animation-range: 0 10svh;
+  }
+}
