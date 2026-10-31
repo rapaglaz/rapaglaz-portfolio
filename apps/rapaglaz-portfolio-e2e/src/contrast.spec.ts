@@ -1,3 +1,4 @@
+import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Locator } from '@playwright/test';
 import { mockTurnstileAPI, visitPortfolio } from './utils';
 
@@ -171,6 +172,25 @@ test.describe('Theme contrast', () => {
         expect(outline.outlineWidth).toBeGreaterThan(0);
         expectContrastOnUnderlays(outline, 3, 'focus indicator');
         await page.mouse.move(0, 0);
+      }
+    });
+
+    // readColors ignores text-shadow, while axe counts the hover glow into the background of the text
+    test(`keeps ${colorScheme} navbar text readable with the hover glow`, async ({ page }) => {
+      await page.emulateMedia({ colorScheme });
+      await visitPortfolio(page);
+      await waitForAnimations(page.getByTestId('navbar'));
+      for (const action of [
+        page.getByTestId('cv-download-btn'),
+        page.getByRole('option', { name: 'Deutsch' }),
+      ]) {
+        await action.hover();
+        await waitForAnimations(action);
+        const results = await new AxeBuilder({ page })
+          .include('[data-testid="navbar"]')
+          .withRules(['color-contrast'])
+          .analyze();
+        expect(results.violations).toEqual([]);
       }
     });
 
