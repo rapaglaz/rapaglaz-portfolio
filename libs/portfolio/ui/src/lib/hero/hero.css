@@ -67,12 +67,20 @@
 /* Hint that the page goes on below the hero. It appears after the intro (the description ends at 2s) and fades out with the first scroll. */
 .hero-scroll-cue {
   position: absolute;
-  inset-inline: 0;
-  bottom: 1.5rem;
+  bottom: 1rem;
+  left: 50%;
+  translate: -50% 0;
   display: flex;
+  align-items: center;
   justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
   color: color-mix(in srgb, var(--color-primary) 60%, transparent);
-  pointer-events: none;
+  transition: color 0.2s;
+
+  &:hover {
+    color: var(--color-primary);
+  }
 }
 
 .hero-scroll-cue svg {
@@ -81,15 +89,22 @@
     scroll-cue-bob 2.4s ease-in-out 2.7s infinite;
 }
 
+/* Reached with Tab during the intro: show it at once, so the focus ring never surrounds an empty spot. */
+.hero-scroll-cue:focus-visible svg {
+  animation: none;
+}
+
 @keyframes scroll-cue-bob {
   50% {
     translate: 0 6px;
   }
 }
 
+/* Hidden at the end, so the faded button leaves the Tab order; on large screens the pinned hero stays under the sections. */
 @keyframes scroll-cue-out {
   to {
     opacity: 0;
+    visibility: hidden;
   }
 }
 

@@ -37,9 +37,11 @@ function toAvailableLang(lang: string): AvailableLang {
       }
     }
 
+    /* While mostly invisible the sections lie over the lower hero, so they must not catch its clicks. */
     @keyframes sections-reveal {
       from {
         opacity: 0;
+        pointer-events: none;
       }
     }
 
@@ -128,7 +130,9 @@ function toAvailableLang(lang: string): AvailableLang {
       id="main-content"
       class="focus-visible:outline-primary min-h-screen focus-visible:outline-2 focus-visible:-outline-offset-2"
       tabindex="-1">
-      <app-hero [openToWork]="openToWork()" />
+      <app-hero
+        [openToWork]="openToWork()"
+        (scrollCueClick)="scrollToFirstSection()" />
       <div class="sections">
         <app-about />
         <app-certifications [items]="certifications" />
@@ -155,6 +159,22 @@ export class PortfolioPage {
   constructor() {
     this.initSeoTags();
     this.destroyRef.onDestroy(() => this.cleanupSeoTags());
+  }
+
+  // Runs only from a click, so never during SSG. scrollIntoView would aim at the shifted curtain, so the
+  // target comes from offsetTop, which ignores transforms: on large screens the end of the curtain hold.
+  protected scrollToFirstSection(): void {
+    const win = this.document.defaultView;
+    const section = this.document.getElementById('about');
+    if (!win || !section) return;
+
+    let top = 0;
+    for (let el: HTMLElement | null = section; el; el = el.offsetParent as HTMLElement | null) {
+      top += el.offsetTop;
+    }
+    const margin = Number.parseFloat(win.getComputedStyle(section).scrollMarginTop) || 0;
+    const reduceMotion = win.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+    win.scrollTo({ top: top - margin, behavior: reduceMotion ? 'auto' : 'smooth' });
   }
 
   private initSeoTags(): void {
