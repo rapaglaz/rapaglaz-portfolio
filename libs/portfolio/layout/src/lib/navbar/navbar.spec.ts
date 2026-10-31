@@ -113,19 +113,21 @@ describe('Navbar', () => {
 
   it('updates navbar styling when scrolling away from and back to the top', () => {
     const restoreScrollY = mockWindowScrollY(24);
-    const nav = (fixture.nativeElement as HTMLElement).querySelector('nav')!;
+    const surface = (fixture.nativeElement as HTMLElement).querySelector(
+      '[data-testid="navbar-surface"]',
+    )!;
 
     try {
+      expect(surface.getAttribute('aria-hidden')).toBe('true');
+
       scrollSubject.next();
       fixture.detectChanges();
-      expect(nav.classList.contains('shadow-lg')).toBe(true);
-      expect(nav.classList.contains('shadow-none')).toBe(false);
+      expect(surface.classList.contains('navbar-scrolled')).toBe(true);
 
       window.scrollY = 0;
       scrollSubject.next();
       fixture.detectChanges();
-      expect(nav.classList.contains('shadow-lg')).toBe(false);
-      expect(nav.classList.contains('shadow-none')).toBe(true);
+      expect(surface.classList.contains('navbar-scrolled')).toBe(false);
     } finally {
       restoreScrollY();
     }
