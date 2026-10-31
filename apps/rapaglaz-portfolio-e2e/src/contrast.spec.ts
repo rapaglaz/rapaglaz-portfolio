@@ -54,8 +54,16 @@ async function readColors(
 
 async function waitForAnimations(locator: Locator): Promise<void> {
   await locator.evaluate(async element => {
+    // Scroll-driven and endless animations never finish, so wait for entrance animations only.
     await Promise.all(
-      element.getAnimations({ subtree: true }).map(animation => animation.finished),
+      element
+        .getAnimations({ subtree: true })
+        .filter(
+          animation =>
+            animation.timeline === document.timeline &&
+            animation.effect?.getComputedTiming().iterations !== Infinity,
+        )
+        .map(animation => animation.finished),
     );
   });
 }
@@ -164,6 +172,23 @@ test.describe('Theme contrast', () => {
         expectContrastOnUnderlays(outline, 3, 'focus indicator');
         await page.mouse.move(0, 0);
       }
+    });
+
+    test(`keeps the ${colorScheme} hero scroll button and its focus visible`, async ({ page }) => {
+      await page.emulateMedia({ colorScheme });
+      // the button is hidden where the hero content fills the screen, so the viewport needs room below it
+      await page.setViewportSize({ width: 1600, height: 1000 });
+      await visitPortfolio(page);
+      const cue = page.getByTestId('hero-scroll-cue');
+      for (const state of [NORMAL, HOVER, FOCUS]) {
+        await state.enter(cue);
+        await waitForAnimations(cue);
+        const [icon] = await readColors(cue, [{ foreground: 'color' }]);
+        expectContrastOnUnderlays(icon, 3, `${state.name} scroll button`);
+      }
+      const [outline] = await readColors(cue, [{ foreground: 'outline-color' }]);
+      expect(outline.outlineWidth).toBeGreaterThan(0);
+      expectContrastOnUnderlays(outline, 3, 'scroll button focus indicator');
     });
 
     test(`keeps ${colorScheme} footer icons and focus visible`, async ({ page }) => {

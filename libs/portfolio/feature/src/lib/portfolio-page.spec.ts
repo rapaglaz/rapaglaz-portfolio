@@ -8,7 +8,7 @@ import { TranslocoService } from '@jsverse/transloco';
 import { FeatureFlagService } from '@rapaglaz/shared/data-access';
 import { provideTranslocoTesting } from '@rapaglaz/shared/testing';
 import { firstValueFrom } from 'rxjs';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { PortfolioPage } from './portfolio-page';
 
 describe('PortfolioPage', () => {
@@ -65,6 +65,19 @@ describe('PortfolioPage', () => {
     const languages = main?.querySelector('[data-testid="section-languages"]');
     const languageCards = languages?.querySelectorAll('[data-testid="language-card"]');
     expect(languageCards?.length).toBeGreaterThan(0);
+  });
+
+  it('scrolls to the layout position of the first section when the hero scroll cue is clicked', () => {
+    const about = element.querySelector<HTMLElement>('#about') as HTMLElement;
+    Object.defineProperty(about, 'offsetTop', { value: 500 });
+    Object.defineProperty(about, 'offsetParent', { value: null });
+    about.style.scrollMarginTop = '100px';
+    const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
+
+    element.querySelector<HTMLButtonElement>('[data-testid="hero-scroll-cue"]')?.click();
+
+    expect(scrollTo).toHaveBeenCalledWith({ top: 400, behavior: expect.any(String) });
+    scrollTo.mockRestore();
   });
 
   it('sets social and description meta tags for the active language', () => {

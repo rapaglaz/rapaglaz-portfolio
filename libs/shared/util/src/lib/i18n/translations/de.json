@@ -39,7 +39,8 @@
   },
   "portfolio": {
     "hero": {
-      "description": "Senior Frontend Engineer für Angular, TypeScript, RxJS und Nx. Ich bringe komplexe Fachlogik ins Frontend, nachvollziehbar für das Team und abgesichert durch Unit- und E2E-Tests."
+      "description": "Senior Frontend Engineer für Angular, TypeScript, RxJS und Nx. Ich bringe komplexe Fachlogik ins Frontend, nachvollziehbar für das Team und abgesichert durch Unit- und E2E-Tests.",
+      "scrollCue": "Zu „Über mich“ scrollen"
     },
     "about": {
       "title": "Über mich",

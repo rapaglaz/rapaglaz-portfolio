@@ -23,6 +23,20 @@ describe('Hero', () => {
     expect(lastName?.classList.contains('font-medium')).toBe(false);
   });
 
+  it('renders the scroll cue as a labelled button and reports clicks', () => {
+    const element = fixture.nativeElement as HTMLElement;
+    const cue = element.querySelector<HTMLButtonElement>('[data-testid="hero-scroll-cue"]');
+    let clicks = 0;
+    fixture.componentInstance.scrollCueClick.subscribe(() => clicks++);
+
+    cue?.click();
+
+    expect(cue?.tagName).toBe('BUTTON');
+    expect(cue?.getAttribute('aria-label')).toBe('Scroll to About Me');
+    expect(cue?.querySelector('svg')?.getAttribute('aria-hidden')).toBe('true');
+    expect(clicks).toBe(1);
+  });
+
   it('renders the availability badge only while openToWork is set', () => {
     const element = fixture.nativeElement as HTMLElement;
     expect(element.querySelector('[data-testid="hero-badge-mobile"]')).toBeNull();
