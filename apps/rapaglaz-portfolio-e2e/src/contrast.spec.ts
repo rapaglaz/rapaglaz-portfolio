@@ -54,8 +54,16 @@ async function readColors(
 
 async function waitForAnimations(locator: Locator): Promise<void> {
   await locator.evaluate(async element => {
+    // Scroll-driven and endless animations never finish, so wait for entrance animations only.
     await Promise.all(
-      element.getAnimations({ subtree: true }).map(animation => animation.finished),
+      element
+        .getAnimations({ subtree: true })
+        .filter(
+          animation =>
+            animation.timeline === document.timeline &&
+            animation.effect?.getComputedTiming().iterations !== Infinity,
+        )
+        .map(animation => animation.finished),
     );
   });
 }
