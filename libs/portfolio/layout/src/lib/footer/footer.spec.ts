@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslocoService } from '@jsverse/transloco';
 import { provideTranslocoTesting } from '@rapaglaz/shared/testing';
 import { firstValueFrom } from 'rxjs';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import { Footer } from './footer';
 
 describe('Footer', () => {
@@ -20,74 +20,15 @@ describe('Footer', () => {
     fixture.detectChanges();
   });
 
-  it('shows current year and external links', () => {
-    const footer = element.querySelector('footer');
-    const year = new Date().getFullYear().toString();
-    const externalLinks = Array.from(
-      element.querySelectorAll('footer a[target="_blank"]'),
-    ) as HTMLAnchorElement[];
-
-    expect(footer).toBeInstanceOf(HTMLElement);
-    expect(footer?.textContent).toContain(year);
-    expect(externalLinks.length).toBeGreaterThanOrEqual(2);
-    externalLinks.forEach(link => {
-      expect(link.getAttribute('rel')).toContain('noopener');
-      expect(link.getAttribute('href')?.trim()).toBeTruthy();
-    });
-  });
-
-  it('links to the LinkedIn and GitHub profiles', () => {
-    const hrefs = Array.from(element.querySelectorAll<HTMLAnchorElement>('footer a')).map(link =>
-      link.getAttribute('href'),
-    );
-
-    expect(hrefs).toEqual([
-      'https://www.linkedin.com/in/radek-glaz/',
-      'https://github.com/rapaglaz',
-    ]);
-  });
-
-  it.each([
-    ['en', 'Email', 'opens in new tab'],
-    ['de', 'E-Mail', 'öffnet in neuem Tab'],
-  ])('provides translated action labels and new-tab cues in %s', async (lang, email, newTab) => {
-    const transloco = TestBed.inject(TranslocoService);
-    await firstValueFrom(transloco.load(lang));
-    transloco.setActiveLang(lang);
+  it('shows the current year and the name', async () => {
+    await firstValueFrom(TestBed.inject(TranslocoService).load('en'));
     await fixture.whenStable();
+    const text = element.querySelector('footer')?.textContent?.replace(/\s+/g, ' ');
 
-    expect(element.querySelector('button')?.getAttribute('aria-label')).toBe(email);
-    expect(element.querySelector('a[href*="linkedin"]')?.getAttribute('aria-label')).toBe(
-      `LinkedIn (${newTab})`,
-    );
-    expect(element.querySelector('a[href*="github"]')?.getAttribute('aria-label')).toBe(
-      `GitHub (${newTab})`,
-    );
+    expect(text).toContain(`© ${new Date().getFullYear()} Radek Glaz`);
   });
 
-  it('delegates contactEmail to window.location', () => {
-    const assignSpy = vi.fn();
-    const originalLocation = window.location;
-    Object.defineProperty(window, 'location', {
-      value: { assign: assignSpy },
-      writable: true,
-      configurable: true,
-    });
-
-    const emailButton = element.querySelector(
-      'footer button[type="button"]',
-    ) as HTMLButtonElement | null;
-
-    expect(emailButton).toBeInstanceOf(HTMLButtonElement);
-    emailButton?.click();
-
-    expect(assignSpy).toHaveBeenCalledTimes(1);
-    expect(assignSpy.mock.calls[0][0]).toMatch(/^mailto:/);
-
-    Object.defineProperty(window, 'location', {
-      value: originalLocation,
-      writable: true,
-      configurable: true,
-    });
+  it('has no actions, because the contact section above lists them', () => {
+    expect(element.querySelectorAll('a, button')).toHaveLength(0);
   });
 });

@@ -79,13 +79,13 @@ test.describe('Locale Switch Journey', () => {
       await expect(page.getByTestId('certification-card').locator('time')).toHaveText(
         texts.certificationDates,
       );
-      const footer = page.locator('app-footer');
-      await expect(footer.getByRole('button')).toHaveAccessibleName(texts.email);
-      await expect(footer.getByRole('link', { name: 'LinkedIn' })).toHaveAccessibleName(
-        `LinkedIn (${texts.newTab})`,
+      const contactLinks = page.getByTestId('contact-link');
+      await expect(contactLinks.nth(0)).toHaveAccessibleName(`${texts.email}: radek@rapaglaz.de`);
+      await expect(contactLinks.nth(1)).toHaveAccessibleName(
+        `LinkedIn: linkedin.com/in/radek-glaz (${texts.newTab})`,
       );
-      await expect(footer.getByRole('link', { name: 'GitHub' })).toHaveAccessibleName(
-        `GitHub (${texts.newTab})`,
+      await expect(contactLinks.nth(2)).toHaveAccessibleName(
+        `GitHub: github.com/rapaglaz (${texts.newTab})`,
       );
       await expect(page.getByTestId('cv-download-btn')).toHaveAccessibleName(texts.downloadCv);
     });
@@ -108,7 +108,9 @@ test.describe('Locale Switch Journey', () => {
     await expect(page.getByTestId('certification-card').locator('time').first()).toHaveText(
       'Dezember 2022',
     );
-    await expect(page.locator('app-footer').getByRole('button')).toHaveAccessibleName('E-Mail');
+    await expect(page.getByTestId('cv-download-btn')).toHaveAccessibleName(
+      ROUTE_TEXTS.de.downloadCv,
+    );
 
     await page.reload();
     await expect(page.locator('html')).toHaveAttribute('lang', 'de');
@@ -125,7 +127,9 @@ test.describe('Locale Switch Journey', () => {
     await expect(page.getByTestId('certification-card').locator('time').first()).toHaveText(
       'December 2022',
     );
-    await expect(page.locator('app-footer').getByRole('button')).toHaveAccessibleName('Email');
+    await expect(page.getByTestId('cv-download-btn')).toHaveAccessibleName(
+      ROUTE_TEXTS.en.downloadCv,
+    );
 
     await page.goForward();
     await expect(page).toHaveURL(/\/de\?source=locale-test#skills$/);

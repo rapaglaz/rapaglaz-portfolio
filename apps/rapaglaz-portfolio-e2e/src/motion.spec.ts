@@ -218,7 +218,6 @@ test.describe('Motion preferences', () => {
       for (const control of [
         page.getByTestId('cv-download-btn'),
         page.getByRole('option', { name: locale === 'en' ? 'Deutsch' : 'English' }),
-        page.locator('app-footer').getByRole('link', { name: 'GitHub' }),
       ]) {
         await control.hover();
         const { scale, transform, transitionDuration } = await readMotion(control);
