@@ -93,7 +93,8 @@ test.describe('Toast accessibility', () => {
         ?.closest('.cdk-overlay-pane');
     });
     expect(emptySpaceBlocksPage).toBe(false);
-    const previousAction = page.locator('app-footer').getByRole('link', { name: 'GitHub' });
+    // the last link of the page, so the next Tab reaches the toast
+    const previousAction = page.getByTestId('contact-link').last();
     await previousAction.focus();
     await page.keyboard.press(tabKey(browserName));
     await expect(close).toBeFocused();

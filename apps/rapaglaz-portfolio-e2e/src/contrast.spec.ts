@@ -211,31 +211,6 @@ test.describe('Theme contrast', () => {
       expectContrastOnUnderlays(outline, 3, 'scroll button focus indicator');
     });
 
-    test(`keeps ${colorScheme} footer icons and focus visible`, async ({ page }) => {
-      await page.emulateMedia({ colorScheme });
-      await visitPortfolio(page);
-      const footer = page.locator('app-footer');
-      const actions = [
-        footer.getByRole('button'),
-        footer.getByRole('link', { name: 'LinkedIn' }),
-        footer.getByRole('link', { name: 'GitHub' }),
-      ];
-      for (const action of actions) {
-        for (const state of [NORMAL, HOVER, FOCUS]) {
-          await state.enter(action);
-          await waitForAnimations(action);
-          const [icon] = await readColors(action, [{ foreground: 'color' }]);
-          expectContrastOnUnderlays(icon, 3, `${state.name} footer icon`);
-        }
-        await FOCUS.enter(action);
-        await waitForAnimations(action);
-        const [outline] = await readColors(action, [{ foreground: 'outline-color' }]);
-        expect(outline.outlineWidth).toBeGreaterThan(0);
-        expectContrastOnUnderlays(outline, 3, 'footer focus indicator');
-        await page.mouse.move(0, 0);
-      }
-    });
-
     test(`keeps ${colorScheme} error text and close action contrasting over page content`, async ({
       page,
     }) => {
