@@ -71,6 +71,16 @@ describe('Navbar', () => {
     expect(iconButton?.getAttribute('aria-label')?.trim()).toBeTruthy();
   });
 
+  it('repeats the name for sighted users only and from md', () => {
+    const element = fixture.nativeElement as HTMLElement;
+    const name = element.querySelector('[data-testid="navbar-name"]');
+
+    expect(name?.textContent?.replace(/\s+/g, ' ').trim()).toBe('Radek Glaz');
+    expect(name?.getAttribute('aria-hidden')).toBe('true');
+    expect(name?.classList.contains('hidden')).toBe(true);
+    expect(name?.classList.contains('md:block')).toBe(true);
+  });
+
   it.each([
     ['en', 'Download CV'],
     ['de', 'CV herunterladen'],

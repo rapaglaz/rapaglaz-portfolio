@@ -12,6 +12,14 @@
     [class.md:justify-between]="openToWork()"
     [class.md:justify-end]="!openToWork()"
     class="container mx-auto flex max-w-5xl flex-col items-center justify-center gap-6 px-2 py-4 md:flex-row md:gap-0 md:py-6">
+    <!-- Repeats the hero heading once the hero is gone, so it is hidden from assistive technology. -->
+    <span
+      data-testid="navbar-name"
+      class="navbar-name hidden text-xl md:mr-5 md:block"
+      aria-hidden="true">
+      <span class="font-medium">{{ 'common.firstName' | transloco }}</span>
+      {{ 'common.lastName' | transloco }}
+    </span>
     @if (openToWork()) {
       <app-badge
         class="hidden md:block"

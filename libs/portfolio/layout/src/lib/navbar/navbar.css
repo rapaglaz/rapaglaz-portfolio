@@ -1,3 +1,32 @@
 nav {
   @apply animate-[fadeIn_0.7s_ease-out_0.6s_both];
 }
+
+/* Same type as the hero name. Without scroll-driven animations (and with reduced motion) it stays hidden. */
+.navbar-name {
+  font-family: 'Manrope', 'Inter', sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  opacity: 0;
+  visibility: hidden;
+}
+
+@keyframes navbar-name-in {
+  to {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+/* It appears when the hero name is gone: from lg the sections cover the hero early, below lg the hero scrolls away. */
+@supports (animation-timeline: scroll()) {
+  .navbar-name {
+    animation: navbar-name-in linear both;
+    animation-timeline: scroll(root block);
+    animation-range: 40svh 55svh;
+
+    @media (min-width: 1024px) {
+      animation-range: 10svh 20svh;
+    }
+  }
+}
