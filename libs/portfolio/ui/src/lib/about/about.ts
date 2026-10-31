@@ -1,4 +1,4 @@
-import { Component, viewChild } from '@angular/core';
+import { Component } from '@angular/core';
 import { TranslocoModule } from '@jsverse/transloco';
 import { SectionWrapper } from '@rapaglaz/shared/ui';
 
@@ -7,21 +7,18 @@ import { SectionWrapper } from '@rapaglaz/shared/ui';
 @Component({
   selector: 'app-about',
   imports: [TranslocoModule, SectionWrapper],
+  // The first section enters with the hero transition of the page, so it needs no own entrance animation
+  // (a second fade would show half transparent text) and no divider above it.
   template: `
     <app-section-wrapper
       sectionId="about"
-      titleKey="portfolio.about.title">
-      @let wrapper = sectionWrapper();
-      <div
-        class="animate-content"
-        [class.visible]="wrapper.scrollReveal.isVisible()">
-        <p class="text-base-content/90 max-w-[65ch] text-[1.0625rem] leading-[1.6]">
-          {{ 'portfolio.about.description' | transloco }}
-        </p>
-      </div>
+      titleKey="portfolio.about.title"
+      [reveal]="false"
+      [divider]="false">
+      <p class="text-base-content/90 max-w-[65ch] text-[1.0625rem] leading-[1.6]">
+        {{ 'portfolio.about.description' | transloco }}
+      </p>
     </app-section-wrapper>
   `,
 })
-export class About {
-  protected readonly sectionWrapper = viewChild.required(SectionWrapper);
-}
+export class About {}

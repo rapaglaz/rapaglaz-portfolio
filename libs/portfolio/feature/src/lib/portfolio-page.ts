@@ -25,12 +25,11 @@ function toAvailableLang(lang: string): AvailableLang {
 @Component({
   selector: 'app-portfolio-page',
   imports: [Hero, About, Skills, Languages, Certifications, Contact],
-  // The sections are invisible while the hero fills the screen, so the first one can sit closer
-  // to the hero. The hero content is centered, so the first section is pulled up by half of the free space
-  // below it (50svh minus 22rem, which assumes a content height of about 44rem), but by 3rem at least. This
-  // keeps the gap the same on every screen height; it still changes with the height of the hero content. The
-  // hero fades out while all sections fade in together (a crossfade, one shared scroll range), and both fade
-  // back on the way up. Without scroll-driven animations nothing changes.
+  // Scroll-driven transition from the hero to the sections; without support nothing changes.
+  // Below lg: crossfade. The sections are pulled up by half of the free space under the centered hero
+  // content (assumed 44rem high), but by 3rem at least.
+  // From lg: the hero stays pinned and the sections slide over it as an opaque curtain, so the first section
+  // is reached after a short scroll and no text is half transparent.
   styles: `
     @keyframes hero-fade {
       to {
@@ -44,26 +43,82 @@ function toAvailableLang(lang: string): AvailableLang {
       }
     }
 
+    @keyframes hero-recede {
+      to {
+        opacity: 0.25;
+        transform: scale(0.94);
+      }
+    }
+
+    /* First half: arrival at the navbar. Second half: the shift shrinks with the scroll, so the sections hold still. */
+    @keyframes sections-slide-in {
+      0% {
+        transform: translateY(calc(60svh - var(--navbar-height, 7rem)));
+        animation-timing-function: cubic-bezier(0.3, 0.6, 0.4, 1);
+      }
+
+      50% {
+        transform: translateY(-20svh);
+        animation-timing-function: linear;
+      }
+
+      100% {
+        transform: translateY(0);
+      }
+    }
+
+    /* One wrapper for all sections: separately moved sections leave hairline gaps at fractional offsets. */
     @supports (animation-timeline: scroll()) {
       @media (prefers-reduced-motion: no-preference) {
         main > * {
           display: block;
           animation-timeline: scroll(root block);
-          animation-range: 30svh 70svh;
           animation-timing-function: linear;
           animation-fill-mode: both;
         }
 
-        app-hero {
-          animation-name: hero-fade;
+        @media (max-width: 1023px) {
+          main > * {
+            animation-range: 30svh 70svh;
+          }
+
+          app-hero {
+            animation-name: hero-fade;
+          }
+
+          main > .sections {
+            margin-top: var(--hero-pull-up, min(calc(22rem - 50svh), -3rem));
+            animation-name: sections-reveal;
+          }
         }
 
-        main > :not(app-hero) {
-          animation-name: sections-reveal;
-        }
+        @media (min-width: 1024px) {
+          main > app-hero {
+            position: sticky;
+            top: 0;
+            animation-name: hero-recede;
+            animation-range: 0 20svh;
+          }
 
-        app-about {
-          margin-top: var(--hero-pull-up, min(calc(22rem - 50svh), -3rem));
+          /* Above the pinned hero */
+          main > .sections {
+            position: relative;
+            z-index: 1;
+            margin-top: calc(var(--navbar-height, 7rem) - 60svh);
+            animation-name: sections-slide-in;
+            animation-range: 0 40svh;
+          }
+
+          /* Soft upper edge of the curtain */
+          main > .sections::before {
+            content: '';
+            position: absolute;
+            inset-inline: 0;
+            bottom: 100%;
+            height: 8rem;
+            background: linear-gradient(to bottom, transparent, var(--color-base-100));
+            pointer-events: none;
+          }
         }
       }
     }
@@ -74,11 +129,13 @@ function toAvailableLang(lang: string): AvailableLang {
       class="focus-visible:outline-primary min-h-screen focus-visible:outline-2 focus-visible:-outline-offset-2"
       tabindex="-1">
       <app-hero [openToWork]="openToWork()" />
-      <app-about />
-      <app-certifications [items]="certifications" />
-      <app-skills [categories]="skillCategories" />
-      <app-languages />
-      <app-contact [items]="contactItems" />
+      <div class="sections">
+        <app-about />
+        <app-certifications [items]="certifications" />
+        <app-skills [categories]="skillCategories" />
+        <app-languages />
+        <app-contact [items]="contactItems" />
+      </div>
     </main>
   `,
 })

@@ -34,6 +34,27 @@ describe('SectionWrapper', () => {
     expect(heading?.classList.contains('uppercase')).toBe(true);
   });
 
+  it('animates the entrance of the title unless reveal is turned off', () => {
+    setup('about', 'portfolio.about.title');
+    const heading = element.querySelector('h2');
+    expect(heading?.classList.contains('animate-title')).toBe(true);
+
+    fixture.componentRef.setInput('reveal', false);
+    fixture.detectChanges();
+
+    expect(heading?.classList.contains('animate-title')).toBe(false);
+  });
+
+  it('drops the desktop divider when divider is turned off', () => {
+    setup('about', 'portfolio.about.title');
+    const grid = element.querySelector('section > div > div');
+
+    fixture.componentRef.setInput('divider', false);
+    fixture.detectChanges();
+
+    expect(grid?.classList.contains('lg:border-t')).toBe(false);
+  });
+
   it('scrolls to the start of the section when the title is clicked', () => {
     setup('about', 'portfolio.about.title');
     const section = element.querySelector('section') as HTMLElement;

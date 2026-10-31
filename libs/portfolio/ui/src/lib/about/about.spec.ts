@@ -25,18 +25,19 @@ describe('About', () => {
 
   afterEach(() => vi.unstubAllGlobals());
 
-  it('reveals the description when its section becomes visible', () => {
+  it('shows the title and the description without an entrance animation and a divider', () => {
     const element = fixture.nativeElement as HTMLElement;
-    const content = element.querySelector('.animate-content');
     const wrapper = fixture.debugElement.query(By.directive(SectionWrapper))
       .componentInstance as SectionWrapper;
-    expect(content?.classList.contains('visible')).toBe(false);
 
-    wrapper.scrollReveal.onVisibilityChange(true);
-    fixture.detectChanges();
-
-    expect(content?.classList.contains('visible')).toBe(true);
-    expect(content?.textContent).toContain('Frontend Engineer');
+    expect(wrapper.reveal()).toBe(false);
+    expect(wrapper.divider()).toBe(false);
+    expect(element.querySelector('section > div > div')?.classList.contains('lg:border-t')).toBe(
+      false,
+    );
+    expect(element.querySelector('h2')?.classList.contains('animate-title')).toBe(false);
+    expect(element.querySelector('.animate-content')).toBeNull();
+    expect(element.querySelector('p')?.textContent).toContain('Frontend Engineer');
   });
 
   it('updates the heading and description when the active language changes', async () => {
