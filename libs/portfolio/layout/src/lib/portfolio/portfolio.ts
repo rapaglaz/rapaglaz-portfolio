@@ -10,6 +10,8 @@ import { Navbar } from '../navbar/navbar';
 @Component({
   selector: 'app-portfolio',
   imports: [Navbar, RouterLink, RouterOutlet, Footer, TranslocoPipe],
+  // block and not the default inline: Safari 27 adds space below an inline host with block content
+  host: { class: 'block' },
   template: `
     <a
       [routerLink]="[]"
