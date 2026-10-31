@@ -3,9 +3,19 @@ import { expect, test, type Page } from '@playwright/test';
 import { switchLanguage, tabKey, visitPortfolio } from './utils';
 
 async function waitForHeroAnimations(page: Page): Promise<void> {
-  // Measure contrast after fade-in animations reach their final opacity.
+  // Measure contrast after fade-in animations reach their final opacity. The scroll cue moves endlessly
+  // and fades with the scroll; such animations never finish.
   await page.getByTestId('section-hero').evaluate(async hero => {
-    await Promise.all(hero.getAnimations({ subtree: true }).map(animation => animation.finished));
+    await Promise.all(
+      hero
+        .getAnimations({ subtree: true })
+        .filter(
+          animation =>
+            animation.timeline === document.timeline &&
+            animation.effect?.getComputedTiming().iterations !== Infinity,
+        )
+        .map(animation => animation.finished),
+    );
   });
 }
 

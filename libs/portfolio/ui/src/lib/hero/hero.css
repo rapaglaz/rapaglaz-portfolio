@@ -63,3 +63,47 @@
     letter-spacing: -0.02em;
   }
 }
+
+/* Hint that the page goes on below the hero. It appears after the intro (the description ends at 2s) and fades out with the first scroll. */
+.hero-scroll-cue {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 1.5rem;
+  display: flex;
+  justify-content: center;
+  color: color-mix(in srgb, var(--color-primary) 60%, transparent);
+  pointer-events: none;
+}
+
+.hero-scroll-cue svg {
+  animation:
+    fadeIn 0.7s ease-out 2s both,
+    scroll-cue-bob 2.4s ease-in-out 2.7s infinite;
+}
+
+@keyframes scroll-cue-bob {
+  50% {
+    translate: 0 6px;
+  }
+}
+
+@keyframes scroll-cue-out {
+  to {
+    opacity: 0;
+  }
+}
+
+/* Hidden where the hero content fills the screen; the cut text already shows that the page goes on. */
+@media (max-width: 767px) and (max-height: 819px), (max-height: 739px) {
+  .hero-scroll-cue {
+    display: none;
+  }
+}
+
+@supports (animation-timeline: scroll()) {
+  .hero-scroll-cue {
+    animation: scroll-cue-out linear both;
+    animation-timeline: scroll(root block);
+    animation-range: 0 10svh;
+  }
+}

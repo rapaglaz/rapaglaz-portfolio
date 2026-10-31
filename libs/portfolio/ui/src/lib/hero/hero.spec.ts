@@ -23,6 +23,14 @@ describe('Hero', () => {
     expect(lastName?.classList.contains('font-medium')).toBe(false);
   });
 
+  it('renders the scroll cue as decoration only', () => {
+    const element = fixture.nativeElement as HTMLElement;
+    const cue = element.querySelector('[data-testid="hero-scroll-cue"]');
+
+    expect(cue?.getAttribute('aria-hidden')).toBe('true');
+    expect(cue?.querySelector('a, button')).toBeNull();
+  });
+
   it('renders the availability badge only while openToWork is set', () => {
     const element = fixture.nativeElement as HTMLElement;
     expect(element.querySelector('[data-testid="hero-badge-mobile"]')).toBeNull();
