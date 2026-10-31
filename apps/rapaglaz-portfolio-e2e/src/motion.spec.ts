@@ -136,6 +136,41 @@ test.describe('Motion preferences', () => {
     ).toBe('smooth');
   });
 
+  test('ends the page at the footer after the sections slide over the hero', async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, 'the sections slide over the hero only from lg');
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await visitPortfolio(page, '/en');
+    await expect
+      .poll(() =>
+        page.locator('main > .sections').evaluate(element => getComputedStyle(element).transform),
+      )
+      .not.toBe('none');
+    // a late layout at the top, like after a font load, measures the page with the curtain still shifted down
+    await page.evaluate(() => {
+      const { body } = document;
+      body.style.paddingBottom = '1px';
+      void body.offsetHeight;
+      body.style.removeProperty('padding-bottom');
+      void body.offsetHeight;
+    });
+    await page.mouse.wheel(0, 10_000);
+    // the footer is below the viewport while the page still scrolls, so check the gap only at the end
+    await expect
+      .poll(() =>
+        page.evaluate(
+          () => Math.ceil(scrollY + innerHeight) >= document.documentElement.scrollHeight,
+        ),
+      )
+      .toBe(true);
+    const gapBelowFooter = await page
+      .locator('app-footer footer')
+      .evaluate(element => innerHeight - element.getBoundingClientRect().bottom);
+    expect(gapBelowFooter).toBeLessThan(1);
+  });
+
   test('scales the CV button on hover where the device can hover', async ({ page, isMobile }) => {
     test.skip(isMobile, 'a touch screen cannot hover');
     await page.emulateMedia({ reducedMotion: 'no-preference' });

@@ -38,6 +38,18 @@ describe('App', () => {
     expect(outlet).toBeInstanceOf(HTMLElement);
   });
 
+  it('renders the hosts around the footer as blocks', () => {
+    const hosts = [
+      element,
+      element.querySelector('app-portfolio'),
+      element.querySelector('app-footer'),
+    ];
+
+    for (const host of hosts) {
+      expect(host?.classList).toContain('block');
+    }
+  });
+
   it.each([
     ['/', 'Skip to main content'],
     ['/en', 'Skip to main content'],

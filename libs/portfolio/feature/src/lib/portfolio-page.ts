@@ -95,6 +95,11 @@ function toAvailableLang(lang: string): AvailableLang {
         }
 
         @media (min-width: 1024px) {
+          /* Browsers keep the scroll area of the last layout, so the shifted curtain would leave a gap under the footer. clip, because hidden would break the sticky hero. */
+          main {
+            overflow-y: clip;
+          }
+
           main > app-hero {
             position: sticky;
             top: 0;
