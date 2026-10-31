@@ -200,6 +200,20 @@ test.describe('Theme contrast', () => {
       await page.setViewportSize({ width: 1600, height: 1000 });
       await visitPortfolio(page);
       const cue = page.getByTestId('hero-scroll-cue');
+      // readColors sees only the ancestors, so check that the soft edge of the curtain stays below the
+      // button; poll, because WebKit attaches the scroll-driven shift of the curtain a moment later
+      await expect
+        .poll(() =>
+          page.evaluate(() => {
+            const sections = document.querySelector('main > .sections') as HTMLElement;
+            const button = document.querySelector('[data-testid="hero-scroll-cue"]') as HTMLElement;
+            const edge = Number.parseFloat(getComputedStyle(sections, '::before').height) || 0;
+            return (
+              sections.getBoundingClientRect().top - edge - button.getBoundingClientRect().bottom
+            );
+          }),
+        )
+        .toBeGreaterThanOrEqual(0);
       for (const state of [NORMAL, HOVER, FOCUS]) {
         await state.enter(cue);
         await waitForAnimations(cue);

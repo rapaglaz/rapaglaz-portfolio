@@ -52,10 +52,13 @@ function toAvailableLang(lang: string): AvailableLang {
       }
     }
 
-    /* First half: arrival at the navbar. Second half: the shift shrinks with the scroll, so the sections hold still. */
+    /*
+     * First half: arrival at the navbar. Second half: the shift shrinks with the scroll, so the sections hold still.
+     * The start is one edge height lower, so after the load the soft edge does not cover the hero scroll button.
+     */
     @keyframes sections-slide-in {
       0% {
-        transform: translateY(calc(60svh - var(--navbar-height, 7rem)));
+        transform: translateY(calc(60svh - var(--navbar-height, 7rem) + var(--curtain-edge, 8rem)));
         animation-timing-function: cubic-bezier(0.3, 0.6, 0.4, 1);
       }
 
@@ -109,6 +112,7 @@ function toAvailableLang(lang: string): AvailableLang {
 
           /* Above the pinned hero */
           main > .sections {
+            --curtain-edge: 8rem;
             position: relative;
             z-index: 1;
             margin-top: calc(var(--navbar-height, 7rem) - 60svh);
@@ -122,7 +126,7 @@ function toAvailableLang(lang: string): AvailableLang {
             position: absolute;
             inset-inline: 0;
             bottom: 100%;
-            height: 8rem;
+            height: var(--curtain-edge);
             background: linear-gradient(to bottom, transparent, var(--color-base-100));
             pointer-events: none;
           }
