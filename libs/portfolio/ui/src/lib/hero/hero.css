@@ -80,7 +80,8 @@
   justify-content: center;
   width: 2.75rem;
   height: 2.75rem;
-  color: color-mix(in srgb, var(--color-primary) 40%, transparent);
+  /* 70% is the lightest mix with a 3:1 contrast on the light theme (WCAG 1.4.11); the dark theme has more. */
+  color: color-mix(in srgb, var(--color-primary) 70%, transparent);
   transition: color 0.2s;
 
   &:hover {
@@ -106,10 +107,11 @@
   animation: none;
 }
 
+/* The pulse only darkens and grows, so the contrast never drops below the resting state. */
 @keyframes scroll-cue-pulse {
   50% {
-    opacity: 0.45;
-    scale: 0.92;
+    color: var(--color-primary);
+    scale: 1.08;
   }
 }
 
