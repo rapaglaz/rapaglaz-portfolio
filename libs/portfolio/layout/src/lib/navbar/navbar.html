@@ -1,12 +1,12 @@
+<div
+  data-testid="navbar-surface"
+  [class.navbar-scrolled]="isScrolled()"
+  class="navbar-surface"
+  aria-hidden="true"></div>
 <nav
   appMeasureNavbarHeight
   data-testid="navbar"
-  [class]="
-    'navbar fixed inset-x-0 top-0 z-50 border-b transition-[box-shadow,border-color,backdrop-filter,background-color] duration-300 will-change-[box-shadow,border-color,backdrop-filter,background-color] ' +
-    (isScrolled()
-      ? 'bg-base-100/80 border-base-300 dark:shadow-primary/10 shadow-lg backdrop-blur-md dark:shadow-md'
-      : 'border-transparent bg-transparent shadow-none')
-  ">
+  class="navbar fixed inset-x-0 top-0 z-50">
   <div
     data-testid="navbar-container"
     [class.md:justify-between]="openToWork()"

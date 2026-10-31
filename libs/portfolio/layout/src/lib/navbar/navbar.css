@@ -2,6 +2,51 @@ nav {
   @apply animate-[fadeIn_0.7s_ease-out_0.6s_both];
 }
 
+/*
+ * The surface is a sibling of the nav and not a child: the entrance opacity of the nav would make
+ * it the backdrop root, and the blur would see only the empty nav instead of the page.
+ * Only its opacity changes during scrolling. The same z-index and the earlier DOM order keep it
+ * under the nav content.
+ */
+.navbar-surface {
+  position: fixed;
+  inset-inline: 0;
+  top: 0;
+  z-index: 50;
+  height: var(--navbar-height);
+  pointer-events: none;
+  background-color: color-mix(in oklab, var(--color-base-100) 70%, transparent);
+  border-bottom: 1px solid color-mix(in oklab, var(--color-primary) 25%, transparent);
+  box-shadow:
+    0 1px 3px -1px color-mix(in oklab, var(--color-base-content) 10%, transparent),
+    0 4px 10px -3px color-mix(in oklab, var(--color-base-content) 14%, transparent);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  opacity: 0;
+  transition: opacity 500ms ease-out;
+
+  @media (prefers-color-scheme: dark) {
+    border-bottom-color: color-mix(in oklab, var(--color-accent) 40%, transparent);
+    box-shadow:
+      0 1px 3px -1px color-mix(in oklab, black 40%, transparent),
+      0 4px 10px -3px color-mix(in oklab, var(--color-primary) 14%, transparent);
+  }
+}
+
+/* Fallback without scroll-driven animations; with reduced motion it switches at once. */
+.navbar-surface.navbar-scrolled {
+  opacity: 1;
+}
+
+@keyframes navbar-surface-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 /* Same type as the hero name. Without scroll-driven animations (and with reduced motion) it stays hidden. */
 .navbar-name {
   font-family: 'Manrope', 'Inter', sans-serif;
@@ -9,24 +54,33 @@ nav {
   letter-spacing: -0.01em;
   opacity: 0;
   visibility: hidden;
+  translate: 0 0.25rem;
 }
 
 @keyframes navbar-name-in {
   to {
     opacity: 1;
     visibility: visible;
+    translate: 0 0;
   }
 }
 
-/* It appears when the hero name is gone: from lg the sections cover the hero early, below lg the hero scrolls away. */
 @supports (animation-timeline: scroll()) {
+  /* An active animation overrides the fallback class, so the surface follows the scroll position. */
+  .navbar-surface {
+    animation: navbar-surface-in linear both;
+    animation-timeline: scroll(root block);
+    animation-range: 0 6rem;
+  }
+
+  /* It appears when the hero name is gone: from lg the sections cover the hero early, below lg the hero scrolls away. */
   .navbar-name {
     animation: navbar-name-in linear both;
     animation-timeline: scroll(root block);
-    animation-range: 40svh 55svh;
+    animation-range: 35svh 60svh;
 
     @media (min-width: 1024px) {
-      animation-range: 10svh 20svh;
+      animation-range: 8svh 24svh;
     }
   }
 }
