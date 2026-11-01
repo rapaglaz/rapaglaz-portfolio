@@ -4,188 +4,128 @@ Problems from the history of this repository, oldest first, with the PRs that fi
 
 ## Cached config error was never cleared (2026-07-05)
 
-- **Problem:** after one failed retry sequence, every later `getConfig()` call returned the same
-  error without a request, until the page was reloaded.
-- **Cause:** the failed observable stayed cached in `shareReplay({ refCount: false })`.
-- **Fix:** drop the cached observable on error, so that the next call fetches the config again.
-  [#500](https://github.com/rapaglaz/rapaglaz-portfolio/pull/500)
+After one failed retry sequence, every later `getConfig()` call returned the same error until a
+reload, because the failed observable stayed in `shareReplay({ refCount: false })`. The cache is now
+dropped on error. [#500](https://github.com/rapaglaz/rapaglaz-portfolio/pull/500)
 
 ## E2E test ran the wrong path (2026-07-05)
 
-- **Problem:** "handles Turnstile verification error" ran the path for a failed script load, the
-  same path as the next test. The error callback was never tested.
-- **Cause:** the test registered its `addInitScript` mock after `visitPortfolio` had loaded the
-  page, so the mock never ran.
-- **Fix:** install the mock before the navigation, in a shared `mockTurnstileAPI(page, 'error')`.
-  [#503](https://github.com/rapaglaz/rapaglaz-portfolio/pull/503)
+"handles Turnstile verification error" never tested the error callback, because its
+`addInitScript` mock was registered after the page had loaded. The mock is now installed before the
+navigation, in a shared `mockTurnstileAPI(page, 'error')`.
+[#503](https://github.com/rapaglaz/rapaglaz-portfolio/pull/503)
 
 ## Deploy used a new build, not the tested build (2026-07-05 to 2026-09-06)
 
-- **Problem:** the release workflow built the commit that `main` pointed to at the start of the
-  workflow. This was not the artifact that E2E had tested.
-- **Cause:** the deploy was a separate `workflow_run` workflow with its own build job.
-- **Fix:** check out the validated `head_sha`
-  ([#502](https://github.com/rapaglaz/rapaglaz-portfolio/pull/502)), then download
-  `build-artifact-main` from the triggering run instead of a second build
-  ([#509](https://github.com/rapaglaz/rapaglaz-portfolio/pull/509)). Later, the deploy became a job
-  in `main-branch-ci-cd.yaml` that uses the artifact directly
-  ([#663](https://github.com/rapaglaz/rapaglaz-portfolio/pull/663)).
+The release workflow was a separate `workflow_run` with its own build job, so it did not deploy the
+artifact that E2E had tested. It first checked out the validated `head_sha`
+([#502](https://github.com/rapaglaz/rapaglaz-portfolio/pull/502)) and downloaded the tested artifact
+([#509](https://github.com/rapaglaz/rapaglaz-portfolio/pull/509)). Today the deploy is a job in
+`main-branch-ci-cd.yaml` that uses this artifact directly
+([#663](https://github.com/rapaglaz/rapaglaz-portfolio/pull/663)).
 
 ## Initial bundle over the warning budget, twice (2026-07-05 and 2026-10-17)
 
-- **Problem:** the build reported a warning on every run. In July, the initial bundle was 539.5 kB
-  against a warning budget of 500 kB. In October, it was 579.50 kB against 560 kB.
-- **Cause:** in July, `@angular/core` (153 kB), the router, the CDK and common code, with no single
-  part to remove. In October, Tailwind scanned Markdown and E2E files and generated DaisyUI
-  components that no template uses. In addition, the CDK overlay, portal and dialog were in the
-  initial chunk, although only a toast or the CV verification needs them.
-- **Fix:** in July, the warning budget went to 560 kB
-  ([#512](https://github.com/rapaglaz/rapaglaz-portfolio/pull/512)). In October, the Tailwind scan
-  was limited to `src/`, which reduced the stylesheet from 98.50 kB to 86.28 kB
-  ([#773](https://github.com/rapaglaz/rapaglaz-portfolio/pull/773)), and the CDK packages load on
-  demand through local re-export modules: initial 503.94 kB
-  ([#776](https://github.com/rapaglaz/rapaglaz-portfolio/pull/776)). A first attempt with
-  `import('@angular/cdk/overlay')` kept the complete CDK namespaces and raised all scripts to
-  540.43 kB, over the error budget of 500 kB.
+In July the initial bundle had 539.5 kB against a warning budget of 500 kB, with no single part to
+remove, so the budget went to 560 kB ([#512](https://github.com/rapaglaz/rapaglaz-portfolio/pull/512)).
+In October it had 579.50 kB: Tailwind scanned Markdown and E2E files, and the CDK overlay, portal
+and dialog were in the initial chunk. A Tailwind scan limited to `src/`
+([#773](https://github.com/rapaglaz/rapaglaz-portfolio/pull/773)) and CDK packages loaded on demand
+through local re-export modules ([#776](https://github.com/rapaglaz/rapaglaz-portfolio/pull/776))
+brought it to 503.94 kB. A plain `import('@angular/cdk/overlay')` kept the complete CDK namespaces
+and went over the error budget.
 
 ## A jsdom minor release broke unit tests (2026-09-23 to 2026-10-12)
 
-- **Problem:** after the update to jsdom 30.1.0
-  ([#708](https://github.com/rapaglaz/rapaglaz-portfolio/pull/708)), the `CvDownloadService` test
-  failed with `Cannot read properties of undefined (reading '_buffer')`, and the CI on `main` failed.
-- **Cause:** jsdom 30.1.0 moved its internals from a symbol-keyed property to a WeakMap. The
-  `URL.createObjectURL` shim in Vitest 4.1.11 read `blob[implSymbol]._buffer` directly. Vitest 5.0.1
-  had the same shim, and in any case the `vitest: ^4.0.8` peer range of `@angular/build` did not
-  allow it.
-- **Fix:** pin jsdom to 30.0.1 and hold it below 30.1.0 in Renovate
-  ([#712](https://github.com/rapaglaz/rapaglaz-portfolio/pull/712)). Vitest went to 5.0.2, and the
-  hold was removed in [#730](https://github.com/rapaglaz/rapaglaz-portfolio/pull/730). The jsdom
-  pin moved to 30.1.2 in [#766](https://github.com/rapaglaz/rapaglaz-portfolio/pull/766).
+jsdom 30.1.0 ([#708](https://github.com/rapaglaz/rapaglaz-portfolio/pull/708)) moved its internals
+to a WeakMap, while the `URL.createObjectURL` shim of Vitest 4.1.11 still read
+`blob[implSymbol]._buffer`, so a download test failed on `main`. jsdom stayed pinned to 30.0.1 and
+held in Renovate ([#712](https://github.com/rapaglaz/rapaglaz-portfolio/pull/712)) until Vitest
+5.0.2 ([#730](https://github.com/rapaglaz/rapaglaz-portfolio/pull/730)). The pin is at 30.1.2 since
+[#766](https://github.com/rapaglaz/rapaglaz-portfolio/pull/766).
 
 ## Playwright image and package version out of sync, three times (2026-07-05 to 2026-10-12)
 
-- **Problem:** the `mcr.microsoft.com/playwright` image in CI and `@playwright/test` must have the
-  same version. Three times they did not, each time for a different reason.
-- **Cause:**
-  - The Renovate custom manager still watched `e2e.yaml`, which #437 had removed, so the image
-    received no more updates ([#501](https://github.com/rapaglaz/rapaglaz-portfolio/pull/501)).
-  - #711 updated `@playwright/test` to 1.62.0 while the workflows stayed on `v1.61.1-noble`, and
-    `browserType.launch` failed with "Executable doesn't exist". The failure was not visible,
-    because `e2e-tests` was skipped for `renovate/*` PRs
-    ([#713](https://github.com/rapaglaz/rapaglaz-portfolio/pull/713)).
-  - The image has no release timestamp, so `minimumReleaseAge` with `internalChecksFilter: strict`
-    removed it from the Playwright group, and the PRs contained only the npm package
-    ([#768](https://github.com/rapaglaz/rapaglaz-portfolio/pull/768)).
-- **Fix:** extend the manager to all workflow files (#501), move the image to `v1.62.0-noble`
-  (#713), run unit and E2E tests on every PR and fail the gate on skipped jobs
-  ([#730](https://github.com/rapaglaz/rapaglaz-portfolio/pull/730)), and keep the image in the same
-  Renovate PR as the package (#768).
-- **Today:** the E2E jobs no longer use the image. They run on `ubuntu-latest` and install the
-  browsers themselves, see [CI strategy](./CI_STRATEGY.md).
+The `mcr.microsoft.com/playwright` image in CI and `@playwright/test` must have the same version.
+They went apart three times: the Renovate manager still watched a removed workflow
+([#501](https://github.com/rapaglaz/rapaglaz-portfolio/pull/501)), a package update was merged
+without E2E because the job was skipped for `renovate/*` PRs
+([#713](https://github.com/rapaglaz/rapaglaz-portfolio/pull/713), gate fixed in
+[#730](https://github.com/rapaglaz/rapaglaz-portfolio/pull/730)), and `minimumReleaseAge` removed
+the image, which has no release timestamp, from the Renovate group
+([#768](https://github.com/rapaglaz/rapaglaz-portfolio/pull/768)). Today the E2E jobs run on
+`ubuntu-latest` and install the browsers themselves, see [CI strategy](./CI_STRATEGY.md).
 
 ## zizmor findings in the workflows (2026-10-08)
 
-- **Problem:** zizmor reported findings, so its CI job and its pre-commit hook ran in report-only
-  mode (`continue-on-error: true`, `--no-exit-codes`).
-- **Cause:** the build action put `${{ inputs.base-href }}` directly into a shell script, and every
-  `actions/checkout` kept its credentials.
-- **Fix:** pass the input through `env`, set `persist-credentials: false` on every checkout, add
-  `.github/zizmor.yml` (one disabled rule and one ignored line, each with a reason) and remove both
-  report-only switches. [#754](https://github.com/rapaglaz/rapaglaz-portfolio/pull/754)
+zizmor ran in report-only mode, because the build action put `${{ inputs.base-href }}` directly
+into a shell script and every `actions/checkout` kept its credentials. The input now goes through
+`env`, every checkout sets `persist-credentials: false`, `.github/zizmor.yml` holds one disabled rule
+and one ignored line with reasons, and both report-only switches are gone.
+[#754](https://github.com/rapaglaz/rapaglaz-portfolio/pull/754)
 
 ## Layer rules were not enforced (2026-10-10)
 
-- **Problem:** the first dependency-cruiser run, with every rule at `warn`, reported 11 warnings in
-  81 modules, including one cycle.
-- **Cause:** `utils/i18n/transloco-missing-handler.ts` imported the services barrel, and this import
-  led back through `cv-download.service.ts` to `utils/i18n`.
-- **Fix:** import the logger file directly, allow five narrow exceptions on file level (removed with
-  the move to libs, #807 to #812), set all boundary and cycle rules to `error` and run `deps:check`
-  in the lint job. Two temporary probes, a cross-feature import and a cycle, returned exit code 1.
-  [#756](https://github.com/rapaglaz/rapaglaz-portfolio/pull/756)
+The first dependency-cruiser run, with every rule at `warn`, found 11 warnings in 81 modules, among
+them a cycle from the missing translation handler through the services barrel. After a direct
+import of the logger and five narrow exceptions (removed with the move to libs, #807 to #812), all
+boundary and cycle rules are `error`, and `deps:check` runs in the lint job.
+[#756](https://github.com/rapaglaz/rapaglaz-portfolio/pull/756)
 
 ## Origin and token checks in the Workers (2026-10-17 to 2026-10-18)
 
-- **Problem:** the CV download Worker skipped `siteverify` for the public test token of Cloudflare
-  when Origin or Referer contained `localhost`. `portfolio-settings` matched `localhost` as a
-  substring, so `https://evil-localhost.example` got an `Access-Control-Allow-Origin` header.
-  `feature-flag` threw an unhandled `URIError` on a malformed escape such as `%E0%A4%A`.
-- **Cause:** local dev calls the production Worker with the test site key, so the bypass depended on
-  headers that the client controls. The other two Workers had no behavior tests.
-- **Fix:** only `ALLOW_TEST_TOKEN` on a development Worker skips `siteverify`, and local origins are
-  compared by hostname. I found it while adding the Worker sources to this repo, and
-  `apps/workers/cv-download/index.spec.ts` reproduces each case
-  ([#777](https://github.com/rapaglaz/rapaglaz-portfolio/pull/777)). The other two Workers got
-  their fixes and specs in [#781](https://github.com/rapaglaz/rapaglaz-portfolio/pull/781)
-  (`portfolio-settings`) and [#782](https://github.com/rapaglaz/rapaglaz-portfolio/pull/782)
-  (`feature-flag`, answers 400 for a malformed flag name).
+The CV download Worker skipped `siteverify` for the Cloudflare test token when Origin or Referer
+contained `localhost`, which the client controls. `portfolio-settings` matched `localhost` as a
+substring, and `feature-flag` threw on a malformed escape such as `%E0%A4%A`. Now only
+`ALLOW_TEST_TOKEN` on a development Worker skips `siteverify`, local origins are compared by
+hostname, and a malformed flag name gets 400. I found it while adding the Worker sources to this
+repo, and the specs reproduce each case
+([#777](https://github.com/rapaglaz/rapaglaz-portfolio/pull/777),
+[#781](https://github.com/rapaglaz/rapaglaz-portfolio/pull/781),
+[#782](https://github.com/rapaglaz/rapaglaz-portfolio/pull/782)).
 
 ## Lost Worker changes when a newer push canceled the run (2026-10-18)
 
-- **Problem:** a Worker change could stay undeployed while CI was green.
-- **Cause:** `deploy-workers` compared each Worker folder with `github.event.before`. If a newer
-  push canceled a run before this job, or the run failed, the next run compared only its own push.
-  Before the fix, a newer push had canceled 20 of the last 100 Main Branch CI/CD runs.
-- **Fix:** compare with the head SHA of the last successful run on `main`, read with `gh run list`
-  ([#784](https://github.com/rapaglaz/rapaglaz-portfolio/pull/784)).
+`deploy-workers` compared each Worker folder with `github.event.before`. When a newer push canceled
+a run, as in 20 of the last 100 runs, the next run saw only its own push, so a Worker change could
+stay undeployed with green CI. The job now compares with the head SHA of the last successful run on
+`main`. [#784](https://github.com/rapaglaz/rapaglaz-portfolio/pull/784)
 
 ## Lazy-loaded shell, eagerly bundled sections (2026-10-18)
 
-- **Problem:** the router lazy-loaded the `Portfolio` shell, but its chunk had only 2.61 kB. All
-  sections were in `main`.
-- **Cause:** the root component imported `Navbar` and `Footer` from the `features` barrel, which
-  re-exports every section.
-- **Fix:** import both from their own files and allow only the portfolio layer to import the barrel
-  (dependency-cruiser rule `features-barrel-in-portfolio-only`, today
-  `portfolio-ui-in-feature-only`). The initial bundle went from 503.94 kB to 490.17 kB and the
-  `portfolio` chunk from 2.61 kB to 17.04 kB
-  ([#785](https://github.com/rapaglaz/rapaglaz-portfolio/pull/785)).
+The router lazy-loaded the `Portfolio` shell, but all sections were in `main`, because the root
+component imported `Navbar` and `Footer` from a barrel that re-exported every section. Direct
+imports and a dependency-cruiser rule for the barrel moved the sections out of the initial bundle,
+from 503.94 kB to 490.17 kB. [#785](https://github.com/rapaglaz/rapaglaz-portfolio/pull/785)
 
 ## Security headers documented but not served (2026-10-18)
 
-- **Problem:** `docs/SECURITY.md` listed five headers set "at the Cloudflare edge (Workers)", but
-  `curl` on `https://rapaglaz.de/en` returned only `Strict-Transport-Security: max-age=15768000`.
-- **Cause:** the Workers set only the headers of their own responses, and no Cloudflare rule set
-  the other headers.
-- **Fix:** a Cloudflare Response Header Transform Rule (`security-headers`) sets the other four
-  headers. A second `curl` confirmed it, and the docs now show the HSTS value that the server sends
-  ([#786](https://github.com/rapaglaz/rapaglaz-portfolio/pull/786)).
+`docs/SECURITY.md` listed five headers, but `curl` on `/en` showed only HSTS, because the Workers set
+headers only on their own responses. A Cloudflare Response Header Transform Rule now sets the other
+four, and the docs show the HSTS value that the server sends.
+[#786](https://github.com/rapaglaz/rapaglaz-portfolio/pull/786)
 
 ## /de served the English prerender (2026-10-18)
 
-- **Problem:** `https://rapaglaz.de/de` returned `<html lang="en">`, English text and a canonical
-  link to `/en`, until the client switched the language.
-- **Cause:** Cloudflare URL Rewrite Rules mapped `/en` and `/de` to `/index.html`, the prerender of
-  `/`, but the build writes `en/index.html` and `de/index.html`.
-- **Fix:** rewrite to `/en/index.html` and `/de/index.html`. After this change, `curl` returned
-  `lang="de"`, the `/de` canonical link and German text. The rules are described in
-  [Architecture](./ARCHITECTURE.md#ssg-and-hydration)
-  ([#792](https://github.com/rapaglaz/rapaglaz-portfolio/pull/792)).
+`/de` returned `lang="en"`, English text and a canonical link to `/en` until the client switched the
+language, because the Cloudflare rewrite rules pointed both locale routes to the prerender of `/`.
+They now point to `/en/index.html` and `/de/index.html`, see
+[Architecture](./ARCHITECTURE.md#ssg-and-hydration).
+[#792](https://github.com/rapaglaz/rapaglaz-portfolio/pull/792)
 
 ## Incremental hydration: measured, not merged (2026-10-18)
 
-- **Experiment:** wrap the five sections below the hero in `@defer (on idle; hydrate on viewport)`.
-  Angular 22 enables incremental hydration by default.
-- **Measurement** against `main` (static build, local Chromium, `/en`):
-  - JS downloaded on load: from 419.27 kB to 419.78 kB. After scrolling to the end: from 419.27 kB
-    to 431.94 kB.
-  - Main-thread script time until network idle, with 4× CPU throttling, median of 7 runs in two
-    series: from 295 / 270 ms to 183 / 179 ms.
-  - All scripts: from 486.99 kB to 499.73 kB, against the error budget of 500 kB.
-  - A section that hydrated on screen lost its scroll-reveal `visible` class and got it back within
-    4 ms, so visible content played its entrance animation again.
-- **Outcome:** not merged. The code and the measurements are on the
-  [`perf/defer-portfolio-sections`](https://github.com/rapaglaz/rapaglaz-portfolio/tree/perf/defer-portfolio-sections)
-  branch.
+`@defer (on idle; hydrate on viewport)` for the five sections below the hero cut the main-thread
+script time with 4× CPU throttling from about 280 ms to 180 ms. It also raised all scripts from
+486.99 kB to 499.73 kB, just below the error budget of 500 kB, and a section that hydrated on screen
+played its entrance animation again. Not merged; the code and the measurements are on the
+[`perf/defer-portfolio-sections`](https://github.com/rapaglaz/rapaglaz-portfolio/tree/perf/defer-portfolio-sections)
+branch.
 
 ## Unit tests failed after the move to AnalogJS (2026-10-19)
 
-- **Problem:** after the app moved to `apps/rapaglaz-portfolio` and its tests to `@nx/vitest` with
-  AnalogJS, 23 tests in 5 files failed with `Cannot redefine property: location` (once `document`).
-  They had passed under `@angular/build:unit-test`.
-- **Cause:** AnalogJS sets the Vitest `pool` to `vmThreads` when the config names no pool. In a VM
-  pool, the global object is the `Window` of jsdom, where `location` and `document` cannot be
-  redefined. The old runner used the default `forks` pool, where they can.
-- **Fix:** `pool: 'forks'` in `vite.config.mts` (today in `vitest.angular.mts`), with no change to
-  the tests. The coverage numbers changed because the instrumentation changed, not the tests:
-  branches went from 92.56% of 457 to 86.69% of 233, and untested entry files count now.
+After the move to `@nx/vitest` with AnalogJS, 23 tests failed with
+`Cannot redefine property: location`. AnalogJS uses the `vmThreads` pool when the config names
+none, and there the global object is the jsdom `Window`, where `location` cannot be redefined.
+`pool: 'forks'` (today in `vitest.angular.mts`) fixed it without changes to the tests. The coverage
+numbers changed only because the instrumentation changed.

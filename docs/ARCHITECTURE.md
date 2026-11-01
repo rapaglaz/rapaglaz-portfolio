@@ -91,7 +91,7 @@ The CDK overlay and dialog load only when they are needed: with the first toast 
 
 ## Feature flag (Open to Work)
 
-One public flag for the navbar badge, not a flag system. `GET /feature-flag/openToWork` returns
+One public flag for the open-to-work badge, not a flag system. `GET /feature-flag/openToWork` returns
 `{ "openToWork": true | false }`. A missing flag returns 404 and counts as `false`. I change the
 value by hand in Cloudflare KV.
 
