@@ -1,4 +1,3 @@
-// The KV namespace bound as KV in wrangler.jsonc; the Worker only reads from it
 export type Env = {
   KV: Pick<KVNamespace, 'get'>;
 };
@@ -73,7 +72,6 @@ export default {
       return jsonResponse({ error: 'Forbidden' }, 403);
     }
 
-    // a malformed escape such as %E0%A4%A makes decodeURIComponent throw a URIError
     let flagName: string;
     try {
       flagName = decodeURIComponent(parts[1]).trim();

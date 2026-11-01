@@ -10,10 +10,8 @@ type Copy = {
   reload: string;
 };
 
-// Seconds that a client or crawler should wait before it asks again
 const RETRY_AFTER = '300';
 
-// The page has this comment where the script belongs; Prettier does not change a comment
 const SCRIPT_MARKER = '<!--script-->';
 
 const COPY: Record<Language, Copy> = {
@@ -33,12 +31,10 @@ const COPY: Record<Language, Copy> = {
   },
 };
 
-// The hash is the same for every request, so it is computed once per Worker instance
 let scriptHash: Promise<string> | undefined;
 
 export default {
   async fetch(request: Request): Promise<Response> {
-    // Only a page view can be replaced; other methods keep the answer of the origin
     if (request.method !== 'GET' && request.method !== 'HEAD') {
       return fetch(request);
     }
@@ -58,8 +54,6 @@ function languageOf(request: Request): Language {
   return /^\/de(\/|$)/.test(new URL(request.url).pathname) ? 'de' : 'en';
 }
 
-// The page uses only static text, never a value from the request, so nothing needs escaping.
-// The replacer functions keep a "$" in a text or in the script from being read as a pattern.
 function renderPage(language: Language): string {
   const values: Record<string, string> = { lang: language, ...COPY[language] };
   return offlinePage
@@ -72,8 +66,6 @@ async function sha256Base64(text: string): Promise<string> {
   return btoa(String.fromCodePoint(...new Uint8Array(digest)));
 }
 
-// Only the script of the Worker may run, and it may only ask the own address.
-// The font is inline as a data URI, so no other source is allowed.
 async function contentSecurityPolicy(): Promise<string> {
   scriptHash ??= sha256Base64(RELOAD_SCRIPT);
   return [

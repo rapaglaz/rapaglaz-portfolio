@@ -19,12 +19,10 @@ type ExpectedEnv = {
   optional: string[];
 };
 
-// URL is the Workers runtime type here, so Node's fs gets a path, not the URL object
 function readWorkerFile(workerDir: URL, file: string): string {
   return readFileSync(fileURLToPath(new URL(file, workerDir).href), 'utf8');
 }
 
-// The configs only use whole-line comments and trailing commas, which is all this strips.
 export function readWranglerConfig(workerDir: URL): WranglerConfig {
   const text = readWorkerFile(workerDir, 'wrangler.jsonc');
   return JSON.parse(
@@ -47,8 +45,6 @@ function envNamesReadByCode(workerDir: URL): Set<string> {
   return new Set([...code.matchAll(/\benv\.([A-Z][A-Z0-9_]*)/g)].map(([, name]) => name));
 }
 
-// workerDir is the Worker folder URL, e.g. new URL('.', import.meta.url) from its spec.
-// required: bindings the Worker needs in production; optional: other env names the code may read.
 export function describeWranglerConfig(
   worker: string,
   workerDir: URL,
