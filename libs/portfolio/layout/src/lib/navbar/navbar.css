@@ -2,9 +2,18 @@ nav {
   @apply animate-[fadeIn_0.7s_ease-out_0.6s_both];
 }
 
-/* Joins after the hero intro (its description ends at 2s), together with the scroll button. */
 app-badge {
   @apply animate-[fadeIn_0.7s_ease-out_2s_both];
+
+  @media (min-width: 768px) {
+    translate: calc(50% - 50cqw) 0;
+  }
+}
+
+@keyframes navbar-badge-to-center {
+  to {
+    translate: 0 0;
+  }
 }
 
 /*
@@ -78,14 +87,30 @@ app-badge {
     animation-range: 0 6rem;
   }
 
+  app-badge {
+    animation:
+      fadeIn 0.7s ease-out 2s both,
+      navbar-badge-to-center linear both;
+    animation-timeline: auto, scroll(root block);
+    animation-range:
+      normal,
+      30svh 45svh;
+
+    @media (min-width: 1024px) {
+      animation-range:
+        normal,
+        8svh 16svh;
+    }
+  }
+
   /* It appears when the hero name is gone: from lg the sections cover the hero early, below lg the hero scrolls away. */
   .navbar-name {
     animation: navbar-name-in linear both;
     animation-timeline: scroll(root block);
-    animation-range: 35svh 60svh;
+    animation-range: 45svh 60svh;
 
     @media (min-width: 1024px) {
-      animation-range: 8svh 24svh;
+      animation-range: 16svh 26svh;
     }
   }
 }
