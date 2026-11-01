@@ -133,6 +133,24 @@ describe('Navbar', () => {
     }
   });
 
+  it('marks the navbar once the curtain has arrived, at 45% of the viewport height', () => {
+    const restoreScrollY = mockWindowScrollY(window.innerHeight * 0.45);
+    const nav = (fixture.nativeElement as HTMLElement).querySelector('nav')!;
+
+    try {
+      scrollSubject.next();
+      fixture.detectChanges();
+      expect(nav.classList.contains('navbar-past-hero')).toBe(false);
+
+      window.scrollY = window.innerHeight * 0.45 + 1;
+      scrollSubject.next();
+      fixture.detectChanges();
+      expect(nav.classList.contains('navbar-past-hero')).toBe(true);
+    } finally {
+      restoreScrollY();
+    }
+  });
+
   it('hides the availability badge when the flag is disabled and keeps the actions in their column', () => {
     const element = fixture.nativeElement as HTMLElement;
     const container = element.querySelector('[data-testid="navbar-container"]');
