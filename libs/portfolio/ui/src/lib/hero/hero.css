@@ -44,6 +44,16 @@
   @apply animate-[fadeInUp_1.1s_cubic-bezier(0.4,0,0.2,1)_0.6s_both];
 }
 
+/* On small screens the badge sits on the avatar ring, so it takes no row of its own above the name. */
+.hero-avatar-badge {
+  position: absolute;
+  left: 50%;
+  /* middle of the ring: 8px ring offset plus half of the 4px ring */
+  bottom: -0.625rem;
+  translate: -50% 50%;
+  white-space: nowrap;
+}
+
 .hero-avatar-wrapper img {
   @apply h-auto;
   object-position: center -25px;
@@ -61,6 +71,33 @@
   @apply animate-[fadeInUp_1s_cubic-bezier(0.4,0,0.2,1)_0.5s_both];
   @media (min-width: 1024px) {
     letter-spacing: -0.02em;
+  }
+}
+
+/* Short phones: smaller avatar, name, text and gaps, so the whole hero fits on the first screen. */
+@media (max-width: 767px) and (max-height: 800px) {
+  .hero-content {
+    padding-block: 1rem;
+  }
+
+  .hero-avatar > div {
+    width: 11rem;
+    height: 11rem;
+  }
+
+  /* the margin leaves room for the badge on the avatar ring */
+  .hero-name {
+    margin-top: 2.75rem;
+    font-size: 3rem;
+  }
+
+  .hero-about {
+    margin-top: 1rem;
+    padding-bottom: 0;
+  }
+
+  .hero-about p {
+    font-size: 1.125rem;
   }
 }
 
