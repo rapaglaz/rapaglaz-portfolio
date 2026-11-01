@@ -110,11 +110,12 @@ function toAvailableLang(lang: string): AvailableLang {
             animation-range: 0 20svh;
           }
 
-          /* Above the pinned hero */
+          /* Above the pinned hero. The background closes the seams where two sections meet at a fractional pixel. */
           main > .sections {
             --curtain-edge: 8rem;
             position: relative;
             z-index: 1;
+            background-color: var(--color-base-100);
             margin-top: calc(var(--navbar-height, 7rem) - 60svh);
             animation-name: sections-slide-in;
             animation-range: 0 40svh;

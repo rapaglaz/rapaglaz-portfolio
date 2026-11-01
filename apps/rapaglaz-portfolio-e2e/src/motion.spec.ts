@@ -188,6 +188,22 @@ test.describe('Motion preferences', () => {
     expect(gapBelowFooter).toBeLessThan(1);
   });
 
+  // two sections that meet at a fractional pixel each cover the row only partly, so the pinned hero
+  // would show through as a thin line without a background on the curtain itself
+  test('keeps the curtain opaque where two sections meet', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'the sections slide over the hero only from lg');
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await visitPortfolio(page, '/en');
+    const colors = await page.evaluate(() => ({
+      curtain: getComputedStyle(document.querySelector('main > .sections') as HTMLElement)
+        .backgroundColor,
+      section: getComputedStyle(document.getElementById('about') as HTMLElement).backgroundColor,
+    }));
+
+    expect(colors.curtain).toBe(colors.section);
+    expect(colors.curtain).toMatch(/^rgb\(/);
+  });
+
   test('scales the CV button on hover where the device can hover', async ({ page, isMobile }) => {
     test.skip(isMobile, 'a touch screen cannot hover');
     await page.emulateMedia({ reducedMotion: 'no-preference' });
