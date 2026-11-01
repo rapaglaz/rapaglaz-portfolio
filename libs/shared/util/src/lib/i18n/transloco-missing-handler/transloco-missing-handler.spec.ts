@@ -27,21 +27,18 @@ describe('StrictTranslocoMissingHandler', () => {
   });
 
   it('logs error in production mode and returns key as fallback without crashing', () => {
-    // Mock production environment
     vi.stubGlobal('ngDevMode', false);
 
     const errorSpy = vi.spyOn(loggerService, 'error');
     const warnSpy = vi.spyOn(loggerService, 'warn');
     const missingKey = 'missing.production.key';
 
-    // Should not throw, even in production
     const result = handler.handle(missingKey);
 
     expect(errorSpy).toHaveBeenCalledWith(`Missing translation key: "${missingKey}"`);
     expect(warnSpy).not.toHaveBeenCalled();
     expect(result).toBe(missingKey);
 
-    // Cleanup
     vi.unstubAllGlobals();
   });
 });

@@ -12,7 +12,6 @@ import {
 
 type CancelMethod = 'button' | 'close' | 'Escape' | 'backdrop';
 
-// every way to leave the German verification dialog without verifying
 const CANCEL_DIALOG: Record<CancelMethod, (page: Page) => Promise<void>> = {
   button: page => page.getByRole('dialog').getByRole('button', { name: 'Abbrechen' }).click(),
   close: page => page.getByRole('dialog').getByRole('button', { name: 'Schließen' }).click(),
@@ -183,7 +182,6 @@ test.describe('Interactive CV verification', () => {
 });
 
 test.describe('CV Download - Android phone', () => {
-  // the Mobile Safari project already runs this file on an iPhone 12 profile
   test.skip(({ browserName }) => browserName !== 'chromium', 'Pixel 7 emulates Chrome on Android');
 
   // only context options: defaultBrowserType cannot be set inside a describe group

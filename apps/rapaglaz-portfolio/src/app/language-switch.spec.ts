@@ -13,7 +13,6 @@ import { routes } from './app.routes';
 const EN_OPTION = '[aria-label="EN English"]';
 const DE_OPTION = '[aria-label="DE Deutsch"]';
 
-// The switcher only navigates; the route resolver loads and activates the language
 describe('language switch with the app routes', () => {
   let fixture: ComponentFixture<LanguageSwitcher>;
   let element: HTMLElement;

@@ -39,7 +39,6 @@ describe('ScrollRevealDirective', () => {
     observeSpy = vi.fn();
     disconnectSpy = vi.fn();
 
-    // Mock IntersectionObserver
     (globalThis as any).IntersectionObserver = class {
       constructor(callback: (entries: IntersectionObserverEntry[]) => void) {
         observerCallback = callback;

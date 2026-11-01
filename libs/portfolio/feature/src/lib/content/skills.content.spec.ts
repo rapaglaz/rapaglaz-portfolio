@@ -1,8 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { SKILL_CATEGORIES } from './skills.content';
 
-// Chosen for what recruiters and technical interviewers look for in senior Angular roles, not for the CV.
-// Nx and Tailwind CSS are kept on purpose as the maintainer's own stack.
 const CORE_SKILL_IDS = [
   'angular',
   'typescript',

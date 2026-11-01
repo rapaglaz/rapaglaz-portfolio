@@ -21,8 +21,6 @@ describe('PortfolioPage', () => {
       providers: [provideHttpClient(), provideHttpClientTesting(), provideTranslocoTesting()],
     }).compileComponents();
 
-    // the app initializer preloads translations in production; mirror
-    // that so constructor-time translate() sees loaded values
     await firstValueFrom(TestBed.inject(TranslocoService).load('en'));
 
     fixture = TestBed.createComponent(PortfolioPage);
@@ -72,7 +70,6 @@ describe('PortfolioPage', () => {
     const band = about.querySelector<HTMLElement>('.title-band') as HTMLElement;
     Object.defineProperty(about, 'offsetTop', { value: 500 });
     Object.defineProperty(about, 'offsetParent', { value: null });
-    // the curtain shift (300px) is the same for both boxes, so only their distance of 64px counts
     vi.spyOn(about, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 300, 100, 500));
     vi.spyOn(band, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 364, 100, 40));
     band.style.top = '24px';

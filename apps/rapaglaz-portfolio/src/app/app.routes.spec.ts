@@ -14,7 +14,6 @@ import { routes } from './app.routes';
 
 describe('portfolio routes', () => {
   let originalDocumentLang: string;
-  // The router loads the library lazily; a static import would fail the Nx lazy-load lint rule
   let PortfolioPage: Type<unknown>;
 
   beforeAll(async () => {
