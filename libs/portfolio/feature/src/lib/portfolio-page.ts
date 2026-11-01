@@ -171,19 +171,24 @@ export class PortfolioPage {
   }
 
   // Runs only from a click, so never during SSG. scrollIntoView would aim at the shifted curtain, so the
-  // target comes from offsetTop, which ignores transforms: on large screens the end of the curtain hold.
+  // target comes from offsetTop, which ignores transforms: on large screens after the curtain hold.
+  // The About title lands where it sticks below the navbar and takes the focus, because the button fades out.
   protected scrollToFirstSection(): void {
     const win = this.document.defaultView;
     const section = this.document.getElementById('about');
-    if (!win || !section) return;
+    const band = section?.querySelector<HTMLElement>('.title-band');
+    if (!win || !section || !band) return;
 
     let top = 0;
     for (let el: HTMLElement | null = section; el; el = el.offsetParent as HTMLElement | null) {
       top += el.offsetTop;
     }
-    const margin = Number.parseFloat(win.getComputedStyle(section).scrollMarginTop) || 0;
+    // the band moves with the curtain, so the difference of the two boxes is a layout distance
+    top += band.getBoundingClientRect().top - section.getBoundingClientRect().top;
+    const stickyTop = Number.parseFloat(win.getComputedStyle(band).top) || 0;
     const reduceMotion = win.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
-    win.scrollTo({ top: top - margin, behavior: reduceMotion ? 'auto' : 'smooth' });
+    win.scrollTo({ top: top - stickyTop, behavior: reduceMotion ? 'auto' : 'smooth' });
+    band.querySelector<HTMLElement>('h2 button')?.focus({ preventScroll: true });
   }
 
   private initSeoTags(): void {
