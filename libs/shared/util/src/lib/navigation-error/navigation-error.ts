@@ -8,7 +8,6 @@ export const ERROR_PATH = 'error';
 const ERROR_URL = new RegExp(`^/(?:(?:${AVAILABLE_LANGS.join('|')})/)?${ERROR_PATH}(?:[/?#]|$)`);
 
 export function handleNavigationError(error: NavigationError): RedirectCommand | undefined {
-  // an error on the error page itself must not start a loop
   if (ERROR_URL.test(error.url)) {
     return undefined;
   }

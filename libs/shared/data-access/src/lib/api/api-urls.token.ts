@@ -2,7 +2,6 @@ import { DOCUMENT } from '@angular/common';
 import { inject, InjectionToken } from '@angular/core';
 import { SITE_ORIGIN } from './site-origin';
 
-// pnpm nx serve cv-download runs the download Worker here
 const LOCAL_WORKER_URL = 'http://localhost:8787';
 
 function apiBaseUrl(hostname: string): string {

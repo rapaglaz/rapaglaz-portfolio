@@ -3,7 +3,7 @@ type LogContext = Record<string, unknown>;
 const CONFIG = {
   TURNSTILE_SITE_KEY: '0x4AAAAAAB98Vx1r87KQ9OmN',
   VERSION: '1.0.0',
-  CACHE_MAX_AGE: 300, // 5 minutes
+  CACHE_MAX_AGE: 300,
   CORS_MAX_AGE: '600',
   ALLOWED_PROD_HOSTS: ['rapaglaz.de', 'www.rapaglaz.de'],
 };
@@ -25,7 +25,6 @@ export default {
       const origin = request.headers.get('Origin');
       const method = request.method;
 
-      // Logging context
       const logCtx = {
         requestId,
         method,
@@ -34,25 +33,21 @@ export default {
         origin,
       };
 
-      // --- Host pinning ---
       if (!CONFIG.ALLOWED_PROD_HOSTS.includes(hostname)) {
         logWarn('Forbidden host', logCtx);
         return new Response('Forbidden host', { status: 403 });
       }
 
-      // --- Path validation ---
       if (url.pathname !== '/config') {
         logInfo('Endpoint not found', logCtx);
         return new Response('Not Found', { status: 404 });
       }
 
-      // --- CORS: allow localhost + whitelisted origins ---
       const isOriginAllowed =
         origin !== null &&
         origin !== '' &&
         (ALLOWED_ORIGINS.includes(origin) || isLocalOrigin(origin));
 
-      // --- Preflight (OPTIONS) ---
       if (method === 'OPTIONS') {
         const headers: Record<string, string> = {
           'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
@@ -74,24 +69,20 @@ export default {
         });
       }
 
-      // --- Method restrictions ---
       if (method !== 'GET' && method !== 'HEAD') {
         logWarn('Method not allowed', logCtx);
         return new Response('Method Not Allowed', { status: 405 });
       }
 
-      // --- Response payload ---
       const payload = {
         turnstileSiteKey: CONFIG.TURNSTILE_SITE_KEY,
         version: CONFIG.VERSION,
       };
       const body = JSON.stringify(payload);
 
-      // --- Deterministic ETag ---
       const etag = await sha256Etag(body);
       const inm = request.headers.get('If-None-Match') ?? '';
 
-      // Handle 304 Not Modified; If-None-Match may list several ETags
       if (inm.split(',').some(tag => tag.trim() === etag)) {
         const headers: Record<string, string> = {
           ETag: etag,
@@ -116,7 +107,6 @@ export default {
         });
       }
 
-      // --- Build response headers ---
       const headers: Record<string, string> = {
         'Content-Type': 'application/json; charset=utf-8',
         'Cache-Control': `public, max-age=${CONFIG.CACHE_MAX_AGE}`,
@@ -127,7 +117,6 @@ export default {
         'Access-Control-Expose-Headers': 'ETag, Cache-Control',
       };
 
-      // Add CORS header for allowed origins (including localhost)
       if (isOriginAllowed) {
         headers['Access-Control-Allow-Origin'] = origin;
       }
@@ -156,8 +145,6 @@ export default {
   },
 };
 
-// Compare the hostname, so https://evil-localhost.example is not treated as local.
-// Same check as in cv-download; each Worker is deployed on its own, so it is not shared.
 function isLocalOrigin(origin: string): boolean {
   try {
     const { hostname } = new URL(origin);

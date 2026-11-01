@@ -11,7 +11,6 @@ const ConfigSchema = v.object({
 
 type Config = v.InferOutput<typeof ConfigSchema>;
 
-// Network failures (status 0) and server errors may pass; a 4xx or an invalid body will not
 function isTransientHttpError(error: unknown): boolean {
   return error instanceof HttpErrorResponse && (error.status === 0 || error.status >= 500);
 }
@@ -24,19 +23,15 @@ export class TurnstileConfigService {
   private readonly document = inject(DOCUMENT);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly configUrl = `${inject(API_BASE_URL)}/config`;
-  // Cloudflare test key, always passes in dev so no real key needed
   private readonly TEST_TURNSTILE_KEY = '1x00000000000000000000AA';
 
   private config$: Observable<Config> | null = null;
-  // up to 3 retries after the initial attempt, 250 ms, 500 ms and 1 s apart
   private static readonly MAX_CONFIG_RETRIES = 3;
   private static readonly RETRY_BASE_DELAY_MS = 250;
 
   getConfig(): Observable<Config> {
     this.config$ ??= this.fetchConfig().pipe(
       catchError((err: unknown) => {
-        // shareReplay would replay the error forever; drop the cached
-        // observable so the next getConfig() call fetches again
         this.config$ = null;
         return throwError(() => err);
       }),

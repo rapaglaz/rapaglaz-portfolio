@@ -13,8 +13,6 @@
       content="noindex" />
     <title>[[title]]</title>
     <style>
-      /* Manrope 700, latin subset of @fontsource/manrope (OFL-1.1), inline because the page
-         cannot load a file while the web host is down */
       @font-face {
         font-family: 'Manrope';
         font-style: normal;
@@ -74,7 +72,6 @@
         animation: fade-in-up 0.5s ease-out both;
       }
 
-      /* the outlined heading of the hero name */
       h1 {
         margin: 0 0 20px;
         font-size: clamp(1.75rem, 7vw, 2.5rem);
@@ -145,7 +142,6 @@
         }
       }
 
-      /* same rule as in the portfolio: no motion when the visitor asks for none */
       @media (prefers-reduced-motion: reduce) {
         main {
           animation: none;

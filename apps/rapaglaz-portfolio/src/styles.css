@@ -5,7 +5,6 @@
 @import '@fontsource/manrope/latin-800.css';
 
 @import 'tailwindcss' source('.');
-/* Library templates live outside the app source root */
 @source '../../../libs';
 
 @plugin 'daisyui' {
@@ -13,14 +12,12 @@
   logs: false;
 }
 
-/* DaisyUI base variables, shared across light and dark themes */
 :root {
   --rounded-btn: 0.5rem;
   --border-btn: 1px;
   --navbar-height: 5rem;
 }
 
-/* Light mode as default */
 :root {
   color-scheme: light;
   --color-primary: #4e696b;
@@ -43,14 +40,11 @@
   --color-warning-content: #0a0f1e;
   --color-error: #ef5350;
   --color-error-content: #0a0f1e;
-  /* WCAG AA compliant muted text colors (4.5:1+ contrast on base-100) */
   --color-text-muted: #4a6366;
   --color-text-subtle: #4a6366;
-  /* Above about 60% axe counts the glow as a background darker than 4.5:1 for primary text */
   --text-glow-primary-mix: 50%;
 }
 
-/* Dark mode via media query */
 @media (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
@@ -74,7 +68,6 @@
     --color-warning-content: #080c0e;
     --color-error: #ef5350;
     --color-error-content: #080c0e;
-    /* WCAG AA compliant muted text colors (4.5:1+ contrast on base-100) */
     --color-text-muted: #a8b5b7;
     --color-text-subtle: #a0aeb0;
     --text-glow-primary-mix: 70%;
@@ -99,7 +92,6 @@
 }
 
 @theme {
-  /* Slate shades used by the badge, tinted to match the ocean palette */
   --color-slate-700: #585f61;
   --color-slate-900: #3f4446;
 }
@@ -112,7 +104,6 @@ body {
   padding: 0;
 }
 
-/* subpixel antialiasing off, smoother text on retina displays */
 body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -261,7 +252,6 @@ html {
   animation: fadeInLeft 0.5s ease-out forwards;
 }
 
-/* Keep focused content visible after focus leaves its entrance animation. */
 .reveal-on-focus:is(
   .animate-title,
   .animate-container,

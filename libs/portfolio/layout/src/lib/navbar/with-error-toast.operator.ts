@@ -13,7 +13,6 @@ export function withErrorToast<T>(
     source.pipe(
       catchError((error: unknown) => {
         logger.error(messageKey, error);
-        // fire and forget: the toast service logs a failed overlay load itself
         void toastService.error(translocoService.translate(messageKey));
         return EMPTY;
       }),
