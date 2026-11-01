@@ -55,14 +55,15 @@ async function readColors(
 
 async function waitForAnimations(locator: Locator): Promise<void> {
   await locator.evaluate(async element => {
-    // Scroll-driven and endless animations never finish, so wait for entrance animations only.
+    // Scroll-driven animations never finish and repeated ones (the scroll cue pulse) run for seconds,
+    // so wait for entrance animations only.
     await Promise.all(
       element
         .getAnimations({ subtree: true })
         .filter(
           animation =>
             animation.timeline === document.timeline &&
-            animation.effect?.getComputedTiming().iterations !== Infinity,
+            animation.effect?.getComputedTiming().iterations === 1,
         )
         .map(animation => animation.finished),
     );

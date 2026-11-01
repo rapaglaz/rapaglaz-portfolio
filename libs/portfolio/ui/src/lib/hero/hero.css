@@ -96,10 +96,11 @@
   }
 }
 
+/* Four pulses and then rest: endless motion would need a way to stop it (WCAG 2.2.2). */
 .hero-scroll-cue svg {
   animation:
     fadeIn 0.7s ease-out 2s both,
-    scroll-cue-pulse 2.8s ease-in-out 2.7s infinite;
+    scroll-cue-pulse 2.2s ease-in-out 2.7s 4;
 }
 
 /* Reached with Tab during the intro: show it at once, so the focus ring never surrounds an empty spot. */
@@ -107,11 +108,12 @@
   animation: none;
 }
 
-/* The pulse only darkens and grows, so the contrast never drops below the resting state. */
+/* The pulse only darkens, grows and glows, so the contrast never drops below the resting state. */
 @keyframes scroll-cue-pulse {
   50% {
     color: var(--color-primary);
-    scale: 1.08;
+    scale: 1.18;
+    filter: drop-shadow(0 1px 6px color-mix(in srgb, var(--color-primary) 55%, transparent));
   }
 }
 

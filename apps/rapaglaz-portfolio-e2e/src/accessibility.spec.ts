@@ -3,8 +3,8 @@ import { expect, test, type Page } from '@playwright/test';
 import { switchLanguage, tabKey, visitPortfolio } from './utils';
 
 async function waitForHeroAnimations(page: Page): Promise<void> {
-  // Measure contrast after fade-in animations reach their final opacity. The scroll cue moves endlessly
-  // and fades with the scroll; such animations never finish.
+  // Measure contrast after fade-in animations reach their final opacity. The scroll cue fades with the
+  // scroll, which never finishes, and its pulse repeats for seconds; neither changes the contrast.
   await page.getByTestId('section-hero').evaluate(async hero => {
     await Promise.all(
       hero
@@ -12,7 +12,7 @@ async function waitForHeroAnimations(page: Page): Promise<void> {
         .filter(
           animation =>
             animation.timeline === document.timeline &&
-            animation.effect?.getComputedTiming().iterations !== Infinity,
+            animation.effect?.getComputedTiming().iterations === 1,
         )
         .map(animation => animation.finished),
     );

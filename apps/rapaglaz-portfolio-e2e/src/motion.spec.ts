@@ -136,6 +136,23 @@ test.describe('Motion preferences', () => {
     ).toBe('smooth');
   });
 
+  // WCAG 2.2.2: motion that starts by itself and runs longer than five seconds needs a way to stop it
+  test('stops the pulse of the hero scroll button after a few repetitions', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    // the button is hidden where the hero content fills the screen
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await visitPortfolio(page, '/en');
+    const iterations = await page
+      .getByTestId('hero-scroll-cue')
+      .locator('svg')
+      .evaluate(icon =>
+        icon.getAnimations().map(animation => animation.effect?.getComputedTiming().iterations),
+      );
+
+    expect(iterations.length).toBeGreaterThan(1);
+    expect(iterations).not.toContain(Infinity);
+  });
+
   test('ends the page at the footer after the sections slide over the hero', async ({
     page,
     isMobile,
