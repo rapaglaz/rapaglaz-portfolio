@@ -6,10 +6,6 @@ import { ScrollRevealDirective } from '../scroll-reveal/scroll-reveal.directive'
 @Component({
   selector: 'app-section-wrapper',
   imports: [TranslocoModule, ScrollRevealDirective],
-  // Scroll-driven exit: while the sticky band is pushed under the navbar at the end of a section it
-  // disappears. On small screens the band is clipped at the navbar edge, so the pill stays opaque and the
-  // content never shows through it (an opacity fade would). From lg the bare title fades out instead.
-  // Browsers without view timelines keep the band fully visible.
   styles: `
     /* 20px is pt-5 of the band, 54px adds the 34px pill: the clip edge follows the navbar's lower edge. */
     @keyframes title-band-clip {
@@ -69,10 +65,6 @@ import { ScrollRevealDirective } from '../scroll-reveal/scroll-reveal.directive'
           class="border-primary/20 flex flex-col gap-4 py-6 lg:grid lg:grid-cols-[14rem_1fr] lg:gap-12 lg:py-12"
           [class.lg:border-t]="divider()">
           <!-- Flex on mobile, so that the sticky title is bound to the whole section and not to its own grid row. -->
-          <!--
-            Blurred like the scrolled navbar. The band is fully opaque down to a few pixels below the
-            pill (pt-5 + 34px pill + 6px = 60px) and fades out over the rest, so no text reaches the pill.
-          -->
           <div
             class="title-band bg-base-100/85 sticky top-(--navbar-height) z-10 -mx-4 -mb-6 mask-[linear-gradient(to_bottom,#000_60px,transparent)] px-4 pt-5 pb-11 backdrop-blur-md lg:top-[calc(var(--navbar-height,7rem)+1.5rem)] lg:mx-0 lg:mb-0 lg:self-start lg:bg-transparent lg:mask-none lg:p-0 lg:backdrop-blur-none">
             <h2

@@ -1,8 +1,3 @@
-/**
- * Fallback Worker: replaces an error of the origin with a static offline page.
- * The portfolio is served from a separate web host, so its own pages cannot be shown while that
- * host is down. The Worker runs on Cloudflare and does not depend on it.
- */
 import offlinePage from './offline.html';
 import { RELOAD_SCRIPT } from './reload-script';
 

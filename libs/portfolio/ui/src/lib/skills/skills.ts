@@ -3,10 +3,10 @@ import { TranslocoModule } from '@jsverse/transloco';
 import { SectionWrapper } from '@rapaglaz/shared/ui';
 import { buildStaggerDelay } from '@rapaglaz/shared/util';
 
-export type SkillCategoryId =
+type SkillCategoryId =
   'frontend' | 'testing' | 'devops' | 'architecture' | 'backend' | 'soft-skills' | 'familiar';
 
-export type Skill = {
+type Skill = {
   readonly id: string;
   // Core stack: rendered as a filled, accent-tinted badge.
   readonly core?: boolean;
@@ -52,7 +52,6 @@ const toGroups = (categories: readonly SkillCategory[], startIndex = 0): SkillGr
 @Component({
   selector: 'app-skills',
   imports: [TranslocoModule, SectionWrapper],
-
   template: `
     <app-section-wrapper
       sectionId="skills"

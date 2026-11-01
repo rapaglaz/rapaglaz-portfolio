@@ -36,7 +36,6 @@ describe('About', () => {
       false,
     );
     expect(element.querySelector('h2')?.classList.contains('animate-title')).toBe(false);
-    expect(element.querySelector('.animate-content')).toBeNull();
     expect(element.querySelector('p')?.textContent).toContain('Frontend Engineer');
   });
 

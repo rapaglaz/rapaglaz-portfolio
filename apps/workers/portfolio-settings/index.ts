@@ -1,10 +1,5 @@
-/**
- * Config Worker: serves the public Turnstile site key on GET or HEAD /config.
- */
-
 type LogContext = Record<string, unknown>;
 
-// --- Constants ---
 const CONFIG = {
   TURNSTILE_SITE_KEY: '0x4AAAAAAB98Vx1r87KQ9OmN',
   VERSION: '1.0.0',
@@ -172,7 +167,6 @@ function isLocalOrigin(origin: string): boolean {
   }
 }
 
-// --- Helper: deterministic weak ETag (W/ belongs outside the quotes) ---
 async function sha256Etag(text: string): Promise<string> {
   const enc = new TextEncoder().encode(text);
   const buf = await crypto.subtle.digest('SHA-256', enc);
@@ -180,7 +174,6 @@ async function sha256Etag(text: string): Promise<string> {
   return `W/"${hex.slice(0, 16)}"`;
 }
 
-// --- Structured Logging ---
 function logInfo(message: string, context: LogContext = {}): void {
   console.log(
     JSON.stringify({ level: 'INFO', message, ...context, timestamp: new Date().toISOString() }),
