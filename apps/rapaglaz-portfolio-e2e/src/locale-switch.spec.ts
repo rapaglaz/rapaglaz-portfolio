@@ -212,7 +212,6 @@ test.describe('Locale Switch Journey', () => {
 
     await expect(page.getByTestId('hero-badge-mobile')).toBeVisible();
     await expect(page.getByTestId('hero-badge')).toBeHidden();
-    // the badge sits on the avatar ring and the hero is compact on short phones, so the whole hero fits
     await expect
       .poll(() =>
         page
