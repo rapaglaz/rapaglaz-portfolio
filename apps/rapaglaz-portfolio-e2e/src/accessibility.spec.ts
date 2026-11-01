@@ -94,7 +94,6 @@ test.describe('Accessibility', () => {
     await expect(page.locator('html')).toHaveAttribute('lang', 'de');
   });
 
-  // the curtain from lg and the crossfade below lg place the first section differently
   for (const [width, height] of [
     [1440, 900],
     [900, 1000],
@@ -102,12 +101,10 @@ test.describe('Accessibility', () => {
     test(`moves the About title below the navbar and focuses it from the hero scroll button at ${width}x${height}`, async ({
       page,
     }) => {
-      // the button is hidden where the hero content fills the screen
       await page.setViewportSize({ width, height });
       await visitPortfolio(page, '/en');
       const section = page.locator('#about');
       const band = section.locator('.title-band');
-      // both boxes share the curtain shift, so their distance is the offset of the band in the section
       const bandOffset = await band.evaluate(
         element =>
           element.getBoundingClientRect().top -
@@ -118,7 +115,6 @@ test.describe('Accessibility', () => {
       await page.keyboard.press('Enter');
 
       await expect(section.locator('h2 button')).toBeFocused();
-      // the band reaches its sticky top exactly; after an overshoot it would stick, so check the section
       await expect
         .poll(async () => {
           const sectionTop = await section.evaluate(element => element.getBoundingClientRect().top);

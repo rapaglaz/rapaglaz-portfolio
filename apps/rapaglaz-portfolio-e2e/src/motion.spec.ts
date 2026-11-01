@@ -2,11 +2,9 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { mockInteractiveTurnstile, mockTurnstileAPI, tabKey, visitPortfolio } from './utils';
 
-// a mouse or a trackpad; a touch screen matches neither part
 const FINE_POINTER = '(hover: hover) and (pointer: fine)';
 const CAN_HOVER = '(hover: hover)';
 
-// duration of the loading dot animation for each motion preference
 const LOADING_DOT_DURATION = { 'no-preference': '1.05s', reduce: '3s' } as const;
 const OTHER_PREFERENCE = { 'no-preference': 'reduce', reduce: 'no-preference' } as const;
 
@@ -62,7 +60,6 @@ test.describe('Motion preferences', () => {
   }) => {
     const { links, first, surface } = await revealFirstContactLink(page);
     const tab = tabKey(browserName);
-    // every section title is a button and comes first in the tab order, so start at the one before contact
     await page.getByTestId('section-languages').getByRole('button').focus();
     await page.keyboard.press(tab);
     await expect(page.getByTestId('section-contact').getByRole('button')).toBeFocused();
@@ -103,7 +100,6 @@ test.describe('Motion preferences', () => {
     const stableBounds = await readBounds();
     await first.hover();
     await expect.poll(async () => (await readMotion(surface)).translate).toBe('0px -4px');
-    // the pointer stays on the bottom edge while the surface lifts, so the hover must not flicker
     await first.hover({ position: { x: stableBounds.width / 2, y: stableBounds.height - 1 } });
     await expect.poll(() => first.evaluate(element => element.matches(':hover'))).toBe(true);
     await expect.poll(async () => (await readMotion(surface)).translate).toBe('0px -4px');
@@ -131,7 +127,6 @@ test.describe('Motion preferences', () => {
       animationDuration: '1.1s',
       animationDelay: '0.9s',
     });
-    // the navbar badge joins only after the hero intro, the badge on the avatar after the avatar
     expect(await readMotion(page.getByTestId('hero-badge'))).toMatchObject({
       animationName: 'fadeIn',
       animationDuration: '0.7s',
@@ -147,10 +142,8 @@ test.describe('Motion preferences', () => {
     ).toBe('smooth');
   });
 
-  // WCAG 2.2.2: motion that starts by itself and runs longer than five seconds needs a way to stop it
   test('stops the pulse of the hero scroll button after a few repetitions', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
-    // the button is hidden where the hero content fills the screen
     await page.setViewportSize({ width: 1440, height: 900 });
     await visitPortfolio(page, '/en');
     const iterations = await page
@@ -176,7 +169,6 @@ test.describe('Motion preferences', () => {
         page.locator('main > .sections').evaluate(element => getComputedStyle(element).transform),
       )
       .not.toBe('none');
-    // a late layout at the top, like after a font load, measures the page with the curtain still shifted down
     await page.evaluate(() => {
       const { body } = document;
       body.style.paddingBottom = '1px';
@@ -185,7 +177,6 @@ test.describe('Motion preferences', () => {
       void body.offsetHeight;
     });
     await page.mouse.wheel(0, 10_000);
-    // the footer is below the viewport while the page still scrolls, so check the gap only at the end
     await expect
       .poll(() =>
         page.evaluate(
@@ -227,8 +218,6 @@ test.describe('Motion preferences', () => {
     }
   });
 
-  // two sections that meet at a fractional pixel each cover the row only partly, so the pinned hero
-  // would show through as a thin line without a background on the curtain itself
   test('keeps the curtain opaque where two sections meet', async ({ page, isMobile }) => {
     test.skip(isMobile, 'the sections slide over the hero only from lg');
     await page.emulateMedia({ reducedMotion: 'no-preference' });
@@ -328,7 +317,6 @@ test.describe('Motion preferences', () => {
   }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await visitPortfolio(page, '/de');
-    // every section title is a button and comes first in the tab order, so start at the one before contact
     await page.getByTestId('section-languages').getByRole('button').focus();
     await page.keyboard.press(tabKey(browserName));
     await expect(page.getByTestId('section-contact').getByRole('button')).toBeFocused();
@@ -338,8 +326,6 @@ test.describe('Motion preferences', () => {
     const focused = await contact.evaluate(element => {
       const ancestors = [];
       let current: Element | null = element;
-      // Stop at the section: above it, small screens fade the page by scroll position, which is
-      // still changing while the browser scrolls the focused link into view.
       while (current) {
         ancestors.push(Number(getComputedStyle(current).opacity));
         if (current.tagName === 'SECTION') {
@@ -422,7 +408,6 @@ test.describe('Motion preferences', () => {
   });
 
   for (const reducedMotion of ['no-preference', 'reduce'] as const) {
-    // the indicator must follow a change of the preference while the dialog is open
     const steps = [reducedMotion, OTHER_PREFERENCE[reducedMotion]].map(preference => ({
       preference,
       duration: LOADING_DOT_DURATION[preference],

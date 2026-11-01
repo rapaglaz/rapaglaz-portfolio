@@ -3,7 +3,6 @@ import { provideTranslocoTesting } from '@rapaglaz/shared/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { Skills, type SkillCategory } from './skills';
 
-// The page passes the real content; a few ids from the dictionaries are enough here
 const CATEGORIES: readonly SkillCategory[] = [
   { id: 'frontend', skills: [{ id: 'angular', core: true }, { id: 'typescript' }] },
   { id: 'testing', skills: [{ id: 'rxjs' }] },

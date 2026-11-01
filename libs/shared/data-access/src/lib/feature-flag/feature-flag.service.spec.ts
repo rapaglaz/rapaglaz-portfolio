@@ -126,7 +126,6 @@ describe('FeatureFlagService', () => {
     await settle();
 
     expect(flag.isLoading()).toBe(false);
-    // In the error state value() throws, so consumers must guard with hasValue().
     expect(flag.hasValue()).toBe(false);
     expect(flag.error()).toBeDefined();
   });

@@ -87,7 +87,6 @@ function expectContrastOnUnderlays(
   }
 }
 
-// states in which an action must keep its contrast
 type InteractionState = { name: string; enter: (locator: Locator) => Promise<void> };
 
 const NORMAL: InteractionState = { name: 'normal', enter: () => Promise.resolve() };
@@ -166,7 +165,6 @@ test.describe('Theme contrast', () => {
           const [text] = await readColors(action.locator, [{ foreground: 'color' }]);
           expectContrastOnUnderlays(text, action.minimum, `${state.name} action`);
         }
-        // every action ends in the focus state, where its focus indicator must stand out
         await FOCUS.enter(action.locator);
         await waitForAnimations(action.locator);
         const [outline] = await readColors(action.locator, [{ foreground: 'outline-color' }]);
@@ -176,7 +174,6 @@ test.describe('Theme contrast', () => {
       }
     });
 
-    // readColors ignores text-shadow, while axe counts the hover glow into the background of the text
     test(`keeps ${colorScheme} navbar text readable with the hover glow`, async ({ page }) => {
       await page.emulateMedia({ colorScheme });
       await visitPortfolio(page);
@@ -197,7 +194,6 @@ test.describe('Theme contrast', () => {
 
     test(`keeps the ${colorScheme} hero scroll button and its focus visible`, async ({ page }) => {
       await page.emulateMedia({ colorScheme });
-      // the button is hidden where the hero content fills the screen, so the viewport needs room below it
       await page.setViewportSize({ width: 1600, height: 1000 });
       await visitPortfolio(page);
       const cue = page.getByTestId('hero-scroll-cue');

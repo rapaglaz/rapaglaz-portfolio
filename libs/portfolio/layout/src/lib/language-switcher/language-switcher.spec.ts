@@ -11,7 +11,6 @@ import { firstValueFrom } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { LanguageSwitcher } from './language-switcher';
 
-// The app routes resolve the language; here the switcher only needs routes to navigate to
 @Component({ template: '' })
 class Page {}
 
@@ -141,7 +140,6 @@ describe('LanguageSwitcher', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    // the app route resolver switches the language; without it the selection stays
     expect(router.url).toBe('/de');
     expect(translocoService.getActiveLang()).toBe('en');
     expect(element.querySelector(EN_OPTION)?.getAttribute('aria-selected')).toBe('true');
