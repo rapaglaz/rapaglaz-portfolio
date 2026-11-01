@@ -88,8 +88,8 @@
   }
 
   .hero-avatar > div {
-    width: 9rem;
-    height: 9rem;
+    width: 11rem;
+    height: 11rem;
   }
 
   .hero-name {
@@ -101,7 +101,7 @@
   }
 
   .hero-about p {
-    font-size: 1.125rem;
+    font-size: 1rem;
   }
 }
 
