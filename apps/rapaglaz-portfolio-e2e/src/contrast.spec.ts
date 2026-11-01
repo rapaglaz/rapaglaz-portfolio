@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Locator } from '@playwright/test';
+import { waitForEntranceAnimations } from './animations';
 import { mockTurnstileAPI, visitPortfolio } from './utils';
 
 type Color = readonly number[];
@@ -51,23 +52,6 @@ async function readColors(
       outlineWidth: Number.parseFloat(style.outlineWidth),
     }));
   }, pairs);
-}
-
-async function waitForAnimations(locator: Locator): Promise<void> {
-  await locator.evaluate(async element => {
-    // Scroll-driven animations never finish and repeated ones (the scroll cue pulse) run for seconds,
-    // so wait for entrance animations only.
-    await Promise.all(
-      element
-        .getAnimations({ subtree: true })
-        .filter(
-          animation =>
-            animation.timeline === document.timeline &&
-            animation.effect?.getComputedTiming().iterations === 1,
-        )
-        .map(animation => animation.finished),
-    );
-  });
 }
 
 function expectContrastOnUnderlays(
@@ -136,7 +120,7 @@ test.describe('Theme contrast', () => {
     }) => {
       await page.emulateMedia({ colorScheme });
       await visitPortfolio(page);
-      await waitForAnimations(page.getByTestId('navbar'));
+      await waitForEntranceAnimations(page.getByTestId('navbar'));
       const actions = [
         {
           locator: page.getByTestId('cv-download-btn'),
@@ -162,13 +146,13 @@ test.describe('Theme contrast', () => {
       for (const action of actions) {
         for (const state of action.states) {
           await state.enter(action.locator);
-          await waitForAnimations(action.locator);
+          await waitForEntranceAnimations(action.locator);
           const [text] = await readColors(action.locator, [{ foreground: 'color' }]);
           expectContrastOnUnderlays(text, action.minimum, `${state.name} action`);
         }
         // every action ends in the focus state, where its focus indicator must stand out
         await FOCUS.enter(action.locator);
-        await waitForAnimations(action.locator);
+        await waitForEntranceAnimations(action.locator);
         const [outline] = await readColors(action.locator, [{ foreground: 'outline-color' }]);
         expect(outline.outlineWidth).toBeGreaterThan(0);
         expectContrastOnUnderlays(outline, 3, 'focus indicator');
@@ -180,13 +164,13 @@ test.describe('Theme contrast', () => {
     test(`keeps ${colorScheme} navbar text readable with the hover glow`, async ({ page }) => {
       await page.emulateMedia({ colorScheme });
       await visitPortfolio(page);
-      await waitForAnimations(page.getByTestId('navbar'));
+      await waitForEntranceAnimations(page.getByTestId('navbar'));
       for (const action of [
         page.getByTestId('cv-download-btn'),
         page.getByRole('option', { name: 'Deutsch' }),
       ]) {
         await action.hover();
-        await waitForAnimations(action);
+        await waitForEntranceAnimations(action);
         const results = await new AxeBuilder({ page })
           .include('[data-testid="navbar"]')
           .withRules(['color-contrast'])
@@ -217,7 +201,7 @@ test.describe('Theme contrast', () => {
         .toBeGreaterThanOrEqual(0);
       for (const state of [NORMAL, HOVER, FOCUS]) {
         await state.enter(cue);
-        await waitForAnimations(cue);
+        await waitForEntranceAnimations(cue);
         const [icon] = await readColors(cue, [{ foreground: 'color' }]);
         expectContrastOnUnderlays(icon, 3, `${state.name} scroll button`);
       }
@@ -232,13 +216,13 @@ test.describe('Theme contrast', () => {
       await page.emulateMedia({ colorScheme });
       await mockTurnstileAPI(page, 'error');
       await visitPortfolio(page, '/de');
-      await waitForAnimations(page.getByTestId('section-hero'));
-      await waitForAnimations(page.getByTestId('navbar'));
+      await waitForEntranceAnimations(page.getByTestId('section-hero'));
+      await waitForEntranceAnimations(page.getByTestId('navbar'));
       await page.getByTestId('cv-download-btn').focus();
       await page.keyboard.press('Enter');
       const toast = page.getByTestId('toast');
       await expect(toast).toBeVisible();
-      await waitForAnimations(toast);
+      await waitForEntranceAnimations(toast);
       const [message] = await readColors(toast.getByRole('alert'), [{ foreground: 'color' }]);
       expectContrastOnUnderlays(message, 4.5, 'error message');
       const close = toast.getByRole('button', { name: 'Benachrichtigung schließen' });

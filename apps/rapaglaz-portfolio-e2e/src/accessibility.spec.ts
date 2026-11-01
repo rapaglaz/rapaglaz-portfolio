@@ -1,23 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test } from '@playwright/test';
+import { waitForEntranceAnimations } from './animations';
 import { switchLanguage, tabKey, visitPortfolio } from './utils';
-
-async function waitForHeroAnimations(page: Page): Promise<void> {
-  // Measure contrast after fade-in animations reach their final opacity. The scroll cue fades with the
-  // scroll, which never finishes, and its pulse repeats for seconds; neither changes the contrast.
-  await page.getByTestId('section-hero').evaluate(async hero => {
-    await Promise.all(
-      hero
-        .getAnimations({ subtree: true })
-        .filter(
-          animation =>
-            animation.timeline === document.timeline &&
-            animation.effect?.getComputedTiming().iterations === 1,
-        )
-        .map(animation => animation.finished),
-    );
-  });
-}
 
 test.describe('Accessibility', () => {
   test('shows the skip link above the navbar on the first keyboard navigation step', async ({
@@ -56,7 +40,7 @@ test.describe('Accessibility', () => {
       browserName,
     }) => {
       await visitPortfolio(page, `${path}?source=keyboard#skills`);
-      await waitForHeroAnimations(page);
+      await waitForEntranceAnimations(page.getByTestId('section-hero'));
       await page.evaluate(() => document.fonts.ready.then(() => undefined));
       await page.getByTestId('section-skills').scrollIntoViewIfNeeded();
       const skipLink = page.getByRole('link', { name: label });
@@ -138,22 +122,14 @@ test.describe('Accessibility', () => {
       }) => {
         await page.emulateMedia({ colorScheme });
         await visitPortfolio(page, `/${locale}`);
-        await waitForHeroAnimations(page);
+        await waitForEntranceAnimations(page.getByTestId('section-hero'));
         await page.evaluate(() => document.fonts.ready.then(() => undefined));
 
         for (const sectionId of ['about', 'certifications', 'skills', 'languages', 'contact']) {
           const section = page.getByTestId(`section-${sectionId}`);
           await section.scrollIntoViewIfNeeded();
           await expect(section.locator('h2')).toHaveClass(/visible/);
-          await section.evaluate(async element => {
-            // Scroll-driven animations (the title fade) never finish while in range, so wait for entrance animations only.
-            await Promise.all(
-              element
-                .getAnimations({ subtree: true })
-                .filter(animation => animation.timeline === document.timeline)
-                .map(animation => animation.finished),
-            );
-          });
+          await waitForEntranceAnimations(section);
         }
 
         // axe scrolls elements into view while it checks them. A title caught in its scroll-driven fade

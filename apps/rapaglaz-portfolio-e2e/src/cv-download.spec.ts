@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { devices, expect, test, type Page } from '@playwright/test';
+import { waitForEntranceAnimations } from './animations';
 import {
   mockCVDownload,
   mockInteractiveTurnstile,
@@ -112,9 +113,7 @@ test.describe('Interactive CV verification', () => {
         await close.evaluate(button => Number.parseFloat(getComputedStyle(button).outlineWidth)),
       ).toBeGreaterThanOrEqual(2);
 
-      await dialog.evaluate(element =>
-        Promise.all(element.getAnimations({ subtree: true }).map(animation => animation.finished)),
-      );
+      await waitForEntranceAnimations(dialog);
       const results = await new AxeBuilder({ page })
         .include('[role="dialog"]')
         .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])

@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Locator, type Page } from '@playwright/test';
+import { waitForEntranceAnimations } from './animations';
 import { mockInteractiveTurnstile, mockTurnstileAPI, tabKey, visitPortfolio } from './utils';
 
 // a mouse or a trackpad; a touch screen matches neither part
@@ -45,9 +46,7 @@ async function revealFirstContactLink(
   const first = links.first();
   await first.scrollIntoViewIfNeeded();
   await expect(first).toHaveClass(/visible/);
-  await first.evaluate(element =>
-    Promise.all(element.getAnimations().map(animation => animation.finished)),
-  );
+  await waitForEntranceAnimations(first);
   return { links, first, surface: first.locator('.contact-card-surface') };
 }
 
