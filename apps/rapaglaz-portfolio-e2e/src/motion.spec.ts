@@ -199,6 +199,34 @@ test.describe('Motion preferences', () => {
     expect(gapBelowFooter).toBeLessThan(1);
   });
 
+  test('moves the curtain at most three times as fast as the scroll', async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, 'the sections slide over the hero only from lg');
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await visitPortfolio(page, '/en');
+    const curtainTopAt = (top: number): Promise<number> =>
+      page.evaluate(async scrollTop => {
+        window.scrollTo({ top: scrollTop, behavior: 'instant' });
+        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        return (document.querySelector('main > .sections') as HTMLElement).getBoundingClientRect()
+          .top;
+      }, top);
+    await expect
+      .poll(() => curtainTopAt(0))
+      .toBeGreaterThan(await page.evaluate(() => innerHeight));
+
+    const step = 40;
+    let previous = await curtainTopAt(0);
+    const end = await page.evaluate(() => innerHeight * 0.45);
+    for (let top = step; top <= end; top += step) {
+      const current = await curtainTopAt(top);
+      expect((previous - current) / step).toBeLessThanOrEqual(3);
+      previous = current;
+    }
+  });
+
   // two sections that meet at a fractional pixel each cover the row only partly, so the pinned hero
   // would show through as a thin line without a background on the curtain itself
   test('keeps the curtain opaque where two sections meet', async ({ page, isMobile }) => {

@@ -180,30 +180,38 @@ test.describe('Locale Switch Journey', () => {
     await expect(badge).toHaveCount(0);
   });
 
-  test('shows navbar badge in the center on desktop and hides hero badge', async ({
-    page,
-  }, testInfo) => {
-    test.skip(testInfo.project.name.includes('Mobile'), 'desktop-only check');
+  for (const path of ['/en', '/de']) {
+    test(`moves the navbar badge from the left to the center on desktop at ${path}`, async ({
+      page,
+    }, testInfo) => {
+      test.skip(testInfo.project.name.includes('Mobile'), 'desktop-only check');
 
-    await visitPortfolio(page);
-    const offsetFromCenter = (): Promise<number> =>
-      page.evaluate(() => {
-        const center = (testId: string): number => {
-          const box = document
-            .querySelector(`[data-testid="${testId}"]`)
-            ?.getBoundingClientRect() as DOMRect;
-          return box.left + box.width / 2;
-        };
-        return Math.abs(center('hero-badge') - center('navbar-container'));
-      });
+      await visitPortfolio(page, path);
+      const badgeOffsets = (): Promise<{ fromLeft: number; fromCenter: number }> =>
+        page.evaluate(() => {
+          const container = document.querySelector(
+            '[data-testid="navbar-container"]',
+          ) as HTMLElement;
+          const box = container.getBoundingClientRect();
+          const badge = (
+            document.querySelector('[data-testid="hero-badge"]') as HTMLElement
+          ).getBoundingClientRect();
+          const contentLeft = box.left + Number.parseFloat(getComputedStyle(container).paddingLeft);
+          return {
+            fromLeft: Math.abs(badge.left - contentLeft),
+            fromCenter: Math.abs(badge.left + badge.width / 2 - (box.left + box.width / 2)),
+          };
+        });
 
-    await expect(page.getByTestId('hero-badge')).toBeVisible();
-    await expect(page.getByTestId('hero-badge-mobile')).toBeHidden();
-    await expect.poll(offsetFromCenter).toBeLessThan(1);
-    // the German text is longer, so the badge must stay centered with it too
-    await switchLanguage(page, 'DE');
-    await expect.poll(offsetFromCenter).toBeLessThan(1);
-  });
+      await expect(page.getByTestId('hero-badge')).toBeVisible();
+      await expect(page.getByTestId('hero-badge-mobile')).toBeHidden();
+      await expect.poll(async () => (await badgeOffsets()).fromLeft).toBeLessThan(1);
+
+      await page.evaluate(() => window.scrollTo({ top: innerHeight, behavior: 'instant' }));
+      await expect.poll(async () => (await badgeOffsets()).fromCenter).toBeLessThan(1);
+      await expect(page.getByTestId('navbar-name')).toHaveCSS('opacity', '1');
+    });
+  }
 
   test('shows hero badge on mobile and hides navbar badge', async ({ page }, testInfo) => {
     test.skip(!testInfo.project.name.includes('Mobile'), 'mobile-only check');

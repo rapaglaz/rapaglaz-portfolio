@@ -2,9 +2,18 @@ nav {
   @apply animate-[fadeIn_0.7s_ease-out_0.6s_both];
 }
 
-/* Joins after the hero intro (its description ends at 2s), together with the scroll button. */
 app-badge {
   @apply animate-[fadeIn_0.7s_ease-out_2s_both];
+  transition: translate 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.2s;
+
+  @media (min-width: 768px) {
+    translate: calc(50% - 50cqw) 0;
+  }
+}
+
+.navbar-past-hero app-badge {
+  translate: 0 0;
+  transition-delay: 0s;
 }
 
 .navbar-surface {
@@ -46,7 +55,6 @@ app-badge {
   }
 }
 
-/* Same type as the hero name. Without scroll-driven animations (and with reduced motion) it stays hidden. */
 .navbar-name {
   font-family: 'Manrope', 'Inter', sans-serif;
   font-weight: 800;
@@ -54,14 +62,17 @@ app-badge {
   opacity: 0;
   visibility: hidden;
   translate: 0 0.25rem;
+  transition:
+    opacity 0.4s ease-out,
+    translate 0.4s ease-out,
+    visibility 0.4s;
 }
 
-@keyframes navbar-name-in {
-  to {
-    opacity: 1;
-    visibility: visible;
-    translate: 0 0;
-  }
+.navbar-past-hero .navbar-name {
+  opacity: 1;
+  visibility: visible;
+  translate: 0 0;
+  transition-delay: 0.3s;
 }
 
 @supports (animation-timeline: scroll()) {
@@ -70,16 +81,5 @@ app-badge {
     animation: navbar-surface-in linear both;
     animation-timeline: scroll(root block);
     animation-range: 0 6rem;
-  }
-
-  /* It appears when the hero name is gone: from lg the sections cover the hero early, below lg the hero scrolls away. */
-  .navbar-name {
-    animation: navbar-name-in linear both;
-    animation-timeline: scroll(root block);
-    animation-range: 35svh 60svh;
-
-    @media (min-width: 1024px) {
-      animation-range: 8svh 24svh;
-    }
   }
 }

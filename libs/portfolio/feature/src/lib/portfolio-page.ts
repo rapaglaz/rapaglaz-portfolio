@@ -49,13 +49,11 @@ function toAvailableLang(lang: string): AvailableLang {
 
     @keyframes sections-slide-in {
       0% {
-        transform: translateY(calc(60svh - var(--navbar-height, 7rem) + var(--curtain-edge, 8rem)));
-        animation-timing-function: cubic-bezier(0.3, 0.6, 0.4, 1);
+        transform: translateY(calc(40svh - var(--navbar-height, 7rem) + var(--curtain-edge, 8rem)));
       }
 
-      50% {
-        transform: translateY(-20svh);
-        animation-timing-function: linear;
+      75% {
+        transform: translateY(-15svh);
       }
 
       100% {
@@ -98,7 +96,7 @@ function toAvailableLang(lang: string): AvailableLang {
             position: sticky;
             top: 0;
             animation-name: hero-recede;
-            animation-range: 0 20svh;
+            animation-range: 0 45svh;
           }
 
           /* Above the pinned hero. The background closes the seams where two sections meet at a fractional pixel. */
@@ -107,9 +105,9 @@ function toAvailableLang(lang: string): AvailableLang {
             position: relative;
             z-index: 1;
             background-color: var(--color-base-100);
-            margin-top: calc(var(--navbar-height, 7rem) - 60svh);
+            margin-top: calc(var(--navbar-height, 7rem) - 40svh);
             animation-name: sections-slide-in;
-            animation-range: 0 40svh;
+            animation-range: 0 60svh;
           }
 
           /* Soft upper edge of the curtain */

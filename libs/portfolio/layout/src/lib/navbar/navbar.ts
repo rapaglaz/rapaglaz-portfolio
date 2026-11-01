@@ -12,6 +12,8 @@ import { LanguageSwitcher } from '../language-switcher/language-switcher';
 import { MeasureNavbarHeightDirective } from './measure-navbar-height.directive';
 import { withErrorToast } from './with-error-toast.operator';
 
+const CURTAIN_ARRIVAL_SHARE = 0.45;
+
 @Component({
   selector: 'app-navbar',
   imports: [Badge, LanguageSwitcher, MeasureNavbarHeightDirective, TranslocoModule],
@@ -44,6 +46,10 @@ export class Navbar {
   );
 
   protected readonly isScrolled = computed(() => this.scrollY() > 0);
+  protected readonly isPastHero = computed(() => {
+    const height = isPlatformBrowser(this.platformId) ? this.document.defaultView?.innerHeight : 0;
+    return !!height && this.scrollY() > height * CURTAIN_ARRIVAL_SHARE;
+  });
   protected readonly isDownloading = signal(false);
   protected readonly canDownload = computed(() => !this.isDownloading());
   protected readonly openToWork = this.featureFlagService.getFlagValue('openToWork');
