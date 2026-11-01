@@ -3,7 +3,6 @@ import { Component, computed, input } from '@angular/core';
 type BadgeSize = 'sm' | 'md' | 'lg' | 'xl';
 
 // Utilities on the host instead of @apply: a library stylesheet cannot @reference the app styles.
-// The tint is mixed into base-100 and not layered with alpha, so the badge stays opaque over the photo.
 const BASE_CLASSES = [
   'rounded-full border font-bold',
   'border-slate-700 bg-[color-mix(in_srgb,var(--color-primary)_10%,var(--color-base-100))] text-slate-900',
