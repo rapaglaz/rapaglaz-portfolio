@@ -33,8 +33,6 @@ describe('TurnstileConfigService', () => {
     vi.useRealTimers();
   });
 
-  // Transient errors are retried 3 times after the initial attempt, 250, 500 and 1000 ms apart,
-  // so a failing subscription fires 4 requests before the error reaches the subscriber.
   const flushAllAttempts = async (
     respond: (req: ReturnType<HttpTestingController['expectOne']>) => void,
   ): Promise<void> => {
@@ -247,20 +245,16 @@ describe('TurnstileConfigService', () => {
 
     const mockConfig = { turnstileSiteKey: 'cached-key-123' };
 
-    // Make first call
     const config1Promise = firstValueFrom(service.getConfig());
 
-    // Verify HTTP request is made
     const req = httpMock.expectOne('/config');
     req.flush(mockConfig);
 
     const config1 = await config1Promise;
     expect(config1).toEqual(mockConfig);
 
-    // Make second call
     const config2 = await firstValueFrom(service.getConfig());
 
-    // Verify same config is returned without making another HTTP request
     expect(config2).toEqual(mockConfig);
     httpMock.expectNone('/config');
   });

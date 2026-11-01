@@ -9,7 +9,6 @@ import { provideTranslocoTesting } from '@rapaglaz/shared/testing';
 import { describe, expect, it, vi } from 'vitest';
 import { Portfolio } from './portfolio';
 
-// Stands in for the lazy page, which owns #main-content
 @Component({
   template: `<main
     id="main-content"

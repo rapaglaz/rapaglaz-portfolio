@@ -1,6 +1,5 @@
 import type { Locator, Page } from '@playwright/test';
 
-// Minimal valid PDF for testing downloads
 const MOCK_PDF_CONTENT = `%PDF-1.4
 1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj
 2 0 obj<</Type/Pages/Count 1/Kids[3 0 R]>>endobj
@@ -16,7 +15,6 @@ startxref
 190
 %%EOF`;
 
-// mocks feature flag endpoint to keep tests deterministic
 export async function mockFeatureFlag(page: Page, openToWork = true): Promise<void> {
   await page.route('https://rapaglaz.de/feature-flag/**', async route => {
     const url = new URL(route.request().url());
@@ -37,12 +35,10 @@ export function tabKey(browserName: string): string {
   return browserName === 'webkit' ? 'Alt+Tab' : 'Tab';
 }
 
-// the desktop layout and the phone layout show the open-to-work badge in different elements
 export function heroBadge(page: Page, isMobile: boolean): Locator {
   return page.getByTestId(isMobile ? 'hero-badge-mobile' : 'hero-badge');
 }
 
-// waits for hero + navbar to ensure page fully loaded before tests
 export async function visitPortfolio(page: Page, url = '/', openToWork = true): Promise<void> {
   await mockFeatureFlag(page, openToWork);
   await page.goto(url);
@@ -50,8 +46,6 @@ export async function visitPortfolio(page: Page, url = '/', openToWork = true): 
   await page.getByTestId('navbar').waitFor({ state: 'visible' });
 }
 
-// mocks only Turnstile API (frontend) - use when tests need to mock backend errors
-// outcome 'error' fires the widget's error-callback instead of issuing a token
 export async function mockTurnstileAPI(
   page: Page,
   outcome: 'token' | 'error' = 'token',
@@ -76,21 +70,16 @@ export async function mockTurnstileAPI(
         }, 50);
         return 'mock-widget-id';
       },
-      remove: (): void => {
-        // Mock cleanup - no-op
-      },
+      remove: (): void => undefined,
     };
   }, outcome);
 
-  // Block real Cloudflare script to ensure mock is used
   await page.route('**/challenges.cloudflare.com/**', route => route.abort());
 }
 
-// mocks both Turnstile API and backend download - for happy path tests
 export async function mockCVDownload(page: Page): Promise<void> {
   await mockTurnstileAPI(page);
 
-  // Mock backend download endpoint - return fake PDF blob
   await page.route('**/download?file=**', async route => {
     await route.fulfill({
       status: 200,
@@ -100,7 +89,6 @@ export async function mockCVDownload(page: Page): Promise<void> {
   });
 }
 
-// Interactive iframe exercises focus boundaries without contacting Cloudflare.
 export async function mockInteractiveTurnstile(page: Page): Promise<void> {
   await page.addInitScript(() => {
     let timer: ReturnType<typeof setTimeout>;
@@ -148,7 +136,6 @@ export async function mockInteractiveTurnstile(page: Page): Promise<void> {
   );
 }
 
-// switches language and waits for translation to appear, ensures i18n working
 export async function switchLanguage(page: Page, lang: 'EN' | 'DE'): Promise<void> {
   await page.getByRole('option', { name: lang }).click();
 

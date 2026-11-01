@@ -73,7 +73,6 @@ describe('TurnstileService (integration)', () => {
     const error = vi.fn();
     const complete = vi.fn();
     const subscription = service.getToken$('site-key').subscribe({ next, error, complete });
-    // the widget renders once the lazily loaded CDK dialog is ready
     await vi.waitFor(() => expect(render).toHaveBeenCalled());
 
     try {
@@ -114,7 +113,6 @@ describe('TurnstileService (integration)', () => {
     );
     (window as any).turnstile = { render, remove: vi.fn() };
     const subscription = service.getToken$('site-key', trigger).subscribe();
-    // the widget renders once the lazily loaded CDK dialog is ready
     await vi.waitFor(() => expect(render).toHaveBeenCalled());
 
     try {
@@ -134,9 +132,6 @@ describe('TurnstileService (integration)', () => {
 
   it('fails and retries when Turnstile script cannot be loaded', async () => {
     const appendSpy = vi.spyOn(document.head!, 'appendChild').mockImplementation(el => {
-      // Fire onerror as a microtask so it processes during `await` in Zone.js.
-      // retry({ count: 2 }) is synchronous (no delay scheduler), so each retry
-      // subscribes immediately and the next microtask is queued before `await` resumes.
       void Promise.resolve().then(() => (el as HTMLScriptElement).onerror?.(new Event('error')));
       return el;
     });
@@ -145,7 +140,7 @@ describe('TurnstileService (integration)', () => {
       'Failed to load Turnstile script',
     );
 
-    expect(appendSpy).toHaveBeenCalledTimes(3); // initial + 2 retries
+    expect(appendSpy).toHaveBeenCalledTimes(3);
   });
 
   it('propagates Turnstile verification errors and cleans up widget', async () => {
@@ -229,7 +224,6 @@ describe('TurnstileService (integration)', () => {
     (window as any).turnstile = { render, remove };
     const tokens: string[] = [];
     const subscription = service.getToken$('site-key').subscribe(token => tokens.push(token));
-    // the widget renders once the lazily loaded CDK dialog is ready
     await vi.waitFor(() => expect(render).toHaveBeenCalled());
     const [widget, options] = render.mock.calls[0];
 
@@ -276,7 +270,6 @@ describe('TurnstileService (integration)', () => {
     (window as any).turnstile = { render, remove };
     const token = vi.fn();
     const subscription = service.getToken$('site-key').subscribe(token);
-    // the widget renders once the lazily loaded CDK dialog is ready
     await vi.waitFor(() => expect(render).toHaveBeenCalled());
     const widget = render.mock.calls[0][0];
 

@@ -27,7 +27,6 @@ describe('Badge', () => {
   });
 
   it('applies size classes for sm, lg, xl', () => {
-    // default is md
     expect(compiled.className).toContain('px-3');
     expect(compiled.className).toContain('py-1');
     expect(compiled.className).toContain('text-sm');

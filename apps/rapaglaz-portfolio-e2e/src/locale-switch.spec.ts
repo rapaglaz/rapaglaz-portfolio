@@ -1,7 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { heroBadge, switchLanguage, tabKey, visitPortfolio } from './utils';
 
-// texts that a direct entry to a route shows in the language of the route
 const ROUTE_TEXTS = {
   en: {
     certificationDates: ['December 2022', 'March 2022', 'June 2019'],
@@ -17,7 +16,6 @@ const ROUTE_TEXTS = {
   },
 };
 
-// the role is English in both languages on purpose; it comes from the key common.role
 const PAGE_TITLE = 'Radek Glaz - Senior Frontend Engineer';
 
 test.describe('Locale Switch Journey', () => {

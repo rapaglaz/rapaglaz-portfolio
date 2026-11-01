@@ -3,7 +3,6 @@ import { RELOAD_SCRIPT } from './reload-script';
 
 const ADDRESS = 'https://rapaglaz.de/en';
 
-// Runs the script of the page against stand-ins for the browser objects it uses
 function runScript(answer: Response | Error) {
   const reload = vi.fn();
   const listeners = new Map<string, () => void>();
@@ -29,7 +28,6 @@ function runScript(answer: Response | Error) {
     page,
     timers,
     showTab: () => listeners.get('visibilitychange')?.(),
-    // lets the promise chain of the script finish
     settle: () => new Promise(resolve => setTimeout(resolve)),
   };
 }

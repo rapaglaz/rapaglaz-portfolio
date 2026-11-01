@@ -12,8 +12,6 @@ function flagRequest(
   return new Request(`${ORIGIN}${path}`, { method, headers: { Origin: ORIGIN, ...headers } });
 }
 
-// stand-in for the KV namespace bound as KV; it covers only the text read that the Worker calls,
-// not the other overloads of KVNamespace.get
 function createEnv(flags: Record<string, string> = {}): Env {
   const get = vi.fn(async (name: string) => flags[name] ?? null);
   return { KV: { get } as unknown as Env['KV'] };

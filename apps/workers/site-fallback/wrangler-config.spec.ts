@@ -3,7 +3,6 @@ import { describeWranglerConfig, readWranglerConfig } from '../testing/wrangler-
 
 const workerDir = new URL('.', import.meta.url);
 
-// Bindings this Worker needs in production. Other env names the code reads must be listed as optional.
 describeWranglerConfig('site-fallback', workerDir, {
   required: [],
   optional: [],

@@ -4,7 +4,6 @@ import { TestBed } from '@angular/core/testing';
 import { describe, expect, it, vi } from 'vitest';
 import { injectContactEmailOpener } from './open-contact-email';
 
-// The opener navigates through DOCUMENT, so a document stub replaces window.location
 function setup(platformId: 'browser' | 'server'): {
   openEmail: () => void;
   assignMock: ReturnType<typeof vi.fn>;
