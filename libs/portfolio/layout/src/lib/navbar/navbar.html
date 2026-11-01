@@ -7,15 +7,14 @@
   appMeasureNavbarHeight
   data-testid="navbar"
   class="navbar fixed inset-x-0 top-0 z-50">
+  <!-- From md the two outer columns share the free space, so the badge stays in the center of the navbar. -->
   <div
     data-testid="navbar-container"
-    [class.md:justify-between]="openToWork()"
-    [class.md:justify-end]="!openToWork()"
-    class="container mx-auto flex max-w-5xl flex-col items-center justify-center gap-6 px-2 py-4 md:flex-row md:gap-0 md:py-6">
+    class="container mx-auto flex max-w-5xl flex-col items-center justify-center gap-6 px-2 py-4 md:grid md:grid-cols-[1fr_auto_1fr] md:gap-x-4 md:py-6">
     <!-- Repeats the hero heading once the hero is gone, so it is hidden from assistive technology. -->
     <span
       data-testid="navbar-name"
-      class="navbar-name hidden text-xl md:mr-5 md:block"
+      class="navbar-name hidden text-xl md:block md:justify-self-start"
       aria-hidden="true">
       <span class="font-medium">{{ 'common.firstName' | transloco }}</span>
       {{ 'common.lastName' | transloco }}
@@ -28,7 +27,7 @@
       </app-badge>
     }
 
-    <div class="flex items-center gap-6 sm:gap-4 md:ml-auto md:gap-3">
+    <div class="flex items-center gap-6 sm:gap-4 md:col-start-3 md:gap-3 md:justify-self-end">
       <button
         #cvButton
         data-testid="cv-download-btn"
