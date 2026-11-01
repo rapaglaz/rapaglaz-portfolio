@@ -1,6 +1,5 @@
 import type { Certification } from '@rapaglaz/portfolio/ui';
 
-// Templates build portfolio.certifications.items.<id>.title and .issuer; listed for i18n:check.
 /** t(
   portfolio.certifications.items.angular-architecture.title,
   portfolio.certifications.items.angular-architecture.issuer,

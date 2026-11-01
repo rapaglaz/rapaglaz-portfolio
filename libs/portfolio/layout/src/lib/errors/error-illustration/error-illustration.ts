@@ -2,8 +2,6 @@ import { Component, input } from '@angular/core';
 
 export type ErrorKind = 'notFound' | 'failed';
 
-// Position, tilt, size and line width of the question marks on the not found page. One shape is
-// reused, and the strokes do not scale, so the width is the one that is written here.
 const QUESTION_MARKS = [
   { transform: 'translate(186 44) scale(1.25)', width: 3 },
   { transform: 'translate(48 70) rotate(-14) scale(0.8)', width: 2 },
@@ -14,8 +12,6 @@ const QUESTION_MARKS = [
   { transform: 'translate(130 22) rotate(8) scale(0.85)', width: 2 },
 ];
 
-// A small bot for the error pages. The heading and the message carry the meaning, so the drawing
-// is decoration and stays hidden from assistive technology.
 @Component({
   selector: 'app-error-illustration',
   template: `

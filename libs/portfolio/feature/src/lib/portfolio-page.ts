@@ -32,7 +32,6 @@ function toAvailableLang(lang: string): AvailableLang {
       }
     }
 
-    /* While mostly invisible the sections lie over the lower hero, so they must not catch its clicks. */
     @keyframes sections-reveal {
       from {
         opacity: 0;
@@ -110,7 +109,6 @@ function toAvailableLang(lang: string): AvailableLang {
             animation-range: 0 60svh;
           }
 
-          /* Soft upper edge of the curtain */
           main > .sections::before {
             content: '';
             position: absolute;
@@ -170,7 +168,6 @@ export class PortfolioPage {
     for (let el: HTMLElement | null = section; el; el = el.offsetParent as HTMLElement | null) {
       top += el.offsetTop;
     }
-    // the band moves with the curtain, so the difference of the two boxes is a layout distance
     top += band.getBoundingClientRect().top - section.getBoundingClientRect().top;
     const stickyTop = Number.parseFloat(win.getComputedStyle(band).top) || 0;
     const reduceMotion = win.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
@@ -180,8 +177,6 @@ export class PortfolioPage {
 
   private initSeoTags(): void {
     const locale = OG_LOCALE[this.activeLang];
-    // the app initializer loads the active language before anything
-    // renders, so synchronous translate() is safe here
     const name = `${this.transloco.translate('common.firstName')} ${this.transloco.translate('common.lastName')}`;
     const title = `${name} - ${this.transloco.translate('common.role')}`;
     const description = this.transloco.translate<string>('portfolio.hero.description');
@@ -240,7 +235,6 @@ export class PortfolioPage {
 
   private cleanupSeoTags(): void {
     this.document.head.querySelectorAll(`link[${SEO_LINK_ATTR}]`).forEach(el => el.remove());
-    // name="description" stays: it pre-exists in index.html and is only updated
     const ogProperties = [
       'og:title',
       'og:description',

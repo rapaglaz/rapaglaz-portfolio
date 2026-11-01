@@ -59,7 +59,6 @@ export class TurnstileService {
   private static readonly SCRIPT_SRC = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
 
   private scriptLoad$: Observable<void> | null = null;
-  // CDK Dialog stays out of the initial bundle; it loads next to the Turnstile script
   private dialog: Dialog | null = null;
   private dialogLoad: Promise<void> | null = null;
 
@@ -68,7 +67,6 @@ export class TurnstileService {
       return throwError(() => new Error('Turnstile is only available in the browser'));
     }
 
-    // the widget renders only once both are ready, so an interactive challenge opens at once
     return forkJoin([this.loadScript(), defer(() => this.loadDialog())]).pipe(
       switchMap(() => this.renderWidget(siteKey, restoreFocus)),
     );

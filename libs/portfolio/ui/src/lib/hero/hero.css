@@ -47,7 +47,6 @@
   animation: fadeIn 0.5s ease-out 1.3s both;
   position: absolute;
   left: 50%;
-  /* middle of the ring: 8px ring offset plus half of the 4px ring */
   bottom: -0.625rem;
   translate: -50% 50%;
   white-space: nowrap;
@@ -96,7 +95,6 @@
   }
 }
 
-/* Anchored to the content and not to the screen edge, so it stays close to the text on tall screens. */
 .hero-content {
   position: relative;
 }
@@ -111,7 +109,6 @@
   justify-content: center;
   width: 2.75rem;
   height: 2.75rem;
-  /* 70% is the lightest mix with a 3:1 contrast on the light theme (WCAG 1.4.11); the dark theme has more. */
   color: color-mix(in srgb, var(--color-primary) 70%, transparent);
   transition: color 0.2s;
 
@@ -119,7 +116,6 @@
     color: var(--color-primary);
   }
 
-  /* Three quarters of the way from the text to the screen edge; the centered content is assumed to be about 40rem high. */
   @media (min-width: 768px) {
     top: calc(
       100% - 1rem + max(0px, (100svh - var(--navbar-height, 7rem) - 42rem) * 0.375 - 0.5625rem)
@@ -127,19 +123,16 @@
   }
 }
 
-/* Four pulses and then rest: endless motion would need a way to stop it (WCAG 2.2.2). */
 .hero-scroll-cue svg {
   animation:
     fadeIn 0.7s ease-out 2s both,
     scroll-cue-pulse 2.2s ease-in-out 2.7s 4;
 }
 
-/* Reached with Tab during the intro: show it at once, so the focus ring never surrounds an empty spot. */
 .hero-scroll-cue:focus-visible svg {
   animation: none;
 }
 
-/* The pulse only darkens, grows and glows, so the contrast never drops below the resting state. */
 @keyframes scroll-cue-pulse {
   50% {
     color: var(--color-primary);
@@ -155,7 +148,6 @@
   }
 }
 
-/* Hidden where the hero content fills the screen; the cut text already shows that the page goes on. */
 @media (max-width: 767px) and (max-height: 839px), (max-height: 789px) {
   .hero-scroll-cue {
     display: none;

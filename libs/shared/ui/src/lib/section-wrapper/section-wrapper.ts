@@ -7,7 +7,6 @@ import { ScrollRevealDirective } from '../scroll-reveal/scroll-reveal.directive'
   selector: 'app-section-wrapper',
   imports: [TranslocoModule, ScrollRevealDirective],
   styles: `
-    /* 20px is pt-5 of the band, 54px adds the 34px pill: the clip edge follows the navbar's lower edge. */
     @keyframes title-band-clip {
       from {
         clip-path: inset(20px 0 0 0);
@@ -32,7 +31,6 @@ import { ScrollRevealDirective } from '../scroll-reveal/scroll-reveal.directive'
           animation-range: exit 0% exit 100%;
         }
 
-        /* The inset moves the timeline edge to the lower edge of the navbar (below lg) or to where the title sticks. */
         .title-pill {
           view-timeline: --title-pill block;
           view-timeline-inset: var(--navbar-height, 7rem) 0;
@@ -64,7 +62,6 @@ import { ScrollRevealDirective } from '../scroll-reveal/scroll-reveal.directive'
         <div
           class="border-primary/20 flex flex-col gap-4 py-6 lg:grid lg:grid-cols-[14rem_1fr] lg:gap-12 lg:py-12"
           [class.lg:border-t]="divider()">
-          <!-- Flex on mobile, so that the sticky title is bound to the whole section and not to its own grid row. -->
           <div
             class="title-band bg-base-100/85 sticky top-(--navbar-height) z-10 -mx-4 -mb-6 mask-[linear-gradient(to_bottom,#000_60px,transparent)] px-4 pt-5 pb-11 backdrop-blur-md lg:top-[calc(var(--navbar-height,7rem)+1.5rem)] lg:mx-0 lg:mb-0 lg:self-start lg:bg-transparent lg:mask-none lg:p-0 lg:backdrop-blur-none">
             <h2
@@ -92,13 +89,10 @@ import { ScrollRevealDirective } from '../scroll-reveal/scroll-reveal.directive'
 export class SectionWrapper {
   readonly sectionId = input.required<string>();
   readonly titleKey = input.required<string>();
-  // false for a section whose entrance the page already animates, so the title is not faded in a second time
   readonly reveal = input(true);
-  // false for the first section, which has nothing above it to separate from
   readonly divider = input(true);
   readonly scrollReveal = createScrollRevealState();
 
-  // Runs only from a click, so it never executes during SSG; scroll-mt on the section keeps it below the navbar.
   protected scrollToStart(section: HTMLElement): void {
     const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
     section.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });

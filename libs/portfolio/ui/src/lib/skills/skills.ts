@@ -8,7 +8,6 @@ type SkillCategoryId =
 
 type Skill = {
   readonly id: string;
-  // Core stack: rendered as a filled, accent-tinted badge.
   readonly core?: boolean;
 };
 
@@ -17,16 +16,13 @@ export type SkillCategory = {
   readonly skills: readonly Skill[];
 };
 
-// Skills without production experience; shown in a separate, labelled group.
 const SECONDARY_CATEGORY: SkillCategoryId = 'familiar';
 
-// A single [class] binding carries the whole list, because a static class next to it trips lint.
 const BADGE_BASE_CLASS = 'animate-pill cursor-default rounded-lg border px-3 py-1.5 text-sm';
 
 type SkillBadge = {
   readonly id: string;
   readonly core: boolean;
-  // Position over all badges, so that the stagger delay runs through the groups.
   readonly index: number;
 };
 
@@ -47,7 +43,6 @@ const toGroups = (categories: readonly SkillCategory[], startIndex = 0): SkillGr
   }));
 };
 
-// section-wrapper translates titleKey; listed for i18n:check
 /** t(portfolio.skills.title) */
 @Component({
   selector: 'app-skills',

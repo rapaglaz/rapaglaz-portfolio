@@ -41,7 +41,6 @@ export class Languages {
 
   protected readonly sectionWrapper = viewChild.required(SectionWrapper);
 
-  // translateObjectSignal reads the whole object; the keys are listed for i18n:check
   /** t(
     portfolio.languages.items.german.name,
     portfolio.languages.items.german.level,

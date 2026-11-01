@@ -4,7 +4,6 @@ import { computed, inject, Injectable, Injector, PLATFORM_ID, Signal } from '@an
 import * as v from 'valibot';
 import { API_FEATURE_FLAG_URL } from '../api/api-urls.token';
 
-// The Worker answers { "<name>": true | false }; any other shape reads as false
 function readFlagValue(raw: unknown, flagName: string): boolean {
   const result = v.safeParse(v.object({ [flagName]: v.boolean() }), raw);
   return result.success && result.output[flagName];
@@ -16,12 +15,9 @@ function readFlagValue(raw: unknown, flagName: string): boolean {
 export class FeatureFlagService {
   private readonly flagUrl = inject(API_FEATURE_FLAG_URL);
   private readonly platformId = inject(PLATFORM_ID);
-  // Resources are cached beyond the calling component's lifetime, so they must
-  // be bound to the root injector instead of the caller's injection context.
   private readonly injector = inject(Injector);
   private readonly cache = new Map<string, HttpResourceRef<boolean>>();
 
-  // hasValue() guards value(), which throws while the resource is in the error state
   getFlagValue(name: string): Signal<boolean> {
     const resource = this.getFlag(name);
     return computed(() => resource.hasValue() && resource.value());

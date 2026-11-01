@@ -1,7 +1,5 @@
 import type { SkillCategory } from '@rapaglaz/portfolio/ui';
 
-// Templates build portfolio.skills.items.<id> and portfolio.skills.categoryTitles.<category id>.
-// transloco-keys-manager cannot see dynamic keys, so i18n:check reads them from this list.
 /** t(
   portfolio.skills.items.angular,
   portfolio.skills.items.typescript,
@@ -97,7 +95,6 @@ export const SKILL_CATEGORIES: readonly SkillCategory[] = [
     skills: [{ id: 'agile' }, { id: 'mentoring' }],
   },
   {
-    // Rendered separately with its own label: no production experience, so not mixed into core skills.
     id: 'familiar',
     skills: [{ id: 'react' }, { id: 'vue' }],
   },

@@ -1,5 +1,3 @@
-/* The heading of the hero name. The rules live in hero.css, where Angular scopes them to the hero,
-   so the page needs its own copy of them. */
 .error-title {
   font-family: 'Manrope', 'Inter', sans-serif;
   color: color-mix(in srgb, var(--color-base-content) 170%, var(--color-base-100));

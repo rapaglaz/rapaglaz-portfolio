@@ -2,8 +2,6 @@
   display: block;
 }
 
-/* A fixed teal instead of the grey-teal primary of the light theme. Both themes get the same thin
-   line; only the fill of the head and the ring follows the theme. */
 .illustration {
   --bot-line: #3a9aa6;
 
@@ -23,7 +21,6 @@
   stroke-width: 2.5;
 }
 
-/* the width of a question mark is set per mark and must not grow with its size */
 .mark {
   vector-effect: non-scaling-stroke;
 }
@@ -32,7 +29,6 @@
   fill: color-mix(in srgb, #86e3eb 22%, var(--color-base-100));
 }
 
-/* a tint on the near black page would only look grey */
 @media (prefers-color-scheme: dark) {
   .head {
     fill: var(--color-base-100);
