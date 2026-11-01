@@ -39,7 +39,6 @@ export function mockWindowScrollY(scrollY: number): () => void {
     if (originalDescriptor) {
       Object.defineProperty(window, 'scrollY', originalDescriptor);
     } else {
-      // scrollY was inherited, so dropping the own property brings the original back
       Reflect.deleteProperty(window, 'scrollY');
     }
   };

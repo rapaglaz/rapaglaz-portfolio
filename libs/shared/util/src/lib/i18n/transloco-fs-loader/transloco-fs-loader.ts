@@ -5,7 +5,6 @@ import { DEFAULT_LANG, isAvailableLang, type AvailableLang } from '../languages/
 import deTranslations from '../translations/de.json';
 import enTranslations from '../translations/en.json';
 
-// Server only: the dictionaries are bundled into the server build, the browser loads them over HTTP
 const TRANSLATIONS: Record<AvailableLang, Translation> = {
   en: enTranslations,
   de: deTranslations,

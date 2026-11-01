@@ -51,8 +51,6 @@ const ROBOTS_SELECTOR = 'name="robots"';
   `,
   styleUrl: './error-page.css',
 })
-// Shown instead of the portfolio page for an unknown URL or a failed navigation. The router tells
-// which one through the route data, so both share one layout and the navbar and footer stay.
 export class ErrorPage {
   protected readonly lang = injectActiveLang();
   private readonly route = inject(ActivatedRoute);
@@ -67,8 +65,6 @@ export class ErrorPage {
     const previousTitle = this.title.getTitle();
     const previousRobots = this.meta.getTag(ROBOTS_SELECTOR)?.content;
 
-    // the app initializer loads the active language before anything renders, so synchronous
-    // translate() is safe here
     const heading =
       this.kind === 'failed'
         ? this.transloco.translate('common.error.failed.title')
@@ -77,7 +73,6 @@ export class ErrorPage {
     this.title.setTitle(`${heading} | ${name}`);
     this.meta.updateTag({ name: 'robots', content: 'noindex' });
 
-    // the portfolio page comes back through the same router outlet, so it must not stay hidden
     inject(DestroyRef).onDestroy(() => {
       this.title.setTitle(previousTitle);
       if (previousRobots === undefined) {

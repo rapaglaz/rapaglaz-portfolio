@@ -45,7 +45,6 @@ const resolvePortfolioLocale: ResolveFn<AvailableLang> = route => {
   );
 };
 
-// A static import of the library, even of its type, would fail the Nx lazy-load lint rule
 const loadPortfolio = (): Promise<Type<unknown>> =>
   import('@rapaglaz/portfolio/feature').then(m => m.PortfolioPage);
 
@@ -62,9 +61,7 @@ export const routes: Routes = [
     loadComponent: loadPortfolio,
     resolve: { locale: resolvePortfolioLocale },
   })),
-  // the navigation error handler of shared-util lands here
   { path: ERROR_PATH, ...failedPage },
-  // the same page behind a language, so that /de/error is not an unknown route
   ...AVAILABLE_LANGS.map(lang => ({ path: `${lang}/${ERROR_PATH}`, ...failedPage })),
   {
     path: '**',

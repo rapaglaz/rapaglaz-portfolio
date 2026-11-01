@@ -41,7 +41,6 @@ app-badge {
   }
 }
 
-/* Fallback without scroll-driven animations; with reduced motion it switches at once. */
 .navbar-surface.navbar-scrolled {
   opacity: 1;
 }
@@ -76,7 +75,6 @@ app-badge {
 }
 
 @supports (animation-timeline: scroll()) {
-  /* An active animation overrides the fallback class, so the surface follows the scroll position. */
   .navbar-surface {
     animation: navbar-surface-in linear both;
     animation-timeline: scroll(root block);

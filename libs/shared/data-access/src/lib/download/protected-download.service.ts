@@ -7,7 +7,6 @@ import { TurnstileConfigService } from '../turnstile/turnstile-config.service';
 import { TURNSTILE_TOKEN } from '../turnstile/turnstile-context';
 import { TurnstileService } from '../turnstile/turnstile.service';
 
-// The cv-download Worker serves only files under this prefix of its R2 bucket
 const FILE_PREFIX = 'cv/';
 
 export function triggerBrowserDownload(document: Document, blob: Blob, filename: string): void {
@@ -27,7 +26,6 @@ export function triggerBrowserDownload(document: Document, blob: Blob, filename:
   }
 }
 
-// Downloads a file that the Worker hands out only with a valid Turnstile token
 @Injectable({ providedIn: 'root' })
 export class ProtectedDownloadService {
   private readonly http = inject(HttpClient);

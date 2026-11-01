@@ -17,7 +17,6 @@ export class ToastService {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly destroyRef = inject(DestroyRef);
   private readonly logger = inject(LoggerService);
-  // CDK overlay and portal load with the first toast, not with the initial bundle
   private overlay: Overlay | null = null;
   private portal: typeof ComponentPortal | null = null;
   private overlayLoad: Promise<void> | null = null;
@@ -31,8 +30,6 @@ export class ToastService {
     this.destroyRef.onDestroy(() => this.dismiss());
   }
 
-  // Resolves once the toast is rendered. Only the first toast waits for the overlay chunk.
-  // Toasts stay until dismissed.
   show(message: string, type: ToastType = 'info'): Promise<void> {
     if (!isPlatformBrowser(this.platformId)) return Promise.resolve();
 
@@ -40,7 +37,6 @@ export class ToastService {
       const activeElement = this.document.activeElement;
       this.previousActiveElement = activeElement instanceof HTMLElement ? activeElement : null;
     }
-    // the latest message wins if several arrive while the overlay is loading
     this.pending = { message, type };
 
     if (this.overlay) {
@@ -80,7 +76,6 @@ export class ToastService {
         this.portal = ComponentPortal;
       },
       (error: unknown) => {
-        // allow a later toast to retry, for example after a failed chunk request
         this.overlayLoad = null;
         throw error;
       },
@@ -110,7 +105,6 @@ export class ToastService {
     this.componentRef.setInput('data', { message: pending.message, type: pending.type });
   }
 
-  // Remembers where focus came from, so dismissing from inside the toast can return it there
   private trackFocusOrigin(element: HTMLElement): void {
     this.subscriptions.add(
       fromEvent<FocusEvent>(element, 'focusin').subscribe(event => {
