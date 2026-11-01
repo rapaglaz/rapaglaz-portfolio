@@ -133,17 +133,17 @@ describe('Navbar', () => {
     }
   });
 
-  it('hides the availability badge and updates alignment when the flag is disabled', () => {
+  it('hides the availability badge when the flag is disabled and keeps the actions in their column', () => {
+    const element = fixture.nativeElement as HTMLElement;
+    const container = element.querySelector('[data-testid="navbar-container"]');
+    const layout = container?.className;
+
     openToWork.set(false);
     fixture.detectChanges();
-    const element = fixture.nativeElement as HTMLElement;
 
     expect(element.querySelector('[data-testid="hero-badge"]')).toBeNull();
-    expect(
-      element
-        .querySelector('[data-testid="navbar-container"]')
-        ?.classList.contains('md:justify-end'),
-    ).toBe(true);
+    expect(container?.className).toBe(layout);
+    expect(container?.lastElementChild?.classList.contains('md:col-start-3')).toBe(true);
 
     openToWork.set(true);
     fixture.detectChanges();

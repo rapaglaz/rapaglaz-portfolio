@@ -2,6 +2,11 @@ nav {
   @apply animate-[fadeIn_0.7s_ease-out_0.6s_both];
 }
 
+/* Joins after the hero intro (its description ends at 2s), together with the scroll button. */
+app-badge {
+  @apply animate-[fadeIn_0.7s_ease-out_2s_both];
+}
+
 /*
  * The surface is a sibling of the nav and not a child: the entrance opacity of the nav would make
  * it the backdrop root, and the blur would see only the empty nav instead of the page.

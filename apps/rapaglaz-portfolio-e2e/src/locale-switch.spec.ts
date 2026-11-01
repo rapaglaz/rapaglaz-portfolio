@@ -180,13 +180,29 @@ test.describe('Locale Switch Journey', () => {
     await expect(badge).toHaveCount(0);
   });
 
-  test('shows navbar badge on desktop and hides hero badge', async ({ page }, testInfo) => {
+  test('shows navbar badge in the center on desktop and hides hero badge', async ({
+    page,
+  }, testInfo) => {
     test.skip(testInfo.project.name.includes('Mobile'), 'desktop-only check');
 
     await visitPortfolio(page);
+    const offsetFromCenter = (): Promise<number> =>
+      page.evaluate(() => {
+        const center = (testId: string): number => {
+          const box = document
+            .querySelector(`[data-testid="${testId}"]`)
+            ?.getBoundingClientRect() as DOMRect;
+          return box.left + box.width / 2;
+        };
+        return Math.abs(center('hero-badge') - center('navbar-container'));
+      });
 
     await expect(page.getByTestId('hero-badge')).toBeVisible();
     await expect(page.getByTestId('hero-badge-mobile')).toBeHidden();
+    await expect.poll(offsetFromCenter).toBeLessThan(1);
+    // the German text is longer, so the badge must stay centered with it too
+    await switchLanguage(page, 'DE');
+    await expect.poll(offsetFromCenter).toBeLessThan(1);
   });
 
   test('shows hero badge on mobile and hides navbar badge', async ({ page }, testInfo) => {
@@ -196,5 +212,13 @@ test.describe('Locale Switch Journey', () => {
 
     await expect(page.getByTestId('hero-badge-mobile')).toBeVisible();
     await expect(page.getByTestId('hero-badge')).toBeHidden();
+    // the badge sits on the avatar ring and the hero is compact on short phones, so the whole hero fits
+    await expect
+      .poll(() =>
+        page
+          .getByTestId('hero-description')
+          .evaluate(description => innerHeight - description.getBoundingClientRect().bottom),
+      )
+      .toBeGreaterThanOrEqual(0);
   });
 });

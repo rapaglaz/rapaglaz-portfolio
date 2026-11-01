@@ -131,6 +131,17 @@ test.describe('Motion preferences', () => {
       animationDuration: '1.1s',
       animationDelay: '0.9s',
     });
+    // the navbar badge joins only after the hero intro, the badge on the avatar after the avatar
+    expect(await readMotion(page.getByTestId('hero-badge'))).toMatchObject({
+      animationName: 'fadeIn',
+      animationDuration: '0.7s',
+      animationDelay: '2s',
+    });
+    expect(await readMotion(page.getByTestId('hero-badge-mobile'))).toMatchObject({
+      animationName: 'fadeIn',
+      animationDuration: '0.5s',
+      animationDelay: '1.3s',
+    });
     expect(
       await page.locator('html').evaluate(element => getComputedStyle(element).scrollBehavior),
     ).toBe('smooth');
