@@ -25,11 +25,6 @@ function toAvailableLang(lang: string): AvailableLang {
 @Component({
   selector: 'app-portfolio-page',
   imports: [Hero, About, Skills, Languages, Certifications, Contact],
-  // Scroll-driven transition from the hero to the sections; without support nothing changes.
-  // Below lg: crossfade. The sections are pulled up by half of the free space under the centered hero
-  // content (assumed 44rem high), but by 3rem at least.
-  // From lg: the hero stays pinned and the sections slide over it as an opaque curtain, so the first section
-  // is reached after a short scroll and no text is half transparent.
   styles: `
     @keyframes hero-fade {
       to {
@@ -52,10 +47,6 @@ function toAvailableLang(lang: string): AvailableLang {
       }
     }
 
-    /*
-     * First half: arrival at the navbar. Second half: the shift shrinks with the scroll, so the sections hold still.
-     * The start is one edge height lower, so after the load the soft edge does not cover the hero scroll button.
-     */
     @keyframes sections-slide-in {
       0% {
         transform: translateY(calc(60svh - var(--navbar-height, 7rem) + var(--curtain-edge, 8rem)));
@@ -171,9 +162,6 @@ export class PortfolioPage {
     this.destroyRef.onDestroy(() => this.cleanupSeoTags());
   }
 
-  // Runs only from a click, so never during SSG. scrollIntoView would aim at the shifted curtain, so the
-  // target comes from offsetTop, which ignores transforms: on large screens after the curtain hold.
-  // The About title lands where it sticks below the navbar and takes the focus, because the button fades out.
   protected scrollToFirstSection(): void {
     const win = this.document.defaultView;
     const section = this.document.getElementById('about');

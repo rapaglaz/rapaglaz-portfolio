@@ -248,7 +248,7 @@ test.describe('Motion preferences', () => {
         await page.locator('html').evaluate(element => getComputedStyle(element).scrollBehavior),
       ).toBe('auto');
       const animated = page.locator(
-        'nav, .hero-avatar, .hero-name, .hero-about, .animate-title, .animate-content, .animate-container, .animate-item, .animate-pill, .animate-cert',
+        'nav, .hero-avatar, .hero-name, .hero-about, .animate-title, .animate-container, .animate-item, .animate-pill, .animate-cert',
       );
       expect(await animated.count()).toBeGreaterThan(10);
       for (const element of await animated.all()) {

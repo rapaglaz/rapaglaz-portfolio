@@ -3,7 +3,7 @@ import { TranslocoModule } from '@jsverse/transloco';
 import { SectionWrapper } from '@rapaglaz/shared/ui';
 import { buildStaggerDelay, injectActiveLang } from '@rapaglaz/shared/util';
 
-export type CertificationId = 'angular-architecture' | 'angular-testing' | 'angular-spa-typescript';
+type CertificationId = 'angular-architecture' | 'angular-testing' | 'angular-spa-typescript';
 
 export type Certification = {
   readonly id: CertificationId;

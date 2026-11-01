@@ -121,15 +121,9 @@ body {
   color: var(--color-base-content);
 }
 
-/* smooth scrolling for anchor links */
 html {
   scroll-behavior: smooth;
 }
-
-/* ========================================
-   CORE ANIMATION KEYFRAMES
-   Used by .animate-* utility classes
-   ======================================== */
 
 @keyframes fadeIn {
   from {
@@ -184,7 +178,6 @@ html {
   }
 }
 
-/* respect user's motion preferences, accessibility first */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -195,14 +188,7 @@ html {
     scroll-behavior: auto !important;
   }
 
-  :is(
-    .animate-title,
-    .animate-content,
-    .animate-container,
-    .animate-item,
-    .animate-pill,
-    .animate-cert
-  ) {
+  :is(.animate-title, .animate-container, .animate-item, .animate-pill, .animate-cert) {
     opacity: 1 !important;
     transform: none !important;
   }
@@ -212,18 +198,9 @@ html {
   }
 }
 
-/* ========================================
-   REUSABLE COMPONENT UTILITIES
-   ======================================== */
-
-/* Card Ocean - Base card styling used across skills, languages, certifications, and contact sections */
 .card-ocean {
   @apply bg-base-100 dark:border-accent/30 border-primary/20 rounded-lg border;
 }
-
-/* ========================================
-   TEXT EFFECTS - OCEAN THEME
-   ======================================== */
 
 @utility text-shadow-primary {
   text-shadow: 0 1px 4px
@@ -242,9 +219,7 @@ html {
   text-rendering: optimizeLegibility;
 }
 
-/* Title animation (used in all section headers) */
 .animate-title,
-.animate-content,
 .animate-container {
   opacity: 0;
 }
@@ -253,12 +228,10 @@ html {
   animation: fadeInUp 0.5s ease-out forwards;
 }
 
-.animate-content.visible,
 .animate-container.visible {
   animation: fadeIn 0.5s ease-out 0.3s forwards;
 }
 
-/* Individual item animations */
 .animate-item {
   opacity: 0;
   transform: translateY(20px);
@@ -268,7 +241,6 @@ html {
   animation: fadeInUp 0.4s ease-out forwards;
 }
 
-/* Pill animation (for skill badges) */
 .animate-pill {
   opacity: 0;
   transform: scale(0.8);
@@ -278,7 +250,6 @@ html {
   animation: scaleIn 0.35s ease-out forwards;
 }
 
-/* Certificate animation */
 .animate-cert {
   opacity: 0;
   transition:
@@ -293,7 +264,6 @@ html {
 /* Keep focused content visible after focus leaves its entrance animation. */
 .reveal-on-focus:is(
   .animate-title,
-  .animate-content,
   .animate-container,
   .animate-item,
   .animate-pill,

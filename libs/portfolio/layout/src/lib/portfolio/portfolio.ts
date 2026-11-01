@@ -30,9 +30,6 @@ import { Navbar } from '../navbar/navbar';
     <app-footer />
   `,
 })
-// Glues the page together: the navbar and footer stay outside the router outlet, so a language
-// switch (a new route) recreates only the page. A route with hideNavbar in its data, like the error
-// pages, hides the navbar.
 export class Portfolio {
   private readonly document = inject(DOCUMENT);
   private readonly platformId = inject(PLATFORM_ID);
