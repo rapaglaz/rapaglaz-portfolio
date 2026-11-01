@@ -67,16 +67,21 @@ describe('PortfolioPage', () => {
     expect(languageCards?.length).toBeGreaterThan(0);
   });
 
-  it('scrolls to the layout position of the first section when the hero scroll cue is clicked', () => {
+  it('scrolls the first section title to its sticky position and focuses it when the hero scroll cue is clicked', () => {
     const about = element.querySelector<HTMLElement>('#about') as HTMLElement;
+    const band = about.querySelector<HTMLElement>('.title-band') as HTMLElement;
     Object.defineProperty(about, 'offsetTop', { value: 500 });
     Object.defineProperty(about, 'offsetParent', { value: null });
-    about.style.scrollMarginTop = '100px';
+    // the curtain shift (300px) is the same for both boxes, so only their distance of 64px counts
+    vi.spyOn(about, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 300, 100, 500));
+    vi.spyOn(band, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 364, 100, 40));
+    band.style.top = '24px';
     const scrollTo = vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
 
     element.querySelector<HTMLButtonElement>('[data-testid="hero-scroll-cue"]')?.click();
 
-    expect(scrollTo).toHaveBeenCalledWith({ top: 400, behavior: expect.any(String) });
+    expect(scrollTo).toHaveBeenCalledWith({ top: 540, behavior: expect.any(String) });
+    expect(document.activeElement).toBe(band.querySelector('h2 button'));
     scrollTo.mockRestore();
   });
 
