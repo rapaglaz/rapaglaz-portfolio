@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
+import { waitForEntranceAnimations } from './animations';
 import { mockInteractiveTurnstile, mockTurnstileAPI, tabKey, visitPortfolio } from './utils';
 
 test.describe('Toast accessibility', () => {
@@ -25,11 +26,7 @@ test.describe('Toast accessibility', () => {
       await expect(cvButton).toBeFocused();
       await page.clock.fastForward(60_000);
       await expect(toast).toBeVisible();
-      await toast.evaluate(async element => {
-        await Promise.all(
-          element.getAnimations({ subtree: true }).map(animation => animation.finished),
-        );
-      });
+      await waitForEntranceAnimations(toast);
 
       const results = await new AxeBuilder({ page })
         .include('[data-testid="toast"]')
@@ -81,11 +78,7 @@ test.describe('Toast accessibility', () => {
     const toast = page.getByTestId('toast');
     const close = toast.getByRole('button', { name: 'Benachrichtigung schließen' });
     await expect(close).toBeVisible();
-    await toast.evaluate(async element => {
-      await Promise.all(
-        element.getAnimations({ subtree: true }).map(animation => animation.finished),
-      );
-    });
+    await waitForEntranceAnimations(toast);
     const emptySpaceBlocksPage = await toast.evaluate(element => {
       const rect = element.getBoundingClientRect();
       return !!document

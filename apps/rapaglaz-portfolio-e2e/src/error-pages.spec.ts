@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
+import { waitForEntranceAnimations } from './animations';
 import { visitPortfolio } from './utils';
 
 // The static server of the SSG run answers an unknown address with its own 404 page, so the tests
@@ -14,13 +15,7 @@ async function navigateInApp(page: Page, path: string): Promise<void> {
 async function waitForErrorPage(page: Page): Promise<void> {
   const heading = page.getByTestId('error-heading');
   await heading.waitFor({ state: 'visible' });
-  // measure contrast after every entrance animation, also the one of the navbar badge, is done
-  await page.evaluate(async () => {
-    const finite = document
-      .getAnimations()
-      .filter(animation => animation.effect?.getComputedTiming().iterations !== Infinity);
-    await Promise.all(finite.map(animation => animation.finished));
-  });
+  await waitForEntranceAnimations(page.locator('body'));
 }
 
 test.describe('Error pages', () => {
