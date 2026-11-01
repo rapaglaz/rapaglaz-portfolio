@@ -1,7 +1,3 @@
-/**
- * Worker for secure CV download via Turnstile verification
- */
-
 // Bindings and variables of this Worker. wrangler.jsonc declares the bindings and the secret;
 // ALLOWED_ORIGINS and ALLOW_TEST_TOKEN are variables that are not set in production.
 export type Env = {
@@ -15,7 +11,6 @@ export type Env = {
 
 type TurnstileResult = { valid: boolean; outage: boolean };
 
-// --- Configuration ---
 const CONFIG = {
   ALLOWED_FILE_PREFIX: 'cv/',
   TURNSTILE_API_TIMEOUT_MS: 5000,
@@ -153,8 +148,6 @@ export default {
     }
   },
 };
-
-// --- Helper Functions ---
 
 function parseAllowedOrigins(originsString: string | undefined): string[] {
   if (!originsString) return CONFIG.DEFAULT_ALLOWED_ORIGINS;

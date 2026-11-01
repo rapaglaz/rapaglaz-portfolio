@@ -16,12 +16,6 @@ app-badge {
   transition-delay: 0s;
 }
 
-/*
- * The surface is a sibling of the nav and not a child: the entrance opacity of the nav would make
- * it the backdrop root, and the blur would see only the empty nav instead of the page.
- * Only its opacity changes during scrolling. The same z-index and the earlier DOM order keep it
- * under the nav content.
- */
 .navbar-surface {
   position: fixed;
   inset-inline: 0;
