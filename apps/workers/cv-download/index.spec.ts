@@ -3,7 +3,6 @@ import type { Env } from './index';
 
 const ORIGIN = 'https://rapaglaz.de';
 const FILE = 'cv/Radoslaw_Pawel_Glaz_CV-EN.pdf';
-// the token Cloudflare's always-passing test site key produces
 const TEST_TOKEN = 'XXXX.DUMMY.TOKEN.XXXX';
 
 type RequestOptions = { file?: string; method?: string; headers?: Record<string, string> };
@@ -21,8 +20,6 @@ function downloadRequest({
   });
 }
 
-// The R2 stand-in covers only the plain get that the Worker calls, and its object has only the
-// body that the Worker reads, not the full R2ObjectBody.
 function createEnv(overrides: Partial<Env> = {}): Env {
   const get = vi.fn(async (key: string) => (key === FILE ? { body: 'pdf-bytes' } : null));
   return {
@@ -32,7 +29,6 @@ function createEnv(overrides: Partial<Env> = {}): Env {
   };
 }
 
-// stand-in for the Workers Rate Limiting binding: allows `limit` calls, then rejects
 function createRateLimiter(limit: number): NonNullable<Env['DOWNLOAD_RATE_LIMITER']> {
   let calls = 0;
   return { limit: vi.fn(async () => ({ success: ++calls <= limit })) };
@@ -43,7 +39,6 @@ function mockSiteverify(success: boolean): MockInstance<typeof fetch> {
   return vi.spyOn(globalThis, 'fetch').mockImplementation(async () => Response.json({ success }));
 }
 
-// the JSON body of the first siteverify call
 function sentBody(siteverify: MockInstance<typeof fetch>): unknown {
   return JSON.parse(String(siteverify.mock.calls[0][1]?.body));
 }
@@ -283,7 +278,6 @@ describe('CV download worker', () => {
   });
 
   it('sends no CORS header to other origins on an internal error', async () => {
-    // an error before the origin check is the only way another origin reaches the catch block
     const env = createEnv();
     Object.defineProperty(env, 'ALLOWED_ORIGINS', {
       get() {
