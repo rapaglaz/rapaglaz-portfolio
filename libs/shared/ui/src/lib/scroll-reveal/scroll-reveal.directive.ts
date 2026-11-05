@@ -38,6 +38,7 @@ export class ScrollRevealDirective implements OnInit {
       },
       {
         root: null,
+        rootMargin: '0px 0px -10% 0px',
         threshold: 0.25,
       },
     );

@@ -16,6 +16,7 @@
   --rounded-btn: 0.5rem;
   --border-btn: 1px;
   --navbar-height: 5rem;
+  --ease-reveal: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 :root {
@@ -216,11 +217,11 @@ html {
 }
 
 .animate-title.visible {
-  animation: fadeInUp 0.5s ease-out forwards;
+  animation: fadeInUp 0.8s var(--ease-reveal) forwards;
 }
 
 .animate-container.visible {
-  animation: fadeIn 0.5s ease-out 0.3s forwards;
+  animation: fadeIn 0.6s ease-out 0.1s forwards;
 }
 
 .animate-item {
@@ -229,7 +230,7 @@ html {
 }
 
 .animate-item.visible {
-  animation: fadeInUp 0.4s ease-out forwards;
+  animation: fadeInUp 0.8s var(--ease-reveal) forwards;
 }
 
 .animate-pill {
@@ -238,7 +239,7 @@ html {
 }
 
 .animate-pill.visible {
-  animation: scaleIn 0.35s ease-out forwards;
+  animation: scaleIn 0.7s var(--ease-reveal) forwards;
 }
 
 .animate-cert {
@@ -249,7 +250,7 @@ html {
 }
 
 .animate-cert.visible {
-  animation: fadeInLeft 0.5s ease-out forwards;
+  animation: fadeInLeft 0.8s var(--ease-reveal) forwards;
 }
 
 .reveal-on-focus:is(

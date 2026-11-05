@@ -144,6 +144,11 @@
 @keyframes scroll-cue-out {
   to {
     opacity: 0;
+  }
+}
+
+@keyframes scroll-cue-hide {
+  to {
     visibility: hidden;
   }
 }
@@ -156,7 +161,9 @@
 
 @supports (animation-timeline: scroll()) {
   .hero-scroll-cue {
-    animation: scroll-cue-out linear both;
+    animation:
+      scroll-cue-out linear both,
+      scroll-cue-hide linear both;
     animation-timeline: scroll(root block);
     animation-range: 0 10svh;
   }
