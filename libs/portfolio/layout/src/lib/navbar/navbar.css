@@ -74,10 +74,60 @@ app-badge {
   transition-delay: 0.3s;
 }
 
+@keyframes navbar-badge-shift {
+  from {
+    translate: calc(50% - 50cqw) 0;
+  }
+  to {
+    translate: 0 0;
+  }
+}
+
+@keyframes navbar-name-in {
+  from {
+    opacity: 0;
+    visibility: hidden;
+    translate: 0 0.25rem;
+  }
+  to {
+    opacity: 1;
+    visibility: visible;
+    translate: 0 0;
+  }
+}
+
 @supports (animation-timeline: scroll()) {
   .navbar-surface {
     animation: navbar-surface-in linear both;
     animation-timeline: scroll(root block);
     animation-range: 0 6rem;
+  }
+
+  /* Scroll position drives the swap, so it follows the scrolling and never fires as a jump. The name
+     starts only after the badge has left its place. Without the support the class transitions above apply. */
+  @media (prefers-reduced-motion: no-preference) and (min-width: 768px) {
+    app-badge {
+      transition: none;
+      animation:
+        fadeIn 0.7s ease-out 2s both,
+        navbar-badge-shift cubic-bezier(0.4, 0, 0.2, 1) both;
+      animation-timeline: auto, scroll(root block);
+      animation-range:
+        normal,
+        20svh 55svh;
+    }
+
+    .navbar-name {
+      transition: none;
+      animation: navbar-name-in linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 38svh 58svh;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) and (min-width: 1024px) {
+    .navbar-surface {
+      animation-range: 35svh 55svh;
+    }
   }
 }

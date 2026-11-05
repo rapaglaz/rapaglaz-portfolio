@@ -32,6 +32,7 @@ describe('ScrollRevealDirective', () => {
   let component: TestHostComponent;
   let fixture: ComponentFixture<TestHostComponent>;
   let observerCallback: (entries: IntersectionObserverEntry[]) => void;
+  let observerOptions: IntersectionObserverInit | undefined;
   let observeSpy: any;
   let disconnectSpy: any;
 
@@ -40,8 +41,12 @@ describe('ScrollRevealDirective', () => {
     disconnectSpy = vi.fn();
 
     (globalThis as any).IntersectionObserver = class {
-      constructor(callback: (entries: IntersectionObserverEntry[]) => void) {
+      constructor(
+        callback: (entries: IntersectionObserverEntry[]) => void,
+        options?: IntersectionObserverInit,
+      ) {
         observerCallback = callback;
+        observerOptions = options;
       }
       observe = observeSpy;
       disconnect = disconnectSpy;
@@ -67,6 +72,10 @@ describe('ScrollRevealDirective', () => {
 
   it('initializes observer on init', () => {
     expect(observeSpy).toHaveBeenCalled();
+  });
+
+  it('waits until the section is above the bottom edge of the viewport', () => {
+    expect(observerOptions).toMatchObject({ rootMargin: '0px 0px -10% 0px', threshold: 0.25 });
   });
 
   it('emits true when element intersects', () => {

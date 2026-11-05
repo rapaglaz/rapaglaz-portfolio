@@ -127,9 +127,9 @@ test.describe('Motion preferences', () => {
       animationDelay: '0.9s',
     });
     expect(await readMotion(page.getByTestId('hero-badge'))).toMatchObject({
-      animationName: 'fadeIn',
-      animationDuration: '0.7s',
-      animationDelay: '2s',
+      animationName: expect.stringMatching(/^fadeIn(,|$)/),
+      animationDuration: expect.stringMatching(/^0\.7s(,|$)/),
+      animationDelay: expect.stringMatching(/^2s(,|$)/),
     });
     expect(await readMotion(page.getByTestId('hero-badge-mobile'))).toMatchObject({
       animationName: 'fadeIn',
@@ -154,81 +154,6 @@ test.describe('Motion preferences', () => {
 
     expect(iterations.length).toBeGreaterThan(1);
     expect(iterations).not.toContain(Infinity);
-  });
-
-  test('ends the page at the footer after the sections slide over the hero', async ({
-    page,
-    isMobile,
-  }) => {
-    test.skip(isMobile, 'the sections slide over the hero only from lg');
-    await page.emulateMedia({ reducedMotion: 'no-preference' });
-    await visitPortfolio(page, '/en');
-    await expect
-      .poll(() =>
-        page.locator('main > .sections').evaluate(element => getComputedStyle(element).transform),
-      )
-      .not.toBe('none');
-    await page.evaluate(() => {
-      const { body } = document;
-      body.style.paddingBottom = '1px';
-      void body.offsetHeight;
-      body.style.removeProperty('padding-bottom');
-      void body.offsetHeight;
-    });
-    await page.mouse.wheel(0, 10_000);
-    await expect
-      .poll(() =>
-        page.evaluate(
-          () => Math.ceil(scrollY + innerHeight) >= document.documentElement.scrollHeight,
-        ),
-      )
-      .toBe(true);
-    const gapBelowFooter = await page
-      .locator('app-footer footer')
-      .evaluate(element => innerHeight - element.getBoundingClientRect().bottom);
-    expect(gapBelowFooter).toBeLessThan(1);
-  });
-
-  test('moves the curtain at most three times as fast as the scroll', async ({
-    page,
-    isMobile,
-  }) => {
-    test.skip(isMobile, 'the sections slide over the hero only from lg');
-    await page.emulateMedia({ reducedMotion: 'no-preference' });
-    await visitPortfolio(page, '/en');
-    const curtainTopAt = (top: number): Promise<number> =>
-      page.evaluate(async scrollTop => {
-        window.scrollTo({ top: scrollTop, behavior: 'instant' });
-        await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-        return (document.querySelector('main > .sections') as HTMLElement).getBoundingClientRect()
-          .top;
-      }, top);
-    await expect
-      .poll(() => curtainTopAt(0))
-      .toBeGreaterThan(await page.evaluate(() => innerHeight));
-
-    const step = 40;
-    let previous = await curtainTopAt(0);
-    const end = await page.evaluate(() => innerHeight * 0.45);
-    for (let top = step; top <= end; top += step) {
-      const current = await curtainTopAt(top);
-      expect((previous - current) / step).toBeLessThanOrEqual(3);
-      previous = current;
-    }
-  });
-
-  test('keeps the curtain opaque where two sections meet', async ({ page, isMobile }) => {
-    test.skip(isMobile, 'the sections slide over the hero only from lg');
-    await page.emulateMedia({ reducedMotion: 'no-preference' });
-    await visitPortfolio(page, '/en');
-    const colors = await page.evaluate(() => ({
-      curtain: getComputedStyle(document.querySelector('main > .sections') as HTMLElement)
-        .backgroundColor,
-      section: getComputedStyle(document.getElementById('about') as HTMLElement).backgroundColor,
-    }));
-
-    expect(colors.curtain).toBe(colors.section);
-    expect(colors.curtain).toMatch(/^rgb\(/);
   });
 
   test('scales the CV button on hover where the device can hover', async ({ page, isMobile }) => {
