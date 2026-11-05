@@ -91,7 +91,8 @@ function toAvailableLang(lang: string): AvailableLang {
             position: sticky;
             top: 0;
             animation-name: hero-recede;
-            animation-range: 0 35svh;
+            animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1);
+            animation-range: 0 45svh;
           }
 
           /* Above the pinned hero. The background closes the seams where two sections meet at a fractional pixel. */

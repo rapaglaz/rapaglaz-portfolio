@@ -86,13 +86,20 @@ app-badge {
 @keyframes navbar-name-in {
   from {
     opacity: 0;
-    visibility: hidden;
     translate: 0 0.25rem;
   }
   to {
     opacity: 1;
-    visibility: visible;
     translate: 0 0;
+  }
+}
+
+@keyframes navbar-name-show {
+  from {
+    visibility: hidden;
+  }
+  to {
+    visibility: visible;
   }
 }
 
@@ -119,15 +126,19 @@ app-badge {
 
     .navbar-name {
       transition: none;
-      animation: navbar-name-in linear both;
+      /* visibility in a separate animation, because it would keep opacity and translate off the compositor. */
+      animation:
+        navbar-name-in cubic-bezier(0.25, 0.46, 0.45, 0.94) both,
+        navbar-name-show linear both;
       animation-timeline: scroll(root block);
-      animation-range: 38svh 58svh;
+      animation-range: 40svh 60svh;
     }
   }
 
   @media (prefers-reduced-motion: no-preference) and (min-width: 1024px) {
     .navbar-surface {
-      animation-range: 35svh 55svh;
+      animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1);
+      animation-range: 30svh 58svh;
     }
   }
 }
