@@ -92,8 +92,8 @@ The repository contains no secrets. They are in GitHub Secrets or in Cloudflare,
 that can only edit Workers. The deploy secrets are in the `production` environment, which only
 `main` can use, so PR workflows never get them.
 
-Renovate updates the dependencies. OSV vulnerability alerts are on, and patch updates merge
-automatically.
+Renovate updates the dependencies. OSV vulnerability alerts are on, and I merge the updates
+manually.
 
 ## Threat model
 
