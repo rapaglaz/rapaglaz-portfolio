@@ -44,7 +44,7 @@
     "@fontsource/manrope": "5.3.0",
     "@jsverse/transloco": "8.4.0",
     "rxjs": "7.8.2",
-    "tslib": "2.8.1",
+    "tslib": "2.9.1",
     "valibot": "1.5.0"
   },
   "devDependencies": {
@@ -61,7 +61,7 @@
     "@angular/compiler-cli": "22.2.4",
     "@angular/language-service": "22.2.4",
     "@axe-core/playwright": "4.14.0",
-    "@cloudflare/workers-types": "5.20261024.1",
+    "@cloudflare/workers-types": "5.20261103.1",
     "@commitlint/cli": "21.2.4",
     "@commitlint/config-conventional": "21.2.4",
     "@eslint/js": "10.0.1",
@@ -86,18 +86,18 @@
     "@tailwindcss/postcss": "4.3.3",
     "@types/node": "26.6.5",
     "@typescript-eslint/utils": "8.72.0",
-    "@vitest/coverage-v8": "5.0.5",
-    "@vitest/ui": "5.0.5",
+    "@vitest/coverage-v8": "5.1.0",
+    "@vitest/ui": "5.1.0",
     "angular-eslint": "22.6.0",
     "angular-typechecker": "0.2.4",
     "daisyui": "5.7.50",
     "dependency-cruiser": "18.7.0",
-    "eslint": "10.13.0",
+    "eslint": "10.14.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-playwright": "2.12.1",
     "jsdom": "30.1.3",
     "lefthook": "2.2.2",
-    "lighthouse": "13.5.0",
+    "lighthouse": "13.6.0",
     "lint-staged": "17.6.0",
     "nx": "24.0.3",
     "postcss": "8.5.31",
@@ -108,7 +108,7 @@
     "typescript": "6.0.3",
     "typescript-eslint": "8.72.0",
     "vite": "8.3.5",
-    "vitest": "5.0.5"
+    "vitest": "5.1.0"
   },
-  "packageManager": "pnpm@12.15.0"
+  "packageManager": "pnpm@12.17.0"
 }
