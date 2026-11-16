@@ -61,7 +61,7 @@
     "@angular/compiler-cli": "22.2.6",
     "@angular/language-service": "22.2.6",
     "@axe-core/playwright": "4.14.0",
-    "@cloudflare/workers-types": "5.20261106.1",
+    "@cloudflare/workers-types": "5.20261113.1",
     "@commitlint/cli": "21.2.4",
     "@commitlint/config-conventional": "21.2.4",
     "@eslint/js": "10.0.1",
@@ -90,7 +90,7 @@
     "@vitest/ui": "5.1.0",
     "angular-eslint": "22.6.0",
     "angular-typechecker": "0.2.4",
-    "daisyui": "5.7.50",
+    "daisyui": "5.8.0",
     "dependency-cruiser": "18.7.2",
     "eslint": "10.14.0",
     "eslint-config-prettier": "10.1.8",
@@ -101,7 +101,7 @@
     "lint-staged": "17.6.0",
     "nx": "24.0.6",
     "postcss": "8.5.32",
-    "prettier": "3.9.10",
+    "prettier": "3.10.1",
     "prettier-plugin-tailwindcss": "0.8.1",
     "serve": "14.2.7",
     "tailwindcss": "4.3.5",
@@ -110,5 +110,5 @@
     "vite": "8.3.8",
     "vitest": "5.1.0"
   },
-  "packageManager": "pnpm@12.18.0"
+  "packageManager": "pnpm@12.20.0"
 }
